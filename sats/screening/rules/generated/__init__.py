@@ -1,0 +1,1 @@
+"""Generated SATS screening rules."""

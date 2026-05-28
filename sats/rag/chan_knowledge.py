@@ -1,0 +1,288 @@
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+DEFAULT_RULES_DIR = Path(__file__).resolve().parents[2] / "knowledge" / "chan" / "rules"
+
+
+@dataclass(frozen=True, slots=True)
+class ChanRuleCard:
+    rule_id: str
+    label: str
+    side: str
+    level: str
+    definition: str
+    hard_conditions: tuple[str, ...]
+    risk_notes: tuple[str, ...]
+    source_pages: tuple[int, ...]
+    keywords: tuple[str, ...] = ()
+
+    def to_context(self) -> dict[str, Any]:
+        return {
+            "rule_id": self.rule_id,
+            "label": self.label,
+            "side": self.side,
+            "level": self.level,
+            "definition": self.definition,
+            "hard_conditions": list(self.hard_conditions),
+            "risk_notes": list(self.risk_notes),
+            "source_pages": list(self.source_pages),
+        }
+
+
+def load_rule_cards(rules_dir: Path | None = None) -> list[ChanRuleCard]:
+    root = rules_dir or DEFAULT_RULES_DIR
+    if not root.exists():
+        return []
+    cards = []
+    for path in sorted(root.glob("*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(payload, list):
+            cards.extend(_card_from_payload(item) for item in payload)
+        else:
+            cards.append(_card_from_payload(payload))
+    return cards
+
+
+def search_chan_knowledge(
+    query: str,
+    *,
+    rule_ids: list[str] | tuple[str, ...] | None = None,
+    limit: int = 6,
+    rules_dir: Path | None = None,
+) -> list[dict[str, Any]]:
+    cards = load_rule_cards(rules_dir)
+    if rule_ids:
+        wanted = {str(value) for value in rule_ids}
+        cards = [card for card in cards if card.rule_id in wanted]
+    terms = _terms(query)
+    scored: list[tuple[int, ChanRuleCard]] = []
+    for card in cards:
+        score = _score_card(card, terms, query)
+        if score > 0:
+            scored.append((score, card))
+    scored.sort(key=lambda item: (-item[0], item[1].rule_id))
+    return [
+        {
+            **card.to_context(),
+            "score": score,
+            "source": f"PDF pages {', '.join(str(page) for page in card.source_pages)}",
+        }
+        for score, card in scored[:limit]
+    ]
+
+
+def build_chan_rule_cards_from_pdf(
+    pdf_path: Path,
+    *,
+    output_dir: Path | None = None,
+) -> list[Path]:
+    try:
+        from pypdf import PdfReader
+    except ImportError as exc:  # pragma: no cover - dependency guard
+        raise RuntimeError("pypdf is required to build chan rule cards") from exc
+
+    reader = PdfReader(str(pdf_path))
+    root = output_dir or DEFAULT_RULES_DIR
+    root.mkdir(parents=True, exist_ok=True)
+    written = []
+    for payload in _seed_rule_payloads():
+        snippets = []
+        for page in payload["source_pages"]:
+            if 1 <= int(page) <= len(reader.pages):
+                text = re.sub(r"\s+", " ", reader.pages[int(page) - 1].extract_text() or "").strip()
+                snippets.append(text[:360])
+        payload = {**payload, "source_excerpt": snippets}
+        path = root / f"{payload['rule_id']}.json"
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        written.append(path)
+    return written
+
+
+def _card_from_payload(payload: dict[str, Any]) -> ChanRuleCard:
+    return ChanRuleCard(
+        rule_id=str(payload["rule_id"]),
+        label=str(payload["label"]),
+        side=str(payload["side"]),
+        level=str(payload.get("level", "")),
+        definition=str(payload.get("definition", "")),
+        hard_conditions=tuple(str(value) for value in payload.get("hard_conditions", [])),
+        risk_notes=tuple(str(value) for value in payload.get("risk_notes", [])),
+        source_pages=tuple(int(value) for value in payload.get("source_pages", [])),
+        keywords=tuple(str(value) for value in payload.get("keywords", [])),
+    )
+
+
+def _score_card(card: ChanRuleCard, terms: list[str], raw_query: str) -> int:
+    haystacks = [
+        card.rule_id,
+        card.label,
+        card.side,
+        card.level,
+        card.definition,
+        " ".join(card.hard_conditions),
+        " ".join(card.risk_notes),
+        " ".join(card.keywords),
+    ]
+    text = " ".join(haystacks).lower()
+    score = 0
+    raw = str(raw_query or "").lower()
+    if card.rule_id.lower() in raw:
+        score += 100
+    if card.label and card.label.lower() in raw:
+        score += 90
+    for keyword in card.keywords:
+        if keyword and keyword.lower() in raw:
+            score += 35
+    for term in terms:
+        if term and term in text:
+            score += 10 + min(len(term), 10)
+    return score
+
+
+def _terms(value: str) -> list[str]:
+    text = str(value or "").lower()
+    tokens = [token for token in re.split(r"[\s,，、;；:：/|]+", text) if len(token) >= 2]
+    chinese = re.findall(r"[\u4e00-\u9fff]{2,}", text)
+    return list(dict.fromkeys([*tokens, *chinese]))
+
+
+def _seed_rule_payloads() -> list[dict[str, Any]]:
+    return [
+        {
+            "rule_id": "chan_first_buy",
+            "label": "一买",
+            "side": "buy",
+            "level": "操作级别",
+            "definition": "下跌趋势末端的底背驰买点，常见结构为下跌+盘整+下跌。",
+            "hard_conditions": ["同级别存在两段下跌比较", "第二段创新低或近新低", "MACD绿柱面积或力度弱化"],
+            "risk_notes": ["背驰后不必然V反，可能先扩展为盘整", "需要次级别确认降低误判"],
+            "source_pages": [26, 27, 29, 263, 265],
+            "keywords": ["第一类买点", "底背驰", "下跌+盘整+下跌", "MACD"],
+        },
+        {
+            "rule_id": "chan_second_buy",
+            "label": "二买",
+            "side": "buy",
+            "level": "操作级别/次级别",
+            "definition": "一买后次级别上涨结束，第一次次级别回抽结束形成的再确认买点。",
+            "hard_conditions": ["已有一买低点", "一买后出现上行", "首次回抽不有效破坏前低或出现盘整背驰"],
+            "risk_notes": ["弱二买可跌破一买低点并演化为大级别盘整", "更稳妥可等二买或二三买合一"],
+            "source_pages": [26, 27, 37, 246, 265],
+            "keywords": ["第二类买点", "回抽确认", "一买", "次级别"],
+        },
+        {
+            "rule_id": "chan_third_buy",
+            "label": "三买",
+            "side": "buy",
+            "level": "操作级别/次级别",
+            "definition": "次级别走势向上离开中枢后，以次级别回试不跌回中枢上沿的买点。",
+            "hard_conditions": ["先形成中枢", "次级别向上离开", "次级别回试低点不跌破ZG"],
+            "risk_notes": ["三买后可能形成更大级别中枢", "标准三买要等次级别背驰或双次回拉确认"],
+            "source_pages": [43, 44, 45, 53, 260],
+            "keywords": ["第三类买点", "ZG", "回试", "中枢"],
+        },
+        {
+            "rule_id": "chan_first_sell",
+            "label": "一卖",
+            "side": "sell",
+            "level": "操作级别",
+            "definition": "上涨趋势末端的顶背驰卖点，是第一类买点的反向结构。",
+            "hard_conditions": ["同级别存在两段上涨比较", "第二段创新高或近新高", "MACD红柱面积或力度弱化"],
+            "risk_notes": ["宁愿卖早不要卖晚", "上涨初期的小级别背驰不一定制造大级别调整"],
+            "source_pages": [27, 30, 263, 264, 265],
+            "keywords": ["第一类卖点", "顶背驰", "红柱", "卖点"],
+        },
+        {
+            "rule_id": "chan_second_sell",
+            "label": "二卖",
+            "side": "sell",
+            "level": "操作级别/次级别",
+            "definition": "一卖后下跌，第一次次级别反抽结束形成的卖点。",
+            "hard_conditions": ["已有一卖高点", "一卖后出现下行", "首次反抽不有效突破前高并转弱"],
+            "risk_notes": ["反抽若重新走强，需要等待更清晰卖点", "弱势反抽中的巨量大阴线结构风险高"],
+            "source_pages": [130, 133, 134, 135],
+            "keywords": ["第二类卖点", "反抽", "一卖", "顶背驰"],
+        },
+        {
+            "rule_id": "chan_third_sell",
+            "label": "三卖",
+            "side": "sell",
+            "level": "操作级别/次级别",
+            "definition": "次级别走势向下离开中枢后，以次级别回抽不升回中枢下沿的卖点。",
+            "hard_conditions": ["先形成中枢", "次级别向下离开", "次级别回抽高点不升破ZD"],
+            "risk_notes": ["中枢内震荡不等于三卖", "三卖后不回补中枢震荡仓位"],
+            "source_pages": [43, 128, 130, 135, 137],
+            "keywords": ["第三类卖点", "ZD", "回抽", "中枢"],
+        },
+        {
+            "rule_id": "chan_second_third_overlap",
+            "label": "二三买重合",
+            "side": "buy",
+            "level": "操作级别/次级别",
+            "definition": "二买回抽确认同时构成原中枢的三买，是较强走势。",
+            "hard_conditions": ["二买回抽成立", "回抽不回中枢", "二买与三买位置重合或接近"],
+            "risk_notes": ["强势结构也要设置前低和中枢上沿失效位"],
+            "source_pages": [44, 246],
+            "keywords": ["二三买", "第二三类买点", "V型反转"],
+        },
+        {
+            "rule_id": "chan_center_oscillation_low",
+            "label": "中枢低吸",
+            "side": "buy",
+            "level": "操作级别中枢",
+            "definition": "中枢震荡仍成立时，在下沿附近下探失败并收回的买点。",
+            "hard_conditions": ["中枢未被三卖破坏", "下沿下探失败", "下探力度弱于前一次"],
+            "risk_notes": ["一旦出现三卖，不再按中枢震荡回补", "只做操作级别内的安全差价"],
+            "source_pages": [119, 120, 254, 260],
+            "keywords": ["中枢低吸", "中枢震荡", "下探失败", "盘整背驰"],
+        },
+        {
+            "rule_id": "chan_center_oscillation_high",
+            "label": "中枢高抛",
+            "side": "sell",
+            "level": "操作级别中枢",
+            "definition": "中枢震荡仍成立时，在上沿附近上攻失败并回落的卖点。",
+            "hard_conditions": ["中枢未被三买有效破坏", "上沿上攻失败", "上攻力度弱于前一次"],
+            "risk_notes": ["若形成有效三买，不应按中枢高抛处理"],
+            "source_pages": [119, 120, 134, 135],
+            "keywords": ["中枢高抛", "中枢震荡", "上攻失败", "盘整背驰"],
+        },
+        {
+            "rule_id": "chan_bottom_fractal_confirm",
+            "label": "底分型确认",
+            "side": "buy",
+            "level": "分型代理",
+            "definition": "底分型区间不被跌破，随后有效站回分型上沿，视为底部构造成功的粗略代理。",
+            "hard_conditions": ["形成底分型区间", "不跌破分型最低点", "有效站住分型区间上沿"],
+            "risk_notes": ["分型法比走势类型粗糙", "应结合级别和区间套定位"],
+            "source_pages": [254],
+            "keywords": ["底分型", "底部", "分型", "区间套"],
+        },
+        {
+            "rule_id": "chan_top_fractal_confirm",
+            "label": "顶分型确认",
+            "side": "sell",
+            "level": "分型代理",
+            "definition": "顶分型区间不被重新突破，随后有效跌回分型下沿，视为顶部构造成立的粗略代理。",
+            "hard_conditions": ["形成顶分型区间", "不重新突破分型最高点", "有效跌回分型区间下沿"],
+            "risk_notes": ["顶部反向适用底部分型原则", "大级别卖点优先于小级别噪声"],
+            "source_pages": [254],
+            "keywords": ["顶分型", "顶部", "分型", "卖点"],
+        },
+        {
+            "rule_id": "chan_interval_nesting",
+            "label": "区间套定位",
+            "side": "hold",
+            "level": "多级别定位",
+            "definition": "从大级别背驰段向低级别递归定位精确买卖点。",
+            "hard_conditions": ["先确认大级别处于背驰段", "逐级下降寻找次级别一买/一卖", "小级别信号服从大级别背景"],
+            "risk_notes": ["不要用太小级别信号对抗大级别走势", "A股T+1下过小级别操作意义有限"],
+            "source_pages": [67, 93, 254, 265],
+            "keywords": ["区间套", "级别", "精确定位", "背驰段"],
+        },
+    ]

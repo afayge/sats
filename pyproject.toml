@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sats"
+version = "0.1.0"
+description = "SATS A-share screening and trading assistant"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "duckdb>=1.1",
+    "python-dotenv>=1.0",
+    "langchain>=0.1.0",
+    "langchain-core>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pydantic>=2.0",
+    "tushare>=1.2.89",
+    "tickflow>=0.1.21",
+    "prompt_toolkit>=3.0",
+    "pypdf>=4.0",
+    "reportlab>=4.0",
+]
+
+[project.optional-dependencies]
+akshare = ["akshare>=1.16"]
+
+[project.scripts]
+sats = "sats.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sats*"]
+
+[tool.setuptools.package-data]
+"sats.storage" = ["schema.sql"]

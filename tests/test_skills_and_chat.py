@@ -1,0 +1,1209 @@
+from __future__ import annotations
+
+import io
+import tempfile
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from sats.chat import SYSTEM_PROMPT, ChatSession, _ChatSkillToolRegistry, build_chat_messages
+from sats.chat_planner import build_chat_plan
+from sats.chat_reference import ChatReferenceContext
+from sats.cli import main
+from sats.llm import LLMResponse, ToolCallRequest
+from sats.screening.rule_composer import GeneratedRuleResult
+from sats.skills import Skill, format_skill_list, load_skills, match_skills, parse_skill_file
+from sats.stock_question import StockQuestion
+
+
+class FakeLLM:
+    instances: list["FakeLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.args = args
+        self.kwargs = kwargs
+        self.messages = []
+        self.calls = []
+        FakeLLM.instances.append(self)
+
+    def chat(self, messages, tools=None):
+        self.messages = messages
+        self.calls.append({"messages": messages, "tools": tools})
+        return SimpleNamespace(content="收到")
+
+
+class TimeoutLLM:
+    instances: list["TimeoutLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        self.calls = []
+        TimeoutLLM.instances.append(self)
+
+    def chat(self, messages, tools=None):
+        self.calls.append({"messages": messages, "tools": tools})
+        raise TimeoutError("Request timed out.")
+
+
+class RecordingMemoryExtractor:
+    def __init__(self) -> None:
+        self.extract_llms = []
+        self.summary_llms = []
+
+    def extract(self, user_message: str, assistant_message: str, *, llm):
+        self.extract_llms.append(llm)
+        return []
+
+    def summarize(self, existing_summary: str, messages, *, llm):
+        self.summary_llms.append(llm)
+        return "摘要"
+
+
+class RecordingProgress:
+    def __init__(self) -> None:
+        self.records: list[dict] = []
+
+    def step(self, label: str, *, total=None):
+        record = {"label": label, "state": "running", "message": ""}
+        self.records.append(record)
+        return RecordingProgressStep(record)
+
+
+class RecordingProgressStep:
+    def __init__(self, record: dict) -> None:
+        self.record = record
+        self.done = False
+
+    def update(self, current=None, *, message: str = "") -> None:
+        if message:
+            self.record["message"] = message
+
+    def complete(self, *, message: str = "") -> None:
+        self.record["state"] = "ok"
+        self.record["message"] = message
+        self.done = True
+
+    def fail(self, *, message: str = "") -> None:
+        self.record["state"] = "error"
+        self.record["message"] = message
+        self.done = True
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if self.done:
+            return None
+        if exc_type is None:
+            self.complete()
+        else:
+            self.fail(message=str(exc) if exc else "")
+        return None
+
+
+def _fake_stock_payload() -> dict:
+    daily_tail = [
+        {
+            "trade_date": f"20260{1 + index // 30:02d}{1 + index % 28:02d}",
+            "open": 10 + index * 0.1,
+            "high": 10.2 + index * 0.1,
+            "low": 9.8 + index * 0.1,
+            "close": 10.1 + index * 0.1,
+            "vol": 1000 + index,
+            "amount": 2000 + index,
+            "pct_chg": 0.5,
+        }
+        for index in range(180)
+    ]
+    minute_rows = [
+        {
+            "trade_time": f"2026-05-27 10:{index % 60:02d}:00",
+            "open": 20.0,
+            "high": 20.5,
+            "low": 19.8,
+            "close": 20.1 + index * 0.01,
+            "vol": 100 + index,
+        }
+        for index in range(160)
+    ]
+    return {
+        "user_question": "预测600578明天走势",
+        "trade_date": "20260527",
+        "symbols": ["600578.SH"],
+        "data_policy": "real data",
+        "stocks": [
+            {
+                "ts_code": "600578.SH",
+                "name": "京能电力",
+                "trade_date": "20260527",
+                "price_context": {"close": 21.5, "pct_chg": 1.2, "data_source": "quote"},
+                "indicator_result": {
+                    "close": 21.5,
+                    "technical": {
+                        "ma": {"ma5": 21.0, "ma10": 20.7, "ma20": 20.2, "ma60": 19.5},
+                        "ma_alignment": "多头排列",
+                        "bias": {"ma5": 2.38, "ma10": 3.86, "ma20": 6.44},
+                        "macd": {"signal": "多头"},
+                        "rsi": {"rsi6": 58.0, "rsi12": 55.0, "rsi24": 52.0},
+                    },
+                    "patterns": {"latest": ["阳线"]},
+                    "volume": {"status": "放量上涨", "volume_ratio_5d": 1.6},
+                    "support_resistance": {"support": [20.8, 20.1], "resistance": [22.0, 22.6]},
+                    "moneyflow": {"main_net_amount": 1000},
+                    "fundamentals": {"pe": 18.5},
+                    "data_sources": {"daily": "tickflow"},
+                },
+                "daily_tail": daily_tail,
+                "minute_curves": {
+                    "15m": {"source": "tickflow", "rows": minute_rows},
+                    "30m": {"source": "tickflow", "rows": minute_rows[:120]},
+                },
+                "data_sources": {"daily": "tickflow", "quote": "tickflow"},
+                "missing_fields": [],
+            }
+        ],
+    }
+
+
+def _fake_market_payload() -> dict:
+    indices = []
+    for index, code in enumerate(("000001.SH", "399001.SZ", "399006.SZ", "399330.SZ", "000300.SH", "000905.SH", "000688.SH", "899050.BJ")):
+        indices.append(
+            {
+                "ts_code": code,
+                "name": f"指数{index}",
+                "trade_date": "20260527",
+                "latest": {"close": 3000 + index, "pct_chg": 0.2 + index * 0.1, "amount": 10000},
+                "technical": {"ma": {"ma5": 3000, "ma10": 2990, "ma20": 2980, "ma60": 2950}, "volume_status": "量能正常"},
+                "daily_tail": [
+                    {"trade_date": f"20260{1 + day // 30:02d}{1 + day % 28:02d}", "close": 2800 + day, "pct_chg": 0.1}
+                    for day in range(120)
+                ],
+                "missing_fields": [],
+            }
+        )
+    return {
+        "user_intent": "a_share_market_analysis",
+        "trade_date": "20260527",
+        "requested_indices": [item["ts_code"] for item in indices],
+        "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"],
+        "requested_horizons": ["tomorrow"],
+        "indices": indices,
+        "market_breadth": {"advancing_count": 3200, "declining_count": 1800, "median_pct_chg": 0.3},
+        "limit_sentiment": {"emotion_stage": "正常", "limit_up_count": 55, "limit_down_count": 5, "broken_limit_count": 18},
+        "hot_sector_context": {
+            "hot_industries": [{"name": "电力", "sector_type": "industry", "heat_score": 8.0, "latest_pct_chg": 1.2}],
+            "hot_concepts": [{"name": "AI算力", "sector_type": "concept", "heat_score": 15.0, "latest_pct_chg": 2.0}],
+            "stock_hot_sectors": {},
+            "missing_fields": [],
+            "data_sources": {"sector_basic": "fake", "sector_daily": "fake", "sector_members": "fake"},
+        },
+        "data_sources": {"index_daily": "tickflow", "hot_sector_context": "fake"},
+        "missing_fields": [],
+    }
+
+
+class SkillLoadingTest(unittest.TestCase):
+    def test_loads_skill_metadata_and_body(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            skill_dir = root / "skills" / "market"
+            skill_dir.mkdir(parents=True)
+            path = skill_dir / "SKILL.md"
+            path.write_text(
+                "# market-skill\n"
+                "description: 股票筛选助手\n"
+                "triggers: 股票, price_volume_ma\n"
+                "\n"
+                "只解释筛选规则。\n",
+                encoding="utf-8",
+            )
+
+            skill = parse_skill_file(path, skill_id="market")
+            skills = load_skills(root / "skills")
+
+        self.assertEqual(skill.id, "market")
+        self.assertEqual(skill.name, "market-skill")
+        self.assertEqual(skill.description, "股票筛选助手")
+        self.assertEqual(skill.triggers, ("股票", "price_volume_ma"))
+        self.assertEqual(skill.content, "只解释筛选规则。")
+        self.assertEqual([item.id for item in skills], ["market"])
+
+    def test_loads_yaml_front_matter_skill_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "SKILL.md"
+            path.write_text(
+                "---\n"
+                "name: tickflow\n"
+                "description: 使用 TickFlow 获取实时行情和 K 线数据\n"
+                "category: data-source\n"
+                "source: Vibe-Trading adapted for SATS\n"
+                "triggers: TickFlow, 实时行情, 分钟K\n"
+                "requires_tools: tickflow_provider, minute_k\n"
+                "metadata: {\"ignored\": true}\n"
+                "---\n"
+                "\n"
+                "# TickFlow Skill\n"
+                "正文。\n",
+                encoding="utf-8",
+            )
+
+            skill = parse_skill_file(path, skill_id="tickflow")
+
+        self.assertEqual(skill.id, "tickflow")
+        self.assertEqual(skill.name, "tickflow")
+        self.assertEqual(skill.description, "使用 TickFlow 获取实时行情和 K 线数据")
+        self.assertEqual(skill.category, "data-source")
+        self.assertEqual(skill.source, "Vibe-Trading adapted for SATS")
+        self.assertEqual(skill.triggers, ("TickFlow", "实时行情", "分钟K"))
+        self.assertEqual(skill.requires_tools, ("tickflow_provider", "minute_k"))
+        self.assertEqual(skill.content, "# TickFlow Skill\n正文。")
+
+    def test_loads_yaml_front_matter_skill_without_triggers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "SKILL.md"
+            path.write_text(
+                "---\n"
+                "name: tushare-data\n"
+                "description: 面向中文自然语言的 Tushare 数据研究技能\n"
+                "---\n"
+                "\n"
+                "正文。\n",
+                encoding="utf-8",
+            )
+
+            skill = parse_skill_file(path, skill_id="tushare-data")
+
+        self.assertEqual(skill.name, "tushare-data")
+        self.assertEqual(skill.description, "面向中文自然语言的 Tushare 数据研究技能")
+        self.assertEqual(skill.triggers, ())
+        self.assertEqual(skill.content, "正文。")
+
+    def test_matches_skills_by_trigger_and_limits_results(self) -> None:
+        skills = [
+            Skill("a", "a", "", ("股票",), "a", Path("a")),
+            Skill("b", "b", "", ("price_volume_ma",), "b", Path("b")),
+            Skill("c", "c", "", ("筛选",), "c", Path("c")),
+            Skill("d", "d", "", ("无关",), "d", Path("d")),
+        ]
+
+        matched = match_skills("帮我解释 price_volume_ma 股票筛选", skills, limit=3)
+
+        self.assertEqual([item.id for item in matched], ["b", "a", "c"])
+
+    def test_matches_tickflow_and_tushare_data_skills(self) -> None:
+        skills = load_skills(Path("skills"))
+
+        tushare_match = match_skills("帮我查 Tushare 财报趋势", skills)
+        tickflow_match = match_skills("用 TickFlow 看实时行情和分钟K", skills)
+        moneyflow_match = match_skills("最近资金流怎么样", skills)
+        micro_match = match_skills("用 TickFlow 看分钟K微观结构", skills)
+        financial_match = match_skills("分析财报、PE、ROE、ST风险", skills)
+        report_match = match_skills("生成研究报告", skills)
+        unrelated_match = match_skills("今天午饭吃什么", skills)
+
+        self.assertIn("tushare-data", [item.id for item in tushare_match])
+        self.assertIn("tickflow", [item.id for item in tickflow_match])
+        self.assertIn("tushare-data", [item.id for item in moneyflow_match])
+        self.assertEqual([item.id for item in micro_match], ["tickflow", "minute-analysis", "market-microstructure"])
+        self.assertEqual([item.id for item in financial_match], ["tushare-data", "ashare-pre-st-filter", "financial-statement"])
+        self.assertEqual([item.id for item in report_match], ["report-generate", "risk-analysis"])
+        self.assertEqual(unrelated_match, [])
+
+    def test_format_skill_list(self) -> None:
+        skills = [Skill("a", "alpha", "描述", ("股票", "筛选"), "body", Path("a"))]
+
+        self.assertEqual(format_skill_list([]), "无可用 skill")
+        self.assertIn("1. alpha - 描述 触发: 股票, 筛选", format_skill_list(skills))
+
+    def test_cli_skills_lists_yaml_front_matter_descriptions(self) -> None:
+        stdout = io.StringIO()
+
+        with redirect_stdout(stdout):
+            self.assertEqual(main(["skills"]), 0)
+
+        output = stdout.getvalue()
+        self.assertIn("tickflow - 使用 TickFlow Python SDK 获取", output)
+        self.assertIn("tushare-data - 面向中文自然语言的 Tushare 数据研究技能", output)
+        self.assertIn("[data-source]", output)
+        self.assertIn("workflow-templates", output)
+
+
+class ChatSessionTest(unittest.TestCase):
+    def test_chat_planner_routes_stock_market_discovery_and_general_questions(self) -> None:
+        skills = load_skills(Path("skills"))
+
+        stock_plan = build_chat_plan(
+            "000938 技术面分析，给出买入时机",
+            skills=skills,
+            stock_question=StockQuestion(symbols=["000938.SZ"], has_stock_question=True),
+        )
+        self.assertEqual(stock_plan.intent, "stock_analysis")
+        self.assertIn("stock_context", stock_plan.data_requirements)
+        self.assertIn("market_context", stock_plan.data_requirements)
+        self.assertIn("technical-basic", stock_plan.skills)
+
+        market_plan = build_chat_plan("今天A股大盘分析，明天走势预测", skills=skills)
+        self.assertEqual(market_plan.intent, "market_analysis")
+        self.assertIn("market_context", market_plan.data_requirements)
+
+        discovery_plan = build_chat_plan("给出几个未来几天可能上涨的股票", skills=skills)
+        self.assertEqual(discovery_plan.intent, "opportunity_discovery")
+        self.assertIn("opportunity_discovery", discovery_plan.internal_actions)
+        self.assertIn("sats-market-assistant", discovery_plan.skills)
+
+        rule_plan = build_chat_plan("新增一个低位放量突破筛选规则", skills=skills)
+        self.assertEqual(rule_plan.intent, "screening_rule_generation")
+        self.assertIn("sats-market-assistant", rule_plan.skills)
+        self.assertEqual(rule_plan.internal_actions, ())
+
+        general_plan = build_chat_plan("今天午饭吃什么", skills=skills)
+        self.assertEqual(general_plan.intent, "general_qa")
+        self.assertEqual(general_plan.data_requirements, ())
+        self.assertEqual(general_plan.internal_actions, ())
+
+    def test_chat_planner_uses_preprocess_hints(self) -> None:
+        skills = load_skills(Path("skills"))
+        preprocess = SimpleNamespace(
+            intent="stock_analysis",
+            symbols=("000938.SZ",),
+            needs_stock_context=True,
+            needs_market_context=True,
+            needs_opportunity_discovery=False,
+            needs_indicators=True,
+            skill_hints=("technical-basic",),
+        )
+
+        plan = build_chat_plan("分析紫光股份技术面", skills=skills, preprocess=preprocess)
+
+        self.assertEqual(plan.intent, "stock_analysis")
+        self.assertIn("stock_context", plan.data_requirements)
+        self.assertIn("market_context", plan.data_requirements)
+        self.assertIn("technical-basic", plan.skills)
+
+    def test_chat_session_injects_matched_skill_and_keeps_history(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        skills = [
+            Skill(
+                "market",
+                "market-skill",
+                "股票筛选助手",
+                ("股票",),
+                "解释筛选规则，不构成投资建议。",
+                Path("SKILL.md"),
+            )
+        ]
+        session = ChatSession(settings=settings, skills=skills, llm_factory=FakeLLM, memory_enabled=False)
+
+        result = session.ask("帮我解释股票筛选")
+
+        self.assertEqual(result.content, "收到")
+        self.assertEqual(result.skill_names, ("market-skill",))
+        self.assertEqual(FakeLLM.instances[0].kwargs["model_name"], "deepseek-v4-pro")
+        messages = FakeLLM.instances[0].messages
+        self.assertIn("SATS CLI 助手", messages[0]["content"])
+        self.assertIn("chat_plan", messages[1]["content"])
+        self.assertIn("market-skill", messages[2]["content"])
+        self.assertNotIn("解释筛选规则，不构成投资建议。", messages[2]["content"])
+        self.assertEqual(messages[-1], {"role": "user", "content": "帮我解释股票筛选"})
+        self.assertEqual(session.history[-2]["role"], "user")
+        self.assertEqual(session.history[-1]["role"], "assistant")
+
+    def test_chat_session_returns_clear_message_when_main_llm_times_out(self) -> None:
+        TimeoutLLM.instances = []
+        settings = SimpleNamespace(
+            project_root=Path("."),
+            openai_model="mimo-v2.5-pro",
+        )
+        session = ChatSession(settings=settings, skills=[], llm_factory=TimeoutLLM, memory_enabled=False)
+        with patch("sats.chat.build_market_llm_context", return_value=SimpleNamespace(system_message="market")):
+            result = session.ask("帮我总结今天的大盘")
+
+        self.assertIn("请求超时", result.content)
+        self.assertIn("切换更快的模型", result.content)
+        self.assertEqual(TimeoutLLM.instances[0].kwargs["model_name"], "mimo-v2.5-pro")
+
+    def test_chat_session_uses_light_model_for_memory_tasks(self) -> None:
+        FakeLLM.instances = []
+        extractor = RecordingMemoryExtractor()
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(
+                project_root=Path("."),
+                db_path=Path(tmp) / "sats.duckdb",
+                openai_model="main-model",
+                light_model_name="light-model",
+            )
+            session = ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=FakeLLM,
+                memory_enabled=True,
+                memory_extractor=extractor,
+                summary_threshold_messages=2,
+                summary_refresh_messages=1,
+            )
+
+            result = session.ask("帮我解释股票筛选")
+
+        self.assertEqual(result.content, "收到")
+        self.assertEqual(len(FakeLLM.instances), 2)
+        self.assertEqual(FakeLLM.instances[0].kwargs["model_name"], "main-model")
+        self.assertEqual(FakeLLM.instances[0].kwargs["profile"], "default")
+        self.assertEqual(FakeLLM.instances[1].kwargs["model_name"], "light-model")
+        self.assertEqual(FakeLLM.instances[1].kwargs["profile"], "light")
+        self.assertIs(extractor.extract_llms[0], FakeLLM.instances[1])
+        self.assertIs(extractor.summary_llms[0], FakeLLM.instances[1])
+
+    def test_chat_session_generates_screening_rule_plan_without_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+
+        result = session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_low_volume_breakout_chat")
+
+        self.assertIn("新筛选规则生成计划", result.content)
+        self.assertIn("nl_test_low_volume_breakout_chat", result.content)
+        self.assertIn("确认生成规则 nl_test_low_volume_breakout_chat", result.content)
+        self.assertEqual(result.data_names, ("规则计划",))
+        self.assertEqual(FakeLLM.instances, [])
+
+    def test_chat_session_confirms_pending_screening_rule_generation(self) -> None:
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_confirm_rule_chat")
+        generated = GeneratedRuleResult(
+            rule_name="nl_test_confirm_rule_chat",
+            class_name="NlTestConfirmRuleChatRule",
+            path=Path("sats/screening/rules/generated/nl_test_confirm_rule_chat.py"),
+        )
+
+        with patch("sats.chat.generate_rule_code", return_value=generated) as generator:
+            result = session.ask("确认生成规则 nl_test_confirm_rule_chat")
+
+        generator.assert_called_once()
+        self.assertIn("已生成筛选规则: nl_test_confirm_rule_chat", result.content)
+        self.assertIn("sats screen --rule nl_test_confirm_rule_chat", result.content)
+        self.assertEqual(result.data_names, ("生成规则",))
+
+    def test_chat_session_rejects_confirmation_without_pending_rule(self) -> None:
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+
+        result = session.ask("确认生成规则 nl_missing")
+
+        self.assertIn("当前没有待生成规则", result.content)
+
+    def test_chat_session_revises_rule_plan_questions(self) -> None:
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+
+        first = session.ask("新增筛选规则 rule_name: nl_test_news_volume 使用新闻舆情和放量")
+        self.assertIn("需要你确认", first.content)
+        self.assertIn("新闻/舆情", first.content)
+
+        second = session.ask("去掉新闻舆情条件")
+
+        self.assertIn("确认生成规则 nl_test_news_volume", second.content)
+        self.assertNotIn("暂不支持的数据需求", second.content)
+
+    def test_chat_session_can_inject_yaml_front_matter_skill(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, llm_factory=FakeLLM)
+
+        result = session.ask("用 TickFlow 看实时行情和分钟K")
+
+        self.assertIn("tickflow", result.skill_names)
+        self.assertIn("tickflow", FakeLLM.instances[0].messages[1]["content"])
+
+    def test_chat_session_injects_real_stock_context_before_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM)
+        question = StockQuestion(symbols=["002436.SZ"], trade_date=None, has_stock_question=True)
+
+        with (
+            patch(
+                "sats.chat.build_stock_llm_context",
+                return_value=SimpleNamespace(
+                    system_message='真实股票结构化数据 {"ts_code":"002436.SZ","minute_curves":{"15m":[],"30m":[]}}',
+                    question=question,
+                    trade_date="20260515",
+                ),
+            ) as builder,
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+            ) as market_builder,
+        ):
+            result = session.ask("分析002436")
+
+        self.assertEqual(result.content, "收到")
+        builder.assert_called_once()
+        market_builder.assert_called_once()
+        messages = FakeLLM.instances[0].messages
+        self.assertIn("SATS CLI 助手", messages[0]["content"])
+        self.assertIn("chat_plan", messages[1]["content"])
+        self.assertIn("真实股票结构化数据", messages[2]["content"])
+        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
+        self.assertEqual(messages[-1], {"role": "user", "content": "分析002436"})
+        self.assertEqual(result.data_names, ("个股", "大盘"))
+
+    def test_chat_session_uses_preprocessor_symbols_for_stock_name(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        question = StockQuestion(symbols=["000938.SZ"], trade_date=None, has_stock_question=True)
+        preprocess = SimpleNamespace(
+            intent="stock_analysis",
+            symbols=("000938.SZ",),
+            stock_names=("紫光股份",),
+            trade_date=None,
+            as_of_time=None,
+            reference_needed=False,
+            needs_stock_context=True,
+            needs_market_context=True,
+            needs_opportunity_discovery=False,
+            needs_indicators=True,
+            skill_hints=("technical-basic",),
+            confidence=0.9,
+            missing_questions=(),
+            system_message=lambda: "SATS chat_preprocess:\n- symbols: 000938.SZ",
+        )
+        stock_calls = []
+
+        def fake_stock_context(message, *, question, **kwargs):
+            stock_calls.append(question)
+            return SimpleNamespace(
+                system_message='真实股票结构化数据 {"ts_code":"000938.SZ"}',
+                question=question,
+                trade_date="20260520",
+            )
+
+        with (
+            patch("sats.chat.preprocess_chat_message", return_value=preprocess),
+            patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[]}'),
+            ),
+        ):
+            result = session.ask("分析紫光股份技术面")
+
+        self.assertEqual(stock_calls[0].symbols, ["000938.SZ"])
+        self.assertIn("个股", result.data_names)
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("chat_preprocess", payload)
+        self.assertIn("000938.SZ", payload)
+
+    def test_chat_session_uses_quote_context_without_full_stock_context_for_quote_question(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        preprocess = SimpleNamespace(
+            intent="stock_quote",
+            symbols=("000001.SZ",),
+            stock_names=(),
+            trade_date=None,
+            as_of_time=None,
+            reference_needed=True,
+            needs_stock_context=False,
+            needs_market_context=False,
+            needs_opportunity_discovery=False,
+            needs_indicators=False,
+            needs_realtime_quote_context=True,
+            market_indices=(),
+            market_dimensions=(),
+            market_horizons=(),
+            market_plan_source="",
+            skill_hints=("tickflow",),
+            confidence=0.9,
+            missing_questions=(),
+            source="local",
+            system_message=lambda: "SATS chat_preprocess:\n- quote=True",
+        )
+
+        with (
+            patch("sats.chat.preprocess_chat_message", return_value=preprocess),
+            patch(
+                "sats.chat.build_stock_quote_llm_context",
+                return_value=SimpleNamespace(system_message='真实实时报价 {"ts_code":"000001.SZ"}'),
+            ) as quote_builder,
+            patch("sats.chat.build_stock_llm_context") as stock_builder,
+            patch("sats.chat.build_market_llm_context") as market_builder,
+        ):
+            result = session.ask("查看上面股票实时报价")
+
+        quote_builder.assert_called_once()
+        stock_builder.assert_not_called()
+        market_builder.assert_not_called()
+        self.assertIn("实时报价", result.data_names)
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("真实实时报价", payload)
+
+    def test_chat_session_preprocessor_questions_stop_before_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        preprocess = SimpleNamespace(
+            intent="stock_analysis",
+            symbols=(),
+            stock_names=("银行",),
+            trade_date=None,
+            as_of_time=None,
+            reference_needed=False,
+            needs_stock_context=True,
+            needs_market_context=True,
+            needs_opportunity_discovery=False,
+            needs_indicators=True,
+            skill_hints=(),
+            confidence=0.5,
+            missing_questions=("股票名称“银行”匹配到多个结果，请指定 6 位代码。",),
+            system_message=lambda: "",
+        )
+
+        with patch("sats.chat.preprocess_chat_message", return_value=preprocess):
+            result = session.ask("分析银行技术面")
+
+        self.assertIn("需要先确认", result.content)
+        self.assertEqual(FakeLLM.instances, [])
+
+    def test_chat_session_injects_real_market_context_before_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM)
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+            ) as builder,
+        ):
+            result = session.ask("今天A股大盘分析，明天和下周走势预测")
+
+        self.assertEqual(result.content, "收到")
+        builder.assert_called_once()
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow", "next_week"))
+        messages = FakeLLM.instances[0].messages
+        self.assertIn("chat_plan", messages[1]["content"])
+        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
+        self.assertEqual(messages[-1], {"role": "user", "content": "今天A股大盘分析，明天和下周走势预测"})
+        self.assertEqual(result.data_names, ("大盘",))
+
+    def test_chat_session_injects_opportunity_discovery_context_before_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        skills = [
+            Skill(
+                "sats-market-assistant",
+                "sats-market-assistant",
+                "SATS 市场助手",
+                ("选股",),
+                "市场助手正文。",
+                Path("SKILL.md"),
+            )
+        ]
+        session = ChatSession(settings=settings, skills=skills, llm_factory=FakeLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch(
+                "sats.chat.run_opportunity_discovery",
+                return_value=SimpleNamespace(system_message='真实短线机会发现 {"ts_code":"000938.SZ"}'),
+            ) as discover,
+        ):
+            result = session.ask("给出几个股票，预计未来几天有上涨趋势的股票")
+
+        self.assertIn("sats-market-assistant", result.skill_names)
+        discover.assert_called_once()
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("真实短线机会发现", payload)
+        self.assertIn("000938.SZ", payload)
+
+    def test_build_chat_messages_without_skill(self) -> None:
+        messages = build_chat_messages("hello", history=[{"role": "assistant", "content": "old"}], skills=[])
+
+        self.assertEqual(messages[0]["role"], "system")
+        self.assertEqual(messages[1], {"role": "assistant", "content": "old"})
+        self.assertEqual(messages[2], {"role": "user", "content": "hello"})
+        self.assertIn("不得编造实时行情", SYSTEM_PROMPT)
+        self.assertIn("价格", SYSTEM_PROMPT)
+
+    def test_build_chat_messages_can_include_stock_context(self) -> None:
+        messages = build_chat_messages("分析002436", skills=[], stock_context="真实股票数据")
+
+        self.assertEqual(messages[1], {"role": "system", "content": "真实股票数据"})
+        self.assertEqual(messages[2], {"role": "user", "content": "分析002436"})
+
+    def test_build_chat_messages_can_include_market_context(self) -> None:
+        messages = build_chat_messages("分析大盘", skills=[], market_context="真实大盘数据")
+
+        self.assertEqual(messages[1], {"role": "system", "content": "真实大盘数据"})
+        self.assertEqual(messages[2], {"role": "user", "content": "分析大盘"})
+
+    def test_build_chat_messages_can_include_opportunity_context(self) -> None:
+        messages = build_chat_messages("选股", skills=[], opportunity_context="真实短线机会数据")
+
+        self.assertEqual(messages[1], {"role": "system", "content": "真实短线机会数据"})
+        self.assertEqual(messages[2], {"role": "user", "content": "选股"})
+
+    def test_build_chat_messages_can_include_chan_context(self) -> None:
+        messages = build_chat_messages("解释三买", skills=[], chan_context="缠论RAG证据")
+
+        self.assertEqual(messages[1], {"role": "system", "content": "缠论RAG证据"})
+        self.assertEqual(messages[2], {"role": "user", "content": "解释三买"})
+
+    def test_chat_session_injects_chan_skill_and_rag_for_chan_question(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=load_skills(Path("skills")), llm_factory=FakeLLM)
+
+        result = session.ask("解释三买和背驰")
+
+        self.assertIn("chan-theory", result.skill_names)
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("chan-theory", payload)
+        self.assertIn("rag_evidence", payload)
+        self.assertIn("chan_third_buy", payload)
+
+    def test_chat_session_inherits_last_stock_question_for_followup(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=load_skills(Path("skills")), llm_factory=FakeLLM)
+        stock_calls = []
+
+        def fake_stock_context(message, *, question, **kwargs):
+            stock_calls.append((message, question))
+            return SimpleNamespace(
+                system_message=f'真实股票结构化数据 {{"symbols":{question.symbols!r},"minute_curves":{{"15m":[],"30m":[]}}}}',
+                question=question,
+                trade_date=question.trade_date or "20260515",
+            )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+            ) as market_builder,
+        ):
+            session.ask("分析002436 2026-05-15")
+            result = session.ask("继续分析它的三买结构")
+
+        self.assertIn("chan-theory", result.skill_names)
+        self.assertEqual(stock_calls[1][0], "继续分析它的三买结构")
+        self.assertEqual(stock_calls[1][1].symbols, ["002436.SZ"])
+        self.assertEqual(stock_calls[1][1].trade_date, "20260515")
+        self.assertEqual(market_builder.call_count, 2)
+
+    def test_chat_session_followup_can_override_trade_date(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM)
+        stock_calls = []
+
+        def fake_stock_context(message, *, question, **kwargs):
+            stock_calls.append(question)
+            return SimpleNamespace(
+                system_message='真实股票结构化数据 {"minute_curves":{"15m":[],"30m":[]}}',
+                question=question,
+                trade_date=question.trade_date or "20260515",
+            )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+            ),
+        ):
+            session.ask("分析002436,600519 2026-05-15")
+            session.ask("继续分析它们 2026-05-18")
+
+        self.assertEqual(stock_calls[1].symbols, ["002436.SZ", "600519.SH"])
+        self.assertEqual(stock_calls[1].trade_date, "20260518")
+
+    def test_chat_session_followup_without_last_stock_asks_for_symbol(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=load_skills(Path("skills")), llm_factory=FakeLLM)
+
+        result = session.ask("继续分析它的三买结构")
+
+        self.assertIn("请先提供明确股票代码", result.content)
+        self.assertEqual(FakeLLM.instances, [])
+
+    def test_chat_session_uses_reference_context_symbols_for_stock_analysis(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        reference = ChatReferenceContext(
+            system_message="SATS 上一条 /results 筛选结果上下文:\nstructured_screening_results_json: []",
+            symbols=["000001.SZ", "600519.SH"],
+            trade_date="20260522",
+            source="/results",
+            data_name="筛选结果",
+        )
+        stock_calls = []
+
+        def fake_stock_context(message, *, question, **kwargs):
+            stock_calls.append(question)
+            return SimpleNamespace(
+                system_message='真实股票结构化数据 {"stocks":[]}',
+                question=question,
+                trade_date=question.trade_date,
+            )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[]}'),
+            ) as market_builder,
+        ):
+            result = session.ask("分析上面列表，选出最高评分的5支", reference_context=reference)
+
+        self.assertIn("筛选结果", result.data_names)
+        self.assertIn("个股", result.data_names)
+        self.assertIn("大盘", result.data_names)
+        self.assertEqual(stock_calls[0].symbols, ["000001.SZ", "600519.SH"])
+        self.assertEqual(stock_calls[0].trade_date, "20260522")
+        market_builder.assert_called_once()
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("上一条 /results 筛选结果上下文", payload)
+        self.assertIn("真实股票结构化数据", payload)
+
+    def test_chat_session_current_symbols_override_reference_context_symbols(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        reference = ChatReferenceContext(
+            system_message="SATS 上一条输出上下文",
+            symbols=["600519.SH"],
+            trade_date="20260522",
+        )
+        stock_calls = []
+
+        def fake_stock_context(message, *, question, **kwargs):
+            stock_calls.append(question)
+            return SimpleNamespace(
+                system_message='真实股票结构化数据 {"stocks":[]}',
+                question=question,
+                trade_date=question.trade_date or "20260522",
+            )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
+            patch(
+                "sats.chat.build_market_llm_context",
+                return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[]}'),
+            ),
+        ):
+            session.ask("分析000001，上面列表仅参考", reference_context=reference)
+
+        self.assertEqual(stock_calls[0].symbols, ["000001.SZ"])
+
+    def test_chat_session_can_load_skill_with_readonly_tool(self) -> None:
+        class ToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="load_skill",
+                                arguments={"name": "valuation-model"},
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已加载估值 skill")
+
+        skills = [
+            Skill(
+                "valuation-model",
+                "valuation-model",
+                "估值分析框架",
+                ("估值",),
+                "完整估值指引。",
+                Path("SKILL.md"),
+                category="analysis",
+                source="test",
+            )
+        ]
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=skills, llm_factory=ToolLLM)
+
+        result = session.ask("帮我做估值分析")
+
+        self.assertEqual(result.content, "已加载估值 skill")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertTrue(tool_messages)
+        self.assertIn("完整估值指引", tool_messages[0]["content"])
+        assistant_tool_messages = [
+            item for item in session._llm.messages if item.get("role") == "assistant" and item.get("tool_calls")
+        ]
+        self.assertTrue(assistant_tool_messages)
+        self.assertNotIn("reasoning_content", assistant_tool_messages[0])
+        self.assertNotIn("additional_kwargs", assistant_tool_messages[0])
+
+    def test_chat_session_can_fetch_market_context_with_readonly_tool(self) -> None:
+        class MarketToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="get_a_share_market_context",
+                                arguments={
+                                    "trade_date": "20260521",
+                                    "horizons": ["tomorrow", "day_after_tomorrow"],
+                                    "dimensions": ["core_indices", "limit_sentiment"],
+                                },
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取大盘上下文")
+
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=MarketToolLLM)
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch(
+                "sats.chat.get_a_share_market_context",
+                return_value={"trade_date": "20260521", "indices": [{"ts_code": "000001.SH"}]},
+            ) as market_context,
+        ):
+            result = session.ask("需要时获取大盘数据")
+
+        self.assertEqual(result.content, "已获取大盘上下文")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("get_a_share_market_context", tool_names)
+        market_context.assert_called_once()
+        self.assertEqual(market_context.call_args.kwargs["horizons"], ["tomorrow", "day_after_tomorrow"])
+        self.assertEqual(market_context.call_args.kwargs["dimensions"], ["core_indices", "limit_sentiment"])
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("000001.SH", tool_messages[0]["content"])
+
+    def test_chat_session_can_discover_opportunities_with_readonly_tool(self) -> None:
+        class DiscoveryToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="discover_a_share_opportunities",
+                                arguments={
+                                    "trade_date": "20260521",
+                                    "limit": 3,
+                                    "hot_sector": False,
+                                    "hot_sector_days": 3,
+                                },
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取短线机会")
+
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=DiscoveryToolLLM, memory_enabled=False)
+        fake_result = SimpleNamespace(
+            to_dict=lambda: {
+                "trade_date": "20260521",
+                "candidates": [{"ts_code": "000938.SZ", "name": "紫光股份"}],
+            }
+        )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch("sats.chat.run_opportunity_discovery", return_value=fake_result) as discover,
+        ):
+            result = session.ask("需要时调用机会发现工具")
+
+        self.assertEqual(result.content, "已获取短线机会")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("discover_a_share_opportunities", tool_names)
+        discover.assert_called_once()
+        self.assertFalse(discover.call_args.kwargs["hot_sector_enabled"])
+        self.assertEqual(discover.call_args.kwargs["hot_sector_days"], 3)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("000938.SZ", tool_messages[0]["content"])
+
+    def test_chat_session_can_fetch_stock_context_with_readonly_tool(self) -> None:
+        class StockToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="get_stock_research_context",
+                                arguments={"symbols": ["000938"], "trade_date": "20260521"},
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取个股上下文")
+
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=StockToolLLM, memory_enabled=False)
+        fake_context = SimpleNamespace(payload={"trade_date": "20260521", "stocks": [{"ts_code": "000938.SZ"}]})
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=fake_context) as stock_context,
+            patch("sats.chat.build_market_llm_context", return_value=None),
+        ):
+            result = session.ask("需要时获取个股研究上下文")
+
+        self.assertEqual(result.content, "已获取个股上下文")
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("get_stock_research_context", tool_names)
+        stock_context.assert_called_once()
+        question = stock_context.call_args.kwargs["question"]
+        self.assertEqual(question.symbols, ["000938.SZ"])
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("000938.SZ", tool_messages[0]["content"])
+
+    def test_internal_analysis_tool_rejects_unknown_kind(self) -> None:
+        class InternalToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="run_internal_analysis",
+                                arguments={"kind": "shell", "symbols": ["000938"]},
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="内部分析返回")
+
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=InternalToolLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+        ):
+            result = session.ask("需要时调用内部分析")
+
+        self.assertEqual(result.content, "内部分析返回")
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("run_internal_analysis", tool_names)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("unsupported internal analysis kind", tool_messages[0]["content"])
+
+    def test_chat_session_preserves_reasoning_content_for_tool_followup(self) -> None:
+        class ReasoningToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="load_skill",
+                                arguments={"name": "valuation-model"},
+                            )
+                        ],
+                        reasoning_content="thinking",
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已加载估值 skill")
+
+        skills = [
+            Skill(
+                "valuation-model",
+                "valuation-model",
+                "估值分析框架",
+                ("估值",),
+                "完整估值指引。",
+                Path("SKILL.md"),
+                category="analysis",
+                source="test",
+            )
+        ]
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=skills, llm_factory=ReasoningToolLLM)
+
+        result = session.ask("帮我做估值分析")
+
+        self.assertEqual(result.content, "已加载估值 skill")
+        assistant_tool_messages = [
+            item for item in session._llm.messages if item.get("role") == "assistant" and item.get("tool_calls")
+        ]
+        self.assertTrue(assistant_tool_messages)
+        self.assertEqual(assistant_tool_messages[0]["reasoning_content"], "thinking")
+        self.assertEqual(assistant_tool_messages[0]["additional_kwargs"], {"reasoning_content": "thinking"})
+
+
+if __name__ == "__main__":
+    unittest.main()
