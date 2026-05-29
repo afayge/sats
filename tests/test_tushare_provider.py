@@ -15,6 +15,8 @@ from tests.fixtures import (
     make_chan_daily,
     make_chan_minute_30m,
     make_daily_basic,
+    make_monthly_base_breakout,
+    make_monthly_base_breakout_daily,
     make_passing_daily,
     make_price_volume_daily,
     make_trade_dates,
@@ -632,6 +634,41 @@ class FakeFallbackTickFlowProvider(FakeChanTickFlowProvider):
         return frame
 
 
+class FakeMonthlyTickFlowProvider:
+    monthly_calls: list[dict] = []
+    daily_calls: list[dict] = []
+    monthly_empty = False
+
+    def __init__(self, settings) -> None:
+        self.settings = settings
+
+    def load_klines(self, symbols, *, period, start_time=None, end_time=None, count=None, adjust="none"):
+        type(self).monthly_calls.append(
+            {
+                "symbols": list(symbols),
+                "period": period,
+                "start_time": start_time,
+                "end_time": end_time,
+                "count": count,
+            }
+        )
+        if type(self).monthly_empty:
+            return pd.DataFrame()
+        return pd.concat(
+            [make_monthly_base_breakout(ts_code=symbol, end=str(end_time)) for symbol in symbols],
+            ignore_index=True,
+        )
+
+    def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+        type(self).daily_calls.append(
+            {"symbols": list(symbols), "start_date": start_date, "end_date": end_date}
+        )
+        return pd.concat(
+            [make_monthly_base_breakout_daily(ts_code=symbol, end=str(end_date)) for symbol in symbols],
+            ignore_index=True,
+        )
+
+
 class FakeStockBasicTimeoutPro(FakeBatchPro):
     def stock_basic(self, **kwargs):
         raise TimeoutError("stock_basic timeout")
@@ -1147,6 +1184,48 @@ class TushareDataProviderTest(unittest.TestCase):
             self.assertFalse(metadata["000010.SZ"]["current_logic_passed"])
             self.assertFalse(metadata["000010.SZ"]["selected"])
             self.assertEqual(provider.pro.pro_bar_calls, [])
+
+    def test_monthly_base_breakout_prefers_tickflow_1m_and_skips_daily_basic(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = object.__new__(TushareDataProvider)
+            provider.pro = FakeBatchPro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
+            provider._stock_basic_cache = {}
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            FakeMonthlyTickFlowProvider.monthly_calls = []
+            FakeMonthlyTickFlowProvider.daily_calls = []
+            FakeMonthlyTickFlowProvider.monthly_empty = False
+
+            with patch("sats.data.tushare_provider.TickFlowDataProvider", FakeMonthlyTickFlowProvider):
+                inputs = provider.load_all_screening_inputs("20260430", storage=storage, rule_name="monthly_base_breakout")
+
+            self.assertEqual(FakeMonthlyTickFlowProvider.monthly_calls[0]["period"], "1M")
+            self.assertEqual(FakeMonthlyTickFlowProvider.daily_calls, [])
+            self.assertEqual(provider.pro.daily_basic_calls, [])
+            self.assertEqual(inputs[0].metadata["monthly_1M_source"], "tickflow_1M")
+            self.assertGreaterEqual(len(inputs[0].metadata["monthly_1M"]), 60)
+            self.assertTrue(inputs[0].daily_basic.empty)
+
+    def test_monthly_base_breakout_falls_back_to_daily_aggregation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = object.__new__(TushareDataProvider)
+            provider.pro = FakeBatchPro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
+            provider._stock_basic_cache = {}
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            FakeMonthlyTickFlowProvider.monthly_calls = []
+            FakeMonthlyTickFlowProvider.daily_calls = []
+            FakeMonthlyTickFlowProvider.monthly_empty = True
+
+            with patch("sats.data.tushare_provider.TickFlowDataProvider", FakeMonthlyTickFlowProvider):
+                inputs = provider.load_all_screening_inputs("20260430", storage=storage, rule_name="monthly_base_breakout")
+
+            self.assertEqual(FakeMonthlyTickFlowProvider.monthly_calls[0]["period"], "1M")
+            self.assertEqual(len(FakeMonthlyTickFlowProvider.daily_calls), 1)
+            self.assertEqual(provider.pro.daily_basic_calls, [])
+            self.assertEqual(inputs[0].metadata["monthly_1M_source"], "daily_aggregation:tickflow_daily")
+            self.assertGreaterEqual(len(inputs[0].metadata["monthly_1M"]), 60)
+            FakeMonthlyTickFlowProvider.monthly_empty = False
 
     def test_chan_third_buy_fetches_30m_only_for_daily_candidates(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -214,12 +214,15 @@ sats> /skills
 Skills 按 `category` 分组显示，并支持 `source`、`requires_tools`、`triggers` front matter。现有核心 skill 包括 `sats-market-assistant`、`chan-theory`、`tickflow`、`tushare-data`，并已从 Vibe-Trading 改写引入一批 SATS 化研究 skill：
 
 - 数据源：`data-routing`、`akshare`；`tushare-data` 合并了 Vibe-Trading 的 Tushare 数据研究指引。
-- A 股核心：`ashare-pre-st-filter`、`fundamental-filter`、`financial-statement`、`valuation-model`、`regulatory-knowledge`。
+- A 股核心：`ashare-pre-st-filter`、`fundamental-filter`、`financial-statement`、`valuation-model`、`regulatory-knowledge`；`financial-statement` 也合并了 China-market 的财报质量、杜邦、Z/F/M 分数和红旗检查框架。
 - 技术分析：`candlestick`、`elliott-wave`、`technical-basic`、`volatility`、`market-microstructure`、`minute-analysis`。
-- 研究输出：`risk-analysis`、`report-generate`、`sector-rotation`、`sentiment-analysis`、`corporate-events`。
+- China-market 选股/估值：`quant-factor-screener`、`high-dividend-strategy`、`undervalued-stock-screener`、`small-cap-growth-identifier`、`tech-hype-vs-fundamentals`。
+- China-market ESG/组合/风控：`esg-screener`、`portfolio-health-check`、`risk-adjusted-return-optimizer`、`suitability-report-generator`。
+- China-market 事件/情绪：`event-driven-detector`、`insider-trading-analyzer`、`sentiment-reality-gap`。
+- 研究输出：`risk-analysis`、`report-generate`、`sector-rotation`、`sentiment-analysis`、`corporate-events`；`sector-rotation` 合并了 China-market 的宏观周期和行业轮动框架。
 - 工作流模板：`workflow-templates` 收纳 `equity_research_team`、`investment_committee`、`quant_strategy_desk`、`risk_committee`、`portfolio_review_board`、`sector_rotation_team`、`factor_research_committee`、`fundamental_research_team`、`technical_analysis_panel` 等 SATS 单助手研究流程。
 
-这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不代表 SATS 已经能自动拉取所有外部数据。若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
+这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不代表 SATS 已经能自动拉取所有外部数据。China-market 的 `findata-toolkit-cn` 可执行脚本没有迁入 SATS，也不会通过聊天或 REPL 暴露任意 shell 入口；其数据能力只映射为 SATS 已封装的数据边界说明，真实行情、财务、公告、资金流和 A 股大盘仍必须通过 `AStockDataProvider` 以及 `sats/data/` 下的 TickFlow/Tushare/AkShare 适配层取得。若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
 
 ## CLI 使用
 
@@ -466,6 +469,7 @@ sats> /dsa --from-screened --trade-date 20260518 --rule price_volume_ma --llm-ti
 python -m sats screen --trade-date 20260430
 python -m sats screen --trade-date 20260430 --rule price_volume_ma
 python -m sats screen --trade-date 20260430 --rule price-volume-ma
+python -m sats screen --trade-date 20260430 --rule monthly_base_breakout
 python -m sats screen --trade-date 20260430 --rule chan-third-buy
 python -m sats screen --trade-date 20260430 --rule chan-composite
 ```
@@ -542,7 +546,7 @@ python -m sats results --trade-date 20260430 --passed
 `results` 参数说明：
 
 - `--trade-date YYYYMMDD`：按交易日过滤结果，例如 `--trade-date 20260430`；不传则查询所有日期。
-- `--rule RULE_NAME`：按筛选规则过滤结果；可用规则包括 `ma_volume_relative_strength`、`price_volume_ma`、`chan_third_buy`、`chan_composite`、`chan_signals` 和 `signal_composite`，也支持 `ma-volume-relative-strength`、`price-volume-ma`、`chan-third-buy`、`chan-composite`、`chan-stock-select`、`chan-signals`、`chan-ai-select`、`signal-composite`、`abu-signals` 别名。
+- `--rule RULE_NAME`：按筛选规则过滤结果；可用规则包括 `ma_volume_relative_strength`、`price_volume_ma`、`monthly_base_breakout`、`chan_third_buy`、`chan_composite`、`chan_signals` 和 `signal_composite`，也支持 `ma-volume-relative-strength`、`price-volume-ma`、`monthly-base-breakout`、`chan-third-buy`、`chan-composite`、`chan-stock-select`、`chan-signals`、`chan-ai-select`、`signal-composite`、`abu-signals` 别名。
 - `--passed`：只显示通过筛选的股票；不传则显示查询条件下的全部股票。
 - `--db PATH`：指定 DuckDB 文件；不传则使用 `.env` 中的 `SATS_DB_PATH`。
 
@@ -772,6 +776,7 @@ chan_composite
 chan_signals
 chan_third_buy
 ma_volume_relative_strength
+monthly_base_breakout
 price_volume_ma
 signal_composite
 ```
@@ -798,6 +803,8 @@ signal_composite
 - 默认排除 ST/*ST 和北交所股票；不因 `688` 前缀排除
 
 该规则对齐 `/Users/elliotge/python/stock_vol/main.py` 默认非实时输出口径：结果为“当前逻辑 + 外部脚本口径”的并集。当前逻辑使用批量 `daily/daily_basic` 做前置过滤，要求最近 6 个交易日都有量能数据，再用 `pro_bar(adj="qfq", ma=[5,10,20,60])` 判断均线；外部脚本口径会对候选股逐只调用 `daily(ts_code,start_date,end_date)` 重新计算量比和均线。由于需要额外逐股请求，`price_volume_ma` 会比默认规则更慢。
+
+`monthly_base_breakout` 是月K箱体突破策略，别名 `monthly-base-breakout`。它识别长期月线箱体中的绿色颈线/箱体上沿和橙色波段回踩结构，并把通过结果标记为 `early_breakout` 或 `confirmed_run`。该规则优先使用 TickFlow `1M` 月K；月K不可用时尝试用长日线聚合。规则不依赖 `daily_basic`，也不默认排除 ST 或北交所股票。
 
 `chan_third_buy` 是缠论三买代理策略。它先用日线识别近 20 日箱体、近 10 日放量突破、突破后回抽不跌回箱体、不过度追高等条件，再只对日线预筛候选通过 TickFlow 拉取 `30m` 分钟 K，确认 30 分钟回抽不破箱体、最新收盘重新站上 MA5 且 MACD 柱改善。该规则需要 `TICKFLOW_API_KEY`；当日交易时段会合并历史 `30m` 窗口和当日实时 `30m`，实时 `30m` 优先使用 TickFlow 分钟 K 批量接口（30/min、100 标的/次）。若批量日内接口异常，SATS 会自动降级为单票实时分钟 K，请求速度受 60/min 限流约束；实时分钟 K 失败时停止筛选，不读取 DuckDB 缓存兜底。
 

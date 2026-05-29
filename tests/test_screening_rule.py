@@ -4,12 +4,15 @@ import importlib
 import sys
 import unittest
 
+import pandas as pd
+
 from sats.screening.base import ScreeningInput
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.rule_composer import compose_rule_generation_plan, default_generated_rules_dir, generate_rule_code
 from sats.screening.rules.ma_volume_relative_strength import MaVolumeRelativeStrengthRule
+from sats.screening.rules.monthly_base_breakout import MonthlyBaseBreakoutRule
 
-from tests.fixtures import make_benchmark, make_daily_basic, make_passing_daily
+from tests.fixtures import make_benchmark, make_daily_basic, make_monthly_base_breakout, make_passing_daily
 
 
 class MaVolumeRelativeStrengthRuleTest(unittest.TestCase):
@@ -100,6 +103,73 @@ class MaVolumeRelativeStrengthRuleTest(unittest.TestCase):
         self.assertFalse(result.passed)
         self.assertIn("daily_trade_date_current", result.failed_conditions)
         self.assertEqual(result.metrics["latest_daily_trade_date"], "20260513")
+
+
+class MonthlyBaseBreakoutRuleTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.rule = MonthlyBaseBreakoutRule()
+
+    def _input(self, monthly=None, **overrides) -> ScreeningInput:
+        payload = {
+            "ts_code": "000001.SZ",
+            "trade_date": "20260430",
+            "daily": make_passing_daily(),
+            "daily_basic": pd.DataFrame(),
+            "stock_basic": {"name": "测试股份"},
+            "metadata": {
+                "monthly_1M": monthly if monthly is not None else make_monthly_base_breakout(),
+                "monthly_1M_source": "test_monthly",
+            },
+        }
+        payload.update(overrides)
+        return ScreeningInput(**payload)
+
+    def test_passes_early_breakout(self) -> None:
+        result = self.rule.evaluate(self._input())
+
+        self.assertTrue(result.passed, result.failed_conditions)
+        self.assertEqual(result.rule_name, "monthly_base_breakout")
+        self.assertIn("early_breakout", result.metrics["matched_stages"])
+        self.assertIn("early_or_confirmed_stage", result.matched_conditions)
+
+    def test_passes_confirmed_run(self) -> None:
+        result = self.rule.evaluate(self._input(monthly=make_monthly_base_breakout(stage="confirmed_run")))
+
+        self.assertTrue(result.passed, result.failed_conditions)
+        self.assertIn("confirmed_run", result.metrics["matched_stages"])
+        self.assertGreaterEqual(result.metrics["latest_premium"], 0.35)
+
+    def test_rejects_without_neckline_touches(self) -> None:
+        result = self.rule.evaluate(self._input(monthly=make_monthly_base_breakout(no_neckline=True)))
+
+        self.assertFalse(result.passed)
+        self.assertIn("neckline_touches_gte_2", result.failed_conditions)
+
+    def test_rejects_without_deep_pullbacks(self) -> None:
+        result = self.rule.evaluate(self._input(monthly=make_monthly_base_breakout(shallow_pullbacks=True)))
+
+        self.assertFalse(result.passed)
+        self.assertIn("pullback_lows_gte_2", result.failed_conditions)
+
+    def test_rejects_short_monthly_window(self) -> None:
+        monthly = make_monthly_base_breakout().tail(40)
+        result = self.rule.evaluate(self._input(monthly=monthly))
+
+        self.assertFalse(result.passed)
+        self.assertIn("monthly_window_gte_60", result.failed_conditions)
+
+    def test_does_not_filter_st_or_bse_stocks(self) -> None:
+        result = self.rule.evaluate(
+            self._input(stock_basic={"name": "ST样本", "market": "北交所", "exchange": "BSE"})
+        )
+
+        self.assertTrue(result.passed, result.failed_conditions)
+
+    def test_registry_accepts_hyphen_alias(self) -> None:
+        rule = get_rule("monthly-base-breakout")
+
+        self.assertEqual(rule.name, "monthly_base_breakout")
+
 
 class GeneratedScreeningRuleTest(unittest.TestCase):
     def _input(self) -> ScreeningInput:

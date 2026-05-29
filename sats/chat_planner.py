@@ -119,6 +119,18 @@ def build_chat_plan(
         reasons.append("检测到财务/估值/资金流问题，需要优先使用 Tushare 相关上下文。")
         risk_level = "medium"
 
+    china_market_focus = _china_market_focus(skill_ids)
+    if china_market_focus:
+        if intent == "general_qa":
+            intent = "stock_research_framework"
+        if china_market_focus & _MARKET_CONTEXT_SKILLS:
+            requirements.append("market_context")
+            skill_ids.extend(["sats-market-assistant", "tickflow"])
+        if has_stock or (preprocess is not None and bool(getattr(preprocess, "symbols", ()))):
+            requirements.extend(["stock_context", "market_context"])
+        reasons.append("检测到 China-market 研究 skill 关键词，按 SATS 本地数据边界加载对应方法论。")
+        risk_level = "medium"
+
     if _is_command_help(text):
         intent = "command_help"
         skill_ids.append("sats-market-assistant")
@@ -211,6 +223,34 @@ def _is_financial_question(text: str) -> bool:
             "资产负债",
         )
     )
+
+
+_CHINA_MARKET_SKILLS = {
+    "quant-factor-screener",
+    "high-dividend-strategy",
+    "undervalued-stock-screener",
+    "small-cap-growth-identifier",
+    "esg-screener",
+    "portfolio-health-check",
+    "risk-adjusted-return-optimizer",
+    "suitability-report-generator",
+    "tech-hype-vs-fundamentals",
+    "insider-trading-analyzer",
+    "event-driven-detector",
+    "sentiment-reality-gap",
+    "sector-rotation",
+}
+
+_MARKET_CONTEXT_SKILLS = {
+    "quant-factor-screener",
+    "portfolio-health-check",
+    "risk-adjusted-return-optimizer",
+    "sector-rotation",
+}
+
+
+def _china_market_focus(skill_ids: Iterable[str]) -> set[str]:
+    return {str(skill_id) for skill_id in skill_ids if str(skill_id) in _CHINA_MARKET_SKILLS}
 
 
 def _is_command_help(text: str) -> bool:

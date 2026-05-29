@@ -37,6 +37,8 @@ DEFAULT_COLLECTIONS = {
         "paths": (
             "skills/sats-market-assistant/SKILL.md",
             "skills/workflow-templates/SKILL.md",
+            "skills/quant-factor-screener/SKILL.md",
+            "skills/small-cap-growth-identifier/SKILL.md",
             "sats/signals",
             "sats/screening/rules",
         ),
@@ -49,6 +51,9 @@ DEFAULT_COLLECTIONS = {
             "skills/sentiment-analysis/SKILL.md",
             "skills/market-microstructure/SKILL.md",
             "skills/sector-rotation/SKILL.md",
+            "skills/insider-trading-analyzer/SKILL.md",
+            "skills/event-driven-detector/SKILL.md",
+            "skills/sentiment-reality-gap/SKILL.md",
         ),
         "tags": ("sentiment", "A股情绪"),
     },
@@ -60,6 +65,7 @@ DEFAULT_COLLECTIONS = {
             "skills/data-routing/SKILL.md",
             "skills/tickflow/SKILL.md",
             "skills/tushare-data/SKILL.md",
+            "skills/sector-rotation/SKILL.md",
         ),
         "tags": ("market", "大盘"),
     },
@@ -71,6 +77,12 @@ DEFAULT_COLLECTIONS = {
             "skills/financial-statement/SKILL.md",
             "skills/valuation-model/SKILL.md",
             "skills/corporate-events/SKILL.md",
+            "skills/quant-factor-screener/SKILL.md",
+            "skills/high-dividend-strategy/SKILL.md",
+            "skills/undervalued-stock-screener/SKILL.md",
+            "skills/small-cap-growth-identifier/SKILL.md",
+            "skills/esg-screener/SKILL.md",
+            "skills/tech-hype-vs-fundamentals/SKILL.md",
         ),
         "tags": ("fundamental", "基本面"),
     },
@@ -81,6 +93,9 @@ DEFAULT_COLLECTIONS = {
             "skills/risk-analysis/SKILL.md",
             "skills/regulatory-knowledge/SKILL.md",
             "skills/ashare-pre-st-filter/SKILL.md",
+            "skills/portfolio-health-check/SKILL.md",
+            "skills/risk-adjusted-return-optimizer/SKILL.md",
+            "skills/suitability-report-generator/SKILL.md",
         ),
         "tags": ("risk", "风险"),
     },
@@ -357,14 +372,18 @@ class KnowledgeStore:
                 tags=item["tags"],
                 collection_name=item["name"],
             )
-            if self.count_chunks(kb.knowledge_id) > 0:
-                continue
+            chunk_count = self.count_chunks(kb.knowledge_id)
             if item["name"] == "stock-basic":
-                total += self.sync_stock_basic(settings=settings)
+                if chunk_count == 0:
+                    total += self.sync_stock_basic(settings=settings)
                 continue
             for relative in item["paths"]:
                 path = project_root / relative
                 if path.exists():
+                    if chunk_count > 0 and path.is_file() and self._linked_file_exists(kb.knowledge_id, path):
+                        continue
+                    if chunk_count > 0 and path.is_dir():
+                        continue
                     total += self.ingest_path(kb.knowledge_id, path, tags=item["tags"], project_root=project_root)
         return total
 
@@ -523,6 +542,21 @@ class KnowledgeStore:
                 [knowledge_id, file_id],
             )
 
+    def _linked_file_exists(self, knowledge_id: str, path: Path) -> bool:
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            row = con.execute(
+                """
+                SELECT 1
+                FROM knowledge_file_links kfl
+                JOIN knowledge_files kf ON kf.file_id = kfl.file_id
+                WHERE kfl.knowledge_id = ? AND kf.path = ?
+                LIMIT 1
+                """,
+                [knowledge_id, str(path.resolve())],
+            ).fetchone()
+        return row is not None
+
     def _replace_file_chunks(
         self,
         knowledge: KnowledgeBase,
@@ -594,11 +628,11 @@ def infer_stock_collections(message: str, *, explicit: Iterable[str] = ()) -> tu
         "stock-basic": ("股票名称", "股票代码", "代码", "名称", "简称"),
         "chan": ("缠论", "缠中说禅", "一买", "二买", "三买", "背驰", "中枢", "chan"),
         "technical": ("技术", "指标", "macd", "kdj", "rsi", "均线", "k线", "k 线", "量价", "放量"),
-        "signals": ("信号", "筛选", "选股", "机会", "上涨", "突破", "回撤", "形态"),
-        "sentiment": ("情绪", "热点", "涨停", "跌停", "板块", "题材", "资金流", "赚钱效应"),
-        "market": ("大盘", "指数", "市场", "宽度", "上证", "创业板", "沪深300", "北证"),
-        "fundamental": ("财报", "财务", "估值", "pe", "pb", "roe", "利润", "现金流", "基本面"),
-        "risk": ("风险", "止损", "监管", "退市", "st", "仓位", "风控"),
+        "signals": ("信号", "筛选", "选股", "机会", "上涨", "突破", "回撤", "形态", "多因子", "因子", "小盘成长"),
+        "sentiment": ("情绪", "热点", "涨停", "跌停", "板块", "题材", "资金流", "赚钱效应", "事件驱动", "董监高", "错杀"),
+        "market": ("大盘", "指数", "市场", "宽度", "上证", "创业板", "沪深300", "北证", "行业轮动", "经济周期"),
+        "fundamental": ("财报", "财务", "估值", "pe", "pb", "roe", "利润", "现金流", "基本面", "高股息", "低估值", "esg", "科技泡沫"),
+        "risk": ("风险", "止损", "监管", "退市", "st", "仓位", "风控", "组合诊断", "组合优化", "适当性"),
     }
     for name, needles in terms.items():
         if any(term in text for term in needles):

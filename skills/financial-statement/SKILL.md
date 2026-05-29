@@ -1,9 +1,9 @@
 ---
 name: financial-statement
-description: 财务报表解读 skill，覆盖利润表、资产负债表、现金流量表、ROE、负债率、营收利润趋势和财务质量。
+description: 财务报表解读 skill，覆盖利润表、资产负债表、现金流量表、ROE、杜邦分解、盈利质量、财务健康、营运资本和财务造假风险。
 category: analysis
-source: Vibe-Trading adapted for SATS
-triggers: 财报, 财务报表, 利润表, 资产负债表, 现金流量表, ROE, 营收, 利润, 负债率, 财务质量
+source: Vibe-Trading + finskills China-market adapted for SATS
+triggers: 财报, 财务报表, 利润表, 资产负债表, 现金流量表, ROE, 杜邦分析, 盈利质量, Z值, M值, 营收, 利润, 负债率, 财务质量
 requires_tools: tushare_provider
 ---
 
@@ -20,3 +20,15 @@ requires_tools: tushare_provider
 5. 风险：一次性收益、财务费用、减值、审计意见。
 
 若 SATS 没有取到对应字段，应明确列出缺失项。
+
+## 深度财务分析增强
+
+- 杜邦分解：净利率、资产周转率、权益乘数、税负和利息负担共同解释 ROE，避免只看 ROE 单点。
+- 盈利质量：应计比率、经营现金流/净利润、收现比、扣非利润、非经常性损益和收入确认风险。
+- 财务健康：可用 Altman Z 值、Piotroski F 值、Beneish M 值作为解释框架；缺少字段时只做定性说明。
+- 营运资本：现金转化周期、应收周转、存货周转、预收/合同负债变化。
+- A 股红灯：商誉和无形资产过高、有息负债结构恶化、关联交易、控股股东占款、审计意见异常、监管问询。
+
+## 深度报告结构
+
+公司概览、杜邦分解、盈利质量、财务健康、营运资本、资产负债表风险、同行比较、综合评估、重点跟踪指标和免责声明。

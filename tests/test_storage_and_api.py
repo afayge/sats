@@ -23,6 +23,7 @@ from tests.fixtures import (
     make_chan_daily,
     make_chan_minute_30m,
     make_daily_basic,
+    make_monthly_base_breakout,
     make_passing_daily,
     make_price_volume_daily,
 )
@@ -57,6 +58,15 @@ class FakeTushareProvider:
                 daily_basic=make_daily_basic(end=trade_date),
                 stock_basic={"name": "平安银行", "market": "主板", "exchange": "SZSE"},
                 metadata={"minute_30m": make_chan_minute_30m(end=trade_date), "minute_30m_source": "tickflow_history"},
+            )
+        if rule_name == "monthly_base_breakout":
+            return ScreeningInput(
+                ts_code=ts_code,
+                trade_date=trade_date,
+                daily=make_price_volume_daily(end=trade_date),
+                daily_basic=pd.DataFrame(),
+                stock_basic={"name": "平安银行", "market": "北交所", "exchange": "BSE"},
+                metadata={"monthly_1M": make_monthly_base_breakout(end=trade_date), "monthly_1M_source": "test_monthly"},
             )
         return ScreeningInput(
             ts_code=ts_code,
@@ -744,6 +754,34 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertTrue(rows[0]["metrics"]["matched_signal_labels"])
             self.assertTrue(stocks[0]["matched_labels"])
             self.assertIn("000001.SZ 平安银行", stdout.getvalue())
+
+    def test_cli_screen_accepts_monthly_base_breakout_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            stdout = io.StringIO()
+
+            with patch("sats.cli.AStockDataProvider", FakeTushareProvider), redirect_stdout(stdout):
+                exit_code = main(
+                    [
+                        "screen",
+                        "--trade-date",
+                        "20260430",
+                        "--rule",
+                        "monthly-base-breakout",
+                        "--db",
+                        str(db_path),
+                    ]
+                )
+
+            rows = DuckDBStorage(db_path).list_screening_results(
+                trade_date="20260430",
+                rule_name="monthly_base_breakout",
+                passed=True,
+            )
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(stdout.getvalue().strip(), "1. 000001.SZ 平安银行")
+            self.assertEqual(len(rows), 1)
+            self.assertIn("early_breakout", rows[0]["metrics"]["matched_stages"])
 
     def test_cli_analyze_chan_prints_llm_review_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -8,7 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from sats.chat import SYSTEM_PROMPT, ChatSession, _ChatSkillToolRegistry, build_chat_messages
+from sats.chat import SYSTEM_PROMPT, ChatSession, _ChatSkillToolRegistry, _collections_for_plan, build_chat_messages
 from sats.chat_planner import build_chat_plan
 from sats.chat_reference import ChatReferenceContext
 from sats.cli import main
@@ -312,6 +312,55 @@ class SkillLoadingTest(unittest.TestCase):
         self.assertEqual([item.id for item in report_match], ["report-generate", "risk-analysis"])
         self.assertEqual(unrelated_match, [])
 
+    def test_loads_china_market_skills_metadata(self) -> None:
+        skills = {skill.id: skill for skill in load_skills(Path("skills"))}
+        expected = {
+            "quant-factor-screener": "strategy",
+            "high-dividend-strategy": "strategy",
+            "undervalued-stock-screener": "strategy",
+            "small-cap-growth-identifier": "strategy",
+            "esg-screener": "analysis",
+            "portfolio-health-check": "risk-analysis",
+            "risk-adjusted-return-optimizer": "risk-analysis",
+            "suitability-report-generator": "tool",
+            "tech-hype-vs-fundamentals": "analysis",
+            "insider-trading-analyzer": "analysis",
+            "event-driven-detector": "flow",
+            "sentiment-reality-gap": "analysis",
+        }
+
+        for skill_id, category in expected.items():
+            with self.subTest(skill_id=skill_id):
+                skill = skills[skill_id]
+                self.assertEqual(skill.category, category)
+                self.assertIn("finskills China-market adapted for SATS", skill.source)
+                self.assertIn("Apache-2.0", skill.source)
+                self.assertTrue(skill.triggers)
+                self.assertTrue(skill.requires_tools)
+
+    def test_matches_china_market_skills(self) -> None:
+        skills = load_skills(Path("skills"))
+        cases = {
+            "多因子选股模型": "quant-factor-screener",
+            "高股息红利策略": "high-dividend-strategy",
+            "低估值价值投资": "undervalued-stock-screener",
+            "小盘成长专精特新": "small-cap-growth-identifier",
+            "ESG公司治理": "esg-screener",
+            "组合健康诊断压力测试": "portfolio-health-check",
+            "组合优化再平衡": "risk-adjusted-return-optimizer",
+            "适当性报告风险披露": "suitability-report-generator",
+            "董监高增持信号": "insider-trading-analyzer",
+            "事件驱动并购重组": "event-driven-detector",
+            "科技泡沫基本面": "tech-hype-vs-fundamentals",
+            "市场错杀情绪与基本面背离": "sentiment-reality-gap",
+            "行业轮动经济周期": "sector-rotation",
+        }
+
+        for query, expected in cases.items():
+            with self.subTest(query=query):
+                matched = [skill.id for skill in match_skills(query, skills)]
+                self.assertIn(expected, matched)
+
     def test_format_skill_list(self) -> None:
         skills = [Skill("a", "alpha", "描述", ("股票", "筛选"), "body", Path("a"))]
 
@@ -363,6 +412,48 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(general_plan.intent, "general_qa")
         self.assertEqual(general_plan.data_requirements, ())
         self.assertEqual(general_plan.internal_actions, ())
+
+    def test_chat_planner_routes_china_market_skills_to_rag_collections(self) -> None:
+        skills = load_skills(Path("skills"))
+        cases = {
+            "多因子选股模型": ("quant-factor-screener", ("signals", "fundamental")),
+            "高股息红利策略": ("high-dividend-strategy", ("fundamental",)),
+            "低估值价值投资": ("undervalued-stock-screener", ("fundamental",)),
+            "ESG公司治理": ("esg-screener", ("fundamental",)),
+            "组合健康诊断压力测试": ("portfolio-health-check", ("risk",)),
+            "组合优化再平衡": ("risk-adjusted-return-optimizer", ("risk",)),
+            "适当性报告风险披露": ("suitability-report-generator", ("risk",)),
+            "董监高增持信号": ("insider-trading-analyzer", ("sentiment",)),
+            "事件驱动并购重组": ("event-driven-detector", ("sentiment",)),
+            "科技泡沫基本面": ("tech-hype-vs-fundamentals", ("fundamental",)),
+            "市场错杀情绪与基本面背离": ("sentiment-reality-gap", ("sentiment",)),
+            "行业轮动经济周期": ("sector-rotation", ("market", "sentiment")),
+        }
+
+        for query, (expected_skill, expected_collections) in cases.items():
+            with self.subTest(query=query):
+                plan = build_chat_plan(query, skills=skills)
+                self.assertIn(expected_skill, plan.skills)
+                collections = _collections_for_plan(plan)
+                for collection in expected_collections:
+                    self.assertIn(collection, collections)
+
+        factor_plan = build_chat_plan("多因子选股模型", skills=skills)
+        self.assertEqual(factor_plan.intent, "stock_research_framework")
+        self.assertIn("market_context", factor_plan.data_requirements)
+
+    def test_chat_planner_keeps_real_data_requirements_for_china_market_stock_query(self) -> None:
+        skills = load_skills(Path("skills"))
+        plan = build_chat_plan(
+            "分析紫光股份董监高增持",
+            skills=skills,
+            stock_question=StockQuestion(symbols=["000938.SZ"], has_stock_question=True),
+        )
+
+        self.assertEqual(plan.intent, "stock_analysis")
+        self.assertIn("insider-trading-analyzer", plan.skills)
+        self.assertIn("stock_context", plan.data_requirements)
+        self.assertIn("market_context", plan.data_requirements)
 
     def test_chat_planner_uses_preprocess_hints(self) -> None:
         skills = load_skills(Path("skills"))

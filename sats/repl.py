@@ -90,6 +90,7 @@ HELP_EXAMPLES = [
     ("用缠论分析002436", "自然语言触发真实缠论分析"),
     ("分析002436 2026-05-15", "自然语言触发真实股票分析"),
     ("/screen --trade-date 20260514 --rule price_volume_ma", "全 A 股筛选"),
+    ("/screen --trade-date 20260514 --rule monthly_base_breakout", "月K箱体突破筛选"),
     ("/results --trade-date 20260514 --passed", "查询通过股票"),
     ("/quote --stocks 000001,600519", "查看实时价格"),
     ("/analyze --stocks 000938 --signals ma_kline,chan", "统一信号分析"),

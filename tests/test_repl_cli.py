@@ -147,6 +147,7 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("可用命令", text)
         self.assertIn("示例", text)
         self.assertIn("/screen", text)
+        self.assertIn("/screen --trade-date 20260514 --rule monthly_base_breakout", text)
         self.assertIn("/dsa", text)
         self.assertIn("全 A 股筛选", text)
         self.assertIn("/save", text)

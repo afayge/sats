@@ -80,6 +80,81 @@ def make_price_volume_daily(
     return pd.DataFrame(rows)
 
 
+def make_monthly_base_breakout(
+    *,
+    stage: str = "early_breakout",
+    end: str = "20260430",
+    ts_code: str = "000001.SZ",
+    no_neckline: bool = False,
+    shallow_pullbacks: bool = False,
+) -> pd.DataFrame:
+    end_dt = datetime.strptime(end, "%Y%m%d")
+    dates = pd.date_range(end=end_dt, periods=80, freq="ME").strftime("%Y%m%d").tolist()
+    breakout_index = 77 if stage == "early_breakout" else 64
+    peak_indices = {12, 28, 44, 60, 72}
+    low_indices = {20, 36, 52, 68}
+    rows = []
+    for index, trade_date in enumerate(dates):
+        if index < breakout_index:
+            if no_neckline:
+                close = 13.0 + min(index, 60) * 0.02
+            elif shallow_pullbacks:
+                close = 17.9 + (index % 5) * 0.08 + min(index, 60) * 0.002
+            else:
+                close = 13.0 + (index % 5) * 0.18 + min(index, 60) * 0.015
+            open_price = close - 0.08
+            high = close + (0.30 if shallow_pullbacks else 0.55)
+            low = max(17.6, close - 0.30) if shallow_pullbacks else close - 0.55
+            if not no_neckline and index in peak_indices:
+                close = 18.45 + (index % 3) * 0.08
+                open_price = close - 0.20
+                high = 20.0 + (index % 2) * 0.35
+                low = close - 0.75
+            if not no_neckline and index in low_indices:
+                close = 10.8 + (index % 3) * 0.2
+                open_price = close + 0.15
+                high = close + 0.65
+                low = 17.8 if shallow_pullbacks else 9.6 + (index % 2) * 0.25
+        elif stage == "early_breakout":
+            step = index - breakout_index
+            close = [20.9, 22.2, 24.0][min(step, 2)]
+            open_price = close - 0.5
+            high = close + 0.6
+            low = close - 1.0
+        else:
+            step = index - breakout_index
+            close = 20.9 + step * 0.85
+            open_price = close - 0.45
+            high = close + 0.65
+            low = close - 0.95
+        prev_close = rows[-1]["close"] if rows else close
+        rows.append(
+            {
+                "ts_code": ts_code,
+                "period": "1M",
+                "trade_date": trade_date,
+                "open": round(open_price, 4),
+                "high": round(high, 4),
+                "low": round(low, 4),
+                "close": round(close, 4),
+                "vol": 100000.0 + index * 100.0,
+                "amount": (100000.0 + index * 100.0) * close,
+                "pct_chg": (close / prev_close - 1.0) * 100 if rows else 0.0,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def make_monthly_base_breakout_daily(
+    *,
+    stage: str = "early_breakout",
+    end: str = "20260430",
+    ts_code: str = "000001.SZ",
+) -> pd.DataFrame:
+    monthly = make_monthly_base_breakout(stage=stage, end=end, ts_code=ts_code)
+    return monthly.drop(columns=["period"]).copy()
+
+
 def make_daily_basic(*, turnover_rate: float = 8.0, circ_mv: float = 1_200_000.0, end: str = "20260430") -> pd.DataFrame:
     dates = make_trade_dates(70, end=end)
     return pd.DataFrame(

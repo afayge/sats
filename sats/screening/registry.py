@@ -8,6 +8,7 @@ from sats.screening.rules.chan_composite import ChanCompositeRule
 from sats.screening.rules.chan_signals import ChanSignalsRule
 from sats.screening.rules.chan_third_buy import ChanThirdBuyRule
 from sats.screening.rules.ma_volume_relative_strength import MaVolumeRelativeStrengthRule
+from sats.screening.rules.monthly_base_breakout import MonthlyBaseBreakoutRule
 from sats.screening.rules.price_volume_ma import PriceVolumeMaRule
 from sats.screening.rules.signal_composite import SignalCompositeRule
 
@@ -16,6 +17,7 @@ _RULES: dict[str, type[ScreeningRule]] = {
     ChanSignalsRule.name: ChanSignalsRule,
     ChanThirdBuyRule.name: ChanThirdBuyRule,
     MaVolumeRelativeStrengthRule.name: MaVolumeRelativeStrengthRule,
+    MonthlyBaseBreakoutRule.name: MonthlyBaseBreakoutRule,
     PriceVolumeMaRule.name: PriceVolumeMaRule,
     SignalCompositeRule.name: SignalCompositeRule,
 }
@@ -27,6 +29,7 @@ _ALIASES = {
     "chan-stock-select": ChanCompositeRule.name,
     "chan-third-buy": ChanThirdBuyRule.name,
     "ma-volume-relative-strength": MaVolumeRelativeStrengthRule.name,
+    "monthly-base-breakout": MonthlyBaseBreakoutRule.name,
     "price-volume-ma": PriceVolumeMaRule.name,
     "signal-composite": SignalCompositeRule.name,
     "abu-signals": SignalCompositeRule.name,

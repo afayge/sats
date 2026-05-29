@@ -794,13 +794,17 @@ def _collections_for_plan(plan: Any) -> tuple[str, ...]:
         collections.append("chan")
     if "technical-basic" in skills or "stock_context" in requirements:
         collections.extend(["stock-basic", "technical"])
-    if "opportunity_discovery" in actions or "signals" in skills:
+    if "opportunity_discovery" in actions or "signals" in skills or {"quant-factor-screener", "small-cap-growth-identifier"} & skills:
         collections.append("signals")
     if "market_context" in requirements or "sats-market-assistant" in skills:
         collections.extend(["market", "sentiment"])
-    if {"financial-statement", "valuation-model", "fundamental-filter"} & skills:
+    if {"sector-rotation"} & skills:
+        collections.extend(["market", "sentiment"])
+    if {"financial-statement", "valuation-model", "fundamental-filter", "quant-factor-screener", "high-dividend-strategy", "undervalued-stock-screener", "small-cap-growth-identifier", "esg-screener", "tech-hype-vs-fundamentals"} & skills:
         collections.append("fundamental")
-    if "risk-analysis" in skills:
+    if {"event-driven-detector", "insider-trading-analyzer", "sentiment-reality-gap"} & skills:
+        collections.append("sentiment")
+    if {"risk-analysis", "portfolio-health-check", "risk-adjusted-return-optimizer", "suitability-report-generator"} & skills:
         collections.append("risk")
     return tuple(_dedupe(collections))
 

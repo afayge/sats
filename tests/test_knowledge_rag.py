@@ -88,6 +88,31 @@ class KnowledgeRagTest(unittest.TestCase):
         self.assertEqual(rows[0].collection_name, "stock-basic")
         self.assertIn("股票代码: 000938.SZ", rows[0].content)
 
+    def test_default_knowledge_ingests_china_market_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            store = KnowledgeStore(db_path)
+            settings = SimpleNamespace(project_root=Path.cwd(), db_path=db_path)
+
+            count = store.ensure_default_knowledge(settings=settings)
+            cases = {
+                ("factor 多因子", "signals"): "skills/quant-factor-screener/SKILL.md",
+                ("高股息", "fundamental"): "skills/high-dividend-strategy/SKILL.md",
+                ("ESG", "fundamental"): "skills/esg-screener/SKILL.md",
+                ("组合压力测试", "risk"): "skills/portfolio-health-check/SKILL.md",
+                ("董监高增持", "sentiment"): "skills/insider-trading-analyzer/SKILL.md",
+            }
+
+            results = {
+                expected_path: store.search(query, knowledge=knowledge, limit=5)
+                for (query, knowledge), expected_path in cases.items()
+            }
+
+        self.assertGreater(count, 0)
+        for expected_path, rows in results.items():
+            with self.subTest(expected_path=expected_path):
+                self.assertTrue(any(row.source_path == expected_path for row in rows))
+
 
 if __name__ == "__main__":
     unittest.main()
