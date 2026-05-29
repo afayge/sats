@@ -340,18 +340,6 @@ class TickFlowProviderTest(unittest.TestCase):
         self.assertTrue(any(abs(delay - 17.27) < 0.01 for delay in sleeps))
         self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
 
-    def test_minute_klines_can_be_cached_in_duckdb(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
-            provider = self._provider(FakeClient())
-
-            provider.load_realtime_minute_klines(["000001.SZ"], period="1m", storage=storage)
-            rows = storage.get_stock_minute(symbols=["000001.SZ"], period="1m", trade_date="20260514")
-
-            self.assertEqual(len(rows), 1)
-            self.assertEqual(rows.iloc[0]["ts_code"], "000001.SZ")
-            self.assertEqual(rows.iloc[0]["period"], "1m")
-
     def test_stock_basic_can_load_from_tickflow_universe_and_instruments(self) -> None:
         provider = self._provider(FakeClient())
 

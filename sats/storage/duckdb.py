@@ -112,23 +112,6 @@ class DuckDBStorage:
                 """
             ).fetchdf()
 
-    def upsert_stock_minute(self, frame: pd.DataFrame) -> int:
-        columns = [
-            "ts_code",
-            "period",
-            "trade_date",
-            "trade_time",
-            "open",
-            "high",
-            "low",
-            "close",
-            "vol",
-            "amount",
-            "data_source",
-        ]
-        data = _prepare_frame(frame, columns, required=["ts_code", "period", "trade_time"])
-        return self._upsert_frame("stock_minute", columns, data)
-
     def upsert_industry_daily(self, index_code: str, frame: pd.DataFrame) -> int:
         data = frame.copy()
         if data.empty:
@@ -379,105 +362,6 @@ class DuckDBStorage:
                 """,
                 codes,
             ).fetchdf()
-
-    def get_stock_minute(
-        self,
-        *,
-        symbols: list[str] | None = None,
-        period: str | None = None,
-        trade_date: str | None = None,
-        start_time: str | None = None,
-        end_time: str | None = None,
-    ) -> pd.DataFrame:
-        columns = [
-            "ts_code",
-            "period",
-            "trade_date",
-            "trade_time",
-            "open",
-            "high",
-            "low",
-            "close",
-            "vol",
-            "amount",
-            "data_source",
-        ]
-        self.initialize()
-        clauses: list[str] = []
-        params: list[object] = []
-        if symbols:
-            clean_symbols = [str(symbol).strip() for symbol in symbols if str(symbol).strip()]
-            if clean_symbols:
-                placeholders = ", ".join("?" for _ in clean_symbols)
-                clauses.append(f"ts_code IN ({placeholders})")
-                params.extend(clean_symbols)
-        if period:
-            clauses.append("period = ?")
-            params.append(period)
-        if trade_date:
-            clauses.append("trade_date = ?")
-            params.append(trade_date)
-        if start_time:
-            clauses.append("trade_time >= ?")
-            params.append(start_time)
-        if end_time:
-            clauses.append("trade_time <= ?")
-            params.append(end_time)
-        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        with self.connect() as con:
-            return con.execute(
-                f"""
-                SELECT {", ".join(columns)}
-                FROM stock_minute
-                {where}
-                ORDER BY ts_code ASC, trade_time ASC
-                """,
-                params,
-            ).fetchdf()
-
-    def delete_stock_minute(
-        self,
-        *,
-        trade_date: str | None = None,
-        start_date: str | None = None,
-        end_date: str | None = None,
-        period: str | None = None,
-        symbols: list[str] | None = None,
-    ) -> int:
-        if trade_date and (start_date or end_date):
-            raise ValueError("trade_date cannot be used with start_date/end_date")
-        if not trade_date and not start_date and not end_date:
-            raise ValueError("delete_stock_minute requires at least one date filter")
-
-        self.initialize()
-        clauses: list[str] = []
-        params: list[object] = []
-        if trade_date:
-            clauses.append("trade_date = ?")
-            params.append(str(trade_date))
-        else:
-            if start_date:
-                clauses.append("trade_date >= ?")
-                params.append(str(start_date))
-            if end_date:
-                clauses.append("trade_date <= ?")
-                params.append(str(end_date))
-        if period:
-            clauses.append("period = ?")
-            params.append(str(period))
-        if symbols:
-            clean_symbols = [str(symbol).strip() for symbol in symbols if str(symbol).strip()]
-            if clean_symbols:
-                placeholders = ", ".join("?" for _ in clean_symbols)
-                clauses.append(f"ts_code IN ({placeholders})")
-                params.extend(clean_symbols)
-
-        where = f"WHERE {' AND '.join(clauses)}"
-        with self.connect() as con:
-            count = int(con.execute(f"SELECT COUNT(*) FROM stock_minute {where}", params).fetchone()[0])
-            if count:
-                con.execute(f"DELETE FROM stock_minute {where}", params)
-        return count
 
     def upsert_monitor_position(
         self,

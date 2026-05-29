@@ -759,6 +759,33 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(messages[1], {"role": "system", "content": "缠论RAG证据"})
         self.assertEqual(messages[2], {"role": "user", "content": "解释三买"})
 
+    def test_build_chat_messages_can_include_research_context(self) -> None:
+        messages = build_chat_messages("解释三买", skills=[], research_context="股票知识库RAG证据")
+
+        self.assertEqual(messages[1], {"role": "system", "content": "股票知识库RAG证据"})
+        self.assertEqual(messages[2], {"role": "user", "content": "解释三买"})
+
+    def test_chat_session_injects_stock_research_rag(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=load_skills(Path("skills")), llm_factory=FakeLLM, memory_enabled=False)
+        fake_research = SimpleNamespace(
+            system_message="股票知识库RAG证据",
+            sources=({"type": "knowledge", "collection": "chan"},),
+        )
+
+        with (
+            patch("sats.chat.build_chan_chat_context", return_value=None),
+            patch("sats.chat.build_stock_research_context", return_value=fake_research) as research,
+        ):
+            result = session.ask("解释三买和背驰")
+
+        research.assert_called_once()
+        self.assertIn("知识库RAG", result.data_names)
+        self.assertEqual(result.sources, ({"type": "knowledge", "collection": "chan"},))
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("股票知识库RAG证据", payload)
+
     def test_chat_session_injects_chan_skill_and_rag_for_chan_question(self) -> None:
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")

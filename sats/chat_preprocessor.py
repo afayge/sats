@@ -22,6 +22,11 @@ from sats.chat_reference import ChatReferenceContext, is_reference_question
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.llm import ChatLLM, extract_json_object
+from sats.stock_basic_lookup import (
+    load_stock_basic_frame,
+    names_from_stock_basic,
+    resolve_stock_names,
+)
 from sats.stock_question import extract_intraday_time, extract_stock_symbols, extract_trade_date
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols
@@ -402,60 +407,22 @@ def _load_stock_basic(
     storage_factory: Callable[[Path], DuckDBStorage],
     provider_factory: Callable[[Settings], AStockDataProvider],
 ) -> pd.DataFrame:
-    db_path = getattr(settings, "db_path", None)
-    storage = None
-    if db_path is not None:
-        try:
-            storage = storage_factory(Path(db_path))
-            cached = storage.get_stock_basic()
-        except Exception:
-            cached = pd.DataFrame()
-        if not cached.empty:
-            return cached
-    try:
-        provider = provider_factory(settings)
-        frame = provider.load_stock_basic(storage=storage)
-    except Exception:
-        return pd.DataFrame()
-    return frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
+    return load_stock_basic_frame(
+        settings,
+        storage_factory=storage_factory,
+        provider_factory=provider_factory,
+    )
 
 
 def _resolve_stock_names(names: Iterable[str], stock_basic: pd.DataFrame) -> tuple[list[str], list[str]]:
-    if stock_basic.empty or "name" not in stock_basic.columns or "ts_code" not in stock_basic.columns:
-        return [], [f"未能识别股票名称“{name}”，请补充 6 位股票代码。" for name in names]
-    symbols: list[str] = []
-    questions: list[str] = []
-    data = stock_basic.copy()
-    data["name"] = data["name"].fillna("").astype(str)
-    data["ts_code"] = data["ts_code"].fillna("").astype(str)
-    for name in names:
-        matched = _match_stock_name(name, data)
-        if len(matched) == 1:
-            symbols.append(str(matched.iloc[0]["ts_code"]))
-        elif len(matched) > 1:
-            options = [
-                f"{row['name']}({row['ts_code']})"
-                for _, row in matched.head(6).iterrows()
-                if str(row.get("ts_code") or "")
-            ]
-            questions.append(f"股票名称“{name}”匹配到多个结果：{', '.join(options)}。请指定 6 位代码。")
-        else:
-            questions.append(f"未能识别股票名称“{name}”，请补充 6 位股票代码。")
-    return normalize_symbols(symbols, required=False), questions
+    resolution = resolve_stock_names(names, stock_basic)
+    return list(resolution.symbols), list(resolution.questions)
 
 
 def _match_stock_name(name: str, stock_basic: pd.DataFrame) -> pd.DataFrame:
-    value = str(name or "").strip()
-    if not value:
-        return stock_basic.iloc[0:0]
-    exact = stock_basic[stock_basic["name"] == value]
-    if not exact.empty:
-        return exact.drop_duplicates(subset=["ts_code"])
-    contains = stock_basic[stock_basic["name"].str.contains(re.escape(value), regex=True, na=False)]
-    if not contains.empty:
-        return contains.drop_duplicates(subset=["ts_code"])
-    reverse = stock_basic[stock_basic["name"].map(lambda item: bool(item and item in value))]
-    return reverse.drop_duplicates(subset=["ts_code"])
+    from sats.stock_basic_lookup import match_stock_name
+
+    return match_stock_name(name, stock_basic)
 
 
 def _should_scan_stock_names(message: str, result: ChatPreprocessResult) -> bool:
@@ -471,15 +438,7 @@ def _should_scan_stock_names(message: str, result: ChatPreprocessResult) -> bool
 
 
 def _names_from_stock_basic(message: str, stock_basic: pd.DataFrame) -> list[str]:
-    if stock_basic.empty or "name" not in stock_basic.columns:
-        return []
-    text = str(message or "")
-    names: list[str] = []
-    for raw in stock_basic["name"].dropna().astype(str):
-        name = raw.strip()
-        if len(name) >= 2 and name in text:
-            names.append(name)
-    return _dedupe(names)
+    return names_from_stock_basic(message, stock_basic)
 
 
 def _names_from_message(message: str) -> list[str]:

@@ -37,7 +37,7 @@ def build_chat_reference_context(
         try:
             return _build_screening_reference(message, last_output, settings, storage_factory=storage_factory)
         except Exception:
-            return _build_plain_output_reference(message, last_output)
+            return _build_screening_output_reference(message, last_output)
     return _build_plain_output_reference(message, last_output)
 
 
@@ -140,6 +140,27 @@ def _build_plain_output_reference(message: str, last_output: CapturedOutput) -> 
         trade_date=extract_trade_date(last_output.request),
         source=last_output.source or "output",
         data_name="上条输出",
+    )
+
+
+def _build_screening_output_reference(message: str, last_output: CapturedOutput) -> ChatReferenceContext | None:
+    symbols = extract_stock_symbols(last_output.content)
+    if not symbols:
+        return _build_plain_output_reference(message, last_output)
+    trade_date = extract_trade_date(last_output.request)
+    system_message = _results_system_message(
+        user_message=message,
+        last_output=last_output,
+        rows=[],
+        symbols=symbols,
+        trade_date=trade_date,
+    )
+    return ChatReferenceContext(
+        system_message=system_message,
+        symbols=symbols,
+        trade_date=trade_date,
+        source=last_output.source or "/results",
+        data_name="筛选结果",
     )
 
 

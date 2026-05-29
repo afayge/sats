@@ -155,7 +155,6 @@ def _load_required_minute_frames(
             trade_date,
             period=period,
             question=question,
-            storage=storage,
             astock_provider=astock_provider,
             minute_lookback_days=minute_lookback_days,
         )
@@ -222,7 +221,6 @@ def _load_minute_frame(
     *,
     period: str,
     question: StockQuestion,
-    storage: DuckDBStorage,
     astock_provider: Any,
     minute_lookback_days: int,
 ) -> pd.DataFrame:
@@ -236,13 +234,11 @@ def _load_minute_frame(
                 period=period,
                 start_time=start_time,
                 end_time=trade_date,
-                storage=storage,
             )
             realtime = astock_provider.load_realtime_minute_klines(
                 symbols,
                 period=period,
                 count=MINUTE_PERIOD_LIMITS[period],
-                storage=storage,
             )
             frame = _combine_minute_frames([history, realtime])
             frame.attrs["data_source"] = "tickflow_history+realtime"
@@ -252,14 +248,10 @@ def _load_minute_frame(
                 period=period,
                 start_time=start_time,
                 end_time=end_time,
-                storage=storage,
             )
             frame.attrs["data_source"] = "tickflow_history"
     except Exception:
-        frame = storage.get_stock_minute(symbols=symbols, period=period, trade_date=trade_date)
-        if frame.empty:
-            return frame
-        frame.attrs["data_source"] = "duckdb_minute_cache_after_provider_failure"
+        return pd.DataFrame()
     source = str(frame.attrs.get("data_source") or frame.attrs.get("tickflow_source") or "")
     frame = _filter_minute_as_of(frame, trade_date, question.as_of_time)
     combined = _combine_minute_frames([frame])

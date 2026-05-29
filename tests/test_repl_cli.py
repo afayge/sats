@@ -286,7 +286,10 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("--trade-date", COMPLETION_WORDS)
         self.assertIn("--format", COMPLETION_WORDS)
         self.assertIn("--no-hot-sector", COMPLETION_WORDS)
+        self.assertIn("--knowledge", COMPLETION_WORDS)
         self.assertIn("watchlist", COMPLETION_WORDS)
+        self.assertIn("ingest", COMPLETION_WORDS)
+        self.assertIn("sync-stock-basic", COMPLETION_WORDS)
 
     def test_repl_command_to_argv_strips_slash_and_preserves_args(self) -> None:
         argv = repl_command_to_argv("/results --trade-date 20260514 --passed")
@@ -664,6 +667,35 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, [["memory", "search", "股票"]])
         self.assertEqual(output, [])
 
+    def test_repl_allows_knowledge_command(self) -> None:
+        calls: list[list[str]] = []
+        output: list[str] = []
+
+        keep_running = handle_repl_line(
+            "/knowledge search --query 三买 --knowledge chan",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=output.append,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertIn("knowledge", CLI_COMMANDS)
+        self.assertIn("/knowledge search --query 三买 --knowledge chan", help_text())
+        self.assertEqual(calls, [["knowledge", "search", "--query", "三买", "--knowledge", "chan"]])
+        self.assertEqual(output, [])
+
+    def test_repl_allows_knowledge_sync_stock_basic_command(self) -> None:
+        calls: list[list[str]] = []
+
+        keep_running = handle_repl_line(
+            "/knowledge sync-stock-basic",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=lambda _: None,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertIn("/knowledge sync-stock-basic", help_text())
+        self.assertEqual(calls, [["knowledge", "sync-stock-basic"]])
+
     def test_repl_allows_indicators_command(self) -> None:
         calls: list[list[str]] = []
         output: list[str] = []
@@ -787,6 +819,22 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, [["watchlist"], ["watchlist", "add", "--symbols", "000001.SZ"]])
         self.assertEqual(output, [])
 
+    def test_repl_allows_quote_command(self) -> None:
+        calls: list[list[str]] = []
+
+        self.assertTrue(
+            handle_repl_line(
+                "/quote --stocks 000001.SZ",
+                runner=lambda argv: calls.append(argv) or 0,
+                printer=lambda _: None,
+            )
+        )
+
+        self.assertIn("quote", CLI_COMMANDS)
+        self.assertIn("/quote --stocks 000001,600519", help_text())
+        self.assertEqual(_completion_meta(_completion_map("/q")["/quote"]), "实时价格")
+        self.assertEqual(calls, [["quote", "--stocks", "000001.SZ"]])
+
     def test_repl_chat_error_does_not_crash_loop(self) -> None:
         output: list[str] = []
 
@@ -812,11 +860,19 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(
             handle_repl_line("/unknown", runner=lambda argv: calls.append(argv) or 0, printer=output.append)
         )
+        self.assertTrue(
+            handle_repl_line(
+                "/minute-k --symbols 000001.SZ",
+                runner=lambda argv: calls.append(argv) or 0,
+                printer=output.append,
+            )
+        )
 
         self.assertEqual(calls, [])
         self.assertTrue(output[0].startswith("┌"))
         self.assertTrue(any("/screen" in line for line in output))
         self.assertTrue(any("/chat" in line for line in output))
+        self.assertFalse(any("/minute-k" in line for line in output[0].splitlines()))
         self.assertIn("未知命令", output[-1])
 
     def test_repl_exit_and_quit_stop_loop(self) -> None:

@@ -1,0 +1,29 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "DuckDB",
+      "name": "SATS",
+      "database": "${workspaceFolder:SATS}/data/sats.duckdb"
+    }
+  ],
+  "sqltools.useNodeRuntime": true,
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.html": "default",
+    "*.parquet": "duckdb.dataFileViewer",
+    "*.csv": "duckdb.dataFileViewer",
+    "*.tsv": "duckdb.dataFileViewer",
+    "*.xlsx": "duckdb.dataFileViewer"
+  },
+  "duckdb.databases": [
+    {
+      "alias": "sats",
+      "type": "file",
+      "path": "/Users/elliotge/python/SATS/data/sats.duckdb",
+      "readOnly": true,
+      "attached": true
+    }
+  ],
+  "duckdb.defaultDatabase": "sats"
+}

@@ -48,20 +48,7 @@ CREATE TABLE IF NOT EXISTS stock_basic (
     PRIMARY KEY (ts_code)
 );
 
-CREATE TABLE IF NOT EXISTS stock_minute (
-    ts_code TEXT NOT NULL,
-    period TEXT NOT NULL,
-    trade_date TEXT NOT NULL,
-    trade_time TEXT NOT NULL,
-    open DOUBLE,
-    high DOUBLE,
-    low DOUBLE,
-    close DOUBLE,
-    vol DOUBLE,
-    amount DOUBLE,
-    data_source TEXT,
-    PRIMARY KEY (ts_code, period, trade_time)
-);
+DROP TABLE IF EXISTS stock_minute;
 
 CREATE TABLE IF NOT EXISTS industry_daily (
     index_code TEXT NOT NULL,
@@ -147,21 +134,49 @@ CREATE TABLE IF NOT EXISTS screening_results (
 
 CREATE TABLE IF NOT EXISTS chat_sessions (
     session_id TEXT NOT NULL,
+    title TEXT,
     model_name TEXT,
     summary TEXT NOT NULL DEFAULT '',
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    archived BOOLEAN NOT NULL DEFAULT FALSE,
+    pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    last_read_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (session_id)
 );
+
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS meta_json TEXT;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS archived BOOLEAN;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS pinned BOOLEAN;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS last_read_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS chat_messages (
     message_id TEXT NOT NULL,
     session_id TEXT NOT NULL,
     role TEXT NOT NULL,
     content TEXT NOT NULL,
+    parent_id TEXT,
+    model_id TEXT,
+    sources_json TEXT NOT NULL DEFAULT '[]',
+    files_json TEXT NOT NULL DEFAULT '[]',
+    usage_json TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'done',
+    error_json TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (message_id)
 );
+
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS parent_id TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS model_id TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS sources_json TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS files_json TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS usage_json TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS error_json TEXT;
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS chat_memories (
     memory_id TEXT NOT NULL,
@@ -176,6 +191,67 @@ CREATE TABLE IF NOT EXISTS chat_memories (
     last_used_at TIMESTAMP,
     PRIMARY KEY (memory_id)
 );
+
+CREATE TABLE IF NOT EXISTS knowledge_bases (
+    knowledge_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    collection_name TEXT NOT NULL,
+    tags_json TEXT NOT NULL DEFAULT '[]',
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    archived BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (knowledge_id),
+    UNIQUE (name),
+    UNIQUE (collection_name)
+);
+
+CREATE TABLE IF NOT EXISTS knowledge_files (
+    file_id TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    path TEXT NOT NULL,
+    content_hash TEXT NOT NULL,
+    content_type TEXT NOT NULL DEFAULT '',
+    size_bytes BIGINT NOT NULL DEFAULT 0,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (file_id),
+    UNIQUE (content_hash, path)
+);
+
+CREATE TABLE IF NOT EXISTS knowledge_file_links (
+    knowledge_id TEXT NOT NULL,
+    file_id TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (knowledge_id, file_id)
+);
+
+CREATE TABLE IF NOT EXISTS knowledge_chunks (
+    chunk_id TEXT NOT NULL,
+    knowledge_id TEXT NOT NULL,
+    file_id TEXT NOT NULL,
+    collection_name TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    source_path TEXT NOT NULL DEFAULT '',
+    page_number INTEGER,
+    line_start INTEGER,
+    line_end INTEGER,
+    tags_json TEXT NOT NULL DEFAULT '[]',
+    content_hash TEXT NOT NULL,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (chunk_id),
+    UNIQUE (knowledge_id, file_id, content_hash)
+);
+
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_collection ON knowledge_chunks(collection_name);
+CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_knowledge ON knowledge_chunks(knowledge_id);
 
 CREATE TABLE IF NOT EXISTS monitor_positions (
     ts_code TEXT NOT NULL,

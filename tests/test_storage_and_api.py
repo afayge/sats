@@ -12,7 +12,7 @@ import pandas as pd
 from fastapi.testclient import TestClient
 from prompt_toolkit.utils import get_cwidth
 
-from sats.cli import build_parser, cmd_minute_k, cmd_minute_k_clear, cmd_result_rules, cmd_results, cmd_screen
+from sats.cli import build_parser, cmd_result_rules, cmd_results, cmd_screen, main
 from sats.cli import cmd_analyze_chan
 from sats.api.app import create_app
 from sats.screening.base import ScreeningInput, ScreeningResult
@@ -72,11 +72,8 @@ class FakeTickFlowProvider:
     def __init__(self, settings) -> None:
         self.settings = settings
 
-    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None, storage=None):
-        frame = _minute_k_frame(symbols[0], period=period, trade_time="2026-05-14 09:31:00")
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
-        return frame
+    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None):
+        return _minute_k_frame(symbols[0], period=period, trade_time="2026-05-14 09:31:00")
 
     def load_historical_minute_klines(
         self,
@@ -86,12 +83,8 @@ class FakeTickFlowProvider:
         start_time=None,
         end_time=None,
         count=None,
-        storage=None,
     ):
-        frame = _minute_k_frame(symbols[0], period=period, trade_time="2026-05-13 10:00:00")
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
-        return frame
+        return _minute_k_frame(symbols[0], period=period, trade_time="2026-05-13 10:00:00")
 
 
 def _minute_k_frame(symbol: str, *, period: str, trade_time: str) -> pd.DataFrame:
@@ -110,6 +103,18 @@ def _minute_k_frame(symbol: str, *, period: str, trade_time: str) -> pd.DataFram
             "data_source": ["tickflow"],
         }
     )
+
+
+def _quote_history(symbol: str, *, close: float, days: int = 260) -> list[dict[str, object]]:
+    dates = pd.date_range("2025-01-01", periods=days, freq="D")
+    return [
+        {
+            "ts_code": symbol,
+            "trade_date": day.strftime("%Y%m%d"),
+            "close": close,
+        }
+        for day in dates
+    ]
 
 
 class StorageAndApiTest(unittest.TestCase):
@@ -370,6 +375,9 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertEqual(response.json()["count"], 1)
             self.assertEqual(response.json()["results"][0]["ts_code"], "000001.SZ")
             self.assertEqual(response.json()["results"][0]["period"], "5m")
+            with storage.connect() as con:
+                tables = con.execute("SHOW TABLES").fetchdf()["name"].tolist()
+            self.assertNotIn("stock_minute", tables)
 
     def test_cli_screen_defaults_to_all_a_shares(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -453,6 +461,138 @@ class StorageAndApiTest(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             importer.assert_not_called()
+
+    def test_cli_quote_prints_realtime_table_with_headers_and_requested_order(self) -> None:
+        class FakeQuoteProvider:
+            def __init__(self, settings) -> None:
+                self.settings = settings
+
+            def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+                return pd.DataFrame(
+                    [
+                        {"ts_code": "600519.SH", "name": "贵州茅台", "close": 40.0, "pct_chg": -2.5},
+                        {"ts_code": "000001.SZ", "name": "平安银行", "close": 30.0, "pct_chg": 5.0},
+                    ]
+                )
+
+            def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+                return pd.DataFrame(
+                    _quote_history("000001.SZ", close=10.0) + _quote_history("600519.SH", close=20.0)
+                )
+
+            def load_realtime_daily_quotes(self, symbols, *, trade_date):
+                return pd.DataFrame(
+                    [
+                        {"ts_code": "000001.SZ", "trade_date": trade_date, "close": 30.0},
+                        {"ts_code": "600519.SH", "trade_date": trade_date, "close": 40.0},
+                    ]
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            stdout = io.StringIO()
+
+            with patch("sats.cli.AStockDataProvider", FakeQuoteProvider), redirect_stdout(stdout):
+                exit_code = main(["quote", "--stocks", "000001,600519", "--db", str(db)])
+
+            self.assertEqual(exit_code, 0)
+            lines = stdout.getvalue().strip().splitlines()
+            self.assertEqual(
+                lines[0].split(),
+                ["序号", "股票代码", "股票名称", "现价", "涨跌幅", "周线", "月线", "季线", "年线"],
+            )
+            self.assertEqual(" ".join(lines[1].split()), "1. 000001.SZ 平安银行 30.00 +5.00% 14.00 11.00 10.33 10.08")
+            self.assertEqual(" ".join(lines[2].split()), "2. 600519.SH 贵州茅台 40.00 -2.50% 24.00 21.00 20.33 20.08")
+
+    def test_cli_quote_uses_placeholders_for_missing_quote_and_short_history(self) -> None:
+        class FakeQuoteProvider:
+            def __init__(self, settings) -> None:
+                self.settings = settings
+
+            def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+                return pd.DataFrame(
+                    [
+                        {"ts_code": "000001.SZ", "name": "平安银行", "close": 30.0, "pct_chg": 5.0},
+                    ]
+                )
+
+            def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+                return pd.DataFrame(
+                    _quote_history("000001.SZ", close=10.0, days=30) + _quote_history("600519.SH", close=20.0, days=260)
+                )
+
+            def load_realtime_daily_quotes(self, symbols, *, trade_date):
+                return pd.DataFrame(
+                    [
+                        {"ts_code": "000001.SZ", "trade_date": trade_date, "close": 30.0},
+                        {"ts_code": "600519.SH", "trade_date": trade_date, "close": 40.0},
+                    ]
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            stdout = io.StringIO()
+
+            with patch("sats.cli.AStockDataProvider", FakeQuoteProvider), redirect_stdout(stdout):
+                exit_code = main(["quote", "--stocks", "000001,600519", "--db", str(db)])
+
+            self.assertEqual(exit_code, 0)
+            lines = stdout.getvalue().strip().splitlines()
+            self.assertEqual(" ".join(lines[1].split()), "1. 000001.SZ 平安银行 30.00 +5.00% 14.00 11.00 -- --")
+            self.assertEqual(" ".join(lines[2].split()), "2. 600519.SH -- -- 24.00 21.00 20.33 20.08")
+
+    def test_cli_quote_falls_back_to_stock_basic_name_when_quote_name_missing(self) -> None:
+        class FakeQuoteProvider:
+            def __init__(self, settings) -> None:
+                self.settings = settings
+
+            def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+                return pd.DataFrame(
+                    [
+                        {"ts_code": "000001.SZ", "name": "", "close": 30.0, "pct_chg": 5.0},
+                    ]
+                )
+
+            def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+                return pd.DataFrame(_quote_history("000001.SZ", close=10.0))
+
+            def load_realtime_daily_quotes(self, symbols, *, trade_date):
+                return pd.DataFrame([{"ts_code": "000001.SZ", "trade_date": trade_date, "close": 30.0}])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.upsert_stock_basic(make_stock_basic({"ts_code": "000001.SZ", "symbol": "000001", "name": "平安银行"}))
+            stdout = io.StringIO()
+
+            with patch("sats.cli.AStockDataProvider", FakeQuoteProvider), redirect_stdout(stdout):
+                exit_code = main(["quote", "--stocks", "000001", "--db", str(db)])
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("1. 000001.SZ 平安银行 30.00 +5.00%", " ".join(stdout.getvalue().split()))
+
+    def test_cli_quote_raises_when_all_realtime_quotes_missing(self) -> None:
+        class FakeQuoteProvider:
+            def __init__(self, settings) -> None:
+                self.settings = settings
+
+            def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+                return pd.DataFrame()
+
+            def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+                return pd.DataFrame(_quote_history("000001.SZ", close=10.0))
+
+            def load_realtime_daily_quotes(self, symbols, *, trade_date):
+                return pd.DataFrame()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+
+            with patch("sats.cli.AStockDataProvider", FakeQuoteProvider):
+                with self.assertRaises(SystemExit) as exc:
+                    main(["quote", "--stocks", "000001", "--db", str(db)])
+
+            self.assertEqual(str(exc.exception), "未获取到实时行情")
 
     def test_cli_screen_accepts_price_volume_ma_alias(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -604,154 +744,6 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertTrue(rows[0]["metrics"]["matched_signal_labels"])
             self.assertTrue(stocks[0]["matched_labels"])
             self.assertIn("000001.SZ 平安银行", stdout.getvalue())
-
-    def test_cli_minute_k_prints_rows_and_caches(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            db_path = Path(tmp) / "sats.duckdb"
-            args = SimpleNamespace(
-                symbols="000001",
-                period="1m",
-                mode="realtime",
-                count=20,
-                start_date=None,
-                end_date=None,
-                db=db_path,
-            )
-            stdout = io.StringIO()
-
-            with patch("sats.cli.AStockDataProvider", FakeTickFlowProvider), redirect_stdout(stdout):
-                exit_code = cmd_minute_k(args)
-
-            rows = DuckDBStorage(db_path).get_stock_minute(symbols=["000001.SZ"], period="1m")
-            self.assertEqual(exit_code, 0)
-            self.assertIn("1. 000001.SZ 1m 2026-05-14 09:31:00", stdout.getvalue())
-            self.assertEqual(len(rows), 1)
-
-    def test_storage_deletes_stock_minute_by_date_ranges(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
-            storage.upsert_stock_minute(
-                pd.concat(
-                    [
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-11 09:31:00"),
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-12 09:31:00"),
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-13 09:31:00"),
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-14 09:31:00"),
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-15 09:31:00"),
-                    ],
-                    ignore_index=True,
-                )
-            )
-
-            self.assertEqual(storage.delete_stock_minute(end_date="20260512"), 2)
-            self.assertEqual(storage.delete_stock_minute(start_date="20260514"), 2)
-            rows = storage.get_stock_minute(symbols=["000001.SZ"], period="1m")
-
-            self.assertEqual(rows["trade_date"].tolist(), ["20260513"])
-            self.assertEqual(storage.delete_stock_minute(trade_date="20260513"), 1)
-            self.assertTrue(storage.get_stock_minute(symbols=["000001.SZ"], period="1m").empty)
-
-    def test_storage_deletes_stock_minute_by_period_and_symbols(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
-            storage.upsert_stock_minute(
-                pd.concat(
-                    [
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-14 09:31:00"),
-                        _minute_k_frame("000001.SZ", period="5m", trade_time="2026-05-14 09:35:00"),
-                        _minute_k_frame("600519.SH", period="1m", trade_time="2026-05-14 09:31:00"),
-                    ],
-                    ignore_index=True,
-                )
-            )
-
-            deleted = storage.delete_stock_minute(
-                start_date="20260514",
-                end_date="20260514",
-                period="1m",
-                symbols=["000001.SZ"],
-            )
-            rows = storage.get_stock_minute(trade_date="20260514")
-
-            self.assertEqual(deleted, 1)
-            self.assertEqual(sorted(rows["ts_code"].tolist()), ["000001.SZ", "600519.SH"])
-            self.assertEqual(sorted(rows["period"].tolist()), ["1m", "5m"])
-
-    def test_cli_minute_k_clear_prints_deleted_count(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            db_path = Path(tmp) / "sats.duckdb"
-            storage = DuckDBStorage(db_path)
-            storage.upsert_stock_minute(
-                pd.concat(
-                    [
-                        _minute_k_frame("000001.SZ", period="1m", trade_time="2026-05-14 09:31:00"),
-                        _minute_k_frame("600519.SH", period="1m", trade_time="2026-05-14 09:31:00"),
-                    ],
-                    ignore_index=True,
-                )
-            )
-            args = SimpleNamespace(
-                trade_date=None,
-                start_date=None,
-                end_date="20260514",
-                period="1m",
-                symbols="000001",
-                db=db_path,
-            )
-            stdout = io.StringIO()
-
-            with redirect_stdout(stdout):
-                exit_code = cmd_minute_k_clear(args)
-
-            rows = DuckDBStorage(db_path).get_stock_minute(trade_date="20260514")
-            self.assertEqual(exit_code, 0)
-            self.assertEqual(stdout.getvalue().strip(), "已删除 1 条分钟K数据")
-            self.assertEqual(rows["ts_code"].tolist(), ["600519.SH"])
-
-    def test_cli_minute_k_clear_prints_empty_message(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            args = SimpleNamespace(
-                trade_date="20260514",
-                start_date=None,
-                end_date=None,
-                period=None,
-                symbols=None,
-                db=Path(tmp) / "sats.duckdb",
-            )
-            stdout = io.StringIO()
-
-            with redirect_stdout(stdout):
-                exit_code = cmd_minute_k_clear(args)
-
-            self.assertEqual(exit_code, 0)
-            self.assertEqual(stdout.getvalue().strip(), "无匹配分钟K数据")
-
-    def test_cli_minute_k_clear_rejects_unsafe_or_invalid_dates(self) -> None:
-        base = {
-            "trade_date": None,
-            "start_date": None,
-            "end_date": None,
-            "period": None,
-            "symbols": None,
-            "db": Path("unused.duckdb"),
-        }
-
-        invalid_args = [
-            base,
-            {**base, "trade_date": "20260514", "start_date": "20260511"},
-            {**base, "trade_date": "2026-05-14"},
-            {**base, "start_date": "20260514", "end_date": "20260511"},
-        ]
-
-        for payload in invalid_args:
-            with self.assertRaises(SystemExit):
-                cmd_minute_k_clear(SimpleNamespace(**payload))
-
-    def test_cli_minute_k_clear_parser_rejects_invalid_period(self) -> None:
-        parser = build_parser()
-
-        with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
-            parser.parse_args(["minute-k-clear", "--trade-date", "20260514", "--period", "10m"])
 
     def test_cli_analyze_chan_prints_llm_review_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

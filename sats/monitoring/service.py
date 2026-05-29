@@ -116,7 +116,6 @@ class MonitorService:
                 symbols,
                 period=DEFAULT_MINUTE_PERIOD,
                 count=DEFAULT_MINUTE_COUNT,
-                storage=self.storage,
             )
         else:
             with progress.step("AStock 日线数据") as step:
@@ -130,7 +129,6 @@ class MonitorService:
                     symbols,
                     period=DEFAULT_MINUTE_PERIOD,
                     count=DEFAULT_MINUTE_COUNT,
-                    storage=self.storage,
                 )
                 step.complete(message=f"{len(minute)} 条")
         daily = _merge_realtime_daily(daily, quotes, trade_date)

@@ -9,8 +9,10 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
+import pandas as pd
 from prompt_toolkit.utils import get_cwidth
 
 from sats.analysis.chan_llm_review import DEFAULT_CHAN_RULE_NAME, run_chan_llm_review
@@ -33,6 +35,7 @@ from sats.memory import ChatMemoryStore, format_memory_list
 from sats.monitoring import MonitorConfig, MonitorDisplay, MonitorService, format_monitor_dashboard
 from sats.progress import create_progress
 from sats.rag.chan_knowledge import search_chan_knowledge
+from sats.rag.knowledge import KnowledgeStore, format_knowledge_list, format_search_results
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.service import evaluate_inputs
 from sats.scheduler import (
@@ -49,6 +52,7 @@ from sats.skills import default_skills_dir, format_skill_list, load_skills
 from sats.screening.service import evaluate_and_store
 from sats.signals import SignalInput, analyze_signal_inputs, format_signal_analysis, format_signal_definitions
 from sats.storage.duckdb import DuckDBStorage
+from sats.stock_basic_lookup import load_stock_basic_frame, resolve_symbol_or_name_values
 from sats.symbols import parse_symbol_csv
 from sats.trading import OrderRequest, broker_from_settings
 from sats.trading.monitor_provider import AutoTradeConfig, QmtTradingProvider
@@ -152,10 +156,14 @@ def build_parser() -> argparse.ArgumentParser:
     result_rules = sub.add_parser("result-rules", help="List rule names saved in screening results")
     result_rules.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
+    quote = sub.add_parser("quote", help="Show realtime stock quotes with moving averages")
+    quote.add_argument("--stocks", required=True, help="Comma-separated symbols or stock names, e.g. 000001,600519.SH,紫光股份")
+    quote.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
     analyze = sub.add_parser("analyze", help="Unified stock signal analysis")
     analyze.add_argument("analyze_action", nargs="?", choices=["signals"], help="Use 'signals' to list signal strategies")
     analyze_source = analyze.add_mutually_exclusive_group()
-    analyze_source.add_argument("--stocks", help="Comma-separated symbols, e.g. 000001,600519.SH")
+    analyze_source.add_argument("--stocks", help="Comma-separated symbols or stock names, e.g. 000001,600519.SH,紫光股份")
     analyze_source.add_argument("--from-screened", action="store_true", help="Analyze passed screening results")
     analyze.add_argument("--signals", default="all", help="Comma-separated signal groups or ids")
     analyze.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
@@ -170,12 +178,12 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_dsa = sub.add_parser("analyze-dsa", help="Analyze stocks with external daily_stock_analysis")
     analyze_dsa.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
     analyze_dsa.add_argument("--rule", default=None, help="Screening rule name")
-    analyze_dsa.add_argument("--stocks", help="Comma-separated symbols for daily_stock_analysis --stocks")
+    analyze_dsa.add_argument("--stocks", help="Comma-separated symbols or stock names for daily_stock_analysis --stocks")
     analyze_dsa.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     dsa = sub.add_parser("dsa", help="Run native DSA stock analysis")
     dsa_source = dsa.add_mutually_exclusive_group(required=True)
-    dsa_source.add_argument("--stocks", help="Comma-separated symbols, e.g. 000001,600519.SH")
+    dsa_source.add_argument("--stocks", help="Comma-separated symbols or stock names, e.g. 000001,600519.SH,紫光股份")
     dsa_source.add_argument("--from-screened", action="store_true", help="Analyze passed screening results")
     dsa.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to today")
     dsa.add_argument("--rule", default=None, help="Screening rule name for --from-screened")
@@ -190,7 +198,7 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_chan.add_argument("--rule", default=None, help="Screening rule name filter")
     analyze_chan.add_argument("--chan-rule", default=DEFAULT_CHAN_RULE_NAME, help="chan_third_buy, chan_composite or chan_signals")
     analyze_chan.add_argument("--top", type=int, default=20, help="Maximum candidates to review")
-    analyze_chan.add_argument("--stocks", help="Comma-separated symbols for temporary chan rule evaluation")
+    analyze_chan.add_argument("--stocks", help="Comma-separated symbols or stock names for temporary chan rule evaluation")
     analyze_chan.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     chan_kb = sub.add_parser("chan-kb", help="Search local Chan theory knowledge cards")
@@ -212,6 +220,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     chat = sub.add_parser("chat", help="Chat with the configured LLM")
     chat.add_argument("--no-memory", action="store_true", help="Disable local chat memory for this message")
+    chat.add_argument("--knowledge", help="Knowledge base name/id to force into this chat")
     chat.add_argument("message", nargs=argparse.REMAINDER, help="Message to send to the LLM")
 
     model = sub.add_parser("model", help="Manage LLM model profiles")
@@ -232,8 +241,25 @@ def build_parser() -> argparse.ArgumentParser:
     memory_clear = memory_sub.add_parser("clear", help="Clear all local chat memory")
     memory_clear.add_argument("--yes", action="store_true", help="Confirm clearing all chat memory")
 
+    knowledge = sub.add_parser("knowledge", help="Manage local RAG knowledge bases")
+    knowledge_sub = knowledge.add_subparsers(dest="knowledge_command")
+    knowledge_sub.add_parser("list", help="List knowledge bases")
+    knowledge_add = knowledge_sub.add_parser("add", help="Add or update a knowledge base")
+    knowledge_add.add_argument("--name", required=True, help="Knowledge base name")
+    knowledge_add.add_argument("--description", default="", help="Knowledge base description")
+    knowledge_add.add_argument("--tags", default="", help="Comma-separated tags")
+    knowledge_ingest = knowledge_sub.add_parser("ingest", help="Ingest file or directory into a knowledge base")
+    knowledge_ingest.add_argument("--knowledge", required=True, help="Knowledge base name/id")
+    knowledge_ingest.add_argument("--path", type=Path, required=True, help="File or directory to ingest")
+    knowledge_ingest.add_argument("--tags", default="", help="Comma-separated tags")
+    knowledge_search = knowledge_sub.add_parser("search", help="Search knowledge chunks")
+    knowledge_search.add_argument("--query", required=True, help="Search query")
+    knowledge_search.add_argument("--knowledge", help="Optional knowledge base name/id")
+    knowledge_search.add_argument("--limit", type=int, default=6, help="Maximum results")
+    knowledge_sub.add_parser("sync-stock-basic", help="Sync cached stock_basic into the stock-basic knowledge base")
+
     indicators = sub.add_parser("indicators", help="Calculate daily technical indicators")
-    indicators.add_argument("--symbols", required=True, help="Comma-separated symbols, e.g. 000001.SZ,600519.SH")
+    indicators.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names, e.g. 000001.SZ,600519.SH,紫光股份")
     indicators.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
     indicators.add_argument("--lookback-days", type=int, default=180, help="Historical calendar/trading lookback window")
     indicators.add_argument("--json", action="store_true", help="Print full JSON output")
@@ -246,12 +272,12 @@ def build_parser() -> argparse.ArgumentParser:
     watchlist.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_sub.add_parser("list", help="List watchlist").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_add = watchlist_sub.add_parser("add", help="Add watchlist symbols")
-    watchlist_add.add_argument("--symbols", required=True, help="Comma-separated symbols")
+    watchlist_add.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names")
     watchlist_add.add_argument("--name", default="", help="Optional name used for all symbols")
     watchlist_add.add_argument("--note", default="")
     watchlist_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_remove = watchlist_sub.add_parser("remove", help="Remove watchlist symbols")
-    watchlist_remove.add_argument("--symbols", required=True, help="Comma-separated symbols")
+    watchlist_remove.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names")
     watchlist_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_delete = watchlist_sub.add_parser("select-delete", help="Interactively select watchlist symbols to delete")
     watchlist_delete.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
@@ -260,29 +286,12 @@ def build_parser() -> argparse.ArgumentParser:
     watchlist_import.add_argument("--rule", default=DEFAULT_RULE, help="Screening rule name")
     watchlist_import.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
-    minute_k = sub.add_parser("minute-k", help="Fetch AStock minute K lines")
-    minute_k.add_argument("--symbols", required=True, help="Comma-separated symbols, e.g. 000001.SZ,600519.SH")
-    minute_k.add_argument("--period", default="1m", choices=["1m", "5m", "15m", "30m", "60m"])
-    minute_k.add_argument("--mode", default="realtime", choices=["realtime", "history"])
-    minute_k.add_argument("--count", type=int)
-    minute_k.add_argument("--start-date", help="History start date, YYYYMMDD")
-    minute_k.add_argument("--end-date", help="History end date, YYYYMMDD")
-    minute_k.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
-
-    minute_k_clear = sub.add_parser("minute-k-clear", help="Clear cached minute K lines")
-    minute_k_clear.add_argument("--trade-date", help="Delete one trade date, YYYYMMDD")
-    minute_k_clear.add_argument("--start-date", help="Delete from this trade date, YYYYMMDD")
-    minute_k_clear.add_argument("--end-date", help="Delete through this trade date, YYYYMMDD")
-    minute_k_clear.add_argument("--period", choices=["1m", "5m", "15m", "30m", "60m"])
-    minute_k_clear.add_argument("--symbols", help="Comma-separated symbols, e.g. 000001.SZ,600519.SH")
-    minute_k_clear.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
-
     monitor = sub.add_parser("monitor", help="Manage realtime monitoring")
     monitor_sub = monitor.add_subparsers(dest="monitor_command")
     monitor_positions = monitor_sub.add_parser("positions", help="Manage monitor positions")
     monitor_positions_sub = monitor_positions.add_subparsers(dest="monitor_positions_command")
     monitor_positions_add = monitor_positions_sub.add_parser("add", help="Add or update a position")
-    monitor_positions_add.add_argument("--symbol", required=True)
+    monitor_positions_add.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_positions_add.add_argument("--name", default="")
     monitor_positions_add.add_argument("--buy-price", type=float, required=True)
     monitor_positions_add.add_argument("--quantity", type=float, required=True)
@@ -291,26 +300,26 @@ def build_parser() -> argparse.ArgumentParser:
     monitor_positions_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_positions_sub.add_parser("list", help="List positions").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_positions_remove = monitor_positions_sub.add_parser("remove", help="Remove a position")
-    monitor_positions_remove.add_argument("--symbol", required=True)
+    monitor_positions_remove.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_positions_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     monitor_watchlist = monitor_sub.add_parser("watchlist", help="Manage monitor watchlist")
     monitor_watchlist_sub = monitor_watchlist.add_subparsers(dest="monitor_watchlist_command")
     monitor_watchlist_add = monitor_watchlist_sub.add_parser("add", help="Add or update a watchlist symbol")
-    monitor_watchlist_add.add_argument("--symbol", required=True)
+    monitor_watchlist_add.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_watchlist_add.add_argument("--name", default="")
     monitor_watchlist_add.add_argument("--note", default="")
     monitor_watchlist_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_watchlist_sub.add_parser("list", help="List watchlist").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_watchlist_remove = monitor_watchlist_sub.add_parser("remove", help="Remove a watchlist symbol")
-    monitor_watchlist_remove.add_argument("--symbol", required=True)
+    monitor_watchlist_remove.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_watchlist_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     monitor_candidates = monitor_sub.add_parser("buy-candidates", help="Manage monitor buy candidates")
     monitor_candidates_sub = monitor_candidates.add_subparsers(dest="monitor_candidates_command")
     monitor_candidates_sub.add_parser("list", help="List buy candidates").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_candidates_remove = monitor_candidates_sub.add_parser("remove", help="Remove a buy candidate")
-    monitor_candidates_remove.add_argument("--symbol", required=True)
+    monitor_candidates_remove.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_candidates_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     monitor_start = monitor_sub.add_parser("start", help="Start realtime monitor in background")
@@ -404,7 +413,7 @@ def build_parser() -> argparse.ArgumentParser:
     qmt_trades.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     for side in ("buy", "sell"):
         qmt_order = qmt_sub.add_parser(side, help=f"Send live QMT {side} order")
-        qmt_order.add_argument("--symbol", required=True)
+        qmt_order.add_argument("--symbol", required=True, help="A-share symbol or stock name")
         qmt_order.add_argument("--quantity", type=int, required=True)
         qmt_order.add_argument("--price-type", choices=["latest", "limit"], default="latest")
         qmt_order.add_argument("--price", type=float)
@@ -437,6 +446,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_results(args)
     if args.command == "result-rules":
         return cmd_result_rules(args)
+    if args.command == "quote":
+        return cmd_quote(args)
     if args.command == "analyze":
         return cmd_analyze(args)
     if args.command == "analyze-dsa":
@@ -455,16 +466,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_model(args)
     if args.command == "memory":
         return cmd_memory(args)
+    if args.command == "knowledge":
+        return cmd_knowledge(args)
     if args.command == "indicators":
         return cmd_indicators(args)
     if args.command == "skills":
         return cmd_skills(args)
     if args.command == "watchlist":
         return cmd_watchlist(args)
-    if args.command == "minute-k":
-        return cmd_minute_k(args)
-    if args.command == "minute-k-clear":
-        return cmd_minute_k_clear(args)
     if args.command == "monitor":
         return cmd_monitor(args)
     if args.command == "monitor-display":
@@ -589,6 +598,45 @@ def cmd_result_rules(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_quote(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    symbols = _parse_symbols_or_names(args.stocks, settings)
+    provider = AStockDataProvider(settings)
+    trade_date = datetime.now(SHANGHAI_TZ).strftime("%Y%m%d")
+    start_date = (datetime.now(SHANGHAI_TZ) - timedelta(days=420)).strftime("%Y%m%d")
+    progress = _progress_for_args(args)
+    try:
+        with progress.step("AStock 实时行情") as step:
+            quotes = provider.load_realtime_quotes(symbols=symbols)
+            step.complete(message=f"{len(quotes)} 条")
+        if quotes.empty:
+            raise SystemExit("未获取到实时行情")
+        with progress.step("AStock 历史日线") as step:
+            daily = provider.load_historical_daily_klines(
+                symbols,
+                start_date=start_date,
+                end_date=trade_date,
+                storage=storage,
+            )
+            step.complete(message=f"{len(daily)} 条")
+        with progress.step("AStock 实时日线") as step:
+            realtime_daily = provider.load_realtime_daily_quotes(symbols, trade_date=trade_date)
+            step.complete(message=f"{len(realtime_daily)} 条")
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    quote_lookup = _records_by_symbol(quotes)
+    stock_basic = pd.DataFrame()
+    if any(not _coalesce_text(quote_lookup.get(symbol, {}).get("name")) for symbol in symbols):
+        stock_basic = load_stock_basic_frame(settings)
+    ma_lookup = _quote_moving_average_lookup(daily, realtime_daily)
+    print(_format_quote_table(symbols, quotes, ma_lookup, stock_basic))
+    return 0
+
+
 def cmd_analyze(args: argparse.Namespace) -> int:
     if getattr(args, "analyze_action", None) == "signals":
         print(format_signal_definitions(category=getattr(args, "category", None)))
@@ -598,6 +646,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
 
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
     if getattr(args, "from_screened", False):
@@ -606,7 +655,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
         symbols = [str(row.get("ts_code") or "").strip() for row in rows if str(row.get("ts_code") or "").strip()]
         source_label = rule_name
     else:
-        symbols = _parse_symbols(args.stocks)
+        symbols = _parse_symbols_or_names(args.stocks, settings)
         source_label = "stocks"
     if not symbols:
         print("无可分析股票")
@@ -661,6 +710,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
 def cmd_analyze_dsa(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     if getattr(args, "stocks", None) and getattr(args, "rule", None):
         raise SystemExit("analyze-dsa --rule only supports screened results, not --stocks")
     provider = AStockDataProvider(settings)
@@ -673,7 +723,7 @@ def cmd_analyze_dsa(args: argparse.Namespace) -> int:
         with progress.step("daily_stock_analysis") as step:
             if getattr(args, "stocks", None):
                 result = run_daily_stock_analysis_for_symbols(
-                    _parse_symbols(args.stocks),
+                    _parse_symbols_or_names(args.stocks, settings),
                     trade_date=trade_date,
                     reports_dir=settings.project_root / "reports",
                     sats_env_path=settings.env_path,
@@ -703,6 +753,7 @@ def cmd_analyze_dsa(args: argparse.Namespace) -> int:
 def cmd_dsa(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     progress = _progress_for_args(args)
     if getattr(args, "from_screened", False):
         if not args.trade_date:
@@ -747,7 +798,7 @@ def cmd_dsa(args: argparse.Namespace) -> int:
         return 0
     if getattr(args, "rule", None):
         raise SystemExit("dsa --rule only supports --from-screened")
-    symbols = _parse_symbols(args.stocks)
+    symbols = _parse_symbols_or_names(args.stocks, settings)
     _announce_analyzing(progress)
     try:
         result = run_dsa_analysis(
@@ -778,6 +829,7 @@ def cmd_dsa(args: argparse.Namespace) -> int:
 def cmd_analyze_chan(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     screening_rule_name = get_rule(args.rule).name if getattr(args, "rule", None) else None
     chan_rule_name = _canonical_chan_rule_name(getattr(args, "chan_rule", DEFAULT_CHAN_RULE_NAME))
     if getattr(args, "stocks", None) and screening_rule_name:
@@ -789,7 +841,7 @@ def cmd_analyze_chan(args: argparse.Namespace) -> int:
     if not getattr(args, "trade_date", None) and not args.json:
         print(f"trade_date: {trade_date}")
     if getattr(args, "stocks", None):
-        symbols = _parse_symbols(args.stocks)
+        symbols = _parse_symbols_or_names(args.stocks, settings)
         try:
             with progress.step("股票上下文") as step:
                 stock_contexts = ensure_stock_analysis_data(
@@ -918,6 +970,8 @@ def cmd_chat(args: argparse.Namespace) -> int:
     progress = _progress_for_args(args)
     try:
         kwargs = {"settings": settings, "memory_enabled": not args.no_memory}
+        if getattr(args, "knowledge", None):
+            kwargs["knowledge"] = args.knowledge
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
         result = run_chat_once(message, **kwargs)
@@ -983,10 +1037,47 @@ def cmd_memory(args: argparse.Namespace) -> int:
     raise SystemExit("unknown memory command")
 
 
+def cmd_knowledge(args: argparse.Namespace) -> int:
+    if args.knowledge_command is None:
+        raise SystemExit("knowledge requires subcommand: list, add, ingest or search")
+    settings = load_settings()
+    store = KnowledgeStore(settings.db_path)
+    if args.knowledge_command == "list":
+        print(format_knowledge_list(store.list_knowledge_bases()))
+        return 0
+    if args.knowledge_command == "add":
+        kb = store.add_knowledge_base(
+            name=args.name,
+            description=args.description,
+            tags=_parse_tags(args.tags),
+        )
+        print(f"已保存知识库 {kb.name} ({kb.collection_name})")
+        return 0
+    if args.knowledge_command == "ingest":
+        count = store.ingest_path(
+            args.knowledge,
+            args.path,
+            tags=_parse_tags(args.tags),
+            project_root=Path(getattr(settings, "project_root", ".")).resolve(),
+        )
+        print(f"已入库 {count} 个知识块")
+        return 0
+    if args.knowledge_command == "search":
+        rows = store.search(args.query, knowledge=args.knowledge, limit=args.limit)
+        print(format_search_results(rows))
+        return 0
+    if args.knowledge_command == "sync-stock-basic":
+        count = store.sync_stock_basic(settings=settings)
+        print(f"已同步 {count} 条 stock_basic 股票知识")
+        return 0
+    raise SystemExit("unknown knowledge command")
+
+
 def cmd_indicators(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
-    symbols = _parse_symbols(args.symbols)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    symbols = _parse_symbols_or_names(args.symbols, settings)
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
     progress = _progress_for_args(args)
@@ -1027,6 +1118,7 @@ def cmd_skills(args: argparse.Namespace) -> int:
 def cmd_watchlist(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(getattr(args, "db", None) or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, getattr(args, "db", None) or settings.db_path))
     command = getattr(args, "watchlist_command", None)
     if command is None:
         if sys.stdin.isatty() and sys.stdout.isatty():
@@ -1037,11 +1129,11 @@ def cmd_watchlist(args: argparse.Namespace) -> int:
         print(format_watchlist(storage.list_monitor_watchlist()))
         return 0
     if command == "add":
-        count = upsert_watchlist_symbols(storage, _parse_symbols(args.symbols), name=args.name, note=args.note)
+        count = upsert_watchlist_symbols(storage, _parse_symbols_or_names(args.symbols, settings), name=args.name, note=args.note)
         print(f"已加入关注列表 {count} 只股票" if count else "未加入股票")
         return 0
     if command == "remove":
-        count = delete_watchlist_symbols(storage, _parse_symbols(args.symbols))
+        count = delete_watchlist_symbols(storage, _parse_symbols_or_names(args.symbols, settings))
         print(f"已删除 {count} 只股票" if count else "未找到关注股票")
         return 0
     if command == "select-delete":
@@ -1054,77 +1146,19 @@ def cmd_watchlist(args: argparse.Namespace) -> int:
     raise SystemExit("watchlist requires list, add, remove, select-delete or import-screened")
 
 
-def cmd_minute_k(args: argparse.Namespace) -> int:
-    settings = load_settings()
-    storage = DuckDBStorage(args.db or settings.db_path)
-    symbols = _parse_symbols(args.symbols)
-    progress = _progress_for_args(args)
-    try:
-        provider = AStockDataProvider(settings)
-        with progress.step("AStock 分钟K") as step:
-            if args.mode == "realtime":
-                frame = provider.load_realtime_minute_klines(
-                    symbols,
-                    period=args.period,
-                    count=args.count,
-                    storage=storage,
-                )
-            else:
-                frame = provider.load_historical_minute_klines(
-                    symbols,
-                    period=args.period,
-                    start_time=args.start_date,
-                    end_time=args.end_date,
-                    count=args.count,
-                    storage=storage,
-                )
-            step.complete(message=f"{len(frame)} 条")
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
-    finally:
-        progress.close()
-    print(_format_minute_k(frame))
-    return 0
-
-
-def cmd_minute_k_clear(args: argparse.Namespace) -> int:
-    settings = load_settings()
-    storage = DuckDBStorage(args.db or settings.db_path)
-    progress = _progress_for_args(args)
-    try:
-        trade_date, start_date, end_date = _minute_clear_date_filters(args)
-        with progress.step("清理分钟K缓存") as step:
-            deleted = storage.delete_stock_minute(
-                trade_date=trade_date,
-                start_date=start_date,
-                end_date=end_date,
-                period=args.period,
-                symbols=_parse_symbols(args.symbols) if args.symbols else None,
-            )
-            step.complete(message=f"{deleted} 条")
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
-    finally:
-        progress.close()
-    if deleted:
-        print(f"已删除 {deleted} 条分钟K数据")
-    else:
-        print("无匹配分钟K数据")
-    return 0
-
-
 def cmd_monitor(args: argparse.Namespace) -> int:
     if args.monitor_command is None:
         raise SystemExit("monitor requires subcommand")
     settings = load_settings()
     storage = DuckDBStorage(getattr(args, "db", None) or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, getattr(args, "db", None) or settings.db_path))
     command = args.monitor_command
     if command == "positions":
-        return _cmd_monitor_positions(args, storage)
+        return _cmd_monitor_positions(args, storage, settings)
     if command == "watchlist":
-        return _cmd_monitor_watchlist(args, storage)
+        return _cmd_monitor_watchlist(args, storage, settings)
     if command == "buy-candidates":
-        return _cmd_monitor_buy_candidates(args, storage)
+        return _cmd_monitor_buy_candidates(args, storage, settings)
     if command == "start":
         return _cmd_monitor_start(args, settings, storage)
     if command == "run":
@@ -1137,11 +1171,11 @@ def cmd_monitor(args: argparse.Namespace) -> int:
     raise SystemExit(f"unknown monitor command: {command}")
 
 
-def _cmd_monitor_positions(args: argparse.Namespace, storage: DuckDBStorage) -> int:
+def _cmd_monitor_positions(args: argparse.Namespace, storage: DuckDBStorage, settings) -> int:
     command = args.monitor_positions_command
     if command == "add":
         storage.upsert_monitor_position(
-            ts_code=_parse_symbol(args.symbol),
+            ts_code=_parse_symbol_or_name(args.symbol, settings),
             name=args.name,
             quantity=args.quantity,
             buy_price=args.buy_price,
@@ -1154,16 +1188,16 @@ def _cmd_monitor_positions(args: argparse.Namespace, storage: DuckDBStorage) -> 
         print(_format_monitor_table(storage.list_monitor_positions()))
         return 0
     if command == "remove":
-        print("已删除持仓" if storage.delete_monitor_position(_parse_symbol(args.symbol)) else "未找到持仓")
+        print("已删除持仓" if storage.delete_monitor_position(_parse_symbol_or_name(args.symbol, settings)) else "未找到持仓")
         return 0
     raise SystemExit("monitor positions requires add, list or remove")
 
 
-def _cmd_monitor_watchlist(args: argparse.Namespace, storage: DuckDBStorage) -> int:
+def _cmd_monitor_watchlist(args: argparse.Namespace, storage: DuckDBStorage, settings) -> int:
     command = args.monitor_watchlist_command
     if command == "add":
         storage.upsert_monitor_watchlist(
-            ts_code=_parse_symbol(args.symbol),
+            ts_code=_parse_symbol_or_name(args.symbol, settings),
             name=args.name,
             note=args.note,
         )
@@ -1173,18 +1207,18 @@ def _cmd_monitor_watchlist(args: argparse.Namespace, storage: DuckDBStorage) -> 
         print(_format_monitor_table(storage.list_monitor_watchlist()))
         return 0
     if command == "remove":
-        print("已删除关注股票" if storage.delete_monitor_watchlist(_parse_symbol(args.symbol)) else "未找到关注股票")
+        print("已删除关注股票" if storage.delete_monitor_watchlist(_parse_symbol_or_name(args.symbol, settings)) else "未找到关注股票")
         return 0
     raise SystemExit("monitor watchlist requires add, list or remove")
 
 
-def _cmd_monitor_buy_candidates(args: argparse.Namespace, storage: DuckDBStorage) -> int:
+def _cmd_monitor_buy_candidates(args: argparse.Namespace, storage: DuckDBStorage, settings) -> int:
     command = args.monitor_candidates_command
     if command == "list":
         print(_format_monitor_table(storage.list_monitor_buy_candidates()))
         return 0
     if command == "remove":
-        print("已删除待买入股票" if storage.delete_monitor_buy_candidate(_parse_symbol(args.symbol)) else "未找到待买入股票")
+        print("已删除待买入股票" if storage.delete_monitor_buy_candidate(_parse_symbol_or_name(args.symbol, settings)) else "未找到待买入股票")
         return 0
     raise SystemExit("monitor buy-candidates requires list or remove")
 
@@ -1313,6 +1347,7 @@ def cmd_qmt(args: argparse.Namespace) -> int:
         raise SystemExit("qmt requires subcommand")
     settings = load_settings()
     storage = DuckDBStorage(getattr(args, "db", None) or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, getattr(args, "db", None) or settings.db_path))
     command = args.qmt_command
     if command == "bridge":
         if args.qmt_bridge_command != "run":
@@ -1385,7 +1420,7 @@ def cmd_qmt(args: argparse.Namespace) -> int:
         return 0
     if command in {"buy", "sell"}:
         client = _dry_run_broker(settings) if getattr(args, "dry_run", False) else broker_from_settings(settings)
-        return _cmd_qmt_order(args, storage, client, side=command)
+        return _cmd_qmt_order(args, storage, client, settings=settings, side=command)
     if command == "cancel":
         client = broker_from_settings(settings)
         result = client.cancel_order(args.order_id)
@@ -1701,6 +1736,53 @@ def _format_result_stock_list(rows: list[dict[str, object]]) -> str:
     return "\n".join(lines)
 
 
+def _format_quote_table(
+    symbols: list[str],
+    quotes: pd.DataFrame,
+    ma_lookup: dict[str, dict[str, float | None]],
+    stock_basic: pd.DataFrame,
+) -> str:
+    headers = {
+        "index": "序号",
+        "ts_code": "股票代码",
+        "name": "股票名称",
+        "close": "现价",
+        "pct_chg": "涨跌幅",
+        "ma5": "周线",
+        "ma20": "月线",
+        "ma60": "季线",
+        "ma250": "年线",
+    }
+    quote_lookup = _records_by_symbol(quotes)
+    name_lookup = _stock_name_lookup(stock_basic)
+    rows = []
+    for index, symbol in enumerate(symbols, start=1):
+        quote = quote_lookup.get(symbol, {})
+        ma = ma_lookup.get(symbol, {})
+        rows.append(
+            {
+                "index": f"{index}.",
+                "ts_code": symbol,
+                "name": _coalesce_text(quote.get("name"), name_lookup.get(symbol)),
+                "close": _fmt_optional_price(quote.get("close")),
+                "pct_chg": _fmt_optional_pct(quote.get("pct_chg")),
+                "ma5": _fmt_optional_price(ma.get("ma5")),
+                "ma20": _fmt_optional_price(ma.get("ma20")),
+                "ma60": _fmt_optional_price(ma.get("ma60")),
+                "ma250": _fmt_optional_price(ma.get("ma250")),
+            }
+        )
+    widths = {
+        key: max(get_cwidth(headers[key]), *(get_cwidth(str(row[key])) for row in rows))
+        for key in headers
+    }
+    ordered_keys = ["index", "ts_code", "name", "close", "pct_chg", "ma5", "ma20", "ma60", "ma250"]
+    lines = [" ".join(_display_ljust(headers[key], widths[key]) for key in ordered_keys).rstrip()]
+    for row in rows:
+        lines.append(" ".join(_display_ljust(str(row[key]), widths[key]) for key in ordered_keys).rstrip())
+    return "\n".join(lines)
+
+
 def _display_ljust(text: str, width: int) -> str:
     return text + " " * max(0, width - get_cwidth(text))
 
@@ -1723,6 +1805,84 @@ def _format_numbered_values(values: list[str]) -> str:
     return "\n".join(f"{index}. {value}" for index, value in enumerate(values, start=1))
 
 
+def _quote_moving_average_lookup(daily: pd.DataFrame, realtime_daily: pd.DataFrame) -> dict[str, dict[str, float | None]]:
+    columns = ["ts_code", "trade_date", "close"]
+    historical = _normalize_quote_daily_frame(daily, columns=columns)
+    overlay = _normalize_quote_daily_frame(realtime_daily, columns=columns)
+    combined = historical
+    if not overlay.empty:
+        combined = pd.concat([historical, overlay], ignore_index=True)
+    if combined.empty:
+        return {}
+    combined = combined.drop_duplicates(subset=["ts_code", "trade_date"], keep="last")
+    result: dict[str, dict[str, float | None]] = {}
+    for ts_code, group in combined.groupby("ts_code", sort=False):
+        closes = pd.to_numeric(group.sort_values("trade_date")["close"], errors="coerce")
+        result[str(ts_code)] = {
+            "ma5": _rolling_ma_value(closes, 5),
+            "ma20": _rolling_ma_value(closes, 20),
+            "ma60": _rolling_ma_value(closes, 60),
+            "ma250": _rolling_ma_value(closes, 250),
+        }
+    return result
+
+
+def _normalize_quote_daily_frame(frame: pd.DataFrame | None, *, columns: list[str]) -> pd.DataFrame:
+    if frame is None or frame.empty:
+        return pd.DataFrame(columns=columns)
+    data = frame.copy()
+    for column in columns:
+        if column not in data.columns:
+            data[column] = pd.NA
+    data["ts_code"] = data["ts_code"].astype(str)
+    data["trade_date"] = data["trade_date"].astype(str)
+    data["close"] = pd.to_numeric(data["close"], errors="coerce")
+    data = data.dropna(subset=["ts_code", "trade_date", "close"])
+    if data.empty:
+        return pd.DataFrame(columns=columns)
+    return data[columns].reset_index(drop=True)
+
+
+def _rolling_ma_value(close: pd.Series, window: int) -> float | None:
+    if len(close.dropna()) < window:
+        return None
+    value = close.rolling(window, min_periods=window).mean().iloc[-1]
+    return None if pd.isna(value) else float(value)
+
+
+def _records_by_symbol(frame: pd.DataFrame) -> dict[str, dict[str, object]]:
+    if frame is None or frame.empty or "ts_code" not in frame.columns:
+        return {}
+    data = frame.drop_duplicates(subset=["ts_code"], keep="last")
+    return {
+        str(row.get("ts_code") or "").strip(): row.to_dict()
+        for _, row in data.iterrows()
+        if str(row.get("ts_code") or "").strip()
+    }
+
+
+def _stock_name_lookup(stock_basic: pd.DataFrame) -> dict[str, str]:
+    if stock_basic is None or stock_basic.empty:
+        return {}
+    lookup: dict[str, str] = {}
+    for _, row in stock_basic.iterrows():
+        ts_code = str(row.get("ts_code") or "").strip()
+        name = str(row.get("name") or "").strip()
+        if ts_code and name and ts_code not in lookup:
+            lookup[ts_code] = name
+    return lookup
+
+
+def _coalesce_text(*values) -> str:
+    for value in values:
+        if value is None or pd.isna(value):
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return ""
+
+
 def _parse_symbols(value: str) -> list[str]:
     try:
         return parse_symbol_csv(value)
@@ -1730,8 +1890,48 @@ def _parse_symbols(value: str) -> list[str]:
         raise SystemExit(str(exc)) from exc
 
 
+def _parse_symbols_or_names(value: str, settings=None) -> list[str]:
+    raw_values = [item.strip() for item in str(value or "").split(",") if item.strip()]
+    try:
+        symbols = parse_symbol_csv(value)
+    except ValueError:
+        symbols = []
+    if symbols and all(_looks_symbol_value(item) for item in raw_values):
+        return symbols
+    settings = settings or load_settings()
+    stock_basic = load_stock_basic_frame(settings)
+    try:
+        return resolve_symbol_or_name_values(raw_values, stock_basic)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+
+
+def _looks_symbol_value(value: str) -> bool:
+    text = str(value or "").strip().upper()
+    return (len(text) == 6 and text.isdigit()) or (len(text) == 9 and text[:6].isdigit() and text[6] == ".")
+
+
+def _parse_symbol_or_name(value: str, settings=None) -> str:
+    return _parse_symbols_or_names(value, settings)[0]
+
+
 def _parse_symbol(value: str) -> str:
     return _parse_symbols(value)[0]
+
+
+def _settings_with_db_path(settings, db_path: Path):
+    if getattr(settings, "db_path", None) == db_path:
+        return settings
+    try:
+        from dataclasses import replace
+
+        return replace(settings, db_path=db_path)
+    except Exception:
+        return SimpleNamespace(**{**vars(settings), "db_path": db_path})
+
+
+def _storage_db_path(storage, fallback: Path | str) -> Path:
+    return Path(getattr(storage, "db_path", fallback))
 
 
 def _parse_csv(value: str) -> list[str]:
@@ -1743,6 +1943,10 @@ def _parse_csv(value: str) -> list[str]:
 
 def _parse_optional_csv(value: str) -> list[str]:
     return [item.strip() for item in str(value or "").split(",") if item.strip()]
+
+
+def _parse_tags(value: str) -> list[str]:
+    return _parse_optional_csv(value)
 
 
 def _should_prompt_watchlist_import(args: argparse.Namespace) -> bool:
@@ -1785,8 +1989,8 @@ def _format_monitor_runtime(row: dict) -> str:
     return f"状态: {status} PID: {pid} 心跳: {heartbeat}{suffix}".strip()
 
 
-def _cmd_qmt_order(args: argparse.Namespace, storage: DuckDBStorage, client, *, side: str) -> int:
-    ts_code = _parse_symbol(args.symbol)
+def _cmd_qmt_order(args: argparse.Namespace, storage: DuckDBStorage, client, *, settings=None, side: str) -> int:
+    ts_code = _parse_symbol_or_name(args.symbol, settings)
     if args.quantity <= 0:
         raise SystemExit("--quantity must be positive")
     if side == "buy" and args.quantity % 100 != 0:
@@ -1925,11 +2129,29 @@ def _fmt_money(value) -> str:
         return "0.00"
 
 
+def _fmt_optional_price(value) -> str:
+    try:
+        if value is None or pd.isna(value):
+            return "--"
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return "--"
+
+
 def _fmt_pct(value) -> str:
     try:
         return f"{float(value or 0.0):+.2f}%"
     except (TypeError, ValueError):
         return "+0.00%"
+
+
+def _fmt_optional_pct(value) -> str:
+    try:
+        if value is None or pd.isna(value):
+            return "--"
+        return f"{float(value):+.2f}%"
+    except (TypeError, ValueError):
+        return "--"
 
 
 def _format_scheduled_tasks(rows: list[dict]) -> str:
@@ -2021,42 +2243,6 @@ def _scheduled_run_summary(row: dict) -> str:
         return error[:120]
     output = str(row.get("output_text") or "").strip().replace("\n", " ")
     return output[:120]
-
-
-def _minute_clear_date_filters(args: argparse.Namespace) -> tuple[str | None, str | None, str | None]:
-    trade_date = _validate_yyyymmdd(args.trade_date, "--trade-date")
-    start_date = _validate_yyyymmdd(args.start_date, "--start-date")
-    end_date = _validate_yyyymmdd(args.end_date, "--end-date")
-    if trade_date and (start_date or end_date):
-        raise ValueError("--trade-date 不能和 --start-date/--end-date 混用")
-    if not trade_date and not start_date and not end_date:
-        raise ValueError("必须提供 --trade-date、--start-date、--end-date 至少一个日期参数")
-    if start_date and end_date and start_date > end_date:
-        raise ValueError("--start-date 不能晚于 --end-date")
-    return trade_date, start_date, end_date
-
-
-def _validate_yyyymmdd(value: str | None, name: str) -> str | None:
-    if value is None:
-        return None
-    date = str(value).strip()
-    if len(date) != 8 or not date.isdigit():
-        raise ValueError(f"{name} 必须是 YYYYMMDD 格式")
-    return date
-
-
-def _format_minute_k(frame) -> str:
-    if frame is None or frame.empty:
-        return "无结果"
-    lines = []
-    for index, row in enumerate(frame.to_dict("records"), start=1):
-        lines.append(
-            f"{index}. {row.get('ts_code')} {row.get('period')} {row.get('trade_time')} "
-            f"O:{_fmt_number(row.get('open'))} H:{_fmt_number(row.get('high'))} "
-            f"L:{_fmt_number(row.get('low'))} C:{_fmt_number(row.get('close'))} "
-            f"V:{_fmt_number(row.get('vol'))} A:{_fmt_number(row.get('amount'))}"
-        )
-    return "\n".join(lines)
 
 
 def _fmt_number(value) -> str:

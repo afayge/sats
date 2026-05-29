@@ -463,7 +463,7 @@ class _FakeProvider:
             ]
         )
 
-    def load_realtime_minute_klines(self, symbols, *, period="30m", count=None, storage=None):
+    def load_realtime_minute_klines(self, symbols, *, period="30m", count=None):
         return pd.DataFrame(
             [
                 {

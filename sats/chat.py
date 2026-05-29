@@ -27,6 +27,7 @@ from sats.analysis.market_llm_context import build_market_llm_context, get_a_sha
 from sats.analysis.opportunity_discovery import run_opportunity_discovery
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
 from sats.analysis.stock_llm_context import build_stock_llm_context, ensure_stock_analysis_data
+from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.chat_planner import build_chat_plan, skills_for_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
 from sats.chat_reference import ChatReferenceContext
@@ -55,6 +56,7 @@ class ChatResult:
     memory_count: int = 0
     tool_call_count: int = 0
     data_names: tuple[str, ...] = ()
+    sources: tuple[dict[str, Any], ...] = ()
 
 
 class ChatSession:
@@ -75,6 +77,7 @@ class ChatSession:
         max_tool_iterations: int = 4,
         progress: Any | None = None,
         preprocess_enabled: bool = True,
+        knowledge: str | None = None,
     ) -> None:
         self.settings = settings or load_settings()
         project_root = Path(getattr(self.settings, "project_root", "."))
@@ -91,6 +94,7 @@ class ChatSession:
         self.max_tool_iterations = max(1, max_tool_iterations)
         self.progress = progress
         self.preprocess_enabled = preprocess_enabled
+        self.knowledge = knowledge
         self.history: list[dict[str, str]] = []
         self._history_loaded = False
         self._llm: Any | None = None
@@ -277,8 +281,15 @@ class ChatSession:
             chan_context = build_chan_chat_context(text, skills=self.skills)
             if chan_context is not None:
                 data_names.append("缠论RAG")
-        messages = build_chat_messages(
+        research_context = self._build_research_context(
             text,
+            plan_collections=_collections_for_plan(plan),
+            explicit_knowledge=self.knowledge,
+        )
+        if research_context is not None:
+            data_names.append("知识库RAG")
+        conversation = ConversationContextBuilder().build(
+            message=text,
             history=self.history,
             skills=matched,
             plan_context=plan.system_message(),
@@ -288,12 +299,15 @@ class ChatSession:
             market_context=market_context.system_message if stock_context is None and market_context is not None else "",
             opportunity_context=opportunity_context.system_message if opportunity_context is not None else "",
             chan_context=chan_context.system_message if chan_context is not None else "",
+            research_context=research_context.system_message if research_context is not None else "",
             quote_context=quote_context.system_message if quote_context is not None else "",
             reference_context=reference_context.system_message if reference_context is not None else "",
             preprocess_context=preprocess.system_message()
             if preprocess is not None and _should_include_preprocess_context(preprocess)
             else "",
+            sources=research_context.sources if research_context is not None else (),
         )
+        messages = conversation.messages
         response, tool_call_count = self._chat_with_optional_tools(
             messages,
             progress=active_progress,
@@ -314,6 +328,7 @@ class ChatSession:
             memory_count=len(memories),
             tool_call_count=tool_call_count,
             data_names=tuple(_dedupe(data_names)),
+            sources=conversation.sources,
         )
 
     def _maybe_handle_rule_generation(self, text: str) -> ChatResult | None:
@@ -562,6 +577,27 @@ class ChatSession:
         if summary:
             store.update_session_summary(self.session_id, summary)
 
+    def _build_research_context(
+        self,
+        message: str,
+        *,
+        plan_collections: tuple[str, ...],
+        explicit_knowledge: str | None,
+    ) -> StockResearchContext | None:
+        if not explicit_knowledge and not plan_collections:
+            return None
+        if getattr(self.settings, "db_path", None) is None:
+            return None
+        try:
+            return build_stock_research_context(
+                message,
+                settings=self.settings,
+                knowledge=explicit_knowledge,
+                collections=plan_collections,
+            )
+        except Exception:
+            return None
+
 
 def run_chat_once(
     message: str,
@@ -571,6 +607,7 @@ def run_chat_once(
     llm_factory: Callable[..., Any] | None = None,
     memory_enabled: bool = True,
     progress: Any | None = None,
+    knowledge: str | None = None,
 ) -> ChatResult:
     session = ChatSession(
         settings=settings,
@@ -579,6 +616,7 @@ def run_chat_once(
         memory_enabled=memory_enabled,
         max_history_messages=0,
         progress=progress,
+        knowledge=knowledge,
     )
     return session.ask(message)
 
@@ -595,6 +633,7 @@ def build_chat_messages(
     market_context: str = "",
     opportunity_context: str = "",
     chan_context: str = "",
+    research_context: str = "",
     quote_context: str = "",
     reference_context: str = "",
     preprocess_context: str = "",
@@ -614,6 +653,8 @@ def build_chat_messages(
         messages.append({"role": "system", "content": opportunity_context})
     if chan_context:
         messages.append({"role": "system", "content": chan_context})
+    if research_context:
+        messages.append({"role": "system", "content": research_context})
     if quote_context:
         messages.append({"role": "system", "content": quote_context})
     if reference_context:
@@ -625,6 +666,51 @@ def build_chat_messages(
     messages.extend(history or [])
     messages.append({"role": "user", "content": message})
     return messages
+
+
+@dataclass(frozen=True, slots=True)
+class ConversationContext:
+    messages: list[dict[str, str]]
+    sources: tuple[dict[str, Any], ...] = ()
+
+
+class ConversationContextBuilder:
+    def build(
+        self,
+        *,
+        message: str,
+        history: list[dict[str, str]] | None = None,
+        skills: list[Skill] | None = None,
+        plan_context: str = "",
+        memories: list[MemoryRecord] | None = None,
+        session_summary: str = "",
+        stock_context: str = "",
+        market_context: str = "",
+        opportunity_context: str = "",
+        chan_context: str = "",
+        research_context: str = "",
+        quote_context: str = "",
+        reference_context: str = "",
+        preprocess_context: str = "",
+        sources: tuple[dict[str, Any], ...] = (),
+    ) -> ConversationContext:
+        messages = build_chat_messages(
+            message,
+            history=history,
+            skills=skills,
+            plan_context=plan_context,
+            memories=memories,
+            session_summary=session_summary,
+            stock_context=stock_context,
+            market_context=market_context,
+            opportunity_context=opportunity_context,
+            chan_context=chan_context,
+            research_context=research_context,
+            quote_context=quote_context,
+            reference_context=reference_context,
+            preprocess_context=preprocess_context,
+        )
+        return ConversationContext(messages=messages, sources=sources)
 
 
 def _stock_context_message(stock_context: Any | None, market_context: Any | None = None) -> str:
@@ -696,6 +782,27 @@ def _is_stock_followup(message: str) -> bool:
 def _looks_like_rule_plan_revision(message: str) -> bool:
     text = str(message or "").strip()
     return bool(text) and any(term in text for term in _RULE_PLAN_REVISION_TERMS)
+
+
+def _collections_for_plan(plan: Any) -> tuple[str, ...]:
+    collections: list[str] = []
+    skills = set(getattr(plan, "skills", ()) or ())
+    requirements = set(getattr(plan, "data_requirements", ()) or ())
+    actions = set(getattr(plan, "internal_actions", ()) or ())
+    intent = str(getattr(plan, "intent", "") or "")
+    if "chan-theory" in skills or "chan_context" in requirements or intent == "chan_analysis":
+        collections.append("chan")
+    if "technical-basic" in skills or "stock_context" in requirements:
+        collections.extend(["stock-basic", "technical"])
+    if "opportunity_discovery" in actions or "signals" in skills:
+        collections.append("signals")
+    if "market_context" in requirements or "sats-market-assistant" in skills:
+        collections.extend(["market", "sentiment"])
+    if {"financial-statement", "valuation-model", "fundamental-filter"} & skills:
+        collections.append("fundamental")
+    if "risk-analysis" in skills:
+        collections.append("risk")
+    return tuple(_dedupe(collections))
 
 
 def _ensure_skill(matched: list[Skill], skills: list[Skill], skill_name: str) -> list[Skill]:

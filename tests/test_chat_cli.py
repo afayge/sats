@@ -8,8 +8,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pandas as pd
+
+from sats.analysis.dsa_native import DsaAnalysisRanking, DsaAnalysisRunResult
 from sats.chat import ChatResult
 from sats.cli import main
+from sats.storage.duckdb import DuckDBStorage
 from sats.skills import Skill
 
 
@@ -110,6 +114,83 @@ class ChatCliTest(unittest.TestCase):
             output = stdout.getvalue()
             self.assertIn("用户关注股票筛选", output)
             self.assertIn(f"已删除记忆 {memory_id}", output)
+
+    def test_cli_knowledge_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            db_path = root / "sats.duckdb"
+            doc = root / "chan.md"
+            doc.write_text("# 三买\n第三类买点 回试 中枢。\n", encoding="utf-8")
+            settings = SimpleNamespace(project_root=root, db_path=db_path, openai_model="deepseek-v4-pro")
+            stdout = StringIO()
+
+            with patch("sats.cli.load_settings", return_value=settings), redirect_stdout(stdout):
+                self.assertEqual(main(["knowledge", "add", "--name", "chan", "--description", "缠论"]), 0)
+                self.assertEqual(main(["knowledge", "ingest", "--knowledge", "chan", "--path", str(doc)]), 0)
+                self.assertEqual(main(["knowledge", "search", "--query", "三买", "--knowledge", "chan"]), 0)
+                self.assertEqual(main(["knowledge", "list"]), 0)
+
+            output = stdout.getvalue()
+            self.assertIn("已保存知识库 chan", output)
+            self.assertIn("已入库 1 个知识块", output)
+            self.assertIn("第三类买点", output)
+            self.assertIn("chan", output)
+
+    def test_cli_knowledge_sync_stock_basic(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            db_path = root / "sats.duckdb"
+            storage = DuckDBStorage(db_path)
+            storage.upsert_stock_basic(pd.DataFrame([{"ts_code": "000938.SZ", "symbol": "000938", "name": "紫光股份"}]))
+            settings = SimpleNamespace(project_root=root, db_path=db_path, openai_model="deepseek-v4-pro")
+            stdout = StringIO()
+
+            with patch("sats.cli.load_settings", return_value=settings), redirect_stdout(stdout):
+                self.assertEqual(main(["knowledge", "sync-stock-basic"]), 0)
+                self.assertEqual(main(["knowledge", "search", "--query", "紫光股份 股票代码", "--knowledge", "stock-basic"]), 0)
+
+            output = stdout.getvalue()
+            self.assertIn("已同步 1 条 stock_basic 股票知识", output)
+            self.assertIn("000938.SZ", output)
+
+    def test_cli_chat_can_force_knowledge(self) -> None:
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        stdout = StringIO()
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ())) as chat,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--knowledge", "chan", "解释三买"]), 0)
+
+        chat.assert_called_once_with("解释三买", settings=settings, memory_enabled=True, knowledge="chan")
+
+    def test_cli_dsa_accepts_stock_name_at_input_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            db_path = root / "sats.duckdb"
+            storage = DuckDBStorage(db_path)
+            storage.upsert_stock_basic(pd.DataFrame([{"ts_code": "000938.SZ", "symbol": "000938", "name": "紫光股份"}]))
+            settings = SimpleNamespace(project_root=root, env_path=root / ".env", db_path=db_path, openai_model="deepseek-v4-pro")
+            fake_result = DsaAnalysisRunResult(
+                analyzed_codes=["000938.SZ"],
+                skipped_codes=[],
+                rankings=[DsaAnalysisRanking("000938.SZ", "紫光股份", 76, "买入", "偏多")],
+                source_report=None,
+                archived_report=None,
+            )
+            stdout = StringIO()
+
+            with (
+                patch("sats.cli.load_settings", return_value=settings),
+                patch("sats.cli.run_dsa_analysis", return_value=fake_result) as run_dsa,
+                redirect_stdout(stdout),
+            ):
+                self.assertEqual(main(["dsa", "--stocks", "紫光股份", "--trade-date", "20260514", "--no-llm"]), 0)
+
+            self.assertEqual(run_dsa.call_args.args[0], ["000938.SZ"])
+            self.assertIn("000938.SZ 紫光股份", stdout.getvalue())
 
 
 if __name__ == "__main__":

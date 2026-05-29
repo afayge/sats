@@ -510,7 +510,6 @@ class FakeChanTickFlowProvider:
         start_time=None,
         end_time=None,
         count=None,
-        storage=None,
     ):
         self.calls.append(
             {
@@ -522,15 +521,12 @@ class FakeChanTickFlowProvider:
                 "count": count,
             }
         )
-        frame = pd.concat(
+        return pd.concat(
             [make_chan_minute_30m(end=type(self).history_end).assign(ts_code=symbol) for symbol in symbols],
             ignore_index=True,
         )
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
-        return frame
 
-    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None, storage=None):
+    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None):
         self.calls.append({"mode": "realtime", "symbols": list(symbols), "period": period, "count": count})
         if type(self).fail_realtime:
             raise ValueError("TickFlow 当前套餐不支持实时分钟K线")
@@ -539,8 +535,6 @@ class FakeChanTickFlowProvider:
             ignore_index=True,
         )
         frame.attrs["tickflow_source"] = "tickflow_single_intraday"
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
         return frame
 
 
@@ -1310,30 +1304,28 @@ class TushareDataProviderTest(unittest.TestCase):
             self.assertEqual(groups["000001.SZ"]["trade_date"].astype(str).max(), "20260430")
             FakeChanTickFlowProvider.history_end = "20260430"
 
-    def test_chan_third_buy_realtime_failure_uses_same_day_minute_cache(self) -> None:
+    def test_chan_third_buy_realtime_failure_does_not_use_minute_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
             stock_basic = _stock_basic_rows(["000001.SZ"])
             daily_groups = {"000001.SZ": make_chan_daily(end="20260430").assign(ts_code="000001.SZ")}
-            storage.upsert_stock_minute(make_chan_minute_30m(end="20260430"))
             FakeChanTickFlowProvider.calls = []
             FakeChanTickFlowProvider.fail_realtime = True
             FakeChanTickFlowProvider.history_end = "20260429"
 
             with patch("sats.data.tushare_provider.TickFlowDataProvider", FakeChanTickFlowProvider):
-                groups, sources = provider._build_chan_third_buy_minute_metadata(
-                    stock_basic=stock_basic,
-                    daily_groups=daily_groups,
-                    trade_date="20260430",
-                    storage=storage,
-                    use_realtime=True,
-                    data_source="tushare_rt_k_forced",
-                )
+                with self.assertRaisesRegex(ValueError, "30分钟实时确认失败"):
+                    provider._build_chan_third_buy_minute_metadata(
+                        stock_basic=stock_basic,
+                        daily_groups=daily_groups,
+                        trade_date="20260430",
+                        storage=storage,
+                        use_realtime=True,
+                        data_source="tushare_rt_k_forced",
+                    )
 
-            self.assertEqual(sources["000001.SZ"], "duckdb_minute_cache_after_provider_failure")
-            self.assertEqual(groups["000001.SZ"]["trade_date"].astype(str).max(), "20260430")
             FakeChanTickFlowProvider.fail_realtime = False
             FakeChanTickFlowProvider.history_end = "20260430"
 
@@ -1349,7 +1341,7 @@ class TushareDataProviderTest(unittest.TestCase):
             FakeChanTickFlowProvider.history_end = "20260429"
 
             with patch("sats.data.tushare_provider.TickFlowDataProvider", FakeChanTickFlowProvider):
-                with self.assertRaisesRegex(ValueError, "本地同交易日30m缓存为空"):
+                with self.assertRaisesRegex(ValueError, "30分钟实时确认失败"):
                     provider._build_chan_third_buy_minute_metadata(
                         stock_basic=stock_basic,
                         daily_groups=daily_groups,

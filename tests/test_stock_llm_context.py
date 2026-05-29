@@ -86,18 +86,12 @@ class _FakeTickFlowProvider:
             for symbol in symbols
         ]
 
-    def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None, storage=None):
+    def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None):
         type(self).historical_calls.append({"period": period, "start_time": start_time, "end_time": end_time})
-        frame = pd.concat([_minute(symbol, period=period) for symbol in symbols], ignore_index=True)
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
-        return frame
+        return pd.concat([_minute(symbol, period=period) for symbol in symbols], ignore_index=True)
 
-    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None, storage=None):
-        frame = pd.concat([_minute(symbol, period=period) for symbol in symbols], ignore_index=True)
-        if storage is not None:
-            storage.upsert_stock_minute(frame)
-        return frame
+    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None):
+        return pd.concat([_minute(symbol, period=period) for symbol in symbols], ignore_index=True)
 
     def load_realtime_quotes(self, *, symbols):
         return pd.DataFrame(
@@ -114,10 +108,10 @@ class _EmptyTushareProvider:
 
 
 class _BrokenTickFlowProvider(_FakeTickFlowProvider):
-    def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None, storage=None):
+    def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None):
         raise RuntimeError("tickflow minute failed")
 
-    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None, storage=None):
+    def load_realtime_minute_klines(self, symbols, *, period="1m", count=None):
         raise RuntimeError("tickflow minute failed")
 
 
@@ -151,7 +145,7 @@ class StockLLMContextTest(unittest.TestCase):
             self.assertTrue(all(call["end_time"] == "2026-05-15 10:30:00" for call in _FakeTickFlowProvider.historical_calls))
             self.assertIn("不得编造价格", context.system_message)
 
-    def test_ensure_stock_analysis_data_fetches_and_caches_15m_30m(self) -> None:
+    def test_ensure_stock_analysis_data_fetches_15m_30m_without_caching(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
             storage = DuckDBStorage(settings.db_path)
@@ -165,25 +159,23 @@ class StockLLMContextTest(unittest.TestCase):
             self.assertIn("002436.SZ", contexts)
             self.assertIn("15m", contexts["002436.SZ"]["minute_curves"])
             self.assertIn("30m", contexts["002436.SZ"]["minute_curves"])
-            self.assertFalse(storage.get_stock_minute(symbols=["002436.SZ"], period="15m", trade_date="20260515").empty)
-            self.assertFalse(storage.get_stock_minute(symbols=["002436.SZ"], period="30m", trade_date="20260515").empty)
+            with storage.connect() as con:
+                tables = con.execute("SHOW TABLES").fetchdf()["name"].tolist()
+            self.assertNotIn("stock_minute", tables)
 
-    def test_context_uses_same_day_minute_cache_after_tickflow_failure(self) -> None:
+    def test_context_does_not_fallback_to_minute_cache_after_tickflow_failure(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
             storage = DuckDBStorage(settings.db_path)
-            storage.upsert_stock_minute(_minute(period="15m"))
-            storage.upsert_stock_minute(_minute(period="30m"))
 
             with (
                 patch("sats.data.astock_provider.TickFlowDataProvider", _BrokenTickFlowProvider),
                 patch("sats.data.astock_provider.TushareDataProvider", _EmptyTushareProvider),
             ):
-                context = build_stock_llm_context("分析002436 20260515", settings=settings, storage=storage)
+                with self.assertRaises(ValueError) as raised:
+                    build_stock_llm_context("分析002436 20260515", settings=settings, storage=storage)
 
-            stock = context.payload["stocks"][0]
-            self.assertEqual(stock["minute_curves"]["15m"]["source"], "duckdb_minute_cache_after_provider_failure")
-            self.assertEqual(stock["minute_curves"]["30m"]["source"], "duckdb_minute_cache_after_provider_failure")
+            self.assertIn("真实 15m 分钟K数据", str(raised.exception))
 
     def test_context_failure_stops_before_llm_when_minute_missing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

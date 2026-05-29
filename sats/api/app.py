@@ -109,7 +109,6 @@ def create_app(settings: Settings | None = None, storage: DuckDBStorage | None =
                     symbol_list,
                     period=period,
                     count=count,
-                    storage=resolved_storage,
                 )
             else:
                 frame = provider.load_historical_minute_klines(
@@ -118,7 +117,6 @@ def create_app(settings: Settings | None = None, storage: DuckDBStorage | None =
                     start_time=start_date,
                     end_time=end_date,
                     count=count,
-                    storage=resolved_storage,
                 )
         except Exception as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc

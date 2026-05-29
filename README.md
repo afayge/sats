@@ -119,6 +119,8 @@ sats model use XIAOMIMIMO --target light
 
 聊天默认启用本地记忆：SATS 会把会话消息、滚动摘要和长期记忆保存到 `.env` 中 `SATS_DB_PATH` 指向的 DuckDB。长期记忆通过关键词和标签检索注入上下文，第一版不使用外部向量库或云端数据库。临时问题可以使用 `--no-memory` 跳过记忆读取和写入。
 
+聊天还会按问题意图自动加载本地股票知识库 RAG：缠论、技术指标、信号分析、A 股情绪、大盘、基本面、风险和 `stock_basic` 股票名称代码表等领域会映射到 DuckDB 中的 knowledge collections。SATS 参考 open-webui 的知识库/文件/collection/chunk 流程，但首版使用本地 DuckDB 混合关键词检索，不依赖外部向量库。RAG 只提供方法论、规则说明、股票名称/代码映射和引用证据；真实价格、指标、大盘宽度和交易判断仍必须来自 SATS 结构化市场数据。
+
 ```text
 sats> 帮我解释 price_volume_ma 策略
 sats> 用缠论分析002436
@@ -131,10 +133,14 @@ sats> 给出几个股票，预计未来几天有上涨趋势的股票
 sats> 新增一个低位放量突破筛选规则
 sats> 确认生成规则 nl_low_volume_breakout
 sats> /chat 帮我解释筛选结果怎么查询
+sats> /chat --knowledge chan 解释三买和背驰
 sats> /chat --no-memory 临时问题
+sats> /knowledge search --query 三买 --knowledge chan
+sats> /knowledge ingest --knowledge chan --path knowledge/chan/rules
+sats> /knowledge sync-stock-basic
 ```
 
-聊天模式会先做轻量输入规划，再匹配相关 skill、拉取真实研究数据，必要时调用 SATS 白名单内部分析能力，最后才把结构化上下文交给 LLM。为避免模拟行情，普通文本、`/chat` 和 `sats chat` 遇到股票代码都会同时先取真实个股数据和真实大盘数据；如果个股日线/分钟 K 或核心指数日线等硬数据缺失，SATS 会直接报错并停止调用 LLM。大盘类问题支持把“明天”“后天”“明后”“下周”这类相对时间直接映射为分析 horizon，不要求用户额外给出单一指数或绝对日期。大盘市场宽度、财务、热点板块或实时 quote 等辅助数据缺失时会标记 `missing_fields`，不会用旧数据冒充。指定交易日时使用该日数据；指定日内时点时，15m/30m 曲线会截断到该时点。REPL 同一个 `ChatSession` 内，`继续分析它/它们/这只/这些` 等追问会继承上一轮股票代码和时间；一次性 `sats chat` 不从长期记忆恢复股票代码，追问时仍需写明代码。
+聊天模式会先做轻量输入规划，再匹配相关 skill、拉取真实研究数据，必要时调用 SATS 白名单内部分析能力，最后才把结构化上下文交给 LLM。为避免模拟行情，普通文本、`/chat` 和 `sats chat` 遇到股票代码或可唯一识别的股票名称都会先统一解析为 `ts_code`，再同时取真实个股数据和真实大盘数据；如果个股日线/分钟 K 或核心指数日线等硬数据缺失，SATS 会直接报错并停止调用 LLM。大盘类问题支持把“明天”“后天”“明后”“下周”这类相对时间直接映射为分析 horizon，不要求用户额外给出单一指数或绝对日期。大盘市场宽度、财务、热点板块或实时 quote 等辅助数据缺失时会标记 `missing_fields`，不会用旧数据冒充。指定交易日时使用该日数据；指定日内时点时，15m/30m 曲线会截断到该时点。REPL 同一个 `ChatSession` 内，`继续分析它/它们/这只/这些` 等追问会继承上一轮股票代码和时间；一次性 `sats chat` 不从长期记忆恢复股票代码，追问时仍需写明代码或股票名称。若股票简称匹配到多个结果，SATS 会要求用户改用 6 位代码。
 
 聊天也支持用自然语言创建新的筛选规则。用户先描述规则，例如“新增一个低位放量突破筛选规则”，SATS 会生成包含中文决策名称、`rule_name`、数据依赖、条件、评分和风险说明的规则计划；如果描述里包含当前 `ScreeningInput` 不支持的数据，例如新闻、分钟级盘口、筹码或资金流，SATS 会先要求用户确认降级方式。只有在同一个 REPL 会话里回复 `确认生成规则 <rule_name>` 后，SATS 才会用受控模板生成 Python 文件到 `sats/screening/rules/generated/`，并自动加入 `screen --rule <rule_name>` 可用的筛选规则注册表。一次性 `sats chat` 适合生成计划，真正写代码建议在 REPL 中完成二次确认。
 
@@ -144,11 +150,30 @@ sats> /chat --no-memory 临时问题
 python -m sats chat 帮我解释筛选规则
 sats chat 帮我解释筛选规则
 python -m sats chat 今天A股大盘分析，明天和下周走势预测
+python -m sats chat --knowledge chan 解释三买和背驰
 python -m sats chat --no-memory 临时问题
 sats chat --no-memory 临时问题
 ```
 
 SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 做短线机会发现、`run_internal_analysis` 调用白名单内部研究能力；这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
+
+管理本地知识库：
+
+```bash
+python -m sats knowledge list
+python -m sats knowledge add --name chan --description "缠论规则和买卖点"
+python -m sats knowledge ingest --knowledge chan --path knowledge/chan/rules --tags chan,缠论
+python -m sats knowledge search --query 三买 --knowledge chan --limit 6
+python -m sats knowledge sync-stock-basic
+
+sats knowledge list
+sats knowledge add --name technical --description "技术指标和信号"
+sats knowledge ingest --knowledge technical --path skills/technical-basic/SKILL.md --tags 技术指标
+sats knowledge search --query MACD --knowledge technical
+sats knowledge search --query 紫光股份 --knowledge stock-basic
+```
+
+`knowledge sync-stock-basic` 会把当前 DuckDB 缓存中的 Tushare/TickFlow `stock_basic` 股票列表同步成 `stock-basic` 知识库文档块。日常输入 `--stocks`、`--symbols`、`--symbol` 时也可以直接写可唯一识别的股票名称，例如 `紫光股份`；SATS 会用本地 `stock_basic` 解析为 `000938.SZ` 后再走真实行情数据获取。
 
 `.sats_history` 只记录斜杠命令，不记录普通聊天文本；聊天内容和长期记忆由 DuckDB 记忆表管理。查看和管理本地记忆：
 
@@ -223,7 +248,6 @@ sats> /screen --trade-date 20260514 --rule price_volume_ma
 sats> /results --trade-date 20260514 --passed
 sats> /result-rules
 sats> /skills
-sats> /minute-k --symbols 000001.SZ --period 1m --mode realtime --count 20
 sats> /exit
 ```
 
@@ -275,6 +299,29 @@ sats results --trade-date 20260430 --passed
 
 非交互终端、管道输出和测试捕获默认不显示进度条；`--json` 模式也会自动静默，确保 stdout 仍是可解析 JSON。部分分析命令在非 JSON 的非交互输出中仍保留 `analyzing...`，用于兼容已有脚本。
 
+## 实时价格
+
+`quote` 用于查看指定股票的实时价格表。命令会先获取真实实时行情，再结合历史日线计算 `MA5 / MA20 / MA60 / MA250`，并按 `周线 / 月线 / 季线 / 年线` 输出对应价格值。
+
+```bash
+python -m sats quote --stocks 000001,600519
+sats quote --stocks 000001,紫光股份
+```
+
+交互式 CLI：
+
+```text
+sats> /quote --stocks 000001,600519
+sats> /quote --stocks 000001,紫光股份
+```
+
+输出列固定为：`序号 股票代码 股票名称 现价 涨跌幅 周线 月线 季线 年线`。
+
+参数说明：
+
+- `--stocks`：逗号分隔的股票代码或可唯一识别的股票名称，支持裸代码、带后缀代码和 `stock_basic` 名称。
+- `--db PATH`：指定 DuckDB 文件；不传则使用 `.env` 中的 `SATS_DB_PATH`。
+
 ## 技术指标
 
 `indicators` 用于计算日线级技术指标。未传 `--trade-date` 时使用 SATS 现有最新交易日解析逻辑；行情通过 `AStockDataProvider` 获取，默认优先 TickFlow K 线，再用 Tushare 缓存/日线兜底。资金流和完整基本面以 Tushare 为准，TickFlow 暂只提供行情和股本类 daily_basic-like 备份，AkShare 只作为可选补充。
@@ -297,7 +344,7 @@ sats> /indicators --symbols 000001 --trade-date 20260514 --json
 
 参数说明：
 
-- `--symbols`：逗号分隔的股票代码，支持 `000001.SZ,600519.SH` 或裸代码 `000001,600519`；存储和输出会统一为带后缀的 `ts_code`。
+- `--symbols`：逗号分隔的股票代码或可唯一识别的股票名称，支持 `000001.SZ,600519.SH`、裸代码 `000001,600519` 或 `紫光股份`；存储和输出会统一为带后缀的 `ts_code`。
 - `--trade-date`：指标计算截止交易日，格式 `YYYYMMDD`。
 - `--lookback-days`：历史窗口，默认 `180`。
 - `--json`：输出完整结构化 JSON；不传时输出紧凑文本摘要。
@@ -327,7 +374,7 @@ sats> /analyze signals --category ma_kline
 
 参数说明：
 
-- `--stocks`：逗号分隔的股票代码，支持裸代码和带后缀代码。
+- `--stocks`：逗号分隔的股票代码或可唯一识别的股票名称，支持裸代码、带后缀代码和 `stock_basic` 名称。
 - `--from-screened`：读取 DuckDB 中指定日期、指定规则的 `passed=true` 筛选结果。
 - `--signals`：信号组或信号 id，支持 `all`、`graph`、`trendline`、`ma`、`kline`、`wave`、`harmonic`、`chan`、`graph_graph`、`ma_graph`、`kline_graph`、`ma_kline`，也可逗号组合。
 - `analyze signals --category CATEGORY`：查看某类可用信号策略。
@@ -403,7 +450,7 @@ sats> /dsa --from-screened --trade-date 20260518 --rule price_volume_ma --llm-ti
 
 参数说明：
 
-- `--stocks`：逗号分隔的股票代码，支持裸代码和带后缀代码。
+- `--stocks`：逗号分隔的股票代码或可唯一识别的股票名称，支持裸代码、带后缀代码和 `stock_basic` 名称。
 - `--from-screened`：读取 DuckDB 中指定日期、指定规则的 `passed=true` 筛选结果。
 - `--trade-date`：分析截止交易日，默认使用当前上海日期。
 - `--rule`：配合 `--from-screened` 使用，默认 `ma_volume_relative_strength`。
@@ -447,7 +494,7 @@ TickFlow Provider 当前能力：
 - 股票池和标的信息：`list_universes()`、`load_universe_symbols()`、`load_instruments()`。
 - 实时行情：`load_realtime_quotes(symbols=...)` 或 `load_realtime_quotes(universe_id=...)`。
 - K 线：`load_klines(..., period="1d|1w|1M|1Q|1Y")`。
-- 分钟 K：`load_realtime_minute_klines()`、`load_historical_minute_klines()`，周期为 `1m/5m/15m/30m/60m`。
+- 分钟 K：`load_realtime_minute_klines()`、`load_historical_minute_klines()`，周期为 `1m/5m/15m/30m/60m`；按需实时获取，只在本次调用内存中保存，不写入 DuckDB。
 - 日内分时：`load_intraday_timeshare()`，第一版复用 TickFlow 日内分钟 K 接口并标记 `data_source=tickflow_intraday_kline_alias`。
 - 五档盘口和除权因子：`load_market_depth()`、`load_ex_factors()`。
 - 当天 `daily_basic` 替代：`load_realtime_daily_basic_like()`，只合成当前筛选需要的换手率、市值和股本字段，并在结果 metadata 中记录 `daily_basic_source`。
@@ -499,35 +546,7 @@ python -m sats results --trade-date 20260430 --passed
 - `--passed`：只显示通过筛选的股票；不传则显示查询条件下的全部股票。
 - `--db PATH`：指定 DuckDB 文件；不传则使用 `.env` 中的 `SATS_DB_PATH`。
 
-获取分钟 K 线：
-
-```bash
-python -m sats minute-k --symbols 000001,600519 --period 1m --mode realtime --count 20
-python -m sats minute-k --symbols 000001 --period 5m --mode history --start-date 20260501 --end-date 20260514
-```
-
-`minute-k` 参数说明：
-
-- `--symbols`：逗号分隔的股票代码，支持 `000001.SZ` 或 `000001`。
-- `--period`：分钟周期，只支持 `1m`、`5m`、`15m`、`30m`、`60m`。
-- `--mode realtime|history`：`realtime` 获取当日实时分钟 K，`history` 获取历史分钟 K。
-- `--count`：返回 K 线数量；历史分钟 K 仍受 TickFlow 5000 条和 365 天历史限制。
-- `--start-date`、`--end-date`：历史模式日期范围，格式为 `YYYYMMDD`。
-- `--db PATH`：指定 DuckDB 文件；不传则使用 `.env` 中的 `SATS_DB_PATH`。
-
-分钟 K 数据会写入 DuckDB 的 `stock_minute` 表，字段包括 `ts_code`、`period`、`trade_date`、`trade_time`、`open`、`high`、`low`、`close`、`vol`、`amount`、`data_source`。TickFlow 分钟 K 批量请求按每批最多 100 只股票切分，并按 30 次/分钟节流；若批量接口异常，会降级为单票请求并按 60 次/分钟节流。
-
-清理分钟 K 缓存：
-
-```bash
-python -m sats minute-k-clear --trade-date 20260514
-python -m sats minute-k-clear --start-date 20260511 --end-date 20260514
-python -m sats minute-k-clear --end-date 20260514
-python -m sats minute-k-clear --start-date 20260511 --period 1m
-python -m sats minute-k-clear --end-date 20260514 --symbols 000001,600519
-```
-
-`minute-k-clear` 只删除 `stock_minute` 表数据，不影响日线、筛选结果或股票基础信息。必须至少提供 `--trade-date`、`--start-date`、`--end-date` 之一；`--trade-date` 表示单日删除，`--start-date/--end-date` 表示闭区间，只有 `--end-date` 表示删除截至该日期，只有 `--start-date` 表示删除该日期之后。`--period` 和 `--symbols` 可进一步缩小清理范围。
+分钟 K 数据按需通过 TickFlow 获取，只在调用内存中保存；CLI 不再提供 `minute-k` 或 `minute-k-clear` 命令，也不会写入 DuckDB 缓存表。TickFlow 分钟 K 批量请求按每批最多 100 只股票切分，并按 30 次/分钟节流；若批量接口异常，会降级为单票请求并按 60 次/分钟节流。
 
 ## 关注列表编辑
 
@@ -742,6 +761,8 @@ GET /api/market/minute-k?symbols=000001.SZ,600519.SH&period=1m&mode=realtime&cou
 GET /api/market/minute-k?symbols=000001.SZ&period=5m&mode=history&start_date=20260501&end_date=20260514
 ```
 
+分钟 K API 只返回本次实时获取结果，不写入 DuckDB。
+
 ## 当前筛选规则
 
 可用规则：
@@ -778,7 +799,7 @@ signal_composite
 
 该规则对齐 `/Users/elliotge/python/stock_vol/main.py` 默认非实时输出口径：结果为“当前逻辑 + 外部脚本口径”的并集。当前逻辑使用批量 `daily/daily_basic` 做前置过滤，要求最近 6 个交易日都有量能数据，再用 `pro_bar(adj="qfq", ma=[5,10,20,60])` 判断均线；外部脚本口径会对候选股逐只调用 `daily(ts_code,start_date,end_date)` 重新计算量比和均线。由于需要额外逐股请求，`price_volume_ma` 会比默认规则更慢。
 
-`chan_third_buy` 是缠论三买代理策略。它先用日线识别近 20 日箱体、近 10 日放量突破、突破后回抽不跌回箱体、不过度追高等条件，再只对日线预筛候选通过 TickFlow 拉取 `30m` 分钟 K，确认 30 分钟回抽不破箱体、最新收盘重新站上 MA5 且 MACD 柱改善。该规则需要 `TICKFLOW_API_KEY`；当日交易时段会合并历史 `30m` 窗口和当日实时 `30m`，实时 `30m` 优先使用 TickFlow 分钟 K 批量接口（30/min、100 标的/次）。若批量日内接口异常，SATS 会自动降级为单票实时分钟 K，请求速度受 60/min 限流约束；实时分钟 K 失败时只接受本地同交易日 `stock_minute` 缓存兜底。
+`chan_third_buy` 是缠论三买代理策略。它先用日线识别近 20 日箱体、近 10 日放量突破、突破后回抽不跌回箱体、不过度追高等条件，再只对日线预筛候选通过 TickFlow 拉取 `30m` 分钟 K，确认 30 分钟回抽不破箱体、最新收盘重新站上 MA5 且 MACD 柱改善。该规则需要 `TICKFLOW_API_KEY`；当日交易时段会合并历史 `30m` 窗口和当日实时 `30m`，实时 `30m` 优先使用 TickFlow 分钟 K 批量接口（30/min、100 标的/次）。若批量日内接口异常，SATS 会自动降级为单票实时分钟 K，请求速度受 60/min 限流约束；实时分钟 K 失败时停止筛选，不读取 DuckDB 缓存兜底。
 
 `chan_composite` 是综合缠论选股策略，别名 `chan-composite` / `chan-stock-select`。它对同一只股票依次评估一买、二买、三买、二三买重合和中枢低吸，结果只写入一条综合记录；命中的子规则会写入 `metrics_json.matched_chan_rules`，例如 `["一买", "三买"]`。该规则与 `chan_third_buy` 一样不依赖 `daily_basic`，先用日线做廉价预筛，只对候选拉取 TickFlow `30m` 分钟 K；当日交易时段可通过现有 `screen` CLI 或 `POST /api/screen` 反复调用，用于外部盘中监控。
 
