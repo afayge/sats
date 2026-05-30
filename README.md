@@ -155,7 +155,7 @@ python -m sats chat --no-memory 临时问题
 sats chat --no-memory 临时问题
 ```
 
-SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 做短线机会发现、`run_internal_analysis` 调用白名单内部研究能力；这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
+SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 做短线机会发现、`run_internal_analysis` 调用白名单内部研究能力；Tushare 数据可通过只读工具 `list_tushare_datasets` / `get_tushare_data` 按需查询，覆盖 6000 分以内股票数据和 ETF、指数、公募基金、宏观、公告新闻/研报政策、港股、美股等常用跨类接口，旧的 `list_tushare_stock_datasets` / `get_tushare_stock_data` 继续兼容股票目录。这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
 
 管理本地知识库：
 
@@ -222,7 +222,7 @@ Skills 按 `category` 分组显示，并支持 `source`、`requires_tools`、`tr
 - 研究输出：`risk-analysis`、`report-generate`、`sector-rotation`、`sentiment-analysis`、`corporate-events`；`sector-rotation` 合并了 China-market 的宏观周期和行业轮动框架。
 - 工作流模板：`workflow-templates` 收纳 `equity_research_team`、`investment_committee`、`quant_strategy_desk`、`risk_committee`、`portfolio_review_board`、`sector_rotation_team`、`factor_research_committee`、`fundamental_research_team`、`technical_analysis_panel` 等 SATS 单助手研究流程。
 
-这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不代表 SATS 已经能自动拉取所有外部数据。China-market 的 `findata-toolkit-cn` 可执行脚本没有迁入 SATS，也不会通过聊天或 REPL 暴露任意 shell 入口；其数据能力只映射为 SATS 已封装的数据边界说明，真实行情、财务、公告、资金流和 A 股大盘仍必须通过 `AStockDataProvider` 以及 `sats/data/` 下的 TickFlow/Tushare/AkShare 适配层取得。若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
+这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不代表 SATS 已经能自动拉取所有外部数据。China-market 的 `findata-toolkit-cn` 可执行脚本没有迁入 SATS，也不会通过聊天或 REPL 暴露任意 shell 入口；其数据能力只映射为 SATS 已封装的数据边界说明，真实行情、财务、公告、资金流和 A 股大盘仍必须通过 `AStockDataProvider` 以及 `sats/data/` 下的 TickFlow/Tushare/AkShare 适配层取得。通用 Tushare 数据集接口 v1 只读、限量返回、不写 DuckDB；若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
 
 ## CLI 使用
 

@@ -31,6 +31,7 @@ from sats.analysis.stock_research_context import StockResearchContext, build_sto
 from sats.chat_planner import build_chat_plan, skills_for_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
 from sats.chat_reference import ChatReferenceContext
+from sats.data.astock_provider import AStockDataProvider
 from sats.signals import SignalInput, analyze_signal_inputs
 from sats.stock_question import StockQuestion, extract_intraday_time, extract_trade_date, parse_stock_question
 from sats.symbols import normalize_symbols
@@ -925,6 +926,102 @@ class _ChatSkillToolRegistry:
             {
                 "type": "function",
                 "function": {
+                    "name": "list_tushare_datasets",
+                    "description": "列出 SATS 已白名单接入的 Tushare 数据集，覆盖股票和常用跨类数据。只读，不写库、不交易。",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "domain": {"type": "string", "description": "可选领域，如 股票数据、ETF专题、指数专题、宏观经济"},
+                            "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
+                            "include_deprecated": {
+                                "type": "boolean",
+                                "description": "是否包含 Tushare 标记停用的数据集，默认 true",
+                            },
+                            "tags": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "可选标签过滤，如 etf、fund、index、macro、news、hk、us",
+                            },
+                        },
+                        "required": [],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_tushare_data",
+                    "description": "按需获取 Tushare 白名单数据集的结构化行数据。只读，不写库、不交易；默认限制行数和字段数。",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "dataset": {
+                                "type": "string",
+                                "description": "Tushare 数据集名，例如 daily_basic、index_daily、fund_daily、cn_cpi、news",
+                            },
+                            "params": {
+                                "type": "object",
+                                "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date、m",
+                            },
+                            "fields": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "可选字段列表；最多保留 30 个白名单字段",
+                            },
+                            "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
+                        },
+                        "required": ["dataset"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "list_tushare_stock_datasets",
+                    "description": "列出 SATS 已白名单接入的 Tushare 股票数据集及字段摘要。只读，不写库、不交易。",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
+                            "include_deprecated": {
+                                "type": "boolean",
+                                "description": "是否包含 Tushare 标记停用的数据集，默认 true",
+                            },
+                        },
+                        "required": [],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_tushare_stock_data",
+                    "description": "按需获取 Tushare 股票数据集的结构化行数据。只读，不写库、不交易；仅支持 SATS 白名单数据集。",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "dataset": {
+                                "type": "string",
+                                "description": "Tushare 股票数据集名，例如 daily_basic、income、top_list",
+                            },
+                            "params": {
+                                "type": "object",
+                                "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date",
+                            },
+                            "fields": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "可选字段列表；省略时使用 SATS 默认字段，避免返回过宽表",
+                            },
+                            "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
+                        },
+                        "required": ["dataset"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "get_a_share_market_context",
                     "description": "获取真实 A 股大盘指数和市场宽度上下文。只读，不写库、不交易。",
                     "parameters": {
@@ -1057,6 +1154,46 @@ class _ChatSkillToolRegistry:
                 },
                 ensure_ascii=False,
             )
+        if name == "list_tushare_datasets":
+            provider = AStockDataProvider(self.settings)
+            datasets = provider.list_tushare_datasets(
+                domain=str(arguments.get("domain") or "").strip() or None,
+                category=str(arguments.get("category") or "").strip() or None,
+                include_deprecated=bool(arguments.get("include_deprecated", True)),
+                tags=arguments.get("tags") if isinstance(arguments.get("tags"), list) else None,
+            )
+            return json.dumps({"status": "ok", "datasets": datasets}, ensure_ascii=False)
+        if name == "get_tushare_data":
+            try:
+                provider = AStockDataProvider(self.settings)
+                payload = provider.fetch_tushare_dataset(
+                    str(arguments.get("dataset") or "").strip(),
+                    arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+                    fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+                    limit=int(arguments.get("limit") or 200),
+                )
+            except Exception as exc:
+                return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
+            return json.dumps({"status": "ok", "tushare_data": payload}, ensure_ascii=False)
+        if name == "list_tushare_stock_datasets":
+            provider = AStockDataProvider(self.settings)
+            datasets = provider.list_tushare_stock_datasets(
+                category=str(arguments.get("category") or "").strip() or None,
+                include_deprecated=bool(arguments.get("include_deprecated", True)),
+            )
+            return json.dumps({"status": "ok", "datasets": datasets}, ensure_ascii=False)
+        if name == "get_tushare_stock_data":
+            try:
+                provider = AStockDataProvider(self.settings)
+                payload = provider.fetch_tushare_stock_dataset(
+                    str(arguments.get("dataset") or "").strip(),
+                    arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+                    fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+                    limit=int(arguments.get("limit") or 200),
+                )
+            except Exception as exc:
+                return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
+            return json.dumps({"status": "ok", "tushare_stock_data": payload}, ensure_ascii=False)
         if name == "get_a_share_market_context":
             try:
                 payload = get_a_share_market_context(

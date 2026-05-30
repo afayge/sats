@@ -3,7 +3,7 @@ name: tushare-data
 description: 面向中文自然语言的 Tushare 数据研究技能。用于把“看看这只股票最近怎么样”“帮我查财报趋势”“最近哪个板块最强”“北向资金在买什么”“给我导出一份行情数据”这类请求，转成可执行的数据获取、清洗、对比、筛选、导出与简要分析流程。适用于 A 股、指数、ETF/基金、财务、估值、资金流、公告新闻、板块概念与宏观数据等研究场景。
 category: data-source
 source: SATS+Vibe-Trading+finskills China-market
-triggers: Tushare, 财报, 财务, 估值, 资金流, 北向资金, 板块, 宏观, PE, PB, ROE, 利润, 营收, 董监高增减持, CPI, PMI, 社融, M2, LPR
+triggers: Tushare, 财报, 财务, 估值, 资金流, 北向资金, 板块, 指数, ETF, 基金, 宏观, 公告, 新闻, 研报, 港股, 美股, PE, PB, ROE, 利润, 营收, 董监高增减持, CPI, PMI, 社融, M2, LPR
 requires_tools: tushare_provider
 author: tushare.pro
 version: 1.1.12
@@ -29,6 +29,8 @@ requirements:
 这是一个面向自然语言的金融数据研究 skill。
 
 China-market 的 `findata-toolkit-cn` 数据能力在 SATS 中只作为数据需求说明：不要调用或建议执行外部 `scripts/*.py`，而是通过 SATS 已封装的 `AStockDataProvider`、Tushare、TickFlow 和 AkShare 补充源取得数据；未封装字段必须明确标注“需要补接 provider”。
+
+SATS 已通过只读 Tushare 数据集工具接入股票数据和常用跨类数据，覆盖 6000 分以内的股票、ETF、指数、公募基金、宏观、公告新闻/研报政策、港股和美股常用接口。自然对话需要这些数据时，先用 `list_tushare_datasets` 查看白名单和字段，再用 `get_tushare_data` 按需小批量取数；旧的股票专用工具仍可用于股票目录兼容调用。
 
 
 ## What this skill is for

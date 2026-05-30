@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from sats.data.tushare_provider import TushareDataProvider
+from sats.data.tushare_stock_datasets import list_tushare_datasets, list_tushare_stock_datasets
 from sats.storage.duckdb import DuckDBStorage
 from tests.fixtures import (
     make_benchmark,
@@ -699,12 +700,135 @@ class FakeLimitListUnavailablePro(FakeBatchPro):
         raise RuntimeError("limit_list_d denied")
 
 
+class FakeStockDatasetPro:
+    def __init__(self) -> None:
+        self.daily_calls: list[dict] = []
+        self.index_daily_calls: list[dict] = []
+
+    def daily(self, **kwargs):
+        self.daily_calls.append(kwargs)
+        return pd.DataFrame(
+            [
+                {"ts_code": "000001.SZ", "trade_date": "20260520", "close": 10.0, "vol": 100.0},
+                {"ts_code": "000001.SZ", "trade_date": "20260519", "close": 9.8, "vol": 90.0},
+            ]
+        )
+
+    def index_daily(self, **kwargs):
+        self.index_daily_calls.append(kwargs)
+        return pd.DataFrame(
+            [
+                {"ts_code": "000001.SH", "trade_date": "20260520", "close": 3100.0},
+                {"ts_code": "000001.SH", "trade_date": "20260519", "close": 3090.0},
+            ]
+        )
+
+
 def _fake_top_level_pro_bar(api=None, **kwargs):
     api.pro_bar_calls.append(kwargs)
     return api.current_history[str(kwargs["ts_code"])].copy()
 
 
 class TushareDataProviderTest(unittest.TestCase):
+    def test_stock_dataset_registry_covers_6000_point_allowlist(self) -> None:
+        datasets = list_tushare_stock_datasets()
+        names = {item["dataset"] for item in datasets}
+
+        self.assertEqual(len(datasets), 90)
+        self.assertIn("daily_basic", names)
+        self.assertIn("limit_list_d", names)
+        self.assertIn("stk_factor_pro", names)
+        self.assertIn("st", names)
+        self.assertIn("stk_shock", names)
+        self.assertIn("ths_hot", names)
+        self.assertNotIn("rt_k", names)
+        self.assertNotIn("stk_premarket", names)
+        self.assertNotIn("limit_step", names)
+        deprecated = {item["dataset"] for item in datasets if item["status"] == "deprecated"}
+        self.assertIn("stk_account", deprecated)
+        self.assertIn("slb_sec", deprecated)
+
+    def test_general_dataset_registry_covers_common_cross_domain_allowlist(self) -> None:
+        datasets = list_tushare_datasets()
+        names = {item["dataset"] for item in datasets}
+        domains = {item["domain"] for item in datasets}
+
+        self.assertIn("ETF专题", domains)
+        self.assertIn("指数专题", domains)
+        self.assertIn("宏观经济", domains)
+        self.assertIn("大模型语料专题数据", domains)
+        self.assertIn("港股数据", domains)
+        self.assertIn("美股数据", domains)
+        self.assertIn("fund_daily", names)
+        self.assertIn("index_daily", names)
+        self.assertIn("cn_cpi", names)
+        self.assertIn("news", names)
+        self.assertIn("hk_daily", names)
+        self.assertIn("us_daily", names)
+        self.assertNotIn("limit_step", names)
+        self.assertNotIn("fut_daily", names)
+
+    def test_fetch_stock_dataset_normalizes_params_fields_and_limit(self) -> None:
+        provider = object.__new__(TushareDataProvider)
+        provider.pro = FakeStockDatasetPro()
+        provider.settings = SimpleNamespace()
+
+        payload = provider.fetch_stock_dataset(
+            "daily",
+            {"ts_code": "000001", "trade_date": "2026-05-20", "ignored": "drop-me"},
+            fields=["ts_code", "close", "volatility", "bad-name", "close"],
+            limit=1,
+        )
+
+        self.assertEqual(provider.pro.daily_calls[0]["ts_code"], "000001.SZ")
+        self.assertEqual(provider.pro.daily_calls[0]["trade_date"], "20260520")
+        self.assertEqual(provider.pro.daily_calls[0]["fields"], "ts_code,close")
+        self.assertNotIn("ignored", provider.pro.daily_calls[0])
+        self.assertNotIn("volatility", provider.pro.daily_calls[0]["fields"])
+        self.assertEqual(payload["row_count"], 2)
+        self.assertEqual(payload["returned_row_count"], 1)
+        self.assertEqual(payload["rows"][0]["close"], 10.0)
+        self.assertEqual(payload["data_source"], "tushare_daily")
+
+    def test_fetch_general_dataset_supports_common_cross_domain_interfaces(self) -> None:
+        provider = object.__new__(TushareDataProvider)
+        provider.pro = FakeStockDatasetPro()
+        provider.settings = SimpleNamespace()
+
+        payload = provider.fetch_dataset(
+            "index_daily",
+            {"ts_code": "000001.SH", "trade_date": "2026-05-20", "unused": "drop"},
+            fields=["ts_code", "trade_date", "close", "bad_field"],
+            limit=1,
+        )
+
+        self.assertEqual(provider.pro.index_daily_calls[0]["ts_code"], "000001.SH")
+        self.assertEqual(provider.pro.index_daily_calls[0]["trade_date"], "20260520")
+        self.assertEqual(provider.pro.index_daily_calls[0]["fields"], "ts_code,trade_date,close")
+        self.assertNotIn("unused", provider.pro.index_daily_calls[0])
+        self.assertEqual(payload["domain"], "指数专题")
+        self.assertEqual(payload["returned_row_count"], 1)
+        self.assertEqual(payload["data_source"], "tushare_index_daily")
+
+    def test_fetch_stock_dataset_rejects_unsupported_dataset(self) -> None:
+        provider = object.__new__(TushareDataProvider)
+        provider.pro = FakeStockDatasetPro()
+        provider.settings = SimpleNamespace()
+
+        with self.assertRaises(ValueError):
+            provider.fetch_stock_dataset("rt_k", {})
+
+    def test_fetch_stock_dataset_returns_structured_unavailable_without_token(self) -> None:
+        provider = object.__new__(TushareDataProvider)
+        provider.pro = None
+        provider.settings = SimpleNamespace()
+
+        payload = provider.fetch_stock_dataset("daily", {"ts_code": "000001"})
+
+        self.assertEqual(payload["data_source"], "unavailable")
+        self.assertEqual(payload["rows"], [])
+        self.assertIn("tushare:unavailable", payload["missing_fields"])
+
     def test_init_passes_tushare_timeout_to_sdk(self) -> None:
         settings = SimpleNamespace(
             tushare_token="token",

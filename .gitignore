@@ -5,6 +5,11 @@ __pycache__/
 *.pyc
 sats.egg-info/
 data/
+!sats/data/
+sats/data/*
+!sats/data/astock_provider.py
+!sats/data/tushare_provider.py
+!sats/data/tushare_stock_datasets.py
 reports/
 tmp/
 *.duckdb

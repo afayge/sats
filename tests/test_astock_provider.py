@@ -143,6 +143,8 @@ class _TushareBackend:
         self.hot_sector_calls = 0
         self.stock_basic_calls = 0
         self.limit_sentiment_calls = 0
+        self.stock_dataset_calls = 0
+        self.dataset_calls = 0
 
     def list_a_share_symbols(self):
         self.symbol_calls += 1
@@ -218,6 +220,59 @@ class _TushareBackend:
                 }
             ]
         )
+
+    def list_tushare_stock_datasets(self, *, category=None, include_deprecated=True):
+        return [
+            {
+                "dataset": "daily",
+                "domain": "股票数据",
+                "category": "行情数据",
+                "status": "active",
+                "default_fields": ["ts_code", "trade_date", "close"],
+            }
+        ]
+
+    def list_tushare_datasets(self, *, domain=None, category=None, include_deprecated=True, tags=None):
+        return [
+            {
+                "dataset": "index_daily",
+                "domain": domain or "指数专题",
+                "category": category or "指数专题",
+                "status": "active",
+                "tags": tags or ["index"],
+                "default_fields": ["ts_code", "trade_date", "close"],
+            }
+        ]
+
+    def fetch_dataset(self, dataset, params=None, *, fields=None, limit=200):
+        self.dataset_calls += 1
+        return {
+            "dataset": dataset,
+            "api": dataset,
+            "domain": "指数专题",
+            "params": params or {},
+            "columns": fields or ["ts_code", "close"],
+            "rows": [{"ts_code": "000001.SH", "close": 3100.0}],
+            "row_count": 1,
+            "returned_row_count": 1,
+            "data_source": f"tushare_{dataset}",
+            "missing_fields": [],
+        }
+
+    def fetch_stock_dataset(self, dataset, params=None, *, fields=None, limit=200):
+        self.stock_dataset_calls += 1
+        return {
+            "dataset": dataset,
+            "api": dataset,
+            "domain": "股票数据",
+            "params": params or {},
+            "columns": fields or ["ts_code", "close"],
+            "rows": [{"ts_code": "000001.SZ", "close": 10.0}],
+            "row_count": 1,
+            "returned_row_count": 1,
+            "data_source": f"tushare_{dataset}",
+            "missing_fields": [],
+        }
 
 
 class _AkShareBackend:
@@ -484,6 +539,80 @@ class AStockDataProviderTest(unittest.TestCase):
 
             self.assertEqual(frame.attrs["data_source"], "tushare_stock_basic")
             self.assertEqual(frame.iloc[0]["name"], "贵州茅台")
+
+    def test_tushare_stock_dataset_facade_delegates_to_tushare(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tushare = _TushareBackend()
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=tushare,
+            )
+
+            datasets = provider.list_tushare_stock_datasets(category="行情数据")
+            payload = provider.fetch_tushare_stock_dataset(
+                "daily",
+                {"ts_code": "000001"},
+                fields=["ts_code", "close"],
+                limit=1,
+            )
+
+            self.assertEqual(datasets[0]["dataset"], "daily")
+            self.assertEqual(payload["data_source"], "tushare_daily")
+            self.assertEqual(tushare.stock_dataset_calls, 1)
+
+    def test_tushare_general_dataset_facade_delegates_to_tushare(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tushare = _TushareBackend()
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=tushare,
+            )
+
+            datasets = provider.list_tushare_datasets(domain="指数专题", tags=["index"])
+            payload = provider.fetch_tushare_dataset(
+                "index_daily",
+                {"ts_code": "000001.SH"},
+                fields=["ts_code", "close"],
+                limit=1,
+            )
+
+            self.assertEqual(datasets[0]["dataset"], "index_daily")
+            self.assertEqual(payload["domain"], "指数专题")
+            self.assertEqual(payload["data_source"], "tushare_index_daily")
+            self.assertEqual(tushare.dataset_calls, 1)
+
+    def test_tushare_stock_dataset_facade_returns_structured_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=None,
+            )
+            provider._tushare_failed = True
+
+            payload = provider.fetch_tushare_stock_dataset("daily", {"ts_code": "000001"})
+
+            self.assertEqual(payload["data_source"], "unavailable")
+            self.assertEqual(payload["rows"], [])
+            self.assertIn("tushare:unavailable", payload["missing_fields"])
+
+    def test_tushare_general_dataset_facade_returns_structured_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=None,
+            )
+            provider._tushare_failed = True
+
+            payload = provider.fetch_tushare_dataset("index_daily", {"ts_code": "000001.SH"})
+
+            self.assertEqual(payload["domain"], "指数专题")
+            self.assertEqual(payload["data_source"], "unavailable")
+            self.assertEqual(payload["rows"], [])
+            self.assertIn("tushare:unavailable", payload["missing_fields"])
 
     def test_business_modules_do_not_import_backend_providers_directly(self) -> None:
         forbidden = (

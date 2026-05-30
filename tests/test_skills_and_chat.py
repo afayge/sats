@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -1232,6 +1233,172 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(question.symbols, ["000938.SZ"])
         tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
         self.assertIn("000938.SZ", tool_messages[0]["content"])
+
+    def test_chat_tool_registry_lists_tushare_stock_datasets(self) -> None:
+        class DatasetProvider:
+            def list_tushare_stock_datasets(self, *, category=None, include_deprecated=True):
+                return [{"dataset": "income", "category": category, "status": "active"}]
+
+        registry = _ChatSkillToolRegistry([], SimpleNamespace())
+
+        with patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()):
+            payload = json.loads(
+                registry.execute(
+                    "list_tushare_stock_datasets",
+                    {"category": "财务数据", "include_deprecated": False},
+                )
+            )
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["datasets"][0]["dataset"], "income")
+        tool_names = [item["function"]["name"] for item in registry.definitions()]
+        self.assertIn("list_tushare_stock_datasets", tool_names)
+        self.assertIn("get_tushare_stock_data", tool_names)
+
+    def test_chat_tool_registry_lists_tushare_general_datasets(self) -> None:
+        class DatasetProvider:
+            def list_tushare_datasets(self, *, domain=None, category=None, include_deprecated=True, tags=None):
+                return [{"dataset": "index_daily", "domain": domain, "category": category, "tags": tags or []}]
+
+        registry = _ChatSkillToolRegistry([], SimpleNamespace())
+
+        with patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()):
+            payload = json.loads(
+                registry.execute(
+                    "list_tushare_datasets",
+                    {"domain": "指数专题", "category": "指数专题", "tags": ["index"], "include_deprecated": False},
+                )
+            )
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["datasets"][0]["dataset"], "index_daily")
+        self.assertEqual(payload["datasets"][0]["domain"], "指数专题")
+        tool_names = [item["function"]["name"] for item in registry.definitions()]
+        self.assertIn("list_tushare_datasets", tool_names)
+        self.assertIn("get_tushare_data", tool_names)
+
+    def test_chat_session_can_fetch_tushare_stock_data_with_readonly_tool(self) -> None:
+        class TushareDataToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="get_tushare_stock_data",
+                                arguments={
+                                    "dataset": "daily_basic",
+                                    "params": {"ts_code": "000001", "trade_date": "20260521"},
+                                    "fields": ["ts_code", "pe", "pb"],
+                                    "limit": 1,
+                                },
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取 Tushare 数据")
+
+        class DatasetProvider:
+            def fetch_tushare_stock_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "params": params or {},
+                    "columns": fields or [],
+                    "rows": [{"ts_code": "000001.SZ", "pe": 12.0, "pb": 1.1}],
+                    "row_count": 1,
+                    "returned_row_count": 1,
+                    "data_source": "tushare_daily_basic",
+                    "missing_fields": [],
+                }
+
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=TushareDataToolLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()),
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+        ):
+            result = session.ask("需要时获取 Tushare daily_basic")
+
+        self.assertEqual(result.content, "已获取 Tushare 数据")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("get_tushare_stock_data", tool_names)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("tushare_daily_basic", tool_messages[0]["content"])
+        self.assertIn("000001.SZ", tool_messages[0]["content"])
+
+    def test_chat_session_can_fetch_tushare_general_data_with_readonly_tool(self) -> None:
+        class TushareDataToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="get_tushare_data",
+                                arguments={
+                                    "dataset": "index_daily",
+                                    "params": {"ts_code": "000001.SH", "trade_date": "20260521"},
+                                    "fields": ["ts_code", "close"],
+                                    "limit": 1,
+                                },
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取指数数据")
+
+        class DatasetProvider:
+            def fetch_tushare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "domain": "指数专题",
+                    "params": params or {},
+                    "columns": fields or [],
+                    "rows": [{"ts_code": "000001.SH", "close": 3100.0}],
+                    "row_count": 1,
+                    "returned_row_count": 1,
+                    "data_source": "tushare_index_daily",
+                    "missing_fields": [],
+                }
+
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=TushareDataToolLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()),
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+        ):
+            result = session.ask("需要时获取 Tushare index_daily")
+
+        self.assertEqual(result.content, "已获取指数数据")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("get_tushare_data", tool_names)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("tushare_index_daily", tool_messages[0]["content"])
+        self.assertIn("000001.SH", tool_messages[0]["content"])
 
     def test_internal_analysis_tool_rejects_unknown_kind(self) -> None:
         class InternalToolLLM:
