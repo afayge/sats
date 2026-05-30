@@ -657,11 +657,15 @@ def _handle_chat(
             kwargs["reference_context"] = reference_context
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
+        if isinstance(session, ChatSession):
+            kwargs["defer_memory_updates"] = True
         result = session.ask(chat_message, **kwargs)
     except ValueError as exc:
+        progress.close()
         printer(f"错误: {exc}")
         return True
     except Exception as exc:  # pragma: no cover - defensive REPL boundary
+        progress.close()
         printer(f"LLM错误: {exc}")
         return True
     finally:

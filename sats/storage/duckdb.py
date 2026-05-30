@@ -21,19 +21,26 @@ _DATE_CACHE_TABLES = {"stock_daily", "stock_daily_basic"}
 
 
 class DuckDBStorage:
-    def __init__(self, db_path: Path | str) -> None:
+    def __init__(self, db_path: Path | str, *, read_only: bool = False) -> None:
         if duckdb is None:
             raise RuntimeError("duckdb is not installed; install requirements.txt") from _DUCKDB_IMPORT_ERROR
         self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.read_only = bool(read_only)
+        if not self.read_only:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
     def connect(self):
-        return duckdb.connect(str(self.db_path))
+        return duckdb.connect(str(self.db_path), read_only=self.read_only)
 
     def initialize(self) -> None:
+        if self.read_only:
+            return
         schema_path = Path(__file__).with_name("schema.sql")
         with self.connect() as con:
             con.execute(schema_path.read_text(encoding="utf-8"))
+
+    def readonly(self) -> "DuckDBStorage":
+        return DuckDBStorage(self.db_path, read_only=True)
 
     def upsert_stock_daily(self, frame: pd.DataFrame) -> int:
         columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"]

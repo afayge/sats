@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -24,7 +25,7 @@ from sats.storage.duckdb import DuckDBStorage
 from sats.analysis.chan_chat_context import build_chan_chat_context
 from sats.analysis.dsa_native import run_dsa_analysis
 from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context
-from sats.analysis.opportunity_discovery import run_opportunity_discovery
+from sats.analysis.opportunity_discovery import format_opportunity_discovery, run_opportunity_discovery
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
 from sats.analysis.stock_llm_context import build_stock_llm_context, ensure_stock_analysis_data
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
@@ -100,6 +101,7 @@ class ChatSession:
         self._history_loaded = False
         self._llm: Any | None = None
         self._light_llm: Any | None = None
+        self._memory_lock = threading.Lock()
         self._last_stock_question: StockQuestion | None = None
         self._pending_rule_plan: RuleGenerationPlan | None = None
 
@@ -110,6 +112,7 @@ class ChatSession:
         use_memory: bool | None = None,
         progress: Any | None = None,
         reference_context: ChatReferenceContext | None = None,
+        defer_memory_updates: bool = False,
     ) -> ChatResult:
         active_progress = progress if progress is not None else self.progress
         text = str(message or "").strip()
@@ -121,9 +124,17 @@ class ChatSession:
         effective_memory = self.memory_enabled if use_memory is None else use_memory
         store = self._ensure_memory_store() if effective_memory else None
         if store is not None:
-            self._load_persisted_history(store)
-        memories = MemoryRetriever(store).retrieve(text) if store is not None else []
-        summary = store.get_session_summary(self.session_id) if store is not None else ""
+            try:
+                self._load_persisted_history(store)
+            except Exception:
+                store = None
+        try:
+            memories = MemoryRetriever(store).retrieve(text) if store is not None else []
+            summary = store.get_session_summary(self.session_id) if store is not None else ""
+        except Exception:
+            store = None
+            memories = []
+            summary = ""
         matched = match_skills(text, self.skills)
         preprocess: ChatPreprocessResult | None = None
         if active_progress is None:
@@ -313,16 +324,24 @@ class ChatSession:
             messages,
             progress=active_progress,
         )
-        content = str(response.content or "").strip() or "无响应"
+        content = str(response.content or "").strip()
+        if opportunity_context is not None:
+            content = _opportunity_discovery_content_or_fallback(content, opportunity_context)
+        content = content or "无响应"
         if store is not None:
-            store.touch_memories([memory.memory_id for memory in memories])
-            store.add_message(self.session_id, "user", text)
-            store.add_message(self.session_id, "assistant", content)
+            try:
+                store.touch_memories([memory.memory_id for memory in memories])
+                store.add_message(self.session_id, "user", text)
+                store.add_message(self.session_id, "assistant", content)
+            except Exception:
+                store = None
         self._append_history("user", text)
         self._append_history("assistant", content)
         if store is not None:
-            self._extract_memories(store, text, content)
-            self._maybe_update_summary(store)
+            if defer_memory_updates:
+                self._defer_memory_maintenance(store, text, content)
+            else:
+                self._maintain_memory(store, text, content)
         return ChatResult(
             content=content,
             skill_names=tuple(skill.name for skill in matched),
@@ -537,7 +556,10 @@ class ChatSession:
             if db_path is None:
                 return None
             self._memory_store = ChatMemoryStore(db_path)
-        self._memory_store.ensure_session(self.session_id, model_name=getattr(self.settings, "openai_model", ""))
+        try:
+            self._memory_store.ensure_session(self.session_id, model_name=getattr(self.settings, "openai_model", ""))
+        except Exception:
+            return None
         return self._memory_store
 
     def _load_persisted_history(self, store: ChatMemoryStore) -> None:
@@ -577,6 +599,22 @@ class ChatSession:
             return
         if summary:
             store.update_session_summary(self.session_id, summary)
+
+    def _maintain_memory(self, store: ChatMemoryStore, user_message: str, assistant_message: str) -> None:
+        try:
+            with self._memory_lock:
+                self._extract_memories(store, user_message, assistant_message)
+                self._maybe_update_summary(store)
+        except Exception:
+            return
+
+    def _defer_memory_maintenance(self, store: ChatMemoryStore, user_message: str, assistant_message: str) -> None:
+        thread = threading.Thread(
+            target=self._maintain_memory,
+            args=(store, user_message, assistant_message),
+            daemon=True,
+        )
+        thread.start()
 
     def _build_research_context(
         self,
@@ -1316,6 +1354,28 @@ def _today_yyyymmdd() -> str:
     from zoneinfo import ZoneInfo
 
     return datetime.now(ZoneInfo("Asia/Shanghai")).strftime("%Y%m%d")
+
+
+def _opportunity_discovery_content_or_fallback(content: str, result: Any) -> str:
+    if _is_substantive_opportunity_answer(content):
+        return content
+    try:
+        fallback = format_opportunity_discovery(result)
+    except Exception:
+        return content
+    report_path = str(getattr(result, "report_path", "") or "").strip()
+    if report_path and "报告:" not in fallback:
+        fallback = f"{fallback}\n报告: {report_path}"
+    return fallback
+
+
+def _is_substantive_opportunity_answer(content: str) -> bool:
+    text = str(content or "").strip()
+    if not text:
+        return False
+    if len(text) < 80 and text.lstrip().startswith("#") and "\n\n" not in text:
+        return False
+    return any(term in text for term in ("触发", "失效", "风险", "报告:", "不构成投资建议"))
 
 
 def _assistant_tool_call_message(response: Any) -> dict[str, Any]:

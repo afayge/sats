@@ -166,22 +166,24 @@ def run_opportunity_discovery(
     limit = max(1, int(limit))
     candidate_limit = max(limit, int(candidate_limit))
 
+    missing: list[str] = []
     if progress is None:
-        inputs = provider.load_all_screening_inputs(
+        inputs, input_missing = _load_all_screening_inputs_with_lock_fallback(
+            provider,
             trade_date,
             storage=storage,
             trade_days=max(80, int(lookback_days)),
-            rule_name="signal_discovery",
         )
     else:
         with progress.step("全市场数据") as step:
-            inputs = provider.load_all_screening_inputs(
+            inputs, input_missing = _load_all_screening_inputs_with_lock_fallback(
+                provider,
                 trade_date,
                 storage=storage,
                 trade_days=max(80, int(lookback_days)),
-                rule_name="signal_discovery",
             )
             step.complete(message=f"{len(inputs)} 只")
+    missing.extend(input_missing)
     signal_results = []
     if progress is None:
         signal_results = [
@@ -225,6 +227,7 @@ def run_opportunity_discovery(
         stock_basic_map=stock_basic_map,
     )
     if not local_candidates:
+        message = _no_candidate_message(scanned_count=len(inputs), missing_fields=[*missing, *hot_missing])
         return OpportunityDiscoveryResult(
             trade_date=trade_date,
             signals=signals,
@@ -232,12 +235,12 @@ def run_opportunity_discovery(
             candidate_count=0,
             scanned_count=len(inputs),
             hot_sector_context=hot_sector_context,
-            missing_fields=hot_missing,
-            message="无符合中短期上涨信号的候选股票",
+            missing_fields=[*missing, *hot_missing],
+            message=message,
         )
 
     if progress is None:
-        market_context, missing = _safe_market_context(
+        market_context, market_missing = _safe_market_context(
             settings,
             trade_date,
             provider=provider,
@@ -248,7 +251,7 @@ def run_opportunity_discovery(
         )
     else:
         with progress.step("A股大盘数据") as step:
-            market_context, missing = _safe_market_context(
+            market_context, market_missing = _safe_market_context(
                 settings,
                 trade_date,
                 provider=provider,
@@ -258,6 +261,7 @@ def run_opportunity_discovery(
                 market_plan_source=market_plan_source,
             )
             step.complete()
+    missing.extend(market_missing)
     missing.extend(hot_missing)
     if progress is None:
         enriched = _enrich_candidates(
@@ -421,6 +425,121 @@ def _signal_input_from_screening_input(item: ScreeningInput) -> SignalInput:
         stock_basic=item.stock_basic,
         metadata=item.metadata,
     )
+
+
+def _load_all_screening_inputs_with_lock_fallback(
+    provider: Any,
+    trade_date: str,
+    *,
+    storage: DuckDBStorage,
+    trade_days: int,
+) -> tuple[list[ScreeningInput], list[str]]:
+    try:
+        return (
+            provider.load_all_screening_inputs(
+                trade_date,
+                storage=storage,
+                trade_days=trade_days,
+                rule_name="signal_discovery",
+            ),
+            [],
+        )
+    except Exception as exc:
+        if not _is_duckdb_lock_error(exc):
+            raise
+        readonly_storage = storage.readonly()
+        try:
+            inputs = _load_all_screening_inputs_from_cache(
+                readonly_storage,
+                trade_date,
+                trade_days=trade_days,
+            )
+        except Exception as cache_exc:
+            if not _is_duckdb_lock_error(cache_exc):
+                raise
+            return [], [f"all_market_data: duckdb_cache_unavailable_after_lock: {cache_exc}"]
+        return inputs, [f"all_market_data: duckdb_readonly_cache_after_lock: {exc}"]
+
+
+def _load_all_screening_inputs_from_cache(
+    storage: DuckDBStorage,
+    trade_date: str,
+    *,
+    trade_days: int,
+) -> list[ScreeningInput]:
+    trade_dates = _cached_trade_dates_for_screening(storage, trade_date, count=trade_days)
+    if not trade_dates:
+        return []
+    daily = storage.get_stock_daily(trade_dates)
+    if daily.empty:
+        return []
+    daily_basic = storage.get_stock_daily_basic(trade_dates)
+    stock_basic = _stock_basic_for_daily(storage.get_stock_basic(), daily)
+    stock_lookup = {str(row["ts_code"]): row.dropna().to_dict() for _, row in stock_basic.iterrows()}
+    daily_groups = _group_frames_by_ts_code(daily)
+    daily_basic_groups = _group_frames_by_ts_code(daily_basic)
+    inputs: list[ScreeningInput] = []
+    for ts_code, group in daily_groups.items():
+        stock_info = stock_lookup.get(ts_code) or {"ts_code": ts_code, "symbol": ts_code.split(".", 1)[0], "name": ""}
+        inputs.append(
+            ScreeningInput(
+                ts_code=ts_code,
+                trade_date=str(trade_date),
+                daily=group,
+                daily_basic=daily_basic_groups.get(ts_code, pd.DataFrame()),
+                stock_basic=stock_info,
+                metadata={
+                    "data_source": "duckdb_readonly_cache",
+                    "daily_basic_source": "duckdb_readonly_cache",
+                },
+            )
+        )
+    return inputs
+
+
+def _cached_trade_dates_for_screening(storage: DuckDBStorage, trade_date: str, *, count: int) -> list[str]:
+    with storage.connect() as con:
+        rows = con.execute(
+            """
+            SELECT DISTINCT trade_date
+            FROM stock_daily
+            WHERE trade_date <= ?
+            ORDER BY trade_date DESC
+            LIMIT ?
+            """,
+            [str(trade_date), int(count)],
+        ).fetchall()
+    return sorted(str(row[0]) for row in rows if row and row[0])
+
+
+def _stock_basic_for_daily(stock_basic: pd.DataFrame, daily: pd.DataFrame) -> pd.DataFrame:
+    if stock_basic is not None and not stock_basic.empty:
+        return stock_basic
+    symbols = sorted({str(value) for value in daily.get("ts_code", pd.Series(dtype=str)).dropna().tolist() if str(value)})
+    return pd.DataFrame([{"ts_code": symbol, "symbol": symbol.split(".", 1)[0], "name": ""} for symbol in symbols])
+
+
+def _group_frames_by_ts_code(frame: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    if frame is None or frame.empty or "ts_code" not in frame.columns:
+        return {}
+    groups: dict[str, pd.DataFrame] = {}
+    for ts_code, group in frame.groupby(frame["ts_code"].astype(str), sort=False):
+        groups[str(ts_code)] = group.sort_values("trade_date").reset_index(drop=True)
+    return groups
+
+
+def _is_duckdb_lock_error(exc: Exception) -> bool:
+    text = str(exc)
+    return "Could not set lock on file" in text or "Conflicting lock is held" in text
+
+
+def _no_candidate_message(*, scanned_count: int, missing_fields: list[str]) -> str:
+    if scanned_count == 0 and any("duckdb_cache_unavailable_after_lock" in item for item in missing_fields):
+        return (
+            "全市场数据暂时不可用：DuckDB 数据库文件正被另一个进程占用。"
+            "请结束或等待占用 data/sats.duckdb 的 SATS/Python 进程后重试。"
+        )
+    return "无符合中短期上涨信号的候选股票"
 
 
 def _stock_basic_map(inputs: Iterable[ScreeningInput]) -> dict[str, dict[str, Any]]:

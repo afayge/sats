@@ -15,7 +15,7 @@ from prompt_toolkit.formatted_text.utils import fragment_list_to_text
 from prompt_toolkit.utils import get_cwidth
 
 from sats import __version__
-from sats.chat import ChatResult
+from sats.chat import ChatResult, ChatSession
 from sats.cli import main
 from sats.output_saver import CapturedOutput
 from sats.repl import (
@@ -39,6 +39,16 @@ from sats.repl import (
     _status_toolbar,
     _TeeStdout,
 )
+
+
+class RecordingChatSession(ChatSession):
+    def __init__(self) -> None:
+        self.calls = []
+        self.settings = SimpleNamespace(db_path=Path("missing.duckdb"))
+
+    def ask(self, message, **kwargs):
+        self.calls.append((message, kwargs))
+        return ChatResult(content="回答", skill_names=())
 
 
 def _completion_map(text: str):
@@ -511,6 +521,17 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, ["hello world"])
         self.assertEqual(output, ["回答"])
+
+    def test_repl_defers_memory_updates_for_real_chat_session(self) -> None:
+        output: list[str] = []
+        chat_session = RecordingChatSession()
+
+        keep_running = handle_repl_line("hello world", chat_session=chat_session, printer=output.append)
+
+        self.assertTrue(keep_running)
+        self.assertEqual(output, ["回答"])
+        self.assertEqual(chat_session.calls[0][0], "hello world")
+        self.assertTrue(chat_session.calls[0][1]["defer_memory_updates"])
 
     def test_repl_chat_slash_command_allows_stock_analysis_with_context(self) -> None:
         output: list[str] = []

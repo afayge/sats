@@ -164,6 +164,22 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertEqual(rows["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
             self.assertEqual(rows.iloc[0]["name"], "平安银行")
 
+    def test_readonly_storage_can_read_existing_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db_path)
+            storage.upsert_stock_basic(
+                pd.DataFrame(
+                    [{"ts_code": "000001.SZ", "symbol": "000001", "name": "平安银行"}]
+                )
+            )
+
+            readonly = DuckDBStorage(db_path, read_only=True)
+            rows = readonly.get_stock_basic()
+
+            self.assertTrue(readonly.read_only)
+            self.assertEqual(rows.iloc[0]["ts_code"], "000001.SZ")
+
     def test_sector_cache_roundtrip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")

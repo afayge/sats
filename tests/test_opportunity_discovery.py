@@ -210,6 +210,12 @@ class _FakeDiverseDiscoveryProvider(_FakeDiscoveryProvider):
         return rows
 
 
+class _LockedDiscoveryProvider(_FakeDiscoveryProvider):
+    def load_all_screening_inputs(self, trade_date, *, storage=None, trade_days=80, rule_name=None):
+        self.all_calls.append({"trade_date": trade_date, "trade_days": trade_days, "rule_name": rule_name})
+        raise RuntimeError('IO Error: Could not set lock on file "sats.duckdb": Conflicting lock is held')
+
+
 def _fake_signal_result(ts_code: str, *, trade_date: str, score: float) -> SignalAnalysisResult:
     return SignalAnalysisResult(
         ts_code=ts_code,
@@ -272,6 +278,79 @@ class OpportunityDiscoveryTest(unittest.TestCase):
             self.assertEqual(storage.list_screening_results(), [])
             self.assertTrue(result.report_path)
             self.assertTrue(Path(result.report_path or "").exists())
+
+    def test_run_opportunity_discovery_reads_cache_when_duckdb_write_lock_is_held(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            storage = DuckDBStorage(root / "sats.duckdb")
+            storage.upsert_stock_basic(
+                pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000938.SZ",
+                            "symbol": "000938",
+                            "name": "紫光股份",
+                            "industry": "计算机设备",
+                        }
+                    ]
+                )
+            )
+            storage.upsert_stock_daily(_bullish_daily("000938.SZ", end="20260520"))
+            storage.upsert_stock_daily_basic(
+                pd.DataFrame(
+                    [
+                        {"ts_code": "000938.SZ", "trade_date": date, "turnover_rate": 4.2}
+                        for date in _trade_dates(80, end="20260520")
+                    ]
+                )
+            )
+            provider = _LockedDiscoveryProvider()
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb")
+
+            with patch(
+                "sats.analysis.opportunity_discovery.get_a_share_market_context",
+                return_value={"trade_date": "20260520", "indices": [], "missing_fields": []},
+            ):
+                result = run_opportunity_discovery(
+                    settings=settings,
+                    storage=storage,
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=1,
+                    candidate_limit=1,
+                    reports_dir=root / "reports",
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+            self.assertEqual(result.scanned_count, 1)
+            self.assertEqual(result.candidates[0].ts_code, "000938.SZ")
+            self.assertTrue(any("duckdb_readonly_cache_after_lock" in item for item in result.missing_fields))
+
+    def test_run_opportunity_discovery_reports_lock_when_cache_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _LockedDiscoveryProvider()
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb")
+
+            with patch(
+                "sats.analysis.opportunity_discovery._load_all_screening_inputs_from_cache",
+                side_effect=RuntimeError('IO Error: Could not set lock on file "sats.duckdb": Conflicting lock is held'),
+            ):
+                result = run_opportunity_discovery(
+                    settings=settings,
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    report=False,
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+            self.assertEqual(result.scanned_count, 0)
+            self.assertEqual(result.candidates, [])
+            self.assertIn("DuckDB 数据库文件正被另一个进程占用", result.message)
+            self.assertTrue(any("duckdb_cache_unavailable_after_lock" in item for item in result.missing_fields))
 
     def test_run_opportunity_discovery_can_forward_market_plan(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

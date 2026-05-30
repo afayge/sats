@@ -48,6 +48,18 @@ class TimeoutLLM:
         raise TimeoutError("Request timed out.")
 
 
+class TitleOnlyLLM:
+    instances: list["TitleOnlyLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.messages = []
+        TitleOnlyLLM.instances.append(self)
+
+    def chat(self, messages, tools=None):
+        self.messages = messages
+        return SimpleNamespace(content="# 下周大概率上涨的股票候选")
+
+
 class RecordingMemoryExtractor:
     def __init__(self) -> None:
         self.extract_llms = []
@@ -817,6 +829,41 @@ class ChatSessionTest(unittest.TestCase):
         payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
         self.assertIn("真实短线机会发现", payload)
         self.assertIn("000938.SZ", payload)
+
+    def test_chat_session_falls_back_when_opportunity_llm_returns_only_title(self) -> None:
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=TitleOnlyLLM, memory_enabled=False)
+        candidate = SimpleNamespace(
+            ts_code="000938.SZ",
+            name="紫光股份",
+            events=[{"label": "蛟龙出海"}],
+            llm_reason="技术信号共振",
+            entry_trigger="放量突破压力位",
+            invalidation="跌破支撑位",
+            risk="市场情绪转弱",
+            hot_sectors=[],
+            ranking_score=98.0,
+            local_score=90.0,
+            decision="买入观察",
+            trend="震荡",
+        )
+        fake_result = SimpleNamespace(
+            message="",
+            candidates=[candidate],
+            report_path="reports/opportunity_discovery_20260529.md",
+            system_message="真实短线机会发现 000938.SZ",
+        )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch("sats.chat.run_opportunity_discovery", return_value=fake_result),
+        ):
+            result = session.ask("给出几个股票，预计未来几天有上涨趋势的股票")
+
+        self.assertIn("000938.SZ 紫光股份", result.content)
+        self.assertIn("触发 放量突破压力位", result.content)
+        self.assertIn("报告: reports/opportunity_discovery_20260529.md", result.content)
 
     def test_build_chat_messages_without_skill(self) -> None:
         messages = build_chat_messages("hello", history=[{"role": "assistant", "content": "old"}], skills=[])
