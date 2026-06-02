@@ -7,6 +7,7 @@ import shlex
 import signal
 import subprocess
 import sys
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -25,10 +26,27 @@ from sats.analysis.opportunity_discovery import (
     format_opportunity_discovery,
     run_opportunity_discovery,
 )
+from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_llm_context import ensure_stock_analysis_data
 from sats.chat import format_chat_result, run_chat_once
 from sats.config import init_env_file, load_settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.dependencies import (
+    OptionalDependencyError,
+    check_optional_dependencies,
+    ensure_optional_dependencies,
+)
+from sats.factors.analysis import analyze_factor_panel
+from sats.factors.composite import (
+    compose_scores,
+    compute_factor_panels,
+    make_pick_result,
+    pick_top,
+)
+from sats.factors.panel import FactorPanelBuildResult, build_factor_panel
+from sats.factors.registry import Registry, RegistryError, SkipAlpha
+from sats.factors.reporting import write_factor_analysis_report, write_factor_pick_report
+from sats.history import InteractionHistoryStore, format_history_detail, format_history_list
 from sats.indicators import IndicatorCalculator, format_indicator_results
 from sats.llm.model_config import current_model_status, discover_model_profiles, update_default_model_selection
 from sats.memory import ChatMemoryStore, format_memory_list
@@ -36,6 +54,7 @@ from sats.monitoring import MonitorConfig, MonitorDisplay, MonitorService, forma
 from sats.progress import create_progress
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.rag.knowledge import KnowledgeStore, format_knowledge_list, format_search_results
+from sats.screening.base import ScreeningResult
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.service import evaluate_inputs
 from sats.scheduler import (
@@ -85,6 +104,7 @@ def _progress_request(args: argparse.Namespace) -> str:
     parts = ["sats", command]
     for name in (
         "analyze_action",
+        "factor_command",
         "monitor_command",
         "monitor_positions_command",
         "monitor_watchlist_command",
@@ -104,8 +124,12 @@ def _progress_request(args: argparse.Namespace) -> str:
         "trade_date",
         "rule",
         "signals",
+        "factor",
+        "factors",
         "period",
         "mode",
+        "lookback_days",
+        "top",
         "limit",
         "candidate_limit",
     ):
@@ -209,7 +233,7 @@ def build_parser() -> argparse.ArgumentParser:
     discover = sub.add_parser("discover", help="Discover short-term A-share opportunities")
     discover.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
     discover.add_argument("--signals", default=DEFAULT_DISCOVERY_SIGNALS, help="Analyze signal groups or ids")
-    discover.add_argument("--limit", type=int, default=DEFAULT_DISCOVERY_LIMIT, help="Final stock count")
+    discover.add_argument("--limit", type=int, default=None, help=f"Final stock count; defaults to {DEFAULT_DISCOVERY_LIMIT}")
     discover.add_argument("--candidate-limit", type=int, default=DEFAULT_CANDIDATE_LIMIT, help="Local candidates sent to LLM")
     discover.add_argument("--lookback-days", type=int, default=180, help="Historical lookback trading days")
     discover.add_argument("--hot-sector-days", type=int, choices=[3, 4, 5], default=5, help="Hot sector lookback trading days")
@@ -217,6 +241,7 @@ def build_parser() -> argparse.ArgumentParser:
     discover.add_argument("--json", action="store_true", help="Print full JSON output")
     discover.add_argument("--noreport", action="store_true", help="Do not generate Markdown report")
     discover.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    discover.add_argument("query", nargs=argparse.REMAINDER, help="Natural-language stock-picking request")
 
     chat = sub.add_parser("chat", help="Chat with the configured LLM")
     chat.add_argument("--no-memory", action="store_true", help="Disable local chat memory for this message")
@@ -241,6 +266,24 @@ def build_parser() -> argparse.ArgumentParser:
     memory_clear = memory_sub.add_parser("clear", help="Clear all local chat memory")
     memory_clear.add_argument("--yes", action="store_true", help="Confirm clearing all chat memory")
 
+    history = sub.add_parser("history", help="Query REPL interaction history")
+    history_sub = history.add_subparsers(dest="history_command")
+    history_list = history_sub.add_parser("list", help="List REPL interaction history")
+    history_list.add_argument("--kind", choices=["chat", "command"], help="Filter by interaction type")
+    history_list.add_argument("--limit", type=int, default=20, help="Maximum records, capped at 100")
+    history_list.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    history_search = history_sub.add_parser("search", help="Search REPL interaction history")
+    history_search.add_argument("query", nargs="+", help="Search query")
+    history_search.add_argument("--kind", choices=["chat", "command"], help="Filter by interaction type")
+    history_search.add_argument("--limit", type=int, default=20, help="Maximum records, capped at 100")
+    history_search.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    history_show = history_sub.add_parser("show", help="Show one history record")
+    history_show.add_argument("history_id", help="History record id")
+    history_show.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    history_delete = history_sub.add_parser("delete", help="Soft-delete one history record")
+    history_delete.add_argument("history_id", help="History record id")
+    history_delete.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
     knowledge = sub.add_parser("knowledge", help="Manage local RAG knowledge bases")
     knowledge_sub = knowledge.add_subparsers(dest="knowledge_command")
     knowledge_sub.add_parser("list", help="List knowledge bases")
@@ -264,6 +307,69 @@ def build_parser() -> argparse.ArgumentParser:
     indicators.add_argument("--lookback-days", type=int, default=180, help="Historical calendar/trading lookback window")
     indicators.add_argument("--json", action="store_true", help="Print full JSON output")
     indicators.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    factor = sub.add_parser("factor", help="List, analyze and pick stocks with SATS factors")
+    factor_sub = factor.add_subparsers(dest="factor_command")
+    factor_list = factor_sub.add_parser("list", help="List registered factors")
+    factor_list.add_argument("--zoo", choices=["alpha101", "gtja191", "barra_style"], help="Factor zoo")
+    factor_list.add_argument("--theme", help="Factor theme, e.g. value, volume, momentum")
+    factor_list.add_argument("--universe", help="Universe filter, e.g. equity_cn")
+    factor_list.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_show = factor_sub.add_parser("show", help="Show factor metadata")
+    factor_show.add_argument("factor_id", nargs="?", help="Factor id")
+    factor_show.add_argument("--factor", help="Factor id")
+    factor_show.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_analyze = factor_sub.add_parser("analyze", help="Analyze one factor with IC and group returns")
+    factor_analyze.add_argument("--factor", required=True, help="Factor id, e.g. gtja191_001")
+    factor_analyze.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest cached trading day")
+    factor_analyze.add_argument("--lookback-days", type=int, default=260, help="Historical lookback trading days")
+    factor_analyze.add_argument("--horizon", type=int, default=1, help="Forward return horizon")
+    factor_analyze.add_argument("--groups", type=int, default=5, help="Quantile groups")
+    factor_analyze.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_analyze.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_analyze.add_argument("--noreport", action="store_true", help="Do not generate Markdown report")
+    factor_analyze.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    factor_pick = factor_sub.add_parser("pick", help="Pick TopN stocks with one or more factors")
+    factor_pick.add_argument("--factors", required=True, help="Comma-separated factor ids")
+    factor_pick.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest cached trading day")
+    factor_pick.add_argument("--lookback-days", type=int, default=260, help="Historical lookback trading days")
+    factor_pick.add_argument("--horizon", type=int, default=1, help="Forward return horizon for IC weighting")
+    factor_pick.add_argument("--top", type=int, default=20, help="Top candidates")
+    factor_pick.add_argument("--neutralize", choices=["none", "industry"], default="none", help="Neutralization mode")
+    factor_pick.add_argument("--weight", choices=["equal", "ic"], default="equal", help="Factor weighting")
+    factor_pick.add_argument("--groups", type=int, default=5, help="Quantile groups for IC diagnostics")
+    factor_pick.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_pick.add_argument("--profile", default="multi_factor", help="Screening profile name for --write-screening")
+    factor_pick.add_argument("--write-screening", action="store_true", help="Write TopN to screening_results")
+    factor_pick.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_pick.add_argument("--noreport", action="store_true", help="Do not generate Markdown report")
+    factor_pick.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    factor_ml = factor_sub.add_parser("ml", help="Manage optional Qlib/ML factor dependencies")
+    factor_ml_sub = factor_ml.add_subparsers(dest="factor_ml_command")
+    factor_ml_status = factor_ml_sub.add_parser("status", help="Check Qlib/ML dependency availability")
+    factor_ml_status.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_ml_setup = factor_ml_sub.add_parser("setup", help="Install missing Qlib/ML dependencies in .venv")
+    factor_ml_setup.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_ml_train = factor_ml_sub.add_parser("train", help="Train an optional factor ML model")
+    factor_ml_train.add_argument("--profile", default="ml_lgbm", help="Model profile name")
+    factor_ml_train.add_argument("--model", choices=["lightgbm", "xgboost"], default="lightgbm", help="Model engine")
+    factor_ml_train.add_argument("--train-start", help="Training start date YYYYMMDD")
+    factor_ml_train.add_argument("--train-end", help="Training end date YYYYMMDD")
+    factor_ml_train.add_argument("--valid-end", help="Validation end date YYYYMMDD")
+    factor_ml_train.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_ml_train.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    factor_ml_evaluate = factor_ml_sub.add_parser("evaluate", help="Evaluate an optional factor ML model")
+    factor_ml_evaluate.add_argument("--model-run", required=True, help="Model run id")
+    factor_ml_evaluate.add_argument("--trade-date", help="Evaluation trade date YYYYMMDD")
+    factor_ml_evaluate.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_ml_evaluate.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    factor_ml_predict = factor_ml_sub.add_parser("predict", help="Predict TopN stocks with an optional factor ML model")
+    factor_ml_predict.add_argument("--model-run", required=True, help="Model run id")
+    factor_ml_predict.add_argument("--trade-date", required=True, help="Prediction trade date YYYYMMDD")
+    factor_ml_predict.add_argument("--top", type=int, default=20, help="Top candidates")
+    factor_ml_predict.add_argument("--write-screening", action="store_true", help="Write TopN to screening_results")
+    factor_ml_predict.add_argument("--json", action="store_true", help="Print full JSON output")
+    factor_ml_predict.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     sub.add_parser("skills", help="List local SATS skills")
 
@@ -466,10 +572,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_model(args)
     if args.command == "memory":
         return cmd_memory(args)
+    if args.command == "history":
+        return cmd_history(args)
     if args.command == "knowledge":
         return cmd_knowledge(args)
     if args.command == "indicators":
         return cmd_indicators(args)
+    if args.command == "factor":
+        return cmd_factor(args)
     if args.command == "skills":
         return cmd_skills(args)
     if args.command == "watchlist":
@@ -919,6 +1029,7 @@ def cmd_discover(args: argparse.Namespace) -> int:
     storage = DuckDBStorage(args.db or settings.db_path)
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
+    query = " ".join(getattr(args, "query", ()) or ()).strip()
     progress = _progress_for_args(args)
     _announce_analyzing(progress, json_mode=bool(args.json))
     if not getattr(args, "trade_date", None) and not args.json:
@@ -930,7 +1041,7 @@ def cmd_discover(args: argparse.Namespace) -> int:
             "provider": provider,
             "trade_date": trade_date,
             "signals": args.signals,
-            "limit": args.limit,
+            "limit": args.limit if query else (args.limit or DEFAULT_DISCOVERY_LIMIT),
             "candidate_limit": args.candidate_limit,
             "lookback_days": args.lookback_days,
             "hot_sector_enabled": not args.no_hot_sector,
@@ -940,7 +1051,16 @@ def cmd_discover(args: argparse.Namespace) -> int:
         }
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
-        result = run_opportunity_discovery(**kwargs)
+        if query:
+            result = run_stock_picking_agent(
+                query=query,
+                skills=load_skills(default_skills_dir(settings.project_root)),
+                **kwargs,
+            )
+            formatter = format_stock_picking_agent_result
+        else:
+            result = run_opportunity_discovery(**kwargs)
+            formatter = format_opportunity_discovery
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     finally:
@@ -956,7 +1076,7 @@ def cmd_discover(args: argparse.Namespace) -> int:
     if args.json:
         print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str))
     else:
-        print(format_opportunity_discovery(result))
+        print(formatter(result))
         if result.report_path:
             print(f"报告: {result.report_path}")
     return 0
@@ -1037,6 +1157,38 @@ def cmd_memory(args: argparse.Namespace) -> int:
     raise SystemExit("unknown memory command")
 
 
+def cmd_history(args: argparse.Namespace) -> int:
+    if args.history_command is None:
+        raise SystemExit("history requires subcommand: list, search, show or delete")
+    db_path = getattr(args, "db", None)
+    if db_path is None:
+        db_path = load_settings().db_path
+    store = InteractionHistoryStore(db_path)
+    if args.history_command == "list":
+        print(format_history_list(store.list_records(kind=args.kind, limit=args.limit)))
+        return 0
+    if args.history_command == "search":
+        query = " ".join(args.query).strip()
+        if not query:
+            raise SystemExit("history search query is required")
+        print(format_history_list(store.search_records(query, kind=args.kind, limit=args.limit)))
+        return 0
+    if args.history_command == "show":
+        record = store.get_record(args.history_id)
+        if record is None:
+            print(f"未找到历史记录 {args.history_id}")
+        else:
+            print(format_history_detail(record))
+        return 0
+    if args.history_command == "delete":
+        if store.delete_record(args.history_id):
+            print(f"已删除历史记录 {args.history_id}")
+        else:
+            print(f"未找到历史记录 {args.history_id}")
+        return 0
+    raise SystemExit("unknown history command")
+
+
 def cmd_knowledge(args: argparse.Namespace) -> int:
     if args.knowledge_command is None:
         raise SystemExit("knowledge requires subcommand: list, add, ingest or search")
@@ -1106,6 +1258,346 @@ def cmd_indicators(args: argparse.Namespace) -> int:
     else:
         print(format_indicator_results(results))
     return 0
+
+
+def cmd_factor(args: argparse.Namespace) -> int:
+    command = getattr(args, "factor_command", None)
+    if command is None:
+        raise SystemExit("factor requires subcommand: list, show, analyze, pick or ml")
+    if command == "ml":
+        return _cmd_factor_ml(args)
+    registry = Registry()
+    if command == "list":
+        factor_ids = registry.list(zoo=args.zoo, theme=args.theme, universe=args.universe)
+        if args.json:
+            payload = {
+                "health": registry.health(),
+                "factors": [
+                    {"id": factor_id, **registry.get(factor_id).meta}
+                    for factor_id in factor_ids
+                ],
+            }
+            print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        else:
+            print(_format_factor_list(factor_ids, registry))
+        return 0
+    if command == "show":
+        factor_id = str(getattr(args, "factor", None) or getattr(args, "factor_id", "") or "").strip()
+        if not factor_id:
+            raise SystemExit("factor show requires --factor or factor_id")
+        try:
+            factor = registry.get(factor_id)
+        except KeyError as exc:
+            raise SystemExit(str(exc)) from exc
+        if args.json:
+            print(json.dumps({"id": factor.id, **factor.meta}, ensure_ascii=False, indent=2, default=str))
+        else:
+            print(_format_factor_show(factor.id, factor.meta))
+        return 0
+    if command == "analyze":
+        return _cmd_factor_analyze(args, registry)
+    if command == "pick":
+        return _cmd_factor_pick(args, registry)
+    raise SystemExit("factor requires subcommand: list, show, analyze, pick or ml")
+
+
+def _cmd_factor_ml(args: argparse.Namespace) -> int:
+    command = getattr(args, "factor_ml_command", None)
+    if command is None:
+        raise SystemExit("factor ml requires subcommand: status, setup, train, evaluate or predict")
+    settings = load_settings()
+    if command == "status":
+        status = check_optional_dependencies("qlib_ml", project_root=settings.project_root)
+        if args.json:
+            print(json.dumps(status.to_dict(), ensure_ascii=False, indent=2, default=str))
+        else:
+            print(_format_optional_dependency_status(status, install_hint=True))
+        return 0
+    try:
+        status = ensure_optional_dependencies("qlib_ml", auto_install=True, project_root=settings.project_root)
+    except OptionalDependencyError as exc:
+        if getattr(args, "json", False) and exc.status is not None:
+            print(json.dumps(exc.status.to_dict(), ensure_ascii=False, indent=2, default=str))
+        raise SystemExit(str(exc)) from exc
+    if command == "setup":
+        if args.json:
+            print(json.dumps(status.to_dict(), ensure_ascii=False, indent=2, default=str))
+        else:
+            print(_format_optional_dependency_status(status, install_hint=False))
+        return 0
+    if command in {"train", "evaluate", "predict"}:
+        message = (
+            "Qlib/ML dependencies are available, but the SATS factor ML training/prediction "
+            "engine is not wired yet. Use native `factor analyze/pick` now; add a model "
+            "runner before writing `factor_ml:<model_run_id>` screening results."
+        )
+        if args.json:
+            payload = {
+                "action": command,
+                "dependency_status": status.to_dict(),
+                "available": False,
+                "error": message,
+            }
+            print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        raise SystemExit(message)
+    raise SystemExit("factor ml requires subcommand: status, setup, train, evaluate or predict")
+
+
+def _cmd_factor_analyze(args: argparse.Namespace, registry: Registry) -> int:
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
+    symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+    progress = _progress_for_args(args)
+    _announce_analyzing(progress, json_mode=bool(args.json))
+    if not getattr(args, "trade_date", None) and not args.json:
+        print(f"trade_date: {trade_date}")
+    try:
+        panel_result = _load_factor_panel(
+            args,
+            storage=storage,
+            provider=provider,
+            trade_date=trade_date,
+            symbols=symbols,
+            progress=progress,
+        )
+        with progress.step("因子计算") as step:
+            factor_df = registry.compute(args.factor, panel_result.panel)
+            step.complete(message=args.factor)
+        result = analyze_factor_panel(
+            args.factor,
+            factor_df,
+            panel_result.panel["close"],
+            trade_date=trade_date,
+            horizon=args.horizon,
+            groups=args.groups,
+        )
+    except (ValueError, KeyError, SkipAlpha, RegistryError) as exc:
+        raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    report_path = None
+    if not args.noreport:
+        report_path = write_factor_analysis_report(
+            result,
+            reports_dir=settings.project_root / "reports",
+            warnings=panel_result.warnings,
+        )
+    run_id = f"factor_{uuid.uuid4().hex[:12]}"
+    storage.upsert_factor_run(
+        {
+            "run_id": run_id,
+            "kind": "analyze",
+            "trade_date": trade_date,
+            "universe": "symbols" if symbols else "a_share",
+            "factor_ids": [args.factor],
+            "params": {
+                "lookback_days": args.lookback_days,
+                "horizon": args.horizon,
+                "groups": args.groups,
+                "symbols": symbols or [],
+            },
+            "metrics": result.to_dict(),
+            "report_path": str(report_path or ""),
+        }
+    )
+    if args.json:
+        payload = {"run_id": run_id, **result.to_dict(), "report_path": str(report_path or "")}
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        print(_format_factor_analysis(result))
+        if report_path is not None:
+            print(f"报告: {report_path}")
+    return 0
+
+
+def _cmd_factor_pick(args: argparse.Namespace, registry: Registry) -> int:
+    factor_ids = _parse_csv(args.factors)
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
+    symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+    progress = _progress_for_args(args)
+    _announce_analyzing(progress, json_mode=bool(args.json))
+    if not getattr(args, "trade_date", None) and not args.json:
+        print(f"trade_date: {trade_date}")
+    try:
+        panel_result = _load_factor_panel(
+            args,
+            storage=storage,
+            provider=provider,
+            trade_date=trade_date,
+            symbols=symbols,
+            progress=progress,
+        )
+        with progress.step("因子计算") as step:
+            panels, metas, warnings = compute_factor_panels(factor_ids, panel_result.panel, registry=registry)
+            step.complete(message=f"{len(panels)} 个")
+        if not panels:
+            raise ValueError("No usable factors for pick")
+        weights = None
+        ic_metrics = {}
+        if args.weight == "ic":
+            weights, weight_warnings, ic_metrics = _factor_ic_weights(
+                panels,
+                metas,
+                close=panel_result.panel["close"],
+                trade_date=trade_date,
+                horizon=args.horizon,
+                groups=args.groups,
+            )
+            warnings.extend(weight_warnings)
+        if args.neutralize == "industry" and "industry" not in panel_result.panel:
+            warnings.append("industry neutralization requested but industry panel is unavailable")
+        score = compose_scores(
+            panels,
+            metas,
+            weights=weights,
+            neutralize=args.neutralize,
+            group_panel=panel_result.panel.get("industry"),
+        )
+        candidates = pick_top(
+            score,
+            panels,
+            trade_date=trade_date,
+            top=args.top,
+            names=panel_result.names,
+        )
+        result = make_pick_result(
+            trade_date=trade_date,
+            factor_ids=list(panels),
+            weighting=args.weight,
+            neutralization=args.neutralize,
+            candidates=candidates,
+            warnings=[*warnings, *panel_result.warnings],
+        )
+    except (ValueError, KeyError, SkipAlpha, RegistryError) as exc:
+        raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    report_path = None
+    if not args.noreport:
+        report_path = write_factor_pick_report(result, reports_dir=settings.project_root / "reports")
+        result.report_path = str(report_path)
+    storage.upsert_factor_run(
+        {
+            "run_id": result.run_id,
+            "kind": "pick",
+            "trade_date": trade_date,
+            "universe": "symbols" if symbols else "a_share",
+            "factor_ids": list(panels),
+            "params": {
+                "lookback_days": args.lookback_days,
+                "horizon": args.horizon,
+                "top": args.top,
+                "weight": args.weight,
+                "neutralize": args.neutralize,
+                "symbols": symbols or [],
+                "profile": args.profile,
+            },
+            "metrics": {"ic": ic_metrics, "warnings": result.warnings},
+            "report_path": str(report_path or ""),
+        }
+    )
+    storage.upsert_factor_candidates(
+        result.run_id,
+        trade_date,
+        [candidate.to_dict() for candidate in result.candidates],
+    )
+    screening_count = 0
+    if args.write_screening:
+        screening_count = _write_factor_screening(storage, result, profile=args.profile)
+    if args.json:
+        payload = result.to_dict()
+        payload["screening_written"] = screening_count
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        print(_format_factor_picks(result))
+        if screening_count:
+            print(f"已写入 screening_results: factor:{args.profile} ({screening_count} 只)")
+        if report_path is not None:
+            print(f"报告: {report_path}")
+    return 0
+
+
+def _load_factor_panel(
+    args: argparse.Namespace,
+    *,
+    storage: DuckDBStorage,
+    provider: AStockDataProvider,
+    trade_date: str,
+    symbols: list[str] | None,
+    progress,
+) -> FactorPanelBuildResult:
+    with progress.step("AStock 因子面板") as step:
+        result = build_factor_panel(
+            provider=provider,
+            storage=storage,
+            trade_date=trade_date,
+            lookback_days=args.lookback_days,
+            symbols=symbols,
+        )
+        step.complete(message=f"{len(result.symbols)} 只 / {len(result.trade_dates)} 日")
+    return result
+
+
+def _factor_ic_weights(
+    panels: dict[str, pd.DataFrame],
+    metas: dict[str, dict[str, object]],
+    *,
+    close: pd.DataFrame,
+    trade_date: str,
+    horizon: int,
+    groups: int,
+) -> tuple[dict[str, float] | None, list[str], dict[str, dict[str, object]]]:
+    weights: dict[str, float] = {}
+    warnings: list[str] = []
+    metrics: dict[str, dict[str, object]] = {}
+    for factor_id, frame in panels.items():
+        direction = str(metas.get(factor_id, {}).get("direction") or "positive")
+        effective = -frame if direction == "negative" else frame
+        result = analyze_factor_panel(
+            factor_id,
+            effective,
+            close,
+            trade_date=trade_date,
+            horizon=horizon,
+            groups=groups,
+        )
+        metrics[factor_id] = result.to_dict()
+        weights[factor_id] = result.rank_ic_mean
+    if not weights or all(abs(value) <= 1e-12 for value in weights.values()):
+        warnings.append("IC weighting unavailable; fallback to equal weights")
+        return None, warnings, metrics
+    return weights, warnings, metrics
+
+
+def _write_factor_screening(storage: DuckDBStorage, result, *, profile: str) -> int:
+    rule_name = f"factor:{str(profile or 'multi_factor').strip() or 'multi_factor'}"
+    rows = [
+        ScreeningResult(
+            trade_date=result.trade_date,
+            ts_code=item.ts_code,
+            rule_name=rule_name,
+            passed=True,
+            score=item.score,
+            matched_conditions=list(result.factors),
+            failed_conditions=[],
+            metrics={
+                "run_id": result.run_id,
+                "rank": item.rank,
+                "score": item.score,
+                "factor_values": item.factors,
+                "matched_signal_labels": [rule_name],
+            },
+        )
+        for item in result.candidates
+    ]
+    return storage.upsert_screening_results(rows)
 
 
 def cmd_skills(args: argparse.Namespace) -> int:
@@ -1803,6 +2295,129 @@ def _format_numbered_values(values: list[str]) -> str:
     if not values:
         return "无结果"
     return "\n".join(f"{index}. {value}" for index, value in enumerate(values, start=1))
+
+
+def _format_factor_list(factor_ids: list[str], registry: Registry) -> str:
+    if not factor_ids:
+        return "无结果"
+    rows = []
+    for index, factor_id in enumerate(factor_ids, start=1):
+        factor = registry.get(factor_id)
+        meta = factor.meta or {}
+        rows.append(
+            {
+                "index": f"{index}.",
+                "id": factor_id,
+                "zoo": factor.zoo,
+                "theme": ",".join(str(item) for item in meta.get("theme", [])),
+                "warmup": str(meta.get("min_warmup_bars", "")),
+                "name": str(meta.get("display_name") or meta.get("nickname") or ""),
+            }
+        )
+    keys = ["index", "id", "zoo", "theme", "warmup", "name"]
+    headers = {
+        "index": "序号",
+        "id": "因子",
+        "zoo": "因子库",
+        "theme": "主题",
+        "warmup": "预热",
+        "name": "名称",
+    }
+    widths = {
+        key: max(get_cwidth(headers[key]), *(get_cwidth(str(row[key])) for row in rows))
+        for key in keys
+    }
+    lines = [" ".join(_display_ljust(headers[key], widths[key]) for key in keys).rstrip()]
+    for row in rows:
+        lines.append(" ".join(_display_ljust(str(row[key]), widths[key]) for key in keys).rstrip())
+    return "\n".join(lines)
+
+
+def _format_factor_show(factor_id: str, meta: dict[str, object]) -> str:
+    lines = [
+        f"因子: {factor_id}",
+        f"名称: {meta.get('display_name') or meta.get('nickname') or ''}",
+        f"主题: {', '.join(str(item) for item in meta.get('theme', []))}",
+        f"适用: {', '.join(str(item) for item in meta.get('universe', []))}",
+        f"方向: {meta.get('direction', '')}",
+        f"预热: {meta.get('min_warmup_bars', '')}",
+        f"字段: {', '.join(str(item) for item in meta.get('columns_required', []))}",
+        f"公式: {meta.get('formula_latex', '')}",
+    ]
+    if meta.get("source"):
+        lines.append(f"来源: {meta.get('source')}")
+    if meta.get("license_note"):
+        lines.append(f"边界: {meta.get('license_note')}")
+    if meta.get("notes"):
+        lines.append(f"说明: {meta.get('notes')}")
+    return "\n".join(lines)
+
+
+def _format_factor_analysis(result) -> str:
+    lines = [
+        f"因子: {result.factor_id}",
+        f"交易日: {result.trade_date}",
+        f"IC={result.ic_mean} RankIC={result.rank_ic_mean} ICIR={result.icir} RankICIR={result.rank_icir}",
+        f"覆盖率={result.coverage} 缺失率={result.nan_ratio} 正RankIC占比={result.positive_ratio}",
+        f"多空差={result.long_short_spread}",
+    ]
+    if result.group_equity:
+        group_text = " ".join(f"{key}={value}" for key, value in result.group_equity.items())
+        lines.append(f"分组净值: {group_text}")
+    for warning in result.warnings:
+        lines.append(f"提示: {warning}")
+    return "\n".join(lines)
+
+
+def _format_factor_picks(result) -> str:
+    if not result.candidates:
+        return "无候选股票"
+    headers = {"rank": "序号", "ts_code": "股票代码", "name": "股票名称", "score": "得分"}
+    rows = [
+        {
+            "rank": f"{item.rank}.",
+            "ts_code": item.ts_code,
+            "name": item.name,
+            "score": f"{item.score:.6f}",
+        }
+        for item in result.candidates
+    ]
+    keys = ["rank", "ts_code", "name", "score"]
+    widths = {
+        key: max(get_cwidth(headers[key]), *(get_cwidth(str(row[key])) for row in rows))
+        for key in keys
+    }
+    lines = [
+        f"run_id: {result.run_id}",
+        f"factors: {', '.join(result.factors)}",
+        " ".join(_display_ljust(headers[key], widths[key]) for key in keys).rstrip(),
+    ]
+    for row in rows:
+        lines.append(" ".join(_display_ljust(str(row[key]), widths[key]) for key in keys).rstrip())
+    for warning in result.warnings:
+        lines.append(f"提示: {warning}")
+    return "\n".join(lines)
+
+
+def _format_optional_dependency_status(status, *, install_hint: bool) -> str:
+    state = "available" if status.available else "missing"
+    lines = [
+        f"依赖组: {status.group}",
+        f"状态: {state}",
+        f"Python: {status.python_executable}",
+        f"项目 .venv: {'yes' if status.in_project_venv else 'no'}",
+        f"已可导入: {', '.join(status.present) if status.present else '-'}",
+        f"缺失: {', '.join(status.missing) if status.missing else '-'}",
+    ]
+    if status.installed:
+        lines.append(f"本次安装: {', '.join(status.installed)}")
+    if status.files_updated:
+        lines.append(f"已同步: {', '.join(status.files_updated)}")
+    if status.error:
+        lines.append(f"错误: {status.error}")
+    if install_hint and status.missing:
+        lines.append("提示: 运行 `sats factor ml setup` 可在项目 .venv 中安装并同步依赖声明。")
+    return "\n".join(lines)
 
 
 def _quote_moving_average_lookup(daily: pd.DataFrame, realtime_daily: pd.DataFrame) -> dict[str, dict[str, float | None]]:

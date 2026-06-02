@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from sats.analysis.opportunity_discovery import (
+    DEFAULT_CANDIDATE_LIMIT,
     OpportunityCandidate,
     OpportunityDiscoveryResult,
     format_opportunity_discovery,
@@ -90,6 +91,7 @@ class _FakeDiscoveryProvider:
     def __init__(self, *, bullish: bool = True) -> None:
         self.bullish = bullish
         self.all_calls: list[dict] = []
+        self.symbol_calls: list[dict] = []
         self.indicator_calls: list[dict] = []
 
     def load_all_screening_inputs(self, trade_date, *, storage=None, trade_days=80, rule_name=None):
@@ -97,6 +99,26 @@ class _FakeDiscoveryProvider:
         symbols = ["000938.SZ", "600519.SH"] if self.bullish else ["000001.SZ"]
         rows = []
         for symbol in symbols:
+            daily = _bullish_daily(symbol, end=trade_date) if self.bullish else _flat_daily(symbol, end=trade_date)
+            rows.append(
+                ScreeningInput(
+                    ts_code=symbol,
+                    trade_date=trade_date,
+                    daily=daily,
+                    daily_basic=pd.DataFrame(),
+                    stock_basic={"ts_code": symbol, "name": f"名称{symbol[:6]}"},
+                    metadata={"data_source": "fake_daily"},
+                )
+            )
+        return rows
+
+    def load_screening_inputs(self, symbols, trade_date, *, storage=None, trade_days=80, rule_name=None):
+        clean_symbols = list(symbols)
+        self.symbol_calls.append(
+            {"symbols": clean_symbols, "trade_date": trade_date, "trade_days": trade_days, "rule_name": rule_name}
+        )
+        rows = []
+        for symbol in clean_symbols:
             daily = _bullish_daily(symbol, end=trade_date) if self.bullish else _flat_daily(symbol, end=trade_date)
             rows.append(
                 ScreeningInput(
@@ -216,7 +238,13 @@ class _LockedDiscoveryProvider(_FakeDiscoveryProvider):
         raise RuntimeError('IO Error: Could not set lock on file "sats.duckdb": Conflicting lock is held')
 
 
-def _fake_signal_result(ts_code: str, *, trade_date: str, score: float) -> SignalAnalysisResult:
+def _fake_signal_result(
+    ts_code: str,
+    *,
+    trade_date: str,
+    score: float,
+    events: list[SignalEvent] | None = None,
+) -> SignalAnalysisResult:
     return SignalAnalysisResult(
         ts_code=ts_code,
         trade_date=trade_date,
@@ -227,7 +255,8 @@ def _fake_signal_result(ts_code: str, *, trade_date: str, score: float) -> Signa
         trend="看多",
         selected_signals=["short_up"],
         key_levels={"support": 12.5, "resistance": 14.0},
-        events=[
+        events=events
+        or [
             SignalEvent(
                 signal_id="fake_buy",
                 label="短线买入信号",
@@ -239,6 +268,13 @@ def _fake_signal_result(ts_code: str, *, trade_date: str, score: float) -> Signa
             )
         ],
     )
+
+
+def _payload_from_llm_prompt(content: str) -> dict:
+    start = content.rfind('{"trade_date"')
+    if start < 0:
+        raise AssertionError("LLM prompt payload not found")
+    return json.loads(content[start:])
 
 
 class OpportunityDiscoveryTest(unittest.TestCase):
@@ -278,6 +314,38 @@ class OpportunityDiscoveryTest(unittest.TestCase):
             self.assertEqual(storage.list_screening_results(), [])
             self.assertTrue(result.report_path)
             self.assertTrue(Path(result.report_path or "").exists())
+
+    def test_run_opportunity_discovery_can_scan_limited_symbols(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            storage = DuckDBStorage(root / "sats.duckdb")
+            provider = _FakeDiscoveryProvider()
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb")
+
+            with patch(
+                "sats.analysis.opportunity_discovery.get_a_share_market_context",
+                return_value={"trade_date": "20260520", "missing_fields": []},
+            ):
+                result = run_opportunity_discovery(
+                    settings=settings,
+                    storage=storage,
+                    provider=provider,
+                    symbols=["000938.SZ"],
+                    trade_date="20260520",
+                    limit=1,
+                    candidate_limit=2,
+                    report=False,
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+            self.assertEqual(provider.all_calls, [])
+            self.assertEqual(provider.symbol_calls[0]["symbols"], ["000938.SZ"])
+            self.assertEqual(provider.symbol_calls[0]["rule_name"], "signal_discovery")
+            self.assertEqual(result.scanned_count, 1)
+            self.assertEqual(result.candidate_count, 1)
+            self.assertEqual([candidate.ts_code for candidate in result.candidates], ["000938.SZ"])
+            self.assertEqual(storage.list_screening_results(), [])
 
     def test_run_opportunity_discovery_reads_cache_when_duckdb_write_lock_is_held(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -395,6 +463,7 @@ class OpportunityDiscoveryTest(unittest.TestCase):
             with (
                 patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
                 patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
             ):
                 result = run_opportunity_discovery(
                     settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
@@ -419,7 +488,8 @@ class OpportunityDiscoveryTest(unittest.TestCase):
         self.assertEqual(result.hot_sector_context["hot_concepts"][0]["name"], "AI算力")
         formatted = format_opportunity_discovery(result)
         self.assertIn("排名分", formatted)
-        self.assertIn("热点 AI算力", formatted)
+        self.assertIn("热点", formatted)
+        self.assertIn("AI算力", formatted)
         self.assertIn("热点板块", report_text)
         self.assertIn("AI算力", report_text)
         self.assertIn("hot_sector_context", result.system_message)
@@ -435,6 +505,7 @@ class OpportunityDiscoveryTest(unittest.TestCase):
             with (
                 patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
                 patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
             ):
                 result = run_opportunity_discovery(
                     settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
@@ -452,6 +523,242 @@ class OpportunityDiscoveryTest(unittest.TestCase):
         self.assertEqual([candidate.ts_code for candidate in result.candidates], ["600519.SH", "000938.SZ"])
         self.assertEqual(result.candidates[0].ranking_score, result.candidates[0].local_score)
         self.assertEqual(result.hot_sector_context, {})
+
+    def test_chan_buy_points_add_to_local_ranking_score(self) -> None:
+        symbols = ["000001.SZ", "000002.SZ"]
+
+        def fake_analyze(item, selected_signals="short_up"):
+            events = [
+                SignalEvent(
+                    signal_id="fake_buy",
+                    label="短线买入信号",
+                    category="test",
+                    side="buy",
+                    confidence=0.8,
+                    score=60.0,
+                    reason="测试信号",
+                )
+            ]
+            if item.ts_code == "000002.SZ":
+                events.append(
+                    SignalEvent(
+                        signal_id="chan_third_buy",
+                        label="三买",
+                        category="chan",
+                        side="buy",
+                        confidence=0.8,
+                        score=6.0,
+                        reason="测试缠论买点",
+                    )
+                )
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=60.0, events=events)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=2,
+                    report=False,
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(result.candidates[0].ts_code, "000002.SZ")
+        self.assertEqual(result.candidates[0].chan_score, 6.0)
+        self.assertEqual(result.candidates[0].chan_signals[0]["chan_type"], "三买")
+        self.assertEqual(result.candidates[0].ranking_score, 66.0)
+        payload = result.to_dict()
+        self.assertEqual(payload["candidates"][0]["chan_score"], 6.0)
+        formatted = format_opportunity_discovery(result)
+        self.assertIn("缠论", formatted)
+        self.assertIn("三买(+6)", formatted)
+
+    def test_chan_second_third_overlap_is_capped_and_sell_chan_does_not_score(self) -> None:
+        symbols = ["000001.SZ", "000002.SZ"]
+
+        def fake_analyze(item, selected_signals="short_up"):
+            base_buy = SignalEvent(
+                signal_id="fake_buy",
+                label="短线买入信号",
+                category="test",
+                side="buy",
+                confidence=0.8,
+                score=60.0,
+                reason="测试信号",
+            )
+            if item.ts_code == "000001.SZ":
+                extra = SignalEvent(
+                    signal_id="chan_second_third_overlap",
+                    label="二三买重合",
+                    category="chan",
+                    side="buy",
+                    confidence=0.85,
+                    score=8.0,
+                    reason="测试缠论买点",
+                )
+            else:
+                extra = SignalEvent(
+                    signal_id="chan_third_sell",
+                    label="三卖",
+                    category="chan",
+                    side="sell",
+                    confidence=0.2,
+                    score=1.0,
+                    reason="测试卖点",
+                )
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=60.0, events=[base_buy, extra])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=2,
+                    report=False,
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+        by_code = {candidate.ts_code: candidate for candidate in result.candidates}
+        self.assertEqual(by_code["000001.SZ"].chan_score, 8.0)
+        self.assertEqual(by_code["000001.SZ"].chan_signals[0]["chan_type"], "二三买重合")
+        self.assertEqual(by_code["000002.SZ"].chan_score, 0.0)
+        self.assertEqual(by_code["000002.SZ"].chan_signals, [])
+
+    def test_llm_pool_uses_actual_candidates_when_below_default_limit(self) -> None:
+        symbols = [f"000{index:03d}.SZ" for index in range(1, 13)]
+        captured: list[dict] = []
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=66.0)
+
+        class PoolLLM:
+            def chat(self, messages):
+                payload = _payload_from_llm_prompt(messages[0]["content"])
+                captured.append(payload)
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {"rankings": [{"ts_code": row["ts_code"], "reason": "池内排序"} for row in payload["candidates"][:5]]},
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=5,
+                    report=False,
+                    llm_factory=lambda: PoolLLM(),
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(result.candidate_count, 12)
+        self.assertEqual(result.llm_pool_count, 12)
+        self.assertEqual(captured[0]["llm_pool_count"], 12)
+        self.assertEqual(len(captured[0]["candidates"]), 12)
+
+    def test_llm_pool_caps_without_changing_candidate_count(self) -> None:
+        symbols = [f"000{index:03d}.SZ" for index in range(1, 9)]
+        captured: list[dict] = []
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=66.0)
+
+        class PoolLLM:
+            def chat(self, messages):
+                payload = _payload_from_llm_prompt(messages[0]["content"])
+                captured.append(payload)
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {"rankings": [{"ts_code": row["ts_code"], "reason": "池内排序"} for row in payload["candidates"][:5]]},
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=5,
+                    candidate_limit=5,
+                    report=False,
+                    llm_factory=lambda: PoolLLM(),
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(DEFAULT_CANDIDATE_LIMIT, 50)
+        self.assertEqual(result.candidate_count, 8)
+        self.assertEqual(result.llm_pool_count, 5)
+        self.assertEqual(captured[0]["llm_pool_count"], 5)
+        self.assertEqual(len(captured[0]["candidates"]), 5)
+
+    def test_explicit_candidate_limit_caps_llm_pool(self) -> None:
+        symbols = [f"000{index:03d}.SZ" for index in range(1, 9)]
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=66.0)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=3,
+                    report=False,
+                    llm_enabled=False,
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(result.candidate_count, 8)
+        self.assertEqual(result.llm_pool_count, 3)
+        self.assertEqual(len(result.candidates), 2)
 
     def test_equal_score_candidates_do_not_cluster_by_code_prefix(self) -> None:
         symbols = ["000001.SZ", "000002.SZ", "002001.SZ", "300001.SZ", "600001.SH", "688001.SH"]
@@ -626,7 +933,7 @@ class OpportunityDiscoveryTest(unittest.TestCase):
         self.assertEqual(result.candidates[0].ts_code, "600519.SH")
         self.assertEqual(result.candidates[0].llm_reason, "信号更集中")
 
-    def test_run_opportunity_discovery_builds_interactive_llm_with_short_timeout(self) -> None:
+    def test_run_opportunity_discovery_uses_light_llm_profile(self) -> None:
         factory_calls = []
 
         class RankingLLM:
@@ -660,6 +967,7 @@ class OpportunityDiscoveryTest(unittest.TestCase):
                         project_root=root,
                         db_path=root / "sats.duckdb",
                         openai_model="mimo-v2.5-pro",
+                        light_model_name="mimo-light",
                     ),
                     storage=DuckDBStorage(root / "sats.duckdb"),
                     provider=_FakeDiscoveryProvider(),
@@ -670,7 +978,8 @@ class OpportunityDiscoveryTest(unittest.TestCase):
                     llm_factory=llm_factory,
                 )
 
-        self.assertEqual(factory_calls[0]["model_name"], "mimo-v2.5-pro")
+        self.assertEqual(factory_calls[0]["model_name"], "mimo-light")
+        self.assertEqual(factory_calls[0]["profile"], "light")
 
     def test_no_candidates_returns_message_and_skips_llm(self) -> None:
         def fail_llm():
@@ -768,6 +1077,50 @@ class OpportunityDiscoveryTest(unittest.TestCase):
         )
 
         self.assertEqual(format_opportunity_discovery(result), "无符合中短期上涨信号的候选股票")
+
+    def test_format_opportunity_discovery_uses_summary_table_and_details(self) -> None:
+        result = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[
+                OpportunityCandidate(
+                    ts_code="300408.SZ",
+                    name="三环集团",
+                    trade_date="20260520",
+                    local_score=88,
+                    ranking_score=91.5,
+                    decision="买入观察",
+                    trend="看多",
+                    close=35.8,
+                    events=[{"label": "蛟龙出海", "side": "buy"}, {"label": "均线多头", "side": "buy"}],
+                    hot_sectors=[{"name": "MLCC"}],
+                    llm_reason="本地信号靠前",
+                    entry_trigger="放量站稳关键均线",
+                    invalidation="跌破近期支撑",
+                    risk="题材波动较大",
+                )
+            ],
+            candidate_count=4,
+            scanned_count=11,
+        )
+
+        formatted = format_opportunity_discovery(result)
+
+        self.assertIn("交易日: 20260520 | 信号组: short_up | 扫描: 11 只", formatted)
+        self.assertIn("短期信号候选: 4 只 | 展示: 1 只 | LLM: available", formatted)
+        self.assertIn("LLM分析池: 1 只", formatted)
+        self.assertIn("排名", formatted)
+        self.assertIn("代码", formatted)
+        self.assertIn("主要信号", formatted)
+        self.assertIn("300408.SZ", formatted)
+        self.assertIn("三环集团", formatted)
+        self.assertIn("蛟龙出海,均线多头", formatted)
+        self.assertIn("详情:", formatted)
+        self.assertIn("缠论: --", formatted)
+        self.assertIn("理由: 本地信号靠前", formatted)
+        self.assertIn("触发: 放量站稳关键均线", formatted)
+        self.assertIn("失效: 跌破近期支撑", formatted)
+        self.assertIn("风险: 题材波动较大", formatted)
 
 
 if __name__ == "__main__":

@@ -97,7 +97,12 @@ class KnowledgeRagTest(unittest.TestCase):
             count = store.ensure_default_knowledge(settings=settings)
             cases = {
                 ("factor 多因子", "signals"): "skills/quant-factor-screener/SKILL.md",
+                ("均线金叉", "technical"): "skills/ma-golden-cross/SKILL.md",
+                ("放量突破", "signals"): "skills/volume-breakout/SKILL.md",
+                ("热点题材", "market"): "skills/hot-theme/SKILL.md",
+                ("情绪周期", "sentiment"): "skills/emotion-cycle/SKILL.md",
                 ("高股息", "fundamental"): "skills/high-dividend-strategy/SKILL.md",
+                ("成长质量", "fundamental"): "skills/growth-quality/SKILL.md",
                 ("ESG", "fundamental"): "skills/esg-screener/SKILL.md",
                 ("组合压力测试", "risk"): "skills/portfolio-health-check/SKILL.md",
                 ("董监高增持", "sentiment"): "skills/insider-trading-analyzer/SKILL.md",

@@ -2,9 +2,9 @@
 name: event-driven-detector
 description: A 股事件驱动机会识别框架，覆盖并购重组、资产注入、回购增持、国企改革、指数调整、分拆和重大公告。
 category: flow
-source: finskills China-market adapted for SATS; original Apache-2.0
-triggers: 事件驱动, 并购重组, 资产注入, 回购, 增持, 国企改革, 指数调整, 分拆上市, 重大公告, 特殊事件
-requires_tools: tushare_provider
+source: finskills China-market adapted for SATS + daily_stock_analysis strategies; original Apache-2.0
+triggers: 事件驱动, event_driven, 催化, 催化事件, 并购重组, 资产注入, 回购, 增持, 国企改革, 指数调整, 分拆上市, 重大公告, 特殊事件, 订单, 产品发布
+requires_tools: tushare_provider, indicators
 ---
 
 # event-driven-detector
@@ -19,6 +19,7 @@ requires_tools: tushare_provider
 4. 分拆上市：子公司质量、估值重估、母公司持股比例和监管条件。
 5. 指数调整：纳入/剔除时间、被动资金规模、流动性、提前交易风险。
 6. 管理层变更/重大合同/诉讼：事件影响路径和可验证节点。
+7. DSA 事件催化：业绩预告、订单中标、政策落地、产品发布、监管处罚和诉讼等，需要同时判断可信度、兑现周期和价格已反映程度。
 
 ## 输出结构
 

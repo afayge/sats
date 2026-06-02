@@ -181,13 +181,15 @@ flowchart TD
 流程：
 
 1. 聊天预处理和计划器识别为机会发现。
-2. `run_opportunity_discovery()` 全市场读取数据并运行 Analyze 中短期上涨信号。
-3. 本地筛选保留买入类信号、趋势不过弱、无明显强卖出压制的股票。
-4. 热点板块上下文从 Tushare 同花顺行业/概念接口获取，并缓存到 DuckDB。
-5. 热点加权是软优先，不硬排除非热点强信号股票。
-6. 候选池做软分散，避免分数接近时集中在同一代码前缀、交易板块、行业或概念。
-7. Top 候选补充个股、大盘、财务/估值等上下文后交给 LLM 二次排序。
-8. LLM 不可用时返回本地排序并提示已使用本地信号排序。
+2. 自然语言选股 Agent 先匹配 skills / knowledge collections，并解析是否存在 `MLCC相关股票`、`固态电池概念股` 这类主题股票池。
+3. 若有主题，Agent 先查真实同花顺行业/概念板块；精确命中时用 THS 成分股限定扫描，未命中时才直接询问 LLM “该主题相关 A 股股票有哪些”，并用本地 `stock_basic` 校验 LLM 明确列出的具体股票。缺失时不退回相似大板块，也不从 LLM 返回的板块名扩展股票。
+4. 没有主题或主题股票池确认后，再调用 `run_opportunity_discovery()`：无 `symbols` 时全市场读取数据，有 `symbols` 时只读取完整限定股票池，并运行同一套 Analyze 中短期上涨信号。完整主题股票池保存在 `theme_universe.stocks`，短线候选保存在 `opportunity_discovery.candidates`。
+5. 本地筛选保留买入类信号、趋势不过弱、无明显强卖出压制的股票。
+6. 热点板块上下文从 Tushare 同花顺行业/概念接口获取，并缓存到 DuckDB。
+7. 热点加权是软优先，不硬排除非热点强信号股票。
+8. 候选池做软分散，避免分数接近时集中在同一代码前缀、交易板块、行业或概念。
+9. Top 候选补充个股、大盘、财务/估值等上下文后交给 LLM 二次排序；LLM 主题线索只能解释纳入研究池的原因，不能冒充同花顺概念板块或上涨理由。
+10. LLM 不可用时返回本地排序并提示已使用本地信号排序。
 
 ### DSA 分析
 
@@ -266,7 +268,7 @@ flowchart TD
    - 个股问题：`build_stock_llm_context()`，内部复用 `IndicatorCalculator` 计算 MA、RSI、MACD、量能等。
    - 报价问题：`build_stock_quote_llm_context()`。
    - 大盘问题：`build_market_llm_context()`，可按预处理规划的指数池、市场维度和 horizon 取数。
-   - 自然语言选股：`run_opportunity_discovery()`，先做本地 Analyze 信号筛选、热点板块加权和候选增强，再交给主模型排序。
+   - 自然语言选股：选股 Agent 先理解用户约束并加载 skills/RAG；若用户指定主题，先解析 THS/LLM 主题股票池并校验 `stock_basic`，再调用 `run_opportunity_discovery()` 做限定或全市场 Analyze 信号筛选、热点板块加权和候选增强，最后交给主模型排序。
    - 缠论问题：`build_chan_chat_context()`。
 9. 主模型只在“真实上下文已经准备好”的前提下回答；消息里会注入系统提示、skills 摘要、预处理结果、计划结果、上文引用上下文和结构化市场/个股数据。
 10. 回答完成后，REPL 会记录本轮输出，供下一轮“分析上面股票”“输出为 PDF”“查看上面结果”继续复用；记忆提取和会话摘要则走轻量模型。

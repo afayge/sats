@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from sats.chat import ChatSession, build_chat_messages
+from sats.history import InteractionHistoryStore, format_history_detail, format_history_list
 from sats.memory import ChatMemoryStore, MemoryCandidate, MemoryExtractor
 
 
@@ -74,6 +75,45 @@ class MemoryStoreTest(unittest.TestCase):
             self.assertTrue(store.archive_memory(memory_id))
             self.assertEqual(store.search_memories("股票"), [])
             self.assertGreaterEqual(store.clear_all_memory(), 1)
+
+
+class InteractionHistoryStoreTest(unittest.TestCase):
+    def test_history_store_writes_searches_shows_and_soft_deletes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+
+            chat_id = store.add_record(
+                kind="chat",
+                request="分析 000001",
+                source="chat",
+                output="回答: 平安银行",
+                duration_seconds=1.25,
+                session_id="default",
+            )
+            command_id = store.add_record(
+                kind="command",
+                request="/results --passed",
+                source="/results",
+                output="1. 000001.SZ",
+                status="done",
+            )
+
+            all_records = store.list_records(limit=10)
+            chat_records = store.list_records(kind="chat", limit=10)
+            search_records = store.search_records("平安银行", limit=10)
+            detail = store.get_record(chat_id)
+
+            self.assertEqual({record.history_id for record in all_records}, {chat_id, command_id})
+            self.assertEqual([record.history_id for record in chat_records], [chat_id])
+            self.assertEqual([record.history_id for record in search_records], [chat_id])
+            self.assertIsNotNone(detail)
+            self.assertEqual(detail.output, "回答: 平安银行")
+            self.assertIn(chat_id, format_history_list(all_records))
+            self.assertIn("请求:", format_history_detail(detail))
+            self.assertTrue(store.delete_record(chat_id))
+            self.assertFalse(store.delete_record(chat_id))
+            self.assertIsNone(store.get_record(chat_id))
+            self.assertEqual(store.search_records("平安银行", limit=10), [])
 
 
 class ChatMemoryTest(unittest.TestCase):

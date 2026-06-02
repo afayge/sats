@@ -132,6 +132,31 @@ CREATE TABLE IF NOT EXISTS screening_results (
     PRIMARY KEY (trade_date, ts_code, rule_name)
 );
 
+CREATE TABLE IF NOT EXISTS factor_runs (
+    run_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    universe TEXT NOT NULL DEFAULT '',
+    factor_ids_json TEXT NOT NULL DEFAULT '[]',
+    params_json TEXT NOT NULL DEFAULT '{}',
+    metrics_json TEXT NOT NULL DEFAULT '{}',
+    report_path TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (run_id)
+);
+
+CREATE TABLE IF NOT EXISTS factor_candidates (
+    run_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    ts_code TEXT NOT NULL,
+    rank INTEGER NOT NULL,
+    score DOUBLE NOT NULL,
+    factors_json TEXT NOT NULL DEFAULT '{}',
+    metrics_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (run_id, ts_code)
+);
+
 CREATE TABLE IF NOT EXISTS chat_sessions (
     session_id TEXT NOT NULL,
     title TEXT,
@@ -191,6 +216,34 @@ CREATE TABLE IF NOT EXISTS chat_memories (
     last_used_at TIMESTAMP,
     PRIMARY KEY (memory_id)
 );
+
+CREATE TABLE IF NOT EXISTS interaction_history (
+    history_id TEXT NOT NULL,
+    session_id TEXT NOT NULL DEFAULT '',
+    kind TEXT NOT NULL,
+    request TEXT NOT NULL,
+    source TEXT NOT NULL,
+    output TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'done',
+    duration_seconds DOUBLE,
+    report_path TEXT,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    deleted_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (history_id)
+);
+
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS session_id TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS kind TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS request TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS source TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS output TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS report_path TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS meta_json TEXT;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+ALTER TABLE interaction_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS knowledge_bases (
     knowledge_id TEXT NOT NULL,

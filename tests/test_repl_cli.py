@@ -17,15 +17,21 @@ from prompt_toolkit.utils import get_cwidth
 from sats import __version__
 from sats.chat import ChatResult, ChatSession
 from sats.cli import main
+from sats.history import InteractionHistoryStore
 from sats.output_saver import CapturedOutput
 from sats.repl import (
     CLI_COMMANDS,
     COMPLETION_DESCRIPTIONS,
+    COMPLETION_LIST_MIN_WIDTH,
+    COMPLETION_MENU_SELECTED_STYLE,
+    COMPLETION_MENU_STYLE,
     COMPLETION_WORDS,
     COMMAND_STYLE,
     DESC_STYLE,
+    INTERRUPT_MESSAGE,
     MUTED_STYLE,
     PROMPT_MESSAGE,
+    REPL_STYLE,
     SEPARATOR_STYLE,
     ReplState,
     SlashCommandFileHistory,
@@ -105,6 +111,8 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("清屏", text)
         self.assertIn("/save", text)
         self.assertIn("保存上一条输出", text)
+        self.assertIn("Ctrl+C", text)
+        self.assertIn("中断当前执行", text)
         self.assertIn("/screen --trade-date YYYYMMDD", text)
         self.assertIn("全 A 股筛选", text)
         self.assertIn("/results --passed", text)
@@ -117,6 +125,7 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(any(style == COMMAND_STYLE and "/help" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == COMMAND_STYLE and "/screen" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == DESC_STYLE and "查询筛选结果" in value for row in formatted for style, value in row))
+        self.assertEqual(COMMAND_STYLE, DESC_STYLE)
         screen_line = next(line for line in output if "/screen --trade-date YYYYMMDD" in line)
         results_line = next(line for line in output if "/results --passed" in line)
         analyze_line = next(line for line in output if "/analyze-dsa" in line)
@@ -162,11 +171,16 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("全 A 股筛选", text)
         self.assertIn("/save", text)
         self.assertIn("保存上一条输出", text)
+        self.assertIn("快捷键", text)
+        self.assertIn("Ctrl+C", text)
+        self.assertIn("中断当前执行", text)
         self.assertIn("/indicators --symbols 000001.SZ --trade-date 20260514", text)
         self.assertTrue(any(style == MUTED_STYLE and "可用命令" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == MUTED_STYLE and "示例" in value for row in formatted for style, value in row))
+        self.assertTrue(any(style == MUTED_STYLE and "快捷键" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == COMMAND_STYLE and "/help" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == DESC_STYLE and "查看命令" in value for row in formatted for style, value in row))
+        self.assertEqual(COMMAND_STYLE, DESC_STYLE)
 
         help_line = next(line for line in output if "/help" in line)
         analyze_line = next(line for line in output if "/analyze-dsa" in line)
@@ -223,6 +237,27 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(completer.meta_dict["/discover"], "短线机会发现")
         self.assertNotIn("input_processors", prompt_session.call_args.kwargs)
 
+    def test_run_repl_ctrl_c_at_prompt_keeps_existing_input_behavior(self) -> None:
+        settings = SimpleNamespace(db_path=Path("data/sats.duckdb"), llm_provider="openai", openai_model="GPT-5.5")
+
+        with (
+            patch("sats.repl.load_settings", return_value=settings),
+            patch("sats.repl.time.monotonic", return_value=100.0),
+            patch("sats.repl.PromptSession") as prompt_session,
+            patch("sats.repl.print_formatted_text"),
+            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=40)),
+            patch("builtins.print") as printer,
+        ):
+            prompt_session.return_value.prompt.side_effect = [KeyboardInterrupt, "/exit"]
+
+            self.assertEqual(run_repl(), 0)
+
+        self.assertEqual(prompt_session.return_value.prompt.call_count, 2)
+        prompt_session.return_value.prompt.assert_called_with(PROMPT_MESSAGE)
+        printed = [call.args[0] for call in printer.call_args_list if call.args]
+        self.assertIn("^C", printed)
+        self.assertIn("bye", printed)
+
     def test_repl_status_toolbar_tracks_elapsed_and_last_duration(self) -> None:
         settings = SimpleNamespace(llm_provider="deepseek", openai_model="deepseek-v4-pro")
         output: list[str] = []
@@ -251,6 +286,34 @@ class ReplCliTest(unittest.TestCase):
                 " DeepSeek:deepseek-v4-pro  ｜  53.2s  ｜  Last：43.2s",
             )
 
+    def test_repl_command_keyboard_interrupt_returns_to_prompt_without_saving_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            output: list[str] = []
+            clock = [10.0]
+            state = ReplState(
+                last_output=CapturedOutput(content="previous", request="/results", source="/results"),
+                last_stock_output=CapturedOutput(content="1. 000001.SZ", request="/results", source="/results"),
+                history_store=store,
+            )
+
+            def runner(_argv):
+                clock[0] = 14.5
+                raise KeyboardInterrupt
+
+            with patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]):
+                keep_running = handle_repl_line("/results", runner=runner, printer=output.append, state=state)
+
+            records = store.list_records(limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(output, [INTERRUPT_MESSAGE])
+            self.assertEqual(state.last_output.content, "previous")
+            self.assertEqual(state.last_stock_output.content, "1. 000001.SZ")
+            self.assertEqual(state.last_duration_seconds, 4.5)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].status, "interrupted")
+            self.assertEqual(records[0].output, INTERRUPT_MESSAGE)
+
     def test_repl_status_toolbar_keeps_last_for_empty_and_exit(self) -> None:
         settings = SimpleNamespace(llm_provider="openai", openai_model="gpt-4o-mini")
         output: list[str] = []
@@ -278,7 +341,16 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("/discover", completions)
         self.assertEqual(completions["/discover"].text, "/discover")
         self.assertEqual(_completion_meta(completions["/discover"]), "短线机会发现")
+        self.assertGreaterEqual(get_cwidth(completions["/discover"].display_text), COMPLETION_LIST_MIN_WIDTH)
         self.assertEqual(_completion_meta(save_completions["/save"]), "保存上一条输出")
+
+    def test_repl_completion_menu_uses_unified_command_and_meta_colors(self) -> None:
+        rules = dict(REPL_STYLE.style_rules)
+
+        self.assertEqual(rules["completion-menu.completion"], COMPLETION_MENU_STYLE)
+        self.assertEqual(rules["completion-menu.meta.completion"], COMPLETION_MENU_STYLE)
+        self.assertEqual(rules["completion-menu.completion.current"], COMPLETION_MENU_SELECTED_STYLE)
+        self.assertEqual(rules["completion-menu.meta.completion.current"], COMPLETION_MENU_SELECTED_STYLE)
 
     def test_repl_completer_shows_parameter_and_subcommand_descriptions(self) -> None:
         param_completions = _completion_map("--s")
@@ -436,6 +508,23 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(output, ["使用 skill: sats-market-assistant\n回答: 帮我解释筛选规则"])
 
+    def test_repl_records_non_slash_chat_history(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            state = ReplState(history_store=store)
+            output: list[str] = []
+            chat_session = SimpleNamespace(ask=lambda message: ChatResult(content=f"回答: {message}", skill_names=()))
+
+            keep_running = handle_repl_line("帮我解释筛选规则", chat_session=chat_session, printer=output.append, state=state)
+
+            records = store.list_records(limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].kind, "chat")
+            self.assertEqual(records[0].status, "done")
+            self.assertEqual(records[0].request, "帮我解释筛选规则")
+            self.assertIn("回答: 帮我解释筛选规则", records[0].output)
+
     def test_repl_natural_chan_stock_question_uses_chat_context(self) -> None:
         calls: list[list[str]] = []
         output: list[str] = []
@@ -521,6 +610,56 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, ["hello world"])
         self.assertEqual(output, ["回答"])
+
+    def test_repl_records_chat_slash_command_history(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            state = ReplState(history_store=store)
+            output: list[str] = []
+            chat_session = SimpleNamespace(ask=lambda message: ChatResult(content="回答", skill_names=()))
+
+            keep_running = handle_repl_line("/chat hello world", chat_session=chat_session, printer=output.append, state=state)
+
+            records = store.list_records(kind="chat", limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].request, "hello world")
+            self.assertEqual(records[0].source, "chat")
+            self.assertEqual(records[0].output, "回答")
+
+    def test_repl_chat_keyboard_interrupt_returns_to_prompt_without_saving_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            output: list[str] = []
+            clock = [20.0]
+            state = ReplState(
+                last_output=CapturedOutput(content="previous chat", request="hello", source="chat"),
+                last_stock_output=CapturedOutput(content="1. 000001.SZ", request="/results", source="/results"),
+                history_store=store,
+            )
+
+            class InterruptingChatSession:
+                def ask(self, message, **kwargs):
+                    clock[0] = 23.25
+                    raise KeyboardInterrupt
+
+            with patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]):
+                keep_running = handle_repl_line(
+                    "hello world",
+                    chat_session=InterruptingChatSession(),
+                    printer=output.append,
+                    state=state,
+                )
+
+            records = store.list_records(limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(output, [INTERRUPT_MESSAGE])
+            self.assertEqual(state.last_output.content, "previous chat")
+            self.assertEqual(state.last_stock_output.content, "1. 000001.SZ")
+            self.assertEqual(state.last_duration_seconds, 3.25)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].kind, "chat")
+            self.assertEqual(records[0].status, "interrupted")
 
     def test_repl_defers_memory_updates_for_real_chat_session(self) -> None:
         output: list[str] = []
@@ -689,6 +828,65 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, [["memory", "search", "股票"]])
         self.assertEqual(output, [])
 
+    def test_repl_records_slash_command_history(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            state = ReplState(history_store=store)
+            output: list[str] = []
+
+            def runner(argv):
+                print("1. 000001.SZ")
+                return 0
+
+            keep_running = handle_repl_line("/results --passed", runner=runner, printer=output.append, state=state)
+
+            records = store.list_records(kind="command", limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(output, ["1. 000001.SZ"])
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].request, "/results --passed")
+            self.assertEqual(records[0].source, "/results")
+            self.assertEqual(records[0].status, "done")
+            self.assertEqual(records[0].output, "1. 000001.SZ")
+
+    def test_repl_records_slash_command_error_history(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            state = ReplState(history_store=store)
+            output: list[str] = []
+
+            def runner(_argv):
+                raise ValueError("bad input")
+
+            keep_running = handle_repl_line("/results --bad", runner=runner, printer=output.append, state=state)
+
+            records = store.list_records(kind="command", limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(output, ["错误: bad input"])
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].status, "error")
+            self.assertEqual(records[0].output, "错误: bad input")
+
+    def test_repl_allows_history_command_without_recording_it(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
+            state = ReplState(history_store=store)
+            calls: list[list[str]] = []
+            output: list[str] = []
+
+            keep_running = handle_repl_line(
+                "/history list",
+                runner=lambda argv: calls.append(argv) or print("无历史记录"),
+                printer=output.append,
+                state=state,
+            )
+
+            self.assertTrue(keep_running)
+            self.assertIn("history", CLI_COMMANDS)
+            self.assertIn("/history list", help_text())
+            self.assertEqual(calls, [["history", "list"]])
+            self.assertEqual(store.list_records(limit=10), [])
+
     def test_repl_allows_knowledge_command(self) -> None:
         calls: list[list[str]] = []
         output: list[str] = []
@@ -733,6 +931,29 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("/indicators --symbols 000001.SZ --trade-date 20260514", help_text())
         self.assertEqual(calls, [["indicators", "--symbols", "000001.SZ", "--trade-date", "20260514"]])
         self.assertEqual(output, [])
+
+    def test_repl_allows_factor_command(self) -> None:
+        calls: list[list[str]] = []
+
+        keep_running = handle_repl_line(
+            "/factor list --zoo barra_style",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=lambda _: None,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertIn("factor", CLI_COMMANDS)
+        self.assertIn("/factor list --zoo barra_style", help_text())
+        self.assertIn("/factor ml status", help_text())
+
+        keep_running = handle_repl_line(
+            "/factor ml status",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=lambda _: None,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertEqual(calls, [["factor", "list", "--zoo", "barra_style"], ["factor", "ml", "status"]])
 
     def test_repl_allows_monitor_commands(self) -> None:
         calls: list[list[str]] = []

@@ -23,6 +23,7 @@ from sats import __version__
 from sats.chat import ChatSession, format_chat_result
 from sats.chat_reference import build_chat_reference_context
 from sats.config import load_settings
+from sats.history import InteractionHistoryStore
 from sats.output_saver import CapturedOutput, SaveRequest, extract_report_path, parse_save_request, save_captured_output
 from sats.progress import create_progress
 from sats.stock_question import extract_stock_symbols
@@ -42,8 +43,10 @@ CLI_COMMANDS = [
     "chat",
     "model",
     "memory",
+    "history",
     "knowledge",
     "indicators",
+    "factor",
     "skills",
     "watchlist",
     "monitor",
@@ -54,6 +57,7 @@ CLI_COMMANDS = [
 ]
 
 BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save"]
+INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 
 HELP_COMMANDS = [
     ("/help", "查看命令"),
@@ -75,8 +79,10 @@ HELP_COMMANDS = [
     ("/chat", "LLM 聊天"),
     ("/model", "模型配置切换"),
     ("/memory", "管理聊天记忆"),
+    ("/history", "查询执行历史"),
     ("/knowledge", "管理本地知识库"),
     ("/indicators", "计算技术指标"),
+    ("/factor", "股票因子分析/选股"),
     ("/skills", "查看本地 skills"),
     ("/watchlist", "编辑关注列表"),
     ("/monitor", "实时监控"),
@@ -102,6 +108,9 @@ HELP_EXAMPLES = [
     ("/analyze-chan --stocks 000001 --chan-rule chan-signals", "缠论指定股票分析"),
     ("/discover --limit 5", "短线机会发现"),
     ("/indicators --symbols 000001.SZ --trade-date 20260514", "计算技术指标"),
+    ("/factor list --zoo barra_style", "查看 Barra 风格近似因子"),
+    ("/factor pick --factors barra_style_value,barra_style_quality --trade-date 20260514 --top 20", "多因子选股"),
+    ("/factor ml status", "检查 Qlib/ML 依赖"),
     ("/watchlist", "编辑关注列表"),
     ("/watchlist add --symbols 000001.SZ,600519.SH", "批量关注股票"),
     ("/monitor start --rules chan_signals", "启动实时监控"),
@@ -115,6 +124,10 @@ HELP_EXAMPLES = [
     ("/chat 帮我解释 price_volume_ma", "LLM 问答"),
     ("/save --format pdf", "保存上一条输出"),
     ("/memory search 股票", "搜索本地记忆"),
+    ("/history list", "查看交互历史"),
+    ("/history search 股票", "搜索交互历史"),
+    ("/history show hist_xxxxxxxx", "查看单条历史"),
+    ("/history delete hist_xxxxxxxx", "删除单条历史"),
     ("/knowledge search --query 三买 --knowledge chan", "搜索本地知识库"),
     ("/knowledge ingest --knowledge chan --path knowledge/chan/rules", "导入知识库文档"),
     ("/knowledge sync-stock-basic", "同步股票名称代码库"),
@@ -125,6 +138,7 @@ BANNER_CONTROL_COMMANDS = [
     ("/exit", "退出"),
     ("/clear", "清屏"),
     ("/save", "保存上一条输出"),
+    ("Ctrl+C", "中断当前执行"),
 ]
 
 BANNER_COMMON_COMMANDS = [
@@ -138,6 +152,8 @@ BANNER_COMMON_COMMANDS = [
     ("/analyze-dsa --stocks 000001,600519", "分析股票"),
     ("/analyze-chan --stocks 000001", "缠论指定股票分析"),
     ("/discover --limit 5", "短线机会发现"),
+    ("/factor list --zoo barra_style", "股票因子"),
+    ("/factor ml status", "ML 依赖"),
     ("/save --format md", "保存上一条输出"),
     ("/watchlist", "编辑关注列表"),
     ("/monitor start", "启动实时监控"),
@@ -145,6 +161,10 @@ BANNER_COMMON_COMMANDS = [
     ("/schedule list", "查看定时任务"),
     ("/qmt positions", "查看 QMT 持仓"),
     ("/model status", "查看模型配置"),
+]
+
+HELP_SHORTCUTS = [
+    ("Ctrl+C", "中断当前执行"),
 ]
 
 _HELP_DESCRIPTIONS = dict(HELP_COMMANDS)
@@ -161,6 +181,17 @@ COMPLETION_DESCRIPTIONS = {
     "--stocks": "指定股票代码或名称列表",
     "--from-screened": "使用筛选结果",
     "--signals": "信号策略列表",
+    "--factor": "因子 ID",
+    "--factors": "因子 ID 列表",
+    "--zoo": "因子库",
+    "--theme": "因子主题",
+    "--universe": "因子适用范围",
+    "--weight": "因子权重方式",
+    "--neutralize": "中性化方式",
+    "--write-screening": "写入筛选结果",
+    "--profile": "因子筛选画像",
+    "--horizon": "收益标签周期",
+    "--groups": "分组数量",
     "--category": "信号分类",
     "--json": "输出 JSON",
     "--noreport": "不生成报告",
@@ -180,6 +211,7 @@ COMPLETION_DESCRIPTIONS = {
     "--host": "服务监听地址",
     "--port": "服务端口",
     "--no-memory": "禁用聊天记忆",
+    "--kind": "历史类型",
     "--knowledge": "指定聊天知识库",
     "--format": "保存格式",
     "--path": "保存路径",
@@ -218,6 +250,13 @@ COMPLETION_DESCRIPTIONS = {
     "--no-select-watchlist": "跳过关注列表选择",
     "positions": "持仓管理",
     "signals": "信号策略",
+    "factor": "因子分析",
+    "pick": "因子选股",
+    "ml": "因子 ML/Qlib",
+    "setup": "安装可选依赖",
+    "train": "训练模型",
+    "evaluate": "评估模型",
+    "predict": "模型预测",
     "watchlist": "关注列表",
     "buy-candidates": "买入候选",
     "add": "新增记录",
@@ -243,6 +282,8 @@ COMPLETION_DESCRIPTIONS = {
     "disable": "停用任务",
     "list": "列出记录",
     "forget": "删除记忆",
+    "delete": "删除记录",
+    "show": "查看详情",
     "clear": "清空记录",
     "search": "搜索记录",
     "ingest": "导入知识库",
@@ -253,14 +294,21 @@ COMPLETION_WORDS = list(COMPLETION_DESCRIPTIONS)
 
 PROMPT_MESSAGE = FormattedText([("", "sats> ")])
 MUTED_STYLE = "fg:#9ca3af"
-COMMAND_STYLE = "fg:#22d3ee"
-DESC_STYLE = "fg:#ffffff"
+COMMAND_STYLE = "fg:#f5f5f5"
+DESC_STYLE = COMMAND_STYLE
 SEPARATOR_STYLE = MUTED_STYLE
 STATUS_BAR_STYLE = "bg:#2f2f2f fg:#f5f5f5"
+COMPLETION_LIST_MIN_WIDTH = 28
+COMPLETION_MENU_STYLE = "bg:#1f2937 fg:#f5f5f5"
+COMPLETION_MENU_SELECTED_STYLE = "bg:#2563eb fg:#ffffff"
 REPL_STYLE = Style.from_dict(
     {
         "bottom-toolbar": "bg:#2f2f2f",
         "bottom-toolbar.text": "bg:#2f2f2f #f5f5f5",
+        "completion-menu.completion": COMPLETION_MENU_STYLE,
+        "completion-menu.completion.current": COMPLETION_MENU_SELECTED_STYLE,
+        "completion-menu.meta.completion": COMPLETION_MENU_STYLE,
+        "completion-menu.meta.completion.current": COMPLETION_MENU_SELECTED_STYLE,
     }
 )
 
@@ -271,13 +319,29 @@ class ReplState:
     last_stock_output: CapturedOutput | None = None
     started_at: float = field(default_factory=lambda: time.monotonic())
     last_duration_seconds: float | None = None
+    session_id: str = "repl"
+    history_store: InteractionHistoryStore | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ReplExecutionRecord:
+    kind: str
+    request: str
+    source: str
+    output: str
+    status: str = "done"
+    report_path: str = ""
+    session_id: str = ""
 
 
 def run_repl() -> int:
     settings = load_settings()
     render_startup_banner(settings.db_path)
     chat_session = ChatSession(settings=settings)
-    state = ReplState()
+    state = ReplState(
+        session_id=str(getattr(chat_session, "session_id", "") or "repl"),
+        history_store=InteractionHistoryStore(settings.db_path),
+    )
     session = PromptSession(
         history=_history(),
         completer=build_repl_completer(),
@@ -303,11 +367,19 @@ def run_repl() -> int:
 def build_repl_completer() -> WordCompleter:
     return WordCompleter(
         COMPLETION_WORDS,
-        display_dict={word: word for word in COMPLETION_WORDS},
+        display_dict=_completion_display_dict(),
         meta_dict=COMPLETION_DESCRIPTIONS,
         ignore_case=True,
         sentence=True,
     )
+
+
+def _completion_display_dict() -> dict[str, str]:
+    display_width = max(
+        COMPLETION_LIST_MIN_WIDTH,
+        max((_display_width(word) for word in COMPLETION_WORDS), default=0),
+    )
+    return {word: _left_align_display(word, display_width) for word in COMPLETION_WORDS}
 
 
 def render_startup_banner(
@@ -349,6 +421,10 @@ def render_help_box(
     _print_box_fragments(FormattedText([(MUTED_STYLE, "可用命令")]), content_width, rich_printer)
     for command, description in HELP_COMMANDS:
         _print_box_fragments(_help_row_fragments(command, description, command_width), content_width, rich_printer)
+    _print_box_fragments(FormattedText([("", "")]), content_width, rich_printer)
+    _print_box_fragments(FormattedText([(MUTED_STYLE, "快捷键")]), content_width, rich_printer)
+    for shortcut, description in HELP_SHORTCUTS:
+        _print_box_fragments(_help_row_fragments(shortcut, description, command_width), content_width, rich_printer)
     _print_box_fragments(FormattedText([("", "")]), content_width, rich_printer)
     _print_box_fragments(FormattedText([(MUTED_STYLE, "示例")]), content_width, rich_printer)
     for command, description in HELP_EXAMPLES:
@@ -544,6 +620,33 @@ def _record_last_duration(state: ReplState, started_at: float) -> None:
     state.last_duration_seconds = max(0.0, time.monotonic() - started_at)
 
 
+def _record_session_id(session: object | None, state: ReplState) -> str:
+    return str(getattr(session, "session_id", "") or state.session_id or "repl")
+
+
+def _record_interaction_history(
+    record: ReplExecutionRecord | None,
+    *,
+    state: ReplState,
+    started_at: float,
+) -> None:
+    if record is None or state.history_store is None:
+        return
+    try:
+        state.history_store.add_record(
+            kind=record.kind,
+            request=record.request,
+            source=record.source,
+            output=record.output,
+            status=record.status,
+            duration_seconds=max(0.0, time.monotonic() - started_at),
+            report_path=record.report_path,
+            session_id=record.session_id or state.session_id,
+        )
+    except Exception:
+        return
+
+
 def handle_repl_line(
     line: str,
     *,
@@ -559,13 +662,37 @@ def handle_repl_line(
         return True
     started_at = time.monotonic()
     update_duration = True
+    interrupted_record: ReplExecutionRecord | None = None
     try:
         if not text.startswith("/"):
-            return _handle_chat(text, chat_session=chat_session, printer=printer, state=state)
+            interrupted_record = ReplExecutionRecord(
+                kind="chat",
+                request=text,
+                source="chat",
+                output=INTERRUPT_MESSAGE,
+                status="interrupted",
+                session_id=_record_session_id(chat_session, state),
+            )
+            record = _handle_chat(text, chat_session=chat_session, printer=printer, state=state)
+            _record_interaction_history(record, state=state, started_at=started_at)
+            return True
         try:
             argv = repl_command_to_argv(text)
         except ValueError as exc:
-            printer(f"解析失败: {exc}")
+            message = f"解析失败: {exc}"
+            printer(message)
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source="/",
+                    output=message,
+                    status="error",
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
             return True
         if not argv:
             render_help_box(printer=printer, formatted_printer=_help_formatted_printer(printer, formatted_printer))
@@ -593,27 +720,113 @@ def handle_repl_line(
                 chat_args = chat_args[1:]
             message = " ".join(chat_args).strip()
             if not message:
-                printer("错误: chat message is required")
+                message_text = "错误: chat message is required"
+                printer(message_text)
+                _record_interaction_history(
+                    ReplExecutionRecord(
+                        kind="chat",
+                        request=text,
+                        source="chat",
+                        output=message_text,
+                        status="error",
+                        session_id=_record_session_id(chat_session, state),
+                    ),
+                    state=state,
+                    started_at=started_at,
+                )
                 return True
-            return _handle_chat(message, chat_session=chat_session, printer=printer, use_memory=use_memory, state=state)
+            interrupted_record = ReplExecutionRecord(
+                kind="chat",
+                request=message,
+                source="chat",
+                output=INTERRUPT_MESSAGE,
+                status="interrupted",
+                session_id=_record_session_id(chat_session, state),
+            )
+            record = _handle_chat(message, chat_session=chat_session, printer=printer, use_memory=use_memory, state=state)
+            _record_interaction_history(record, state=state, started_at=started_at)
+            return True
         if command not in CLI_COMMANDS:
-            printer(f"未知命令: /{command}。输入 /help 查看可用命令。")
+            message = f"未知命令: /{command}。输入 /help 查看可用命令。"
+            printer(message)
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source=f"/{command}",
+                    output=message,
+                    status="error",
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
             return True
 
         command_runner = runner or _run_cli_command
         buffer = io.StringIO()
         original_stdout = sys.stdout
+        tee = _TeeStdout(printer, buffer, original_stdout=original_stdout)
+        record_command = command != "history"
+        if record_command:
+            interrupted_record = ReplExecutionRecord(
+                kind="command",
+                request=text,
+                source=f"/{command}",
+                output=INTERRUPT_MESSAGE,
+                status="interrupted",
+                session_id=state.session_id,
+            )
+        output = ""
+        status = "done"
         try:
-            with redirect_stdout(_TeeStdout(printer, buffer, original_stdout=original_stdout)):
+            with redirect_stdout(tee):
                 command_runner(argv)
         except SystemExit as exc:
-            _print_system_exit(exc, printer)
+            tee.flush()
+            message = _system_exit_message(exc)
+            if message:
+                printer(message)
+            output = _merge_history_output(buffer.getvalue().rstrip(), message)
+            status = "error" if _system_exit_failed(exc) else "done"
         except ValueError as exc:
-            printer(f"错误: {exc}")
+            tee.flush()
+            message = f"错误: {exc}"
+            printer(message)
+            output = _merge_history_output(buffer.getvalue().rstrip(), message)
+            status = "error"
+        except KeyboardInterrupt:
+            tee.flush()
+            raise
         except Exception as exc:  # pragma: no cover - defensive REPL boundary
-            printer(f"错误: {exc}")
+            tee.flush()
+            message = f"错误: {exc}"
+            printer(message)
+            output = _merge_history_output(buffer.getvalue().rstrip(), message)
+            status = "error"
         else:
-            _remember_output(state, buffer.getvalue().rstrip(), request=text, source=f"/{command}")
+            tee.flush()
+            output = buffer.getvalue().rstrip()
+            _remember_output(state, output, request=text, source=f"/{command}")
+        if record_command:
+            report_path = extract_report_path(output)
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source=f"/{command}",
+                    output=output,
+                    status=status,
+                    report_path=str(report_path or ""),
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
+        return True
+    except KeyboardInterrupt:
+        printer(INTERRUPT_MESSAGE)
+        _record_interaction_history(interrupted_record, state=state, started_at=started_at)
         return True
     finally:
         if update_duration:
@@ -638,14 +851,15 @@ def _handle_chat(
     printer: Callable[[str], None],
     use_memory: bool | None = None,
     state: ReplState | None = None,
-) -> bool:
+) -> ReplExecutionRecord | None:
     state = state or ReplState()
     save_request = parse_save_request(message)
     if save_request is not None and save_request.is_pure:
         _save_last_output(save_request, state=state, printer=printer)
-        return True
+        return None
     chat_message = save_request.cleaned_text if save_request is not None and save_request.cleaned_text else message
     session = chat_session or ChatSession()
+    session_id = _record_session_id(session, state)
     progress = create_progress(request=chat_message)
     try:
         settings = getattr(session, "settings", None) or load_settings()
@@ -662,12 +876,28 @@ def _handle_chat(
         result = session.ask(chat_message, **kwargs)
     except ValueError as exc:
         progress.close()
-        printer(f"错误: {exc}")
-        return True
+        output = f"错误: {exc}"
+        printer(output)
+        return ReplExecutionRecord(
+            kind="chat",
+            request=chat_message,
+            source="chat",
+            output=output,
+            status="error",
+            session_id=session_id,
+        )
     except Exception as exc:  # pragma: no cover - defensive REPL boundary
         progress.close()
-        printer(f"LLM错误: {exc}")
-        return True
+        output = f"LLM错误: {exc}"
+        printer(output)
+        return ReplExecutionRecord(
+            kind="chat",
+            request=chat_message,
+            source="chat",
+            output=output,
+            status="error",
+            session_id=session_id,
+        )
     finally:
         progress.close()
     output = format_chat_result(result)
@@ -675,7 +905,15 @@ def _handle_chat(
     captured = _remember_output(state, output, request=chat_message, source="chat")
     if save_request is not None:
         _save_output(captured, save_request, printer=printer)
-    return True
+    return ReplExecutionRecord(
+        kind="chat",
+        request=chat_message,
+        source="chat",
+        output=output,
+        status="done",
+        report_path=str(captured.report_path or ""),
+        session_id=session_id,
+    )
 
 
 def repl_command_to_argv(line: str) -> list[str]:
@@ -688,8 +926,9 @@ def repl_command_to_argv(line: str) -> list[str]:
 def help_text() -> str:
     command_width = _help_command_width()
     command_lines = [f"  {_left_align_display(command, command_width)}  {description}" for command, description in HELP_COMMANDS]
+    shortcut_lines = [f"  {_left_align_display(command, command_width)}  {description}" for command, description in HELP_SHORTCUTS]
     example_lines = [f"  {_left_align_display(command, command_width)}  {description}" for command, description in HELP_EXAMPLES]
-    return "\n".join(["可用命令:", *command_lines, "", "示例:", *example_lines])
+    return "\n".join(["可用命令:", *command_lines, "", "快捷键:", *shortcut_lines, "", "示例:", *example_lines])
 
 
 def _left_align_display(text: str, width: int) -> str:
@@ -719,14 +958,28 @@ def _run_cli_command(argv: list[str]) -> int:
     return main(argv)
 
 
-def _print_system_exit(exc: SystemExit, printer: Callable[[str], None]) -> None:
+def _system_exit_message(exc: SystemExit) -> str:
     code = exc.code
     if code in (None, 0):
-        return
+        return ""
     if isinstance(code, str):
-        printer(f"错误: {code}")
-        return
-    printer(f"命令退出: {code}")
+        return f"错误: {code}"
+    return f"命令退出: {code}"
+
+
+def _system_exit_failed(exc: SystemExit) -> bool:
+    return exc.code not in (None, 0)
+
+
+def _merge_history_output(output: str, message: str) -> str:
+    parts = [str(output or "").rstrip(), str(message or "").rstrip()]
+    return "\n".join(part for part in parts if part)
+
+
+def _print_system_exit(exc: SystemExit, printer: Callable[[str], None]) -> None:
+    message = _system_exit_message(exc)
+    if message:
+        printer(message)
 
 
 class _TeeStdout:

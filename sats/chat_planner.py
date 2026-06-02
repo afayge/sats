@@ -5,6 +5,7 @@ from typing import Any, Iterable
 
 from sats.analysis.market_llm_context import is_market_question
 from sats.analysis.opportunity_discovery import is_opportunity_discovery_question
+from sats.analysis.stock_picking_agent import STOCK_PICKING_ACTION
 from sats.screening.rule_composer import is_rule_generation_request
 from sats.skills import Skill, find_skill, match_skills
 from sats.stock_question import StockQuestion
@@ -30,7 +31,7 @@ class ChatPlan:
 
     @property
     def needs_opportunity_discovery(self) -> bool:
-        return "opportunity_discovery" in self.internal_actions
+        return STOCK_PICKING_ACTION in self.internal_actions or "opportunity_discovery" in self.internal_actions
 
     @property
     def needs_chan_context(self) -> bool:
@@ -97,11 +98,11 @@ def build_chat_plan(
         risk_level = "medium"
 
     if is_opportunity_discovery_question(text) and not has_stock and not rule_generation:
-        intent = "opportunity_discovery"
+        intent = STOCK_PICKING_ACTION
         requirements.append("market_context")
-        actions.append("opportunity_discovery")
+        actions.extend([STOCK_PICKING_ACTION, "opportunity_discovery"])
         skill_ids.extend(["sats-market-assistant", "technical-basic", "risk-analysis"])
-        reasons.append("检测到自然语言选股问题，需要先运行短线机会发现。")
+        reasons.append("检测到自然语言选股问题，需要先运行选股 Agent。")
         risk_level = "medium"
 
     if _is_chan_question(text):
@@ -155,11 +156,11 @@ def build_chat_plan(
             reasons.append("LLM 预处理识别到大盘/市场背景需求。")
             risk_level = "medium"
         if bool(getattr(preprocess, "needs_opportunity_discovery", False)) and not has_stock:
-            intent = "opportunity_discovery"
+            intent = STOCK_PICKING_ACTION
             requirements.append("market_context")
-            actions.append("opportunity_discovery")
+            actions.extend([STOCK_PICKING_ACTION, "opportunity_discovery"])
             skill_ids.extend(["sats-market-assistant", "technical-basic", "risk-analysis"])
-            reasons.append("LLM 预处理识别到自然语言选股/推荐需求。")
+            reasons.append("LLM 预处理识别到自然语言选股/推荐需求，已转为选股 Agent。")
             risk_level = "medium"
         if bool(getattr(preprocess, "needs_indicators", False)) and (has_stock or bool(getattr(preprocess, "symbols", ()))):
             requirements.append("stock_context")
@@ -226,6 +227,18 @@ def _is_financial_question(text: str) -> bool:
 
 
 _CHINA_MARKET_SKILLS = {
+    "bull-trend",
+    "shrink-pullback",
+    "ma-golden-cross",
+    "volume-breakout",
+    "box-oscillation",
+    "bottom-volume",
+    "one-yang-three-yin",
+    "dragon-head",
+    "hot-theme",
+    "emotion-cycle",
+    "expectation-repricing",
+    "growth-quality",
     "quant-factor-screener",
     "high-dividend-strategy",
     "undervalued-stock-screener",
@@ -246,6 +259,9 @@ _MARKET_CONTEXT_SKILLS = {
     "portfolio-health-check",
     "risk-adjusted-return-optimizer",
     "sector-rotation",
+    "dragon-head",
+    "hot-theme",
+    "emotion-cycle",
 }
 
 

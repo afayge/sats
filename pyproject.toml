@@ -27,6 +27,8 @@ dependencies = [
 
 [project.optional-dependencies]
 akshare = ["akshare>=1.16"]
+ml = ["pyqlib", "lightgbm", "xgboost", "scikit-learn"]
+deep = ["torch"]
 
 [project.scripts]
 sats = "sats.cli:main"

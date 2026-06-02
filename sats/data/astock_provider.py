@@ -425,6 +425,18 @@ class AStockDataProvider(MarketDataProvider):
             top_concepts=top_concepts,
         )
 
+    def load_ths_sector_basic(self, *, storage: DuckDBStorage) -> pd.DataFrame:
+        provider = self.tushare
+        if provider is not None and hasattr(provider, "_load_ths_sector_basic"):
+            return provider._load_ths_sector_basic(storage=storage)
+        return storage.get_sector_basic(sector_types=["industry", "concept"])
+
+    def load_ths_sector_members(self, sector_codes: list[str], *, storage: DuckDBStorage) -> pd.DataFrame:
+        provider = self.tushare
+        if provider is not None and hasattr(provider, "_load_ths_sector_members"):
+            return provider._load_ths_sector_members(sector_codes, storage=storage)
+        return storage.get_sector_members(sector_codes)
+
     def load_chip_context(self, symbols: list[str]) -> dict[str, dict[str, Any]]:
         ak = self.akshare
         if ak is None or not hasattr(ak, "load_chip_context"):

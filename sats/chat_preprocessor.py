@@ -17,7 +17,7 @@ from sats.analysis.market_llm_context import (
     resolve_market_horizons,
     resolve_market_indices,
 )
-from sats.analysis.opportunity_discovery import is_opportunity_discovery_question
+from sats.analysis.opportunity_discovery import extract_opportunity_discovery_limit, is_opportunity_discovery_question
 from sats.chat_reference import ChatReferenceContext, is_reference_question
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
@@ -48,6 +48,7 @@ class ChatPreprocessResult:
     market_indices: tuple[str, ...] = ()
     market_dimensions: tuple[str, ...] = ()
     market_horizons: tuple[str, ...] = ()
+    requested_limit: int | None = None
     market_plan_source: str = ""
     skill_hints: tuple[str, ...] = ()
     confidence: float = 0.0
@@ -74,6 +75,7 @@ class ChatPreprocessResult:
                 f"- market_indices: {', '.join(self.market_indices) if self.market_indices else 'none'}",
                 f"- market_dimensions: {', '.join(self.market_dimensions) if self.market_dimensions else 'none'}",
                 f"- market_horizons: {', '.join(self.market_horizons) if self.market_horizons else 'none'}",
+                f"- requested_limit: {self.requested_limit if self.requested_limit is not None else 'none'}",
                 f"- market_plan_source: {self.market_plan_source or 'none'}",
                 f"- skill_hints: {', '.join(self.skill_hints) if self.skill_hints else 'none'}",
                 f"- confidence: {self.confidence:.2f}",
@@ -160,7 +162,7 @@ def _preprocess_messages(message: str, *, reference_context: ChatReferenceContex
                 "按以下 JSON 字段输出：intent, symbols, stock_names, trade_date, as_of_time, "
                 "reference_needed, needs_stock_context, needs_market_context, needs_opportunity_discovery, "
                 "needs_indicators, needs_realtime_quote_context, market_indices, market_dimensions, market_horizons, "
-                "skill_hints, confidence, missing_questions。\n"
+                "requested_limit, skill_hints, confidence, missing_questions。\n"
                 f"{reference_summary}"
                 f"用户输入：{message}"
             ),
@@ -224,6 +226,7 @@ def _local_preprocess(message: str, *, reference_context: ChatReferenceContext |
     market_indices = extract_explicit_market_indices(message) if needs_market_context else ()
     market_horizons = extract_market_horizons(message) if needs_market_context else ()
     market_dimensions = DEFAULT_MARKET_DIMENSIONS if needs_market_context else ()
+    requested_limit = extract_opportunity_discovery_limit(message) if opportunity else None
     intent = "general_qa"
     if opportunity and not has_stock:
         intent = "opportunity_discovery"
@@ -256,6 +259,7 @@ def _local_preprocess(message: str, *, reference_context: ChatReferenceContext |
         market_indices=tuple(market_indices),
         market_dimensions=tuple(market_dimensions),
         market_horizons=tuple(market_horizons),
+        requested_limit=requested_limit,
         market_plan_source="local_default" if needs_market_context else "",
         skill_hints=tuple(skill_hints),
         confidence=0.75 if intent != "general_qa" else 0.45,
@@ -296,6 +300,7 @@ def _merge_llm_and_local(
     raw_market_indices = _string_list(payload.get("market_indices"))
     raw_market_dimensions = _string_list(payload.get("market_dimensions"))
     raw_market_horizons = _string_list(payload.get("market_horizons"))
+    requested_limit = local.requested_limit or _positive_int(payload.get("requested_limit"))
     llm_market_indices = resolve_market_indices(raw_market_indices)
     llm_market_dimensions = tuple(resolve_market_dimensions(raw_market_dimensions)) if raw_market_dimensions else ()
     llm_market_horizons = tuple(resolve_market_horizons(raw_market_horizons)) if raw_market_horizons else ()
@@ -328,6 +333,7 @@ def _merge_llm_and_local(
         market_indices=market_indices,
         market_dimensions=market_dimensions,
         market_horizons=market_horizons,
+        requested_limit=requested_limit,
         market_plan_source=_market_plan_source(local, payload, market_indices),
         skill_hints=tuple(skill_hints),
         confidence=confidence,
@@ -393,6 +399,7 @@ def _resolve_and_validate_entities(
         market_indices=result.market_indices,
         market_dimensions=result.market_dimensions,
         market_horizons=result.market_horizons,
+        requested_limit=result.requested_limit,
         market_plan_source=result.market_plan_source,
         skill_hints=tuple(_dedupe(skill_hints)),
         confidence=result.confidence,
@@ -637,6 +644,14 @@ def _bool(value: Any) -> bool:
     if isinstance(value, str):
         return value.strip().lower() in {"1", "true", "yes", "y", "是", "需要"}
     return bool(value)
+
+
+def _positive_int(value: Any) -> int | None:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number > 0 else None
 
 
 def _confidence(value: Any, *, default: float) -> float:

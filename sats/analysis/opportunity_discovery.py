@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -18,15 +20,17 @@ from sats.llm import ChatLLM
 from sats.screening.base import ScreeningInput
 from sats.signals import SignalAnalysisResult, SignalEvent, SignalInput, analyze_signal_input
 from sats.storage.duckdb import DuckDBStorage
+from sats.symbols import normalize_symbols
 
 
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 DEFAULT_DISCOVERY_SIGNALS = "short_up"
 DEFAULT_DISCOVERY_LIMIT = 5
-DEFAULT_CANDIDATE_LIMIT = 30
+DEFAULT_CANDIDATE_LIMIT = 50
 DEFAULT_LOCAL_SCORE_THRESHOLD = 58.0
 DEFAULT_HOT_SECTOR_DAYS = 5
 HOT_SECTOR_SCORE_CAP = 12.0
+CHAN_SCORE_CAP = 8.0
 DIVERSITY_SCORE_TOLERANCE = 8.0
 DIVERSITY_PENALTY = 2.0
 _OPPORTUNITY_KEYWORDS = (
@@ -35,6 +39,7 @@ _OPPORTUNITY_KEYWORDS = (
     "推荐几只",
     "几个股票",
     "短线机会",
+    "大概率上涨",
     "上涨趋势",
     "未来几天",
     "未来几日",
@@ -58,6 +63,8 @@ class OpportunityCandidate:
     indicator: dict[str, Any] = field(default_factory=dict)
     hot_sectors: list[dict[str, Any]] = field(default_factory=list)
     hot_sector_score: float = 0.0
+    chan_score: float = 0.0
+    chan_signals: list[dict[str, Any]] = field(default_factory=list)
     ranking_score: float = 0.0
     llm_reason: str = ""
     entry_trigger: str = ""
@@ -79,6 +86,8 @@ class OpportunityCandidate:
             "indicator": self.indicator,
             "hot_sectors": self.hot_sectors,
             "hot_sector_score": self.hot_sector_score,
+            "chan_score": self.chan_score,
+            "chan_signals": self.chan_signals,
             "ranking_score": self.ranking_score,
             "llm_reason": self.llm_reason,
             "entry_trigger": self.entry_trigger,
@@ -101,6 +110,7 @@ class OpportunityDiscoveryResult:
     report_path: str | None = None
     message: str = ""
     llm_unavailable: bool = False
+    llm_pool_count: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -115,7 +125,8 @@ class OpportunityDiscoveryResult:
             "report_path": self.report_path,
             "message": self.message,
             "llm_unavailable": self.llm_unavailable,
-            "data_policy": "SATS used Analyze short-term bullish signals for temporary full-market screening; screening_results was not written.",
+            "llm_pool_count": self.llm_pool_count,
+            "data_policy": "SATS used Analyze short-term bullish signals for temporary screening; screening_results was not written.",
         }
 
     @property
@@ -123,7 +134,7 @@ class OpportunityDiscoveryResult:
         payload = self.to_dict()
         return (
             "以下是 SATS 已基于真实本地数据完成的 A 股短线机会发现上下文。"
-            "候选股来自 Analyze 中短期上涨信号的临时全市场筛选；"
+            "候选股来自 Analyze 中短期上涨信号的临时筛选；"
             "不要编造未提供的数据，不要承诺未来必然上涨，必须给出触发条件、失效条件和风险提示。\n"
             + json.dumps(payload, ensure_ascii=False, default=str)
         )
@@ -135,7 +146,73 @@ def is_opportunity_discovery_question(message: str) -> bool:
         return False
     if any(keyword in text for keyword in _OPPORTUNITY_KEYWORDS):
         return True
+    if _has_stock_picking_action(text):
+        return True
     return ("股票" in text and any(term in text for term in ("上涨", "短线", "未来", "机会", "推荐")))
+
+
+def extract_opportunity_discovery_limit(message: str) -> int | None:
+    text = str(message or "").strip()
+    if not text:
+        return None
+    number = r"([0-9]{1,4}|[零〇一二两三四五六七八九十百]{1,6})"
+    patterns = (
+        rf"(?:前|top\s*)\s*{number}\s*(?:名|只|支|个股|股票|标的|候选)?",
+        rf"(?:列出|给出|推荐|筛选|找出|选出|挑选|返回)\s*{number}\s*(?:支|只|名|个股|股票|标的|候选)",
+        rf"{number}\s*(?:支|只|名|个股|股票|标的|候选)",
+        rf"(?:列出|给出|推荐|筛选|找出|选出|挑选|返回)\s*{number}\s*个(?!交易日|工作日|日|天)",
+        rf"{number}\s*个(?:股票|个股|标的|候选|机会)",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        if not match:
+            continue
+        value = _parse_count_number(match.group(1))
+        if value is not None and value > 0:
+            return value
+    return None
+
+
+def _has_stock_picking_action(text: str) -> bool:
+    return (
+        any(term in text for term in ("股票", "个股", "A股", "a股", "标的", "强势股"))
+        and any(term in text for term in ("列出", "给出", "推荐", "筛选", "找出", "选出", "挑选", "返回"))
+        and any(term in text for term in ("上涨", "大概率", "可能涨", "短线", "机会", "强势"))
+    )
+
+
+def _parse_count_number(value: str) -> int | None:
+    text = str(value or "").strip().lower()
+    if not text:
+        return None
+    if text.isdigit():
+        return int(text)
+    return _parse_chinese_count(text)
+
+
+def _parse_chinese_count(value: str) -> int | None:
+    digits = {"零": 0, "〇": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if "百" in text:
+        left, _, right = text.partition("百")
+        hundreds = digits.get(left, 1 if not left else None)
+        if hundreds is None:
+            return None
+        rest = _parse_chinese_count(right) if right else 0
+        return hundreds * 100 + int(rest or 0)
+    if "十" in text:
+        left, _, right = text.partition("十")
+        tens = digits.get(left, 1 if not left else None)
+        ones = digits.get(right, 0 if not right else None)
+        if tens is None or ones is None:
+            return None
+        return tens * 10 + ones
+    if all(char in digits for char in text):
+        rendered = "".join(str(digits[char]) for char in text).lstrip("0")
+        return int(rendered or "0")
+    return None
 
 
 def run_opportunity_discovery(
@@ -143,6 +220,7 @@ def run_opportunity_discovery(
     settings: Settings,
     storage: DuckDBStorage,
     provider: Any | None = None,
+    symbols: list[str] | tuple[str, ...] | None = None,
     trade_date: str | None = None,
     signals: str = DEFAULT_DISCOVERY_SIGNALS,
     limit: int = DEFAULT_DISCOVERY_LIMIT,
@@ -166,22 +244,42 @@ def run_opportunity_discovery(
     limit = max(1, int(limit))
     candidate_limit = max(limit, int(candidate_limit))
 
+    requested_symbols = normalize_symbols(symbols, required=False) if symbols is not None else None
     missing: list[str] = []
     if progress is None:
-        inputs, input_missing = _load_all_screening_inputs_with_lock_fallback(
-            provider,
-            trade_date,
-            storage=storage,
-            trade_days=max(80, int(lookback_days)),
-        )
-    else:
-        with progress.step("全市场数据") as step:
+        if requested_symbols is None:
             inputs, input_missing = _load_all_screening_inputs_with_lock_fallback(
                 provider,
                 trade_date,
                 storage=storage,
                 trade_days=max(80, int(lookback_days)),
             )
+        else:
+            inputs, input_missing = _load_screening_inputs_with_lock_fallback(
+                provider,
+                requested_symbols,
+                trade_date,
+                storage=storage,
+                trade_days=max(80, int(lookback_days)),
+            )
+    else:
+        data_label = "全市场数据" if requested_symbols is None else "限定股票池数据"
+        with progress.step(data_label) as step:
+            if requested_symbols is None:
+                inputs, input_missing = _load_all_screening_inputs_with_lock_fallback(
+                    provider,
+                    trade_date,
+                    storage=storage,
+                    trade_days=max(80, int(lookback_days)),
+                )
+            else:
+                inputs, input_missing = _load_screening_inputs_with_lock_fallback(
+                    provider,
+                    requested_symbols,
+                    trade_date,
+                    storage=storage,
+                    trade_days=max(80, int(lookback_days)),
+                )
             step.complete(message=f"{len(inputs)} 只")
     missing.extend(input_missing)
     signal_results = []
@@ -214,14 +312,15 @@ def run_opportunity_discovery(
             )
             step.complete()
     stock_basic_map = _stock_basic_map(inputs)
-    local_candidates = _select_local_candidates(
+    all_local_candidates = _select_local_candidates(
         signal_results,
         score_threshold=score_threshold,
         hot_sector_context=hot_sector_context,
         stock_basic_map=stock_basic_map,
     )
+    candidate_count = len(all_local_candidates)
     local_candidates = _pick_diversified_signal_results(
-        local_candidates,
+        all_local_candidates,
         limit=candidate_limit,
         hot_sector_context=hot_sector_context,
         stock_basic_map=stock_basic_map,
@@ -237,6 +336,7 @@ def run_opportunity_discovery(
             hot_sector_context=hot_sector_context,
             missing_fields=[*missing, *hot_missing],
             message=message,
+            llm_pool_count=0,
         )
 
     if progress is None:
@@ -288,6 +388,7 @@ def run_opportunity_discovery(
             )
             step.update(len(local_candidates))
     missing.extend(_candidate_missing_fields(enriched))
+    llm_pool_count = len(enriched)
     llm_unavailable = False
     if llm_enabled:
         try:
@@ -324,12 +425,13 @@ def run_opportunity_discovery(
             trade_date=trade_date,
             signals=signals,
             candidates=enriched,
-            candidate_count=len(local_candidates),
+            candidate_count=candidate_count,
             scanned_count=len(inputs),
             market_context=market_context,
             hot_sector_context=hot_sector_context,
             missing_fields=missing,
             llm_unavailable=llm_unavailable,
+            llm_pool_count=llm_pool_count,
         )
         if progress is None:
             report_path = str(write_opportunity_report(draft, reports_dir=reports_dir))
@@ -341,37 +443,109 @@ def run_opportunity_discovery(
         trade_date=trade_date,
         signals=signals,
         candidates=enriched,
-        candidate_count=len(local_candidates),
+        candidate_count=candidate_count,
         scanned_count=len(inputs),
         market_context=market_context,
         hot_sector_context=hot_sector_context,
         missing_fields=missing,
         report_path=report_path,
         llm_unavailable=llm_unavailable,
+        llm_pool_count=llm_pool_count,
     )
 
 
 def format_opportunity_discovery(result: OpportunityDiscoveryResult) -> str:
-    if result.message:
-        return result.message
-    if not result.candidates:
+    message = str(getattr(result, "message", "") or "")
+    if message:
+        return message
+    candidates = list(getattr(result, "candidates", []) or [])
+    if not candidates:
         return "无结果"
-    lines = []
-    for index, candidate in enumerate(result.candidates, start=1):
-        labels = ",".join(event.get("label", "") for event in candidate.events[:4] if event.get("label")) or "无命中信号"
-        reason = f" 理由 {candidate.llm_reason}" if candidate.llm_reason else ""
-        trigger = f" 触发 {candidate.entry_trigger}" if candidate.entry_trigger else ""
-        invalidation = f" 失效 {candidate.invalidation}" if candidate.invalidation else ""
-        risk = f" 风险 {candidate.risk}" if candidate.risk else ""
-        hot_text = _hot_sector_label_text(candidate.hot_sectors)
-        hot = f" 热点 {hot_text}" if hot_text else ""
-        ranking = f" 排名分 {_fmt(candidate.ranking_score)}" if candidate.ranking_score else ""
+    candidate_count = int(getattr(result, "candidate_count", len(candidates)) or len(candidates))
+    scanned_count = int(getattr(result, "scanned_count", candidate_count) or candidate_count)
+    trade_date = str(getattr(result, "trade_date", "") or "--")
+    signals = str(getattr(result, "signals", "") or "--")
+    llm_unavailable = bool(getattr(result, "llm_unavailable", False))
+    raw_llm_pool_count = getattr(result, "llm_pool_count", None)
+    llm_pool_count = int(raw_llm_pool_count) if raw_llm_pool_count else len(candidates)
+    lines = [
+        (
+            f"交易日: {trade_date} | 信号组: {signals} | 扫描: {scanned_count} 只 | "
+            f"短期信号候选: {candidate_count} 只 | 展示: {len(candidates)} 只 | "
+            f"LLM: {'unavailable，本地信号排序' if llm_unavailable else 'available'}"
+        ),
+        f"LLM分析池: {llm_pool_count} 只",
+        "",
+        *_format_discovery_table(candidates),
+        "",
+        "详情:",
+    ]
+    for index, candidate in enumerate(candidates, start=1):
         name = f" {candidate.name}" if candidate.name else ""
-        lines.append(
-            f"{index}. {candidate.ts_code}{name} 评分 {_fmt(candidate.local_score)}{ranking} "
-            f"{candidate.decision} {candidate.trend} 信号 {labels}{hot}{reason}{trigger}{invalidation}{risk}".rstrip()
+        lines.extend(
+            [
+                f"{index}. {candidate.ts_code}{name}".rstrip(),
+                f"   缠论: {_text_or_dash(_chan_signal_label_text(getattr(candidate, 'chan_signals', []) or []))}",
+                f"   理由: {_text_or_dash(candidate.llm_reason)}",
+                f"   触发: {_text_or_dash(candidate.entry_trigger)}",
+                f"   失效: {_text_or_dash(candidate.invalidation)}",
+                f"   风险: {_text_or_dash(candidate.risk)}",
+            ]
         )
     return "\n".join(lines)
+
+
+def _format_discovery_table(candidates: list[OpportunityCandidate]) -> list[str]:
+    rows = [
+        {
+            "rank": str(index),
+            "code": candidate.ts_code,
+            "name": candidate.name or "--",
+            "score": _text_or_dash(_fmt(candidate.local_score)),
+            "ranking": _text_or_dash(_fmt(candidate.ranking_score)),
+            "trend": candidate.trend or "--",
+            "signals": _event_label_text(candidate.events),
+            "chan": _chan_signal_label_text(getattr(candidate, "chan_signals", []) or []) or "--",
+            "hot": _hot_sector_label_text(candidate.hot_sectors) or "--",
+        }
+        for index, candidate in enumerate(candidates, start=1)
+    ]
+    columns = [
+        ("rank", "排名", 4),
+        ("code", "代码", 9),
+        ("name", "名称", 12),
+        ("score", "评分", 6),
+        ("ranking", "排名分", 6),
+        ("trend", "趋势", 6),
+        ("signals", "主要信号", 24),
+        ("chan", "缠论", 16),
+        ("hot", "热点", 18),
+    ]
+    widths = {
+        key: min(max_width, max(_display_width(title), *(_display_width(row[key]) for row in rows)))
+        for key, title, max_width in columns
+    }
+    lines = [
+        "  ".join(_display_ljust(title, widths[key]) for key, title, _ in columns).rstrip()
+    ]
+    for row in rows:
+        lines.append("  ".join(_display_ljust(row[key], widths[key]) for key, _, _ in columns).rstrip())
+    return lines
+
+
+def _event_label_text(events: list[dict[str, Any]]) -> str:
+    labels = [str(event.get("label") or "").strip() for event in events[:4] if event.get("label")]
+    return ",".join(labels) or "--"
+
+
+def _chan_signal_label_text(chan_signals: list[dict[str, Any]]) -> str:
+    labels = []
+    for signal in chan_signals[:4]:
+        label = str(signal.get("chan_type") or signal.get("label") or signal.get("signal_id") or "").strip()
+        bonus = _fmt(signal.get("bonus"))
+        if label:
+            labels.append(f"{label}(+{bonus})" if bonus else label)
+    return ",".join(labels)
 
 
 def write_opportunity_report(result: OpportunityDiscoveryResult, *, reports_dir: Path) -> Path:
@@ -459,6 +633,59 @@ def _load_all_screening_inputs_with_lock_fallback(
                 raise
             return [], [f"all_market_data: duckdb_cache_unavailable_after_lock: {cache_exc}"]
         return inputs, [f"all_market_data: duckdb_readonly_cache_after_lock: {exc}"]
+
+
+def _load_screening_inputs_with_lock_fallback(
+    provider: Any,
+    symbols: list[str],
+    trade_date: str,
+    *,
+    storage: DuckDBStorage,
+    trade_days: int,
+) -> tuple[list[ScreeningInput], list[str]]:
+    if not symbols:
+        return [], []
+    if not hasattr(provider, "load_screening_inputs"):
+        return [], ["symbol_data: provider_unavailable"]
+    try:
+        return (
+            provider.load_screening_inputs(
+                symbols,
+                trade_date,
+                storage=storage,
+                trade_days=trade_days,
+                rule_name="signal_discovery",
+            ),
+            [],
+        )
+    except Exception as exc:
+        if not _is_duckdb_lock_error(exc):
+            raise
+        readonly_storage = storage.readonly()
+        try:
+            inputs = _load_screening_inputs_from_cache(
+                readonly_storage,
+                symbols,
+                trade_date,
+                trade_days=trade_days,
+            )
+        except Exception as cache_exc:
+            if not _is_duckdb_lock_error(cache_exc):
+                raise
+            return [], [f"symbol_data: duckdb_cache_unavailable_after_lock: {cache_exc}"]
+        return inputs, [f"symbol_data: duckdb_readonly_cache_after_lock: {exc}"]
+
+
+def _load_screening_inputs_from_cache(
+    storage: DuckDBStorage,
+    symbols: list[str],
+    trade_date: str,
+    *,
+    trade_days: int,
+) -> list[ScreeningInput]:
+    cached = _load_all_screening_inputs_from_cache(storage, trade_date, trade_days=trade_days)
+    by_symbol = {item.ts_code: item for item in cached}
+    return [by_symbol[symbol] for symbol in symbols if symbol in by_symbol]
 
 
 def _load_all_screening_inputs_from_cache(
@@ -632,6 +859,8 @@ def _enrich_candidates(
             indicator_payload.setdefault("fundamentals", {})["industry"] = industry
         hot_sectors = list(stock_hot.get(result.ts_code, [])) if isinstance(stock_hot, dict) else []
         hot_score = _hot_sector_score(hot_sectors)
+        chan_signals = _chan_buy_signals(result.events)
+        chan_score = _chan_score(chan_signals)
         candidates.append(
             OpportunityCandidate(
                 ts_code=result.ts_code,
@@ -646,7 +875,9 @@ def _enrich_candidates(
                 indicator=_compact_indicator(indicator_payload),
                 hot_sectors=hot_sectors,
                 hot_sector_score=hot_score,
-                ranking_score=round(float(result.score) + hot_score, 4),
+                chan_score=chan_score,
+                chan_signals=chan_signals,
+                ranking_score=round(float(result.score) + hot_score + chan_score, 4),
                 missing_fields=_indicator_missing_fields(result.ts_code, indicator_payload),
             )
         )
@@ -664,6 +895,68 @@ def _candidate_missing_fields(candidates: Iterable[OpportunityCandidate]) -> lis
     return missing
 
 
+def _chan_buy_signals(events: Iterable[SignalEvent]) -> list[dict[str, Any]]:
+    signals: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for event in events:
+        if str(getattr(event, "side", "") or "").lower() != "buy":
+            continue
+        signal_id = str(getattr(event, "signal_id", "") or "").strip()
+        label = str(getattr(event, "label", "") or "").strip()
+        category = str(getattr(event, "category", "") or "").strip()
+        reason = str(getattr(event, "reason", "") or "").strip()
+        components = [str(item) for item in getattr(event, "components", []) or []]
+        related_chan = [str(item) for item in getattr(event, "related_chan", []) or []]
+        haystack = " ".join([signal_id, label, category, reason, *components, *related_chan]).lower()
+        raw_text = " ".join([signal_id, label, category, reason, *components, *related_chan])
+        if category != "chan" and "chan" not in haystack and "缠论" not in raw_text and not related_chan:
+            continue
+        if "_sell" in haystack or ("卖" in label and "买" not in label):
+            continue
+        chan_type, bonus = _chan_signal_bonus(haystack, raw_text)
+        key = signal_id or label
+        if key in seen:
+            continue
+        seen.add(key)
+        signals.append(
+            {
+                "signal_id": signal_id,
+                "label": label,
+                "category": category,
+                "confidence": getattr(event, "confidence", 0.0),
+                "score": getattr(event, "score", 0.0),
+                "chan_type": chan_type,
+                "bonus": bonus,
+            }
+        )
+    return signals
+
+
+def _chan_signal_bonus(haystack: str, raw_text: str) -> tuple[str, float]:
+    if "chan_second_third_overlap" in haystack or "二三买" in raw_text:
+        return "二三买重合", 8.0
+    if "chan_third_buy" in haystack or "三买" in raw_text or "❸买" in raw_text:
+        return "三买", 6.0
+    if "chan_second_buy" in haystack or "二买" in raw_text or "❷买" in raw_text:
+        return "二买", 4.0
+    if "chan_first_buy" in haystack or "一买" in raw_text or "❶买" in raw_text:
+        return "一买", 3.0
+    if (
+        "chan_center_oscillation_low" in haystack
+        or "graph_chan_center_b_complete" in haystack
+        or "中枢低吸" in raw_text
+        or "中枢 b" in raw_text
+    ):
+        return "中枢低吸", 3.0
+    return "缠论共振", 2.0
+
+
+def _chan_score(signals: list[dict[str, Any]]) -> float:
+    if not signals:
+        return 0.0
+    return round(min(CHAN_SCORE_CAP, sum(max(0.0, _float(item.get("bonus"))) for item in signals)), 4)
+
+
 def _signal_ranking_score(result: SignalAnalysisResult, *, stock_hot: Any, stock_basic: dict[str, Any]) -> float:
     buy_events = [event for event in result.events if event.side == "buy"]
     confidence_bonus = sum(max(0.0, _float(event.confidence)) for event in buy_events[:5]) * 0.35
@@ -672,6 +965,7 @@ def _signal_ranking_score(result: SignalAnalysisResult, *, stock_hot: Any, stock
     return round(
         _float(result.score)
         + _hot_sector_score_for_symbol(result.ts_code, stock_hot)
+        + _chan_score(_chan_buy_signals(result.events))
         + confidence_bonus
         + event_bonus
         + industry_bonus,
@@ -749,7 +1043,14 @@ def _rebalance_ranked_candidates(
         return ranked[:limit]
     selected = list(ranked[:limit])
     remaining = [candidate for candidate in all_candidates if candidate.ts_code not in {item.ts_code for item in selected}]
-    while _is_over_concentrated(selected):
+    seen_states: set[tuple[str, ...]] = set()
+    steps = 0
+    while _is_over_concentrated(selected) and steps < len(all_candidates):
+        state = tuple(candidate.ts_code for candidate in selected)
+        if state in seen_states:
+            break
+        seen_states.add(state)
+        steps += 1
         replacement = _best_diversifying_candidate(selected, remaining)
         if replacement is None:
             break
@@ -812,6 +1113,8 @@ def _best_diversifying_candidate(
         hot_labels = set(_candidate_hot_labels(candidate))
         if hot_labels and not hot_labels.intersection(repeated_hot):
             diversity_gain += 1.0
+        if diversity_gain <= 0:
+            continue
         candidate_score = diversity_gain + _candidate_quality_score(candidate) * 0.01
         if candidate_score > best_score:
             best = candidate
@@ -996,14 +1299,20 @@ def _rank_with_llm(
     payload = {
         "trade_date": trade_date,
         "limit": limit,
+        "llm_pool_count": len(candidates),
         "market_context": _compact_market_context(market_context),
         "hot_sector_policy": "热点板块只作为优先加权，不能把热点当作上涨保证；解释应基于信号和持续热点共振。",
+        "chan_policy": "chan_score 来自 SATS Analyze 的结构化缠论买点/共振信号，只能作为排序证据，不能保证上涨。",
         "diversity_policy": "若候选分数接近，最终 Top N 应避免全部来自同一交易板块、行业或热点概念；只有信号明显更强时才允许集中。",
+        "candidate_boundary": "只能从 candidates 中选择和排序，不得新增、替换或补齐未提供的股票。",
         "candidates": [candidate.to_dict() for candidate in candidates],
     }
     prompt = (
         "你是 SATS A 股短线机会排序助手。请只基于 JSON 中的真实结构化数据排序，"
-        "优先解释技术信号与 3-5 日持续热点板块共振；分数接近时避免 Top N 全部来自同一交易板块、行业或热点概念。"
+        "只能从 candidates 里选择，不得新增股票或为了凑数量补齐弱信号；"
+        "优先解释技术信号、3-5 日持续热点板块共振和 SATS Analyze 缠论买点加分；"
+        "缠论加分只能作为结构化排序证据，不能写成上涨保证。"
+        "分数接近时避免 Top N 全部来自同一交易板块、行业或热点概念。"
         "不要编造新闻、题材、价格或财务字段。返回严格 JSON："
         '{"rankings":[{"ts_code":"000001.SZ","reason":"...","entry_trigger":"...","invalidation":"...","risk":"..."}]}。'
         "最多返回 limit 只。\n"
@@ -1088,14 +1397,18 @@ def _compact_market_context(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def _build_llm(llm_factory: Callable[..., Any], *, settings: Settings) -> Any:
-    model_name = str(getattr(settings, "openai_model", "") or "")
+    model_name = _light_model_name(settings)
     try:
-        return llm_factory(model_name=model_name, profile="default")
+        return llm_factory(model_name=model_name, profile="light")
     except TypeError:
         try:
             return llm_factory(model_name=model_name)
         except TypeError:
             return llm_factory()
+
+
+def _light_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "")
 
 
 def _hot_sector_score(hot_sectors: list[dict[str, Any]]) -> float:
@@ -1122,6 +1435,40 @@ def _hot_sector_label_text(hot_sectors: list[dict[str, Any]]) -> str:
         if name:
             labels.append(name)
     return ",".join(labels)
+
+
+def _text_or_dash(value: Any) -> str:
+    text = str(value or "").strip()
+    return text or "--"
+
+
+def _display_ljust(text: Any, width: int) -> str:
+    value = _truncate_to_width(str(text), width)
+    return value + (" " * max(0, width - _display_width(value)))
+
+
+def _truncate_to_width(text: str, width: int) -> str:
+    value = str(text)
+    if width <= 0 or _display_width(value) <= width:
+        return value
+    if width == 1:
+        return "."
+    result = ""
+    used = 0
+    for char in value:
+        char_width = _display_width(char)
+        if used + char_width > width - 1:
+            break
+        result += char
+        used += char_width
+    return result + "."
+
+
+def _display_width(text: str) -> int:
+    width = 0
+    for char in str(text):
+        width += 2 if unicodedata.east_asian_width(char) in {"F", "W"} else 1
+    return width
 
 
 def _float(value: Any) -> float:

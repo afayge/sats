@@ -275,7 +275,8 @@ class MonitorService:
             f"规则依据: {json.dumps(cards, ensure_ascii=False, default=str)}\n"
             f"指标: {json.dumps(metrics, ensure_ascii=False, default=str)[:3000]}"
         )
-        response = ChatLLM().chat([{"role": "user", "content": prompt}])
+        model_name = str(getattr(self.settings, "light_model_name", "") or getattr(self.settings, "openai_model", "") or "")
+        response = ChatLLM(model_name=model_name or None, profile="light").chat([{"role": "user", "content": prompt}])
         return response.content or ""
 
     def _validate_rules(self, rules: tuple[str, ...]) -> None:

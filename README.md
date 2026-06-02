@@ -111,7 +111,7 @@ sats model use DEEPSEEK --target main
 sats model use XIAOMIMIMO --target light
 ```
 
-如果配置了 `DEFAULT_LIGHT_MODEL`，SATS 会把自然语言预处理、长期记忆抽取和会话滚动摘要这类轻量 LLM 任务切到轻量 profile；正式聊天回答、工具调用、DSA、机会发现排序和缠论复核仍继续使用主模型。
+如果配置了 `DEFAULT_LIGHT_MODEL`，SATS 会把自然语言预处理、普通聊天最终回答、工具调用后的总结、自然语言选股/机会排序、长期记忆抽取、会话滚动摘要和监控信号摘要这类常规 LLM 任务切到轻量 profile；DSA 原生复核、缠论候选复核、信号 AI 生成/解释和规则生成/确认等高风险或深度复核路径仍继续使用主模型。
 
 ## LLM 聊天模式与 Skills
 
@@ -119,7 +119,7 @@ sats model use XIAOMIMIMO --target light
 
 聊天默认启用本地记忆：SATS 会把会话消息、滚动摘要和长期记忆保存到 `.env` 中 `SATS_DB_PATH` 指向的 DuckDB。长期记忆通过关键词和标签检索注入上下文，第一版不使用外部向量库或云端数据库。临时问题可以使用 `--no-memory` 跳过记忆读取和写入。
 
-聊天还会按问题意图自动加载本地股票知识库 RAG：缠论、技术指标、信号分析、A 股情绪、大盘、基本面、风险和 `stock_basic` 股票名称代码表等领域会映射到 DuckDB 中的 knowledge collections。SATS 参考 open-webui 的知识库/文件/collection/chunk 流程，但首版使用本地 DuckDB 混合关键词检索，不依赖外部向量库。RAG 只提供方法论、规则说明、股票名称/代码映射和引用证据；真实价格、指标、大盘宽度和交易判断仍必须来自 SATS 结构化市场数据。
+聊天还会加载本地股票知识库 RAG：单股自然语言分析会默认把技术、信号、缠论、大盘、A 股情绪、基本面、风险和 `stock_basic` 股票名称代码表等股票域 collection 纳入检索范围；其他问题仍按意图或显式 `--knowledge` 选择相关知识库。SATS 参考 open-webui 的知识库/文件/collection/chunk 流程，但首版使用本地 DuckDB 混合关键词检索，不依赖外部向量库。RAG 只提供方法论、规则说明、股票名称/代码映射和引用证据，不会替代真实行情；真实价格、指标、大盘宽度和交易判断仍必须来自 SATS 结构化市场数据。
 
 ```text
 sats> 帮我解释 price_volume_ma 策略
@@ -155,7 +155,7 @@ python -m sats chat --no-memory 临时问题
 sats chat --no-memory 临时问题
 ```
 
-SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 做短线机会发现、`run_internal_analysis` 调用白名单内部研究能力；Tushare 数据可通过只读工具 `list_tushare_datasets` / `get_tushare_data` 按需查询，覆盖 6000 分以内股票数据和 ETF、指数、公募基金、宏观、公告新闻/研报政策、港股、美股等常用跨类接口，旧的 `list_tushare_stock_datasets` / `get_tushare_stock_data` 继续兼容股票目录。这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
+SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 调用自然语言选股 Agent、`run_internal_analysis` 调用白名单内部研究能力；Tushare 数据可通过只读工具 `list_tushare_datasets` / `get_tushare_data` 按需查询，覆盖 6000 分以内股票数据和 ETF、指数、公募基金、宏观、公告新闻/研报政策、港股、美股等常用跨类接口，旧的 `list_tushare_stock_datasets` / `get_tushare_stock_data` 继续兼容股票目录。这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
 
 管理本地知识库：
 
@@ -175,7 +175,30 @@ sats knowledge search --query 紫光股份 --knowledge stock-basic
 
 `knowledge sync-stock-basic` 会把当前 DuckDB 缓存中的 Tushare/TickFlow `stock_basic` 股票列表同步成 `stock-basic` 知识库文档块。日常输入 `--stocks`、`--symbols`、`--symbol` 时也可以直接写可唯一识别的股票名称，例如 `紫光股份`；SATS 会用本地 `stock_basic` 解析为 `000938.SZ` 后再走真实行情数据获取。
 
-`.sats_history` 只记录斜杠命令，不记录普通聊天文本；聊天内容和长期记忆由 DuckDB 记忆表管理。查看和管理本地记忆：
+`.sats_history` 只用于提示符阶段的斜杠命令回放；REPL 中普通聊天、`/chat`、斜杠 CLI 命令及其结果会写入 DuckDB 的交互历史表。历史记录独立于长期记忆，不会被 `memory clear` 清除。查看和管理交互历史：
+
+```bash
+python -m sats history list
+python -m sats history search 股票 --kind chat
+python -m sats history show hist_xxxxxxxx
+python -m sats history delete hist_xxxxxxxx
+
+sats history list
+sats history search 股票 --kind command
+sats history show hist_xxxxxxxx
+sats history delete hist_xxxxxxxx
+```
+
+交互式 CLI 中也可以使用：
+
+```text
+sats> /history list
+sats> /history search 股票
+sats> /history show hist_xxxxxxxx
+sats> /history delete hist_xxxxxxxx
+```
+
+聊天内容和长期记忆由 DuckDB 记忆表管理。查看和管理本地记忆：
 
 ```bash
 python -m sats memory list
@@ -216,13 +239,14 @@ Skills 按 `category` 分组显示，并支持 `source`、`requires_tools`、`tr
 - 数据源：`data-routing`、`akshare`；`tushare-data` 合并了 Vibe-Trading 的 Tushare 数据研究指引。
 - A 股核心：`ashare-pre-st-filter`、`fundamental-filter`、`financial-statement`、`valuation-model`、`regulatory-knowledge`；`financial-statement` 也合并了 China-market 的财报质量、杜邦、Z/F/M 分数和红旗检查框架。
 - 技术分析：`candlestick`、`elliott-wave`、`technical-basic`、`volatility`、`market-microstructure`、`minute-analysis`。
+- DSA 策略：`bull-trend`、`shrink-pullback`、`ma-golden-cross`、`volume-breakout`、`box-oscillation`、`bottom-volume`、`one-yang-three-yin`、`dragon-head`、`hot-theme`、`emotion-cycle`、`expectation-repricing`、`growth-quality`；这些来自 `daily_stock_analysis/strategies/*.yaml` 的自然语言策略包，已改写为 SATS Markdown skill。
 - China-market 选股/估值：`quant-factor-screener`、`high-dividend-strategy`、`undervalued-stock-screener`、`small-cap-growth-identifier`、`tech-hype-vs-fundamentals`。
 - China-market ESG/组合/风控：`esg-screener`、`portfolio-health-check`、`risk-adjusted-return-optimizer`、`suitability-report-generator`。
 - China-market 事件/情绪：`event-driven-detector`、`insider-trading-analyzer`、`sentiment-reality-gap`。
 - 研究输出：`risk-analysis`、`report-generate`、`sector-rotation`、`sentiment-analysis`、`corporate-events`；`sector-rotation` 合并了 China-market 的宏观周期和行业轮动框架。
 - 工作流模板：`workflow-templates` 收纳 `equity_research_team`、`investment_committee`、`quant_strategy_desk`、`risk_committee`、`portfolio_review_board`、`sector_rotation_team`、`factor_research_committee`、`fundamental_research_team`、`technical_analysis_panel` 等 SATS 单助手研究流程。
 
-这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不代表 SATS 已经能自动拉取所有外部数据。China-market 的 `findata-toolkit-cn` 可执行脚本没有迁入 SATS，也不会通过聊天或 REPL 暴露任意 shell 入口；其数据能力只映射为 SATS 已封装的数据边界说明，真实行情、财务、公告、资金流和 A 股大盘仍必须通过 `AStockDataProvider` 以及 `sats/data/` 下的 TickFlow/Tushare/AkShare 适配层取得。通用 Tushare 数据集接口 v1 只读、限量返回、不写 DuckDB；若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
+这些 skill 是 LLM 上下文，不等于完整 Vibe-Trading swarm，也不等于迁入 `daily_stock_analysis` 的 multi-agent runtime；DSA 策略只作为 SATS 原生 `dsa`、聊天规划和知识库可用的方法论补充。China-market 的 `findata-toolkit-cn` 可执行脚本没有迁入 SATS，也不会通过聊天或 REPL 暴露任意 shell 入口；其数据能力只映射为 SATS 已封装的数据边界说明，真实行情、财务、公告、资金流和 A 股大盘仍必须通过 `AStockDataProvider` 以及 `sats/data/` 下的 TickFlow/Tushare/AkShare 适配层取得。通用 Tushare 数据集接口 v1 只读、限量返回、不写 DuckDB；若某个 skill 依赖的数据源或工具尚未接入，回答必须明确标注限制。涉及股票或交易判断的回答不构成投资建议。
 
 ## CLI 使用
 
@@ -247,6 +271,7 @@ sats> 分析002436 2026-05-15
 sats> /chat 帮我解释筛选规则
 sats> /chat --no-memory 临时问题
 sats> /memory search 股票
+sats> /history list
 sats> /screen --trade-date 20260514 --rule price_volume_ma
 sats> /results --trade-date 20260514 --passed
 sats> /result-rules
@@ -256,12 +281,13 @@ sats> /exit
 
 内置控制命令：
 
-- `/help`：以终端宽度方框查看可用命令和示例，命令列青色高亮，命令和说明都按列左对齐。
+- `/help`：以终端宽度方框查看可用命令和示例，命令和说明使用同色显示，并按列左对齐。
 - `/clear`：清屏。
 - `/exit`、`/quit`：退出交互界面。
 - 普通文本：概念问题调用 LLM 聊天；包含股票代码的分析问题会先注入真实行情和 15m/30m 曲线。
 - `/chat ...`：同样会对股票代码分析问题先取真实数据再调用 LLM。
 - `/memory ...`：查看、搜索、删除或清空本地聊天记忆。
+- `/history ...`：查看、搜索、展示或删除 REPL 交互历史。
 
 带参数时，`sats` 仍可作为一次性命令使用：
 
@@ -270,6 +296,10 @@ sats chat 帮我解释筛选规则
 sats chat --no-memory 临时问题
 sats memory list
 sats memory search 股票
+sats history list
+sats history search 股票 --kind chat
+sats history show hist_xxxxxxxx
+sats history delete hist_xxxxxxxx
 sats indicators --symbols 000001 --trade-date 20260514
 sats indicators --symbols 000001
 sats dsa --stocks 000001,600519 --trade-date 20260514
@@ -355,6 +385,43 @@ sats> /indicators --symbols 000001 --trade-date 20260514 --json
 
 艾略特波浪为启发式峰谷识别，只作为辅助结构提示，不作为严格交易结论。
 
+## 股票因子
+
+`factor` 是 SATS 原生因子入口，使用 `sats.factors` 的宽表 panel 计算、分析和多因子选股。当前内置三类因子库：
+
+- `alpha101`：迁入本地已实现的 101 Formulaic Alphas，文档中常称 WorldQuant 101 Alpha / Kakushadze 101 Formulaic Alphas，来源参考 arXiv `101 Formulaic Alphas`。
+- `gtja191`：迁入本地已实现的国泰君安 Alpha191 短周期量价因子，保留 WMA/SMA/REGBETA 等近似实现说明。
+- `barra_style`：SATS 自研公开风格近似因子，只实现 size/value/quality/momentum/beta/liquidity/crowding 等可解释代理，不复制 MSCI Barra 专有模型、协方差矩阵、优化器或官方 security exposure 数据。
+
+```bash
+sats factor list --zoo alpha101
+sats factor list --zoo gtja191 --theme volume
+sats factor list --zoo barra_style
+sats factor show --factor gtja191_001
+sats factor analyze --factor gtja191_001 --trade-date 20260514 --lookback-days 260
+sats factor pick --factors barra_style_value,barra_style_quality,barra_style_momentum --trade-date 20260514 --top 20 --neutralize industry
+sats factor pick --factors alpha101_001,gtja191_001,barra_style_value --trade-date 20260514 --weight ic --write-screening
+sats factor ml status
+sats factor ml setup
+sats factor ml train --profile ml_lgbm --model lightgbm --train-start 20250101 --train-end 20260430 --valid-end 20260514
+sats factor ml predict --model-run factor_ml_xxxxxxxx --trade-date 20260514 --top 20 --write-screening
+```
+
+交互式 CLI：
+
+```text
+sats> /factor list --zoo barra_style
+sats> /factor analyze --factor barra_style_value --trade-date 20260514
+sats> /factor pick --factors barra_style_value,barra_style_quality --trade-date 20260514 --top 20
+sats> /factor ml status
+```
+
+因子数据统一来自 `AStockDataProvider` 和 DuckDB 缓存，宽表字段包含 `open/high/low/close/volume/vwap/amount/industry/pe/pb/ps/turnover_rate/float_mv/total_mv/roe/debt_to_assets/main_net_amount` 等。缺少 `roe/debt_to_assets/dividend_yield/state_ownership` 时，相关 Barra 风格因子会明确 skip 或 degraded，不会补假值。`factor analyze` 输出 IC、RankIC、ICIR、RankICIR、覆盖率、缺失率、分组收益和 long-short spread；`factor pick` 支持多因子 z-score、行业中性、等权或 IC 权重、TopN 选股。
+
+因子运行只写轻量摘要：`factor_runs` 记录参数、指标和报告路径，`factor_candidates` 记录候选排名和得分，不默认保存全量逐日逐票因子矩阵。`--write-screening` 会把 TopN 写入 `screening_results`，规则名为 `factor:<profile>`，可继续被 `results`、`analyze --from-screened`、`dsa --from-screened` 复用。默认 Markdown 报告写入 `reports/factors/`。
+
+`factor ml` 是后置的 Qlib/ML 入口。`factor ml status` 只检查 `pyqlib/lightgbm/xgboost/scikit-learn` 是否可导入，不安装也不写文件；`factor ml setup` 和后续 `train/evaluate/predict` 路径会在当前 Python 位于项目 `.venv` 内时自动执行 `sys.executable -m pip install pyqlib lightgbm xgboost scikit-learn`，安装成功后同步 `requirements.txt` 与 `pyproject.toml` 的 `ml/deep` optional extras。普通 `factor list/show/analyze/pick`、默认聊天因子摘要和 `discover` 不触发 ML 依赖安装。深度模型 `torch` 只在 `deep` extra 中声明，不随第一批 Qlib/ML setup 自动安装。
+
 ## 统一 Analyze 信号分析
 
 `analyze` 是新的统一股票分析入口，通过 `--signals` 选择一个或多个信号策略。第一版已把 Abu README 第 28-31 节的四类交织策略改写为 SATS 本地启发式信号：`graph_graph`、`ma_graph`、`kline_graph`、`ma_kline`，并融合图形、趋势线、均线、K 线、波浪、谐波和本地缠论信号。该功能只给出本地分析提示，不会自动交易。
@@ -389,16 +456,23 @@ sats> /analyze signals --category ma_kline
 
 ## 自然语言短线机会发现
 
-`discover` 用于回答“给出几个未来几天可能上涨的股票”这类无指定代码的短线研究问题。它不会运行 `screen --rule`，也不会写入 `screening_results`；而是临时全量读取 A 股股票池和日线数据，用 Analyze 的 `short_up` 中短期上涨信号筛出候选，再补充大盘、行情、资金流、财务/估值和热点板块上下文，让 LLM 做最终排序和解释。
+`discover` 用于回答“给出几个未来几天可能上涨的股票”这类无指定代码的选股研究问题。无自然语言参数时保持旧的短线机会发现流程；带自然语言参数时会先运行 SATS 自然语言选股 Agent：根据用户约束匹配现有 skills，检索本地 DuckDB knowledge collections，再解析是否存在 `MLCC相关股票`、`固态电池概念股`、`HBM产业链` 这类主题股票池。没有明确主题时临时全量读取 A 股股票池和日线数据；有主题时先查真实同花顺行业/概念板块，若没有精确板块才直接询问 LLM“该主题相关 A 股股票有哪些”，并用本地 `stock_basic` 校验 LLM 明确列出的具体股票，再对完整股票池运行 Analyze 的 `short_up` 中短期上涨信号。它不会运行 `screen --rule`，也不会写入 `screening_results`。
 
 默认会启用热点板块优先逻辑：SATS 从 Tushare 同花顺行业/概念接口读取 `ths_index`、`ths_daily`、`ths_member`，用最近 5 个交易日的 5 日表现、3 日表现、上涨天数和最新涨跌幅计算持续热度。热点行业和概念里的股票会获得最多 12 分的排名加权，但不是硬过滤；非热点里技术信号很强的股票仍可入选。若 Tushare 无权限、接口不可用或缓存为空，会在 `missing_fields` 标记并退回纯信号排序。
+
+候选池质量优先：全市场或主题股票池先通过 Analyze `short_up` 筛出有买入事件、评分达标且卖出信号不强的候选，再做本地排序、热点加分和缠论买点加分。`ranking_score` 会合并本地信号分、热点分和 Analyze 已产出的缠论买点分；送入 LLM 的分析池默认最多 50 只，候选不足时只使用实际符合条件的股票，不补齐弱信号。
+
+主题股票池不会用相似大板块替代用户主题：如果 `MLCC` 没有同花顺精确概念板块，SATS 不会自动关联到 `电子元件` 或 `消费电子`，也不会从 LLM 返回的板块名继续扩展成分股。LLM 兜底只保留它明确列出的具体 A 股股票，不设置数量上限或下限，输出会标注 `主题股票池: LLM 主题线索 MLCC，经本地 stock_basic 校验，共 N 只` 和 `短期信号候选: M 只`；`N` 是完整主题股票池，`M` 是通过真实 Analyze 短线信号的候选。后续排序、触发、失效和风险仍全部来自 SATS 真实行情、指标、信号和大盘上下文。
 
 ```bash
 sats discover
 sats discover --trade-date 20260521 --limit 5
-sats discover --signals short_up --candidate-limit 30
+sats discover --signals short_up --candidate-limit 50
 sats discover --hot-sector-days 3
 sats discover --no-hot-sector
+sats discover 热点板块共振，避开 ST，未来几天可能上涨
+sats discover --limit 5 低估值基本面稳健，资金流改善
+sats discover MLCC相关股票，未来几天可能上涨
 sats discover --json
 ```
 
@@ -406,23 +480,27 @@ sats discover --json
 
 ```text
 sats> /discover --limit 5
+sats> /discover --limit 5 按缠论三买和热点板块共振选股
+sats> /discover --limit 5 MLCC相关股票，避开风险过高的
 sats> 给出几个股票，预计未来几天有上涨趋势的股票
 ```
 
 参数说明：
 
 - `--signals`：默认 `short_up`，只保留 `ma_kline`、`kline_graph`、`ma_graph`、`graph_graph`、`chan`、`trendline` 中买入方向的中短期信号。
-- `--candidate-limit`：送入 LLM 排序的本地候选数，默认 `30`。
+- `--candidate-limit`：送入 LLM 排序的本地候选数上限，默认 `50`；若真实符合 short_up 质量条件的候选不足该数量，不会补齐。
 - `--limit`：最终输出股票数，默认 `5`。
 - `--hot-sector-days`：热点板块持续性参考天数，只支持 `3`、`4`、`5`，默认 `5`。
 - `--no-hot-sector`：关闭热点板块加权，按本地信号分排序。
 - `--noreport`：跳过 Markdown 报告；默认报告写入 `reports/opportunity_discovery_*.md`。
 
-如果 LLM 不可用，SATS 会输出本地信号排序并提示 `大模型不可用，已使用本地信号排序。`。所有结果都是观察候选和触发条件，不构成投资建议，也不保证未来上涨。
+自然语言选股 Agent v1 支持短线技术、热点板块、缠论结构、基本面质量、风险优先和主题股票池等研究框架。skills/RAG 只提供方法论、规则说明和来源证据；真实候选仍必须来自 SATS 结构化行情、指标、大盘和数据源适配器。JSON 输出会包含 `agent_plan.theme` 和 `theme_universe`，其中 `theme_universe.stocks` 保留完整主题股票池，`opportunity_discovery.candidates` 只表示通过短线信号的候选。如果 LLM 不可用，SATS 会输出本地信号排序并提示 `大模型不可用，已使用本地信号排序。`。所有结果都是观察候选和触发条件，不构成投资建议，也不保证未来上涨。
 
 ## DSA 原生股票分析
 
 `dsa` 用于复刻 `daily_stock_analysis main.py --stocks` 的一次性个股批量分析能力。SATS 原生实现不 shell 调用外部 `daily_stock_analysis`，而是直接复用当前 SATS 的数据源、指标系统和 LLM 配置生成 DSA-like Markdown 报告。原生 DSA 会按 DSA 风格给出 `强烈买入`、`买入`、`持有`、`观望`、`减仓`、`卖出`、`强烈卖出` 等操作评级，目标是靠近日线 DSA 的评级风格和风控约束，不保证逐字逐分一致。
+
+`daily_stock_analysis/strategies/*.yaml` 中的策略 skill 已改写进 SATS 本地 `skills/`，例如多头趋势、缩量回踩、均线金叉、放量突破、箱体震荡、底部放量、龙头、热点题材、情绪周期、预期重估和成长质量。聊天会把这些 skill 当作方法论和 RAG 上下文使用；真正的数据获取和 DSA-like 报告仍由 SATS 原生 `AStockDataProvider`、指标系统和 `sats dsa` 执行。
 
 数据源统一由 `AStockDataProvider` 调度：
 

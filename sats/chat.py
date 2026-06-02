@@ -25,8 +25,13 @@ from sats.storage.duckdb import DuckDBStorage
 from sats.analysis.chan_chat_context import build_chan_chat_context
 from sats.analysis.dsa_native import run_dsa_analysis
 from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context
-from sats.analysis.opportunity_discovery import format_opportunity_discovery, run_opportunity_discovery
+from sats.analysis.opportunity_discovery import (
+    DEFAULT_CANDIDATE_LIMIT,
+    extract_opportunity_discovery_limit,
+    format_opportunity_discovery,
+)
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
+from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_llm_context import build_stock_llm_context, ensure_stock_analysis_data
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.chat_planner import build_chat_plan, skills_for_plan
@@ -42,13 +47,25 @@ SYSTEM_PROMPT = (
     "也可以建议用户运行哪些命令。不要声称已经执行任何命令；只有斜杠命令、一次性 CLI 命令或已注入的只读研究上下文才代表真实执行过数据获取/分析。"
     "不得编造实时行情、价格、涨跌幅、均线、成交量、财务数据、新闻、公告或题材；"
     "没有 SATS 命令或结构化数据结果时，只能说明无法获取真实行情并建议具体命令。"
-    "对自然语言短线选股问题，SATS 会先用 Analyze 中短期上涨信号做临时全市场筛选，再注入候选上下文；"
-    "热点板块只做优先加权，不能把热点或题材当作上涨保证；"
+    "对自然语言选股问题，SATS 会先运行本地选股 Agent，用 skills/RAG 理解约束，再用 Analyze 中短期上涨信号做临时全市场筛选并注入候选上下文；"
+    "skills/RAG 只提供方法论，真实候选必须来自结构化行情；热点板块只做优先加权，不能把热点或题材当作上涨保证；"
     "只能把候选表达为观察名单、触发条件和失效条件，不能保证上涨。"
     "当用户要求新增、生成或创建筛选规则时，必须先展示规则生成计划和确认口令；"
     "只有用户明确回复“确认生成规则 <rule_name>”后，SATS 才会写入 generated 目录并注册规则。"
     "涉及股票、交易或投资判断时，必须说明内容不构成投资建议。回答保持简洁、直接、可操作。"
 )
+
+STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS = (
+    "technical",
+    "signals",
+    "chan",
+    "market",
+    "sentiment",
+    "fundamental",
+    "risk",
+    "stock-basic",
+)
+STOCK_ANALYSIS_DEFAULT_RAG_LIMIT = 12
 
 
 @dataclass(frozen=True, slots=True)
@@ -256,11 +273,15 @@ class ChatSession:
         opportunity_context = None
         if resolved_stock_question is None and plan.needs_opportunity_discovery:
             storage = DuckDBStorage(self.settings.db_path)
+            requested_limit = getattr(preprocess, "requested_limit", None) if preprocess is not None else None
             if active_progress is None:
-                opportunity_context = run_opportunity_discovery(
+                opportunity_context = run_stock_picking_agent(
+                    query=text,
                     settings=self.settings,
                     storage=storage,
+                    skills=self.skills,
                     trade_date=extract_trade_date(text),
+                    limit=requested_limit,
                     hot_sector_enabled=True,
                     hot_sector_days=5,
                     market_indices=market_indices or None,
@@ -272,10 +293,13 @@ class ChatSession:
                 )
             else:
                 with active_progress.step("内部分析") as step:
-                    opportunity_context = run_opportunity_discovery(
+                    opportunity_context = run_stock_picking_agent(
+                        query=text,
                         settings=self.settings,
                         storage=storage,
+                        skills=self.skills,
                         trade_date=extract_trade_date(text),
+                        limit=requested_limit,
                         hot_sector_enabled=True,
                         hot_sector_days=5,
                         market_indices=market_indices or None,
@@ -286,8 +310,8 @@ class ChatSession:
                         report=True,
                         progress=active_progress,
                     )
-                    step.complete(message="机会发现")
-            data_names.extend(["热点板块", "机会发现"])
+                    step.complete(message="选股Agent")
+            data_names.extend(["热点板块", "选股Agent"])
         chan_context = None
         if plan.needs_chan_context:
             chan_context = build_chan_chat_context(text, skills=self.skills)
@@ -471,8 +495,9 @@ class ChatSession:
         *,
         progress: Any | None = None,
     ) -> tuple[Any, int]:
-        llm = self._llm_client()
-        model_name = str(getattr(self.settings, "openai_model", "") or "LLM")
+        llm = self._light_llm_client()
+        self._llm = llm
+        model_name = _light_model_name(self.settings)
         if not self.tools_enabled:
             try:
                 if progress is None:
@@ -633,6 +658,7 @@ class ChatSession:
                 settings=self.settings,
                 knowledge=explicit_knowledge,
                 collections=plan_collections,
+                limit=_research_context_limit(plan_collections, explicit_knowledge=explicit_knowledge),
             )
         except Exception:
             return None
@@ -829,23 +855,45 @@ def _collections_for_plan(plan: Any) -> tuple[str, ...]:
     requirements = set(getattr(plan, "data_requirements", ()) or ())
     actions = set(getattr(plan, "internal_actions", ()) or ())
     intent = str(getattr(plan, "intent", "") or "")
+    if "stock_context" in requirements or intent == "stock_analysis":
+        return STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS
+    dsa_technical_skills = {
+        "bull-trend",
+        "shrink-pullback",
+        "ma-golden-cross",
+        "volume-breakout",
+        "box-oscillation",
+        "bottom-volume",
+        "one-yang-three-yin",
+        "elliott-wave",
+    }
+    dsa_market_skills = {"dragon-head", "hot-theme", "emotion-cycle"}
+    dsa_fundamental_skills = {"expectation-repricing", "growth-quality"}
     if "chan-theory" in skills or "chan_context" in requirements or intent == "chan_analysis":
         collections.append("chan")
-    if "technical-basic" in skills or "stock_context" in requirements:
+    if "technical-basic" in skills or "stock_context" in requirements or dsa_technical_skills & skills:
         collections.extend(["stock-basic", "technical"])
-    if "opportunity_discovery" in actions or "signals" in skills or {"quant-factor-screener", "small-cap-growth-identifier"} & skills:
+    if "opportunity_discovery" in actions or "signals" in skills or {"quant-factor-screener", "small-cap-growth-identifier"} & skills or dsa_technical_skills & skills:
         collections.append("signals")
     if "market_context" in requirements or "sats-market-assistant" in skills:
         collections.extend(["market", "sentiment"])
-    if {"sector-rotation"} & skills:
+    if {"sector-rotation"} & skills or dsa_market_skills & skills:
         collections.extend(["market", "sentiment"])
-    if {"financial-statement", "valuation-model", "fundamental-filter", "quant-factor-screener", "high-dividend-strategy", "undervalued-stock-screener", "small-cap-growth-identifier", "esg-screener", "tech-hype-vs-fundamentals"} & skills:
+    if {"financial-statement", "valuation-model", "fundamental-filter", "quant-factor-screener", "high-dividend-strategy", "undervalued-stock-screener", "small-cap-growth-identifier", "esg-screener", "tech-hype-vs-fundamentals"} & skills or dsa_fundamental_skills & skills:
         collections.append("fundamental")
-    if {"event-driven-detector", "insider-trading-analyzer", "sentiment-reality-gap"} & skills:
+    if {"event-driven-detector", "insider-trading-analyzer", "sentiment-reality-gap"} & skills or {"expectation-repricing", "emotion-cycle", "hot-theme"} & skills:
         collections.append("sentiment")
     if {"risk-analysis", "portfolio-health-check", "risk-adjusted-return-optimizer", "suitability-report-generator"} & skills:
         collections.append("risk")
     return tuple(_dedupe(collections))
+
+
+def _research_context_limit(plan_collections: tuple[str, ...], *, explicit_knowledge: str | None) -> int:
+    if explicit_knowledge:
+        return 6
+    if set(STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS).issubset(plan_collections):
+        return STOCK_ANALYSIS_DEFAULT_RAG_LIMIT
+    return 6
 
 
 def _ensure_skill(matched: list[Skill], skills: list[Skill], skill_name: str) -> list[Skill]:
@@ -1106,9 +1154,10 @@ class _ChatSkillToolRegistry:
                         "type": "object",
                         "properties": {
                             "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略为最近交易日"},
+                            "query": {"type": "string", "description": "自然语言选股约束，例如热点板块、缠论三买、低估值或风险优先"},
                             "signals": {"type": "string", "description": "信号组或信号 id，默认 short_up"},
                             "limit": {"type": "integer", "description": "返回股票数量，默认 5"},
-                            "candidate_limit": {"type": "integer", "description": "本地候选池数量，默认 30"},
+                            "candidate_limit": {"type": "integer", "description": "本地候选池数量，默认 50"},
                             "hot_sector": {"type": "boolean", "description": "是否启用热点板块优先，默认 true"},
                             "hot_sector_days": {
                                 "type": "integer",
@@ -1248,13 +1297,18 @@ class _ChatSkillToolRegistry:
         if name == "discover_a_share_opportunities":
             try:
                 storage = DuckDBStorage(self.settings.db_path)
-                result = run_opportunity_discovery(
+                query = str(arguments.get("query") or "").strip()
+                explicit_limit = arguments.get("limit")
+                parsed_limit = extract_opportunity_discovery_limit(query)
+                result = run_stock_picking_agent(
+                    query=query,
                     settings=self.settings,
                     storage=storage,
+                    skills=self.skills,
                     trade_date=str(arguments.get("trade_date") or "").strip() or None,
                     signals=str(arguments.get("signals") or "short_up").strip() or "short_up",
-                    limit=int(arguments.get("limit") or 5),
-                    candidate_limit=int(arguments.get("candidate_limit") or 30),
+                    limit=int(explicit_limit) if explicit_limit is not None else parsed_limit,
+                    candidate_limit=int(arguments.get("candidate_limit") or DEFAULT_CANDIDATE_LIMIT),
                     hot_sector_enabled=bool(arguments.get("hot_sector", True)),
                     hot_sector_days=int(arguments.get("hot_sector_days") or 5),
                     reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
@@ -1262,7 +1316,9 @@ class _ChatSkillToolRegistry:
                 )
             except Exception as exc:
                 return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
-            return json.dumps({"status": "ok", "opportunity_discovery": result.to_dict()}, ensure_ascii=False)
+            payload = result.to_dict()
+            legacy = result.discovery.to_dict() if hasattr(result, "discovery") else payload
+            return json.dumps({"status": "ok", "stock_picking_agent": payload, "opportunity_discovery": legacy}, ensure_ascii=False)
         if name == "get_stock_research_context":
             try:
                 symbols = arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else []
@@ -1360,7 +1416,10 @@ def _opportunity_discovery_content_or_fallback(content: str, result: Any) -> str
     if _is_substantive_opportunity_answer(content):
         return content
     try:
-        fallback = format_opportunity_discovery(result)
+        if hasattr(result, "discovery"):
+            fallback = format_stock_picking_agent_result(result)
+        else:
+            fallback = format_opportunity_discovery(result)
     except Exception:
         return content
     report_path = str(getattr(result, "report_path", "") or "").strip()

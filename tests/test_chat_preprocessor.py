@@ -324,6 +324,41 @@ class ChatPreprocessorTest(unittest.TestCase):
         self.assertTrue(result.needs_opportunity_discovery)
         self.assertFalse(result.needs_stock_context)
 
+    def test_opportunity_question_extracts_requested_limit_and_tomorrow_horizon(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "列出10支明天大概率上涨的股票",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "opportunity_discovery")
+        self.assertTrue(result.needs_opportunity_discovery)
+        self.assertEqual(result.requested_limit, 10)
+        self.assertEqual(result.market_horizons, ("tomorrow",))
+        self.assertIn("requested_limit: 10", result.system_message())
+
+    def test_opportunity_question_extracts_chinese_count_but_not_future_days_as_limit(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        ten = preprocess_chat_message(
+            "推荐十只短线可能上涨的股票",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+        future_days = preprocess_chat_message(
+            "未来3天可能上涨的股票",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(ten.requested_limit, 10)
+        self.assertIsNone(future_days.requested_limit)
+
     def test_ambiguous_stock_name_requires_clarification(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", openai_model="m")

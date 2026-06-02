@@ -115,6 +115,28 @@ class ChatCliTest(unittest.TestCase):
             self.assertIn("用户关注股票筛选", output)
             self.assertIn(f"已删除记忆 {memory_id}", output)
 
+    def test_cli_history_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            from sats.history import InteractionHistoryStore
+
+            db_path = Path(tmp) / "sats.duckdb"
+            store = InteractionHistoryStore(db_path)
+            history_id = store.add_record(kind="chat", request="分析股票", source="chat", output="聊天回答")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                self.assertEqual(main(["history", "list", "--db", str(db_path)]), 0)
+                self.assertEqual(main(["history", "search", "聊天", "--kind", "chat", "--db", str(db_path)]), 0)
+                self.assertEqual(main(["history", "show", history_id, "--db", str(db_path)]), 0)
+                self.assertEqual(main(["history", "delete", history_id, "--db", str(db_path)]), 0)
+                self.assertEqual(main(["history", "delete", history_id, "--db", str(db_path)]), 0)
+
+            output = stdout.getvalue()
+            self.assertIn("分析股票", output)
+            self.assertIn("聊天回答", output)
+            self.assertIn(f"已删除历史记录 {history_id}", output)
+            self.assertIn(f"未找到历史记录 {history_id}", output)
+
     def test_cli_knowledge_commands(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

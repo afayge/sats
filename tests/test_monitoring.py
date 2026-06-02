@@ -112,6 +112,35 @@ class MonitorServiceTest(unittest.TestCase):
             self.assertEqual(trade["action"], "sell")
             self.assertEqual(trade["quantity"], 100.0)
 
+    def test_llm_review_uses_light_profile(self) -> None:
+        calls = []
+
+        class FakeLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                calls.append(kwargs)
+
+            def chat(self, messages):
+                return SimpleNamespace(content="两句话摘要")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            settings = SimpleNamespace(
+                db_path=storage.db_path,
+                openai_model="main-model",
+                light_model_name="light-model",
+            )
+            service = MonitorService(settings=settings, storage=storage, provider=_FakeProvider())
+
+            with (
+                patch("sats.monitoring.service.ChatLLM", FakeLLM),
+                patch("sats.monitoring.service.search_chan_knowledge", return_value=[]),
+            ):
+                review = service._llm_review("000001.SZ", "平安银行", {"label": "三买"}, {"price": 11})
+
+        self.assertEqual(review, "两句话摘要")
+        self.assertEqual(calls[0]["model_name"], "light-model")
+        self.assertEqual(calls[0]["profile"], "light")
+
     def test_qmt_trading_provider_places_buy_order_with_limits(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")

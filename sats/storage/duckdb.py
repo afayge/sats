@@ -1371,6 +1371,67 @@ class DuckDBStorage:
             ).fetchall()
         return [str(row[0]) for row in rows]
 
+    def upsert_factor_run(self, run: dict) -> None:
+        self.initialize()
+        with self.connect() as con:
+            con.execute(
+                """
+                INSERT OR REPLACE INTO factor_runs
+                    (run_id, kind, trade_date, universe, factor_ids_json,
+                     params_json, metrics_json, report_path, created_at)
+                VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?,
+                    COALESCE((SELECT created_at FROM factor_runs WHERE run_id = ?), CURRENT_TIMESTAMP)
+                )
+                """,
+                [
+                    str(run.get("run_id") or ""),
+                    str(run.get("kind") or ""),
+                    str(run.get("trade_date") or ""),
+                    str(run.get("universe") or ""),
+                    json.dumps(run.get("factor_ids") or [], ensure_ascii=False, default=str),
+                    json.dumps(run.get("params") or {}, ensure_ascii=False, default=str),
+                    json.dumps(run.get("metrics") or {}, ensure_ascii=False, default=str),
+                    str(run.get("report_path") or ""),
+                    str(run.get("run_id") or ""),
+                ],
+            )
+
+    def upsert_factor_candidates(self, run_id: str, trade_date: str, candidates: Iterable[dict]) -> int:
+        rows = list(candidates)
+        if not rows:
+            return 0
+        self.initialize()
+        with self.connect() as con:
+            con.executemany(
+                """
+                INSERT OR REPLACE INTO factor_candidates
+                    (run_id, trade_date, ts_code, rank, score, factors_json, metrics_json, created_at)
+                VALUES (
+                    ?, ?, ?, ?, ?, ?, ?,
+                    COALESCE(
+                        (SELECT created_at FROM factor_candidates WHERE run_id = ? AND ts_code = ?),
+                        CURRENT_TIMESTAMP
+                    )
+                )
+                """,
+                [
+                    (
+                        str(run_id),
+                        str(trade_date),
+                        str(row.get("ts_code") or ""),
+                        int(row.get("rank") or 0),
+                        float(row.get("score") or 0.0),
+                        json.dumps(row.get("factors") or {}, ensure_ascii=False, default=str),
+                        json.dumps(row.get("metrics") or {}, ensure_ascii=False, default=str),
+                        str(run_id),
+                        str(row.get("ts_code") or ""),
+                    )
+                    for row in rows
+                ],
+            )
+        return len(rows)
+
 
 def _prepare_frame(frame: pd.DataFrame, columns: list[str], *, required: list[str]) -> pd.DataFrame:
     if frame is None or frame.empty:
