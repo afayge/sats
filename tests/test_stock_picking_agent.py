@@ -12,11 +12,15 @@ from unittest.mock import patch
 import pandas as pd
 
 from sats.analysis.stock_picking_agent import (
+    StockPickingAgentResult,
+    ThemeUniverse,
+    ThemeUniverseStock,
     build_stock_picking_plan,
     format_stock_picking_agent_result,
     resolve_theme_universe,
     run_stock_picking_agent,
 )
+from sats.analysis.opportunity_discovery import OpportunityCandidate, OpportunityDiscoveryResult
 from sats.cli import main
 from sats.skills import Skill
 from sats.storage.duckdb import DuckDBStorage
@@ -84,6 +88,13 @@ def _mlcc_theme_stocks(count: int = 11) -> list[dict]:
         {"ts_code": ts_code, "name": name, "reason": reason, "relation_type": relation_type, "confidence": confidence}
         for ts_code, name, reason, relation_type, confidence in rows[:count]
     ]
+
+
+def _payload_from_agent_llm_prompt(content: str) -> dict:
+    start = content.rfind('{"agent_plan"')
+    if start < 0:
+        raise AssertionError("Agent LLM prompt payload not found")
+    return json.loads(content[start:])
 
 
 def _many_theme_stocks() -> list[dict]:
@@ -206,9 +217,15 @@ class StockPickingAgentTest(unittest.TestCase):
 
         hot = build_stock_picking_plan("热点板块共振，未来几天可能上涨", skills=skills)
         self.assertEqual(hot.profile, "hot_sector_momentum")
+        self.assertEqual(hot.theme, "")
         self.assertIn("hot-theme", hot.skills)
         self.assertIn("sentiment", hot.collections)
         self.assertIn("热点板块共振", hot.constraints)
+
+        hot_discovery = build_stock_picking_plan("根据今天的热点板块，筛选一些明天大概率上涨的股票", skills=skills)
+        self.assertEqual(hot_discovery.profile, "hot_sector_momentum")
+        self.assertEqual(hot_discovery.theme, "")
+        self.assertIn("热点板块共振", hot_discovery.constraints)
 
         chan = build_stock_picking_plan("按缠论三买找短线候选", skills=skills)
         self.assertEqual(chan.profile, "chan_structure")
@@ -221,6 +238,45 @@ class StockPickingAgentTest(unittest.TestCase):
 
         theme = build_stock_picking_plan("MLCC相关股票，未来几天可能上涨", skills=skills)
         self.assertEqual(theme.theme, "MLCC")
+
+    def test_generic_hot_sector_query_uses_full_market_discovery(self) -> None:
+        class FailingThemeLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages):
+                raise AssertionError("generic hot-sector query should not call theme-universe LLM")
+
+        discovery = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[],
+            candidate_count=0,
+            scanned_count=0,
+            message="无符合中短期上涨信号的候选股票",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb", openai_model="deepseek-v4-pro")
+            with patch("sats.analysis.stock_picking_agent.run_opportunity_discovery", return_value=discovery) as discover:
+                result = run_stock_picking_agent(
+                    query="根据今天的热点板块，筛选一些明天大概率上涨的股票",
+                    settings=settings,
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_FakeHotSectorDiscoveryProvider(),
+                    skills=[_skill("sats-market-assistant"), _skill("technical-basic"), _skill("hot-theme")],
+                    trade_date="20260520",
+                    report=False,
+                    factor_enabled=False,
+                    llm_factory=FailingThemeLLM,
+                )
+
+        self.assertEqual(result.plan.profile, "hot_sector_momentum")
+        self.assertEqual(result.plan.theme, "")
+        self.assertEqual(result.theme_universe.source, "none")
+        discover.assert_called_once()
+        self.assertIsNone(discover.call_args.kwargs["symbols"])
+        self.assertTrue(discover.call_args.kwargs["hot_sector_enabled"])
 
     def test_run_agent_uses_discovery_candidates_rag_and_agent_llm_ranking(self) -> None:
         calls = []
@@ -259,6 +315,7 @@ class StockPickingAgentTest(unittest.TestCase):
                 db_path=root / "sats.duckdb",
                 openai_model="deepseek-v4-pro",
                 light_model_name="mimo-light",
+                llm_timeout_seconds=180,
             )
             fake_rag = SimpleNamespace(
                 system_message="SATS RAG evidence: signals",
@@ -287,12 +344,72 @@ class StockPickingAgentTest(unittest.TestCase):
         self.assertEqual(result.plan.profile, "fundamental_quality")
         self.assertEqual(factory_calls[0]["model_name"], "mimo-light")
         self.assertEqual(factory_calls[0]["profile"], "light")
+        self.assertEqual(factory_calls[0]["timeout_seconds"], 180)
         self.assertEqual(result.candidates[0].ts_code, "600519.SH")
         self.assertIn("证据 signals", result.candidates[0].llm_reason)
         self.assertTrue(result.report_path)
         self.assertEqual(result.evidence_sources[0]["collection"], "signals")
         self.assertIn("SATS RAG evidence", calls[0][0]["content"])
         self.assertIn("600519.SH", format_stock_picking_agent_result(result))
+
+    def test_agent_ranking_falls_back_to_default_when_light_times_out(self) -> None:
+        factory_calls = []
+
+        class RankingLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None, **kwargs) -> None:
+                self.profile = profile
+                factory_calls.append({"model_name": model_name, "profile": profile, "timeout_seconds": timeout_seconds})
+
+            def chat(self, messages):
+                if self.profile == "light":
+                    raise TimeoutError("light ranking timeout")
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {
+                            "rankings": [
+                                {
+                                    "ts_code": "600519.SH",
+                                    "reason": "主模型排序",
+                                    "entry_trigger": "放量突破",
+                                    "invalidation": "跌破 MA10",
+                                    "risk": "追高风险",
+                                }
+                            ]
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            settings = SimpleNamespace(
+                project_root=root,
+                db_path=root / "sats.duckdb",
+                openai_model="main-model",
+                light_model_name="light-model",
+                llm_timeout_seconds=180,
+            )
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.stock_picking_agent.build_stock_research_context", return_value=None),
+            ):
+                result = run_stock_picking_agent(
+                    query="低估值基本面稳健",
+                    settings=settings,
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_FakeHotSectorDiscoveryProvider(),
+                    skills=[_skill("sats-market-assistant")],
+                    trade_date="20260520",
+                    limit=1,
+                    candidate_limit=2,
+                    report=False,
+                    llm_factory=RankingLLM,
+                )
+
+        self.assertEqual(result.candidates[0].llm_reason, "主模型排序")
+        self.assertEqual([call["profile"] for call in factory_calls], ["light", "default"])
+        self.assertEqual([call["timeout_seconds"] for call in factory_calls], [180, 180])
+        self.assertEqual(factory_calls[1]["model_name"], "main-model")
 
     def test_agent_uses_query_limit_when_limit_is_not_explicit(self) -> None:
         class NoopLLM:
@@ -322,6 +439,212 @@ class StockPickingAgentTest(unittest.TestCase):
         self.assertEqual(result.discovery.candidate_count, 2)
         formatted = format_stock_picking_agent_result(result)
         self.assertIn("短期信号候选: 2 只 | 展示: 2 只", formatted)
+
+    def test_agent_applies_factor_overlay_to_candidates(self) -> None:
+        class FakeSnapshot:
+            profile = "balanced"
+            warnings = []
+
+            def exposure_for(self, ts_code):
+                score = 2.0 if ts_code == "600519.SH" else -1.0
+                return {
+                    "score": score,
+                    "coverage": 1.0,
+                    "factor_values": {"barra_style_value": score},
+                    "missing_factors": [],
+                }
+
+        discovery = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[
+                OpportunityCandidate(
+                    ts_code="000938.SZ",
+                    name="名称000938",
+                    trade_date="20260520",
+                    local_score=80.0,
+                    decision="观察",
+                    trend="看多",
+                    close=10.0,
+                    events=[{"label": "突破", "side": "buy", "category": "trend", "risk_flags": []}],
+                    ranking_score=80.0,
+                ),
+                OpportunityCandidate(
+                    ts_code="600519.SH",
+                    name="名称600519",
+                    trade_date="20260520",
+                    local_score=80.0,
+                    decision="观察",
+                    trend="看多",
+                    close=10.0,
+                    events=[{"label": "突破", "side": "buy", "category": "trend", "risk_flags": []}],
+                    ranking_score=80.0,
+                ),
+            ],
+            candidate_count=2,
+            scanned_count=2,
+            llm_pool_count=2,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.stock_picking_agent.build_stock_research_context", return_value=None),
+                patch("sats.analysis.stock_picking_agent.run_opportunity_discovery", return_value=discovery),
+                patch("sats.analysis.stock_picking_agent.snapshot_from_screening_inputs", return_value=(FakeSnapshot(), None)),
+            ):
+                result = run_stock_picking_agent(
+                    query="未来几天可能上涨",
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb", openai_model="deepseek-v4-pro"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_FakeHotSectorDiscoveryProvider(),
+                    skills=[_skill("sats-market-assistant"), _skill("technical-basic")],
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=2,
+                    report=False,
+                    llm_enabled=False,
+                    factor_weight=2.0,
+                )
+
+        self.assertEqual(result.candidates[0].ts_code, "600519.SH")
+        self.assertIn("factor", result.candidates[0].indicator)
+        self.assertEqual(result.candidates[0].indicator["factor"]["score"], 2.0)
+
+    def test_agent_llm_pool_shrinks_without_trimming_theme_universe(self) -> None:
+        candidates = [
+            OpportunityCandidate(
+                ts_code=f"000{index:03d}.SZ",
+                name=f"名称000{index:03d}",
+                trade_date="20260520",
+                local_score=80.0 - index,
+                decision="观察",
+                trend="看多",
+                close=10.0,
+                events=[
+                    {
+                        "label": "突破",
+                        "side": "buy",
+                        "category": "trend",
+                        "risk_flags": [],
+                        "reason": "大字段" * 2000,
+                    }
+                ],
+                ranking_score=80.0 - index,
+            )
+            for index in range(1, 9)
+        ]
+        discovery = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=candidates,
+            candidate_count=len(candidates),
+            scanned_count=len(candidates),
+        )
+        theme_universe = ThemeUniverse(
+            theme="MLCC",
+            stocks=tuple(
+                ThemeUniverseStock(ts_code=item["ts_code"], name=item["name"], source="llm_theme_universe")
+                for item in _mlcc_theme_stocks(4)
+            ),
+            source="llm_theme_universe",
+        )
+        captured: list[dict] = []
+
+        class AgentLLM:
+            def chat(self, messages):
+                payload = _payload_from_agent_llm_prompt(messages[0]["content"])
+                captured.append(payload)
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {"rankings": [{"ts_code": row["ts_code"], "reason": "预算内排序"} for row in payload["candidates"][:2]]},
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch("sats.analysis.stock_picking_agent.build_stock_research_context", return_value=None),
+                patch("sats.analysis.stock_picking_agent.resolve_theme_universe", return_value=theme_universe),
+                patch("sats.analysis.stock_picking_agent.run_opportunity_discovery", return_value=discovery),
+            ):
+                result = run_stock_picking_agent(
+                    query="MLCC相关股票，筛选短期上涨机会",
+                    settings=SimpleNamespace(
+                        project_root=root,
+                        db_path=root / "sats.duckdb",
+                        openai_model="deepseek-v4-pro",
+                        llm_context_limit_tokens=5000,
+                        llm_context_output_reserve_tokens=0,
+                    ),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_FakeHotSectorDiscoveryProvider(),
+                    skills=[_skill("sats-market-assistant"), _skill("technical-basic")],
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=8,
+                    report=False,
+                    factor_enabled=False,
+                    llm_factory=lambda: AgentLLM(),
+                )
+
+        self.assertEqual(result.theme_universe.count, 4)
+        self.assertEqual(result.discovery.candidate_count, 8)
+        self.assertLess(result.discovery.llm_pool_count, 8)
+        self.assertGreaterEqual(result.discovery.llm_pool_count, 2)
+        self.assertEqual(result.discovery.llm_pool_count, len(captured[0]["candidates"]))
+        self.assertTrue(any("llm_context_budget: reduced_pool" in item for item in result.discovery.missing_fields))
+
+    def test_agent_system_message_for_llm_uses_compact_discovery_without_duplicate_payload(self) -> None:
+        plan = build_stock_picking_plan("MLCC相关股票，筛选短期上涨机会", skills=[_skill("technical-basic")])
+        discovery = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[
+                OpportunityCandidate(
+                    ts_code="300408.SZ",
+                    name="三环集团",
+                    trade_date="20260520",
+                    local_score=88,
+                    ranking_score=96,
+                    decision="买入观察",
+                    trend="看多",
+                    close=35.8,
+                    events=[{"label": "短线买入信号", "side": "buy", "reason": "长理由" * 200}],
+                    indicator={"factor": {"profile": "balanced", "score": 1.5, "factor_values": {"alpha": "大字段" * 100}}},
+                    hot_sectors=[{"name": "MLCC"}],
+                )
+            ],
+            candidate_count=1,
+            scanned_count=11,
+            market_context={"indices": [{"ts_code": "000001.SH", "daily_tail": [{"close": 3000}]}]},
+            hot_sector_context={"stock_hot_sectors": {"300408.SZ": [{"name": "MLCC"}]}},
+        )
+        result = StockPickingAgentResult(
+            query="MLCC相关股票，筛选短期上涨机会",
+            plan=plan,
+            discovery=discovery,
+            theme_universe=ThemeUniverse(
+                theme="MLCC",
+                stocks=(ThemeUniverseStock("300408.SZ", "三环集团", reason="MLCC 相关" * 100),),
+                source="llm_theme_universe",
+            ),
+            evidence_sources=({"collection": "signals", "source": "skills/signals/SKILL.md", "text": "大段" * 100},),
+            evidence_context="RAG证据" * 1000,
+        )
+
+        payload = json.loads(result.system_message_for_llm().split("\n", 1)[1])
+        text = json.dumps(payload, ensure_ascii=False)
+
+        self.assertIn("opportunity_discovery", payload)
+        self.assertNotIn("candidates", payload)
+        self.assertNotIn("factor_values", text)
+        self.assertNotIn("daily_tail", text)
+        self.assertNotIn("stock_hot_sectors", text)
+        self.assertLess(len(payload["evidence_context"]), 3100)
+        self.assertLess(len(payload["theme_universe"]["stocks"][0]["reason"]), 140)
 
     def test_mlcc_theme_uses_llm_universe_when_ths_has_no_match(self) -> None:
         llm = _ThemeUniverseLLM(
@@ -456,6 +779,7 @@ class StockPickingAgentTest(unittest.TestCase):
                     db_path=root / "sats.duckdb",
                     openai_model="deepseek-v4-pro",
                     light_model_name="mimo-light",
+                    llm_timeout_seconds=180,
                 ),
                 trade_date="20260520",
             )
@@ -463,6 +787,44 @@ class StockPickingAgentTest(unittest.TestCase):
         self.assertEqual(universe.source, "llm_theme_universe")
         self.assertEqual(factory_calls[0]["model_name"], "mimo-light")
         self.assertEqual(factory_calls[0]["profile"], "light")
+        self.assertEqual(factory_calls[0]["timeout_seconds"], 180)
+
+    def test_llm_theme_universe_falls_back_to_default_when_light_json_is_bad(self) -> None:
+        factory_calls = []
+
+        class ThemeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None, **kwargs) -> None:
+                self.profile = profile
+                factory_calls.append({"model_name": model_name, "profile": profile, "timeout_seconds": timeout_seconds})
+
+            def chat(self, messages):
+                if self.profile == "light":
+                    return SimpleNamespace(content="不是 JSON")
+                return SimpleNamespace(
+                    content=json.dumps({"theme": "MLCC", "stocks": _mlcc_theme_stocks(1), "uncertainties": []}, ensure_ascii=False)
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            universe = resolve_theme_universe(
+                "MLCC相关股票",
+                _ThemeDiscoveryProvider(),
+                DuckDBStorage(root / "sats.duckdb"),
+                ThemeLLM,
+                settings=SimpleNamespace(
+                    project_root=root,
+                    db_path=root / "sats.duckdb",
+                    openai_model="main-model",
+                    light_model_name="light-model",
+                    llm_timeout_seconds=180,
+                ),
+                trade_date="20260520",
+            )
+
+        self.assertEqual(universe.source, "llm_theme_universe")
+        self.assertEqual([call["profile"] for call in factory_calls], ["light", "default"])
+        self.assertEqual([call["timeout_seconds"] for call in factory_calls], [180, 180])
+        self.assertEqual(factory_calls[1]["model_name"], "main-model")
 
     def test_candidate_limit_does_not_change_llm_theme_pool_size(self) -> None:
         llm = _ThemeUniverseLLM(_many_theme_stocks())

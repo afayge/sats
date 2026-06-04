@@ -757,8 +757,226 @@ class OpportunityDiscoveryTest(unittest.TestCase):
                 )
 
         self.assertEqual(result.candidate_count, 8)
-        self.assertEqual(result.llm_pool_count, 3)
+        self.assertEqual(result.llm_pool_count, 0)
         self.assertEqual(len(result.candidates), 2)
+
+    def test_llm_pool_shrinks_when_prompt_exceeds_context_budget(self) -> None:
+        symbols = [f"000{index:03d}.SZ" for index in range(1, 9)]
+        captured: list[dict] = []
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(
+                item.ts_code,
+                trade_date=item.trade_date,
+                score=66.0,
+                events=[
+                    SignalEvent(
+                        signal_id="fake_large_buy",
+                        label="短线买入信号",
+                        category="test",
+                        side="buy",
+                        confidence=0.8,
+                        score=66.0,
+                        reason="大字段" * 2000,
+                    )
+                ],
+            )
+
+        class PoolLLM:
+            def chat(self, messages):
+                payload = _payload_from_llm_prompt(messages[0]["content"])
+                captured.append(payload)
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {"rankings": [{"ts_code": row["ts_code"], "reason": "预算内排序"} for row in payload["candidates"][:2]]},
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(
+                        project_root=root,
+                        db_path=root / "sats.duckdb",
+                        llm_context_limit_tokens=5000,
+                        llm_context_output_reserve_tokens=0,
+                    ),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=8,
+                    report=False,
+                    llm_factory=lambda: PoolLLM(),
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(result.candidate_count, 8)
+        self.assertLess(result.llm_pool_count, 8)
+        self.assertGreaterEqual(result.llm_pool_count, 2)
+        self.assertEqual(result.llm_pool_count, len(captured[0]["candidates"]))
+        self.assertTrue(any("llm_context_budget: reduced_pool" in item for item in result.missing_fields))
+
+    def test_llm_pool_retries_with_smaller_pool_on_context_length_error(self) -> None:
+        symbols = [f"000{index:03d}.SZ" for index in range(1, 7)]
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(item.ts_code, trade_date=item.trade_date, score=66.0)
+
+        class ContextRetryLLM:
+            def __init__(self) -> None:
+                self.payloads: list[dict] = []
+
+            def chat(self, messages):
+                payload = _payload_from_llm_prompt(messages[0]["content"])
+                self.payloads.append(payload)
+                if len(self.payloads) <= 2:
+                    raise RuntimeError("maximum context length is 1048565 tokens")
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {"rankings": [{"ts_code": row["ts_code"], "reason": "重试后排序"} for row in payload["candidates"][:2]]},
+                        ensure_ascii=False,
+                    )
+                )
+
+        llm = ContextRetryLLM()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=2,
+                    candidate_limit=6,
+                    report=False,
+                    llm_factory=lambda **_kwargs: llm,
+                    hot_sector_enabled=False,
+                )
+
+        self.assertEqual(len(llm.payloads), 3)
+        self.assertEqual(len(llm.payloads[0]["candidates"]), 6)
+        self.assertLess(len(llm.payloads[-1]["candidates"]), 6)
+        self.assertEqual(result.llm_pool_count, len(llm.payloads[-1]["candidates"]))
+        self.assertTrue(any("retry_reduced_pool" in item for item in result.missing_fields))
+
+    def test_llm_is_skipped_when_single_candidate_prompt_exceeds_context_budget(self) -> None:
+        symbols = ["000001.SZ"]
+
+        def fake_analyze(item, selected_signals="short_up"):
+            return _fake_signal_result(
+                item.ts_code,
+                trade_date=item.trade_date,
+                score=66.0,
+                events=[
+                    SignalEvent(
+                        signal_id="fake_huge_buy",
+                        label="短线买入信号",
+                        category="test",
+                        side="buy",
+                        confidence=0.8,
+                        score=66.0,
+                        reason="超大字段" * 3000,
+                    )
+                ],
+            )
+
+        class NeverCalledLLM:
+            def chat(self, messages):
+                raise AssertionError("LLM should be skipped when one candidate still exceeds context budget")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _FakeDiverseDiscoveryProvider(symbols)
+            with (
+                patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}),
+                patch("sats.analysis.opportunity_discovery.analyze_signal_input", side_effect=fake_analyze),
+                patch("sats.analysis.opportunity_discovery._load_indicators", return_value={}),
+            ):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(
+                        project_root=root,
+                        db_path=root / "sats.duckdb",
+                        llm_context_limit_tokens=1000,
+                        llm_context_output_reserve_tokens=0,
+                    ),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=provider,
+                    trade_date="20260520",
+                    limit=1,
+                    candidate_limit=1,
+                    report=False,
+                    llm_factory=lambda: NeverCalledLLM(),
+                    hot_sector_enabled=False,
+                )
+
+        self.assertTrue(result.llm_unavailable)
+        self.assertEqual(result.llm_pool_count, 0)
+        self.assertEqual(len(result.candidates), 1)
+        self.assertTrue(any("prompt_too_large" in item for item in result.missing_fields))
+
+    def test_llm_context_compacts_candidate_market_and_hot_sector_payload(self) -> None:
+        long_reason = "超长理由" * 200
+        result = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[
+                OpportunityCandidate(
+                    ts_code="000938.SZ",
+                    name="紫光股份",
+                    trade_date="20260520",
+                    local_score=88,
+                    ranking_score=96,
+                    decision="买入观察",
+                    trend="看多",
+                    close=13.2,
+                    events=[{"signal_id": "fake_buy", "label": "短线买入信号", "side": "buy", "reason": long_reason}],
+                    indicator={
+                        "technical": {"ma": {"ma5": 13.0}},
+                        "factor": {
+                            "profile": "balanced",
+                            "score": 2.0,
+                            "coverage": 0.9,
+                            "factor_values": {"alpha": "大字段" * 100},
+                            "missing_factors": ["factor_a"],
+                        },
+                    },
+                    hot_sectors=[{"name": "AI算力", "heat_score": 15.0}],
+                    chan_signals=[{"label": "三买", "chan_type": "三买", "bonus": 6.0}],
+                )
+            ],
+            candidate_count=1,
+            scanned_count=8,
+            market_context={
+                "trade_date": "20260520",
+                "indices": [{"ts_code": "000001.SH", "daily_tail": [{"trade_date": "20260501", "close": 3000}]}],
+                "hot_sector_context": {"stock_hot_sectors": {"000938.SZ": [{"name": "AI算力"}]}},
+            },
+            hot_sector_context={"stock_hot_sectors": {"000938.SZ": [{"name": "AI算力"}]}},
+        )
+
+        payload = result.to_llm_context()
+        text = json.dumps(payload, ensure_ascii=False)
+
+        self.assertNotIn("factor_values", text)
+        self.assertNotIn("daily_tail", text)
+        self.assertNotIn("stock_hot_sectors", text)
+        self.assertLess(len(payload["candidates"][0]["events"][0]["reason"]), 140)
+        self.assertEqual(payload["candidates"][0]["indicator"]["factor"]["profile"], "balanced")
 
     def test_equal_score_candidates_do_not_cluster_by_code_prefix(self) -> None:
         symbols = ["000001.SZ", "000002.SZ", "002001.SZ", "300001.SZ", "600001.SH", "688001.SH"]
@@ -968,6 +1186,7 @@ class OpportunityDiscoveryTest(unittest.TestCase):
                         db_path=root / "sats.duckdb",
                         openai_model="mimo-v2.5-pro",
                         light_model_name="mimo-light",
+                        llm_timeout_seconds=180,
                     ),
                     storage=DuckDBStorage(root / "sats.duckdb"),
                     provider=_FakeDiscoveryProvider(),
@@ -980,6 +1199,60 @@ class OpportunityDiscoveryTest(unittest.TestCase):
 
         self.assertEqual(factory_calls[0]["model_name"], "mimo-light")
         self.assertEqual(factory_calls[0]["profile"], "light")
+        self.assertEqual(factory_calls[0]["timeout_seconds"], 180)
+
+    def test_run_opportunity_discovery_falls_back_to_default_when_light_times_out(self) -> None:
+        factory_calls = []
+
+        class RankingLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None, **kwargs) -> None:
+                self.profile = profile
+                factory_calls.append({"model_name": model_name, "profile": profile, "timeout_seconds": timeout_seconds})
+
+            def chat(self, messages):
+                if self.profile == "light":
+                    raise TimeoutError("light ranking timeout")
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {
+                            "rankings": [
+                                {
+                                    "ts_code": "600519.SH",
+                                    "reason": "主模型排序",
+                                    "entry_trigger": "放量突破",
+                                    "invalidation": "跌破 MA10",
+                                    "risk": "追高风险",
+                                }
+                            ]
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch("sats.analysis.opportunity_discovery.get_a_share_market_context", return_value={}):
+                result = run_opportunity_discovery(
+                    settings=SimpleNamespace(
+                        project_root=root,
+                        db_path=root / "sats.duckdb",
+                        openai_model="main-model",
+                        light_model_name="light-model",
+                        llm_timeout_seconds=180,
+                    ),
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_FakeDiscoveryProvider(),
+                    trade_date="20260520",
+                    limit=1,
+                    candidate_limit=2,
+                    report=False,
+                    llm_factory=RankingLLM,
+                )
+
+        self.assertEqual(result.candidates[0].llm_reason, "主模型排序")
+        self.assertEqual([call["profile"] for call in factory_calls], ["light", "default"])
+        self.assertEqual([call["timeout_seconds"] for call in factory_calls], [180, 180])
+        self.assertEqual(factory_calls[1]["model_name"], "main-model")
 
     def test_no_candidates_returns_message_and_skips_llm(self) -> None:
         def fail_llm():

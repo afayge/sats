@@ -203,6 +203,147 @@ ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS status TEXT;
 ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS error_json TEXT;
 ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 
+CREATE TABLE IF NOT EXISTS chat_turns (
+    turn_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    user_message_id TEXT,
+    assistant_message_id TEXT,
+    request TEXT NOT NULL,
+    intent TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'running',
+    symbols_json TEXT NOT NULL DEFAULT '[]',
+    trade_date TEXT,
+    data_names_json TEXT NOT NULL DEFAULT '[]',
+    skill_names_json TEXT NOT NULL DEFAULT '[]',
+    model_name TEXT,
+    tool_call_count INTEGER NOT NULL DEFAULT 0,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    duration_seconds DOUBLE,
+    error_json TEXT,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    PRIMARY KEY (turn_id)
+);
+
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS user_message_id TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS assistant_message_id TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS intent TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS symbols_json TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS trade_date TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS data_names_json TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS skill_names_json TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS model_name TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS tool_call_count INTEGER;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS error_json TEXT;
+ALTER TABLE chat_turns ADD COLUMN IF NOT EXISTS meta_json TEXT;
+
+CREATE TABLE IF NOT EXISTS chat_turn_events (
+    event_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL,
+    seq INTEGER NOT NULL,
+    event_type TEXT NOT NULL,
+    item_type TEXT NOT NULL DEFAULT '',
+    item_name TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'running',
+    content TEXT NOT NULL DEFAULT '',
+    payload_json TEXT NOT NULL DEFAULT '{}',
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    duration_seconds DOUBLE,
+    PRIMARY KEY (event_id)
+);
+
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS seq INTEGER;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS event_type TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS item_type TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS item_name TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS content TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS payload_json TEXT;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS started_at TIMESTAMP;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE chat_turn_events ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE;
+
+CREATE TABLE IF NOT EXISTS chat_turn_items (
+    item_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL,
+    seq INTEGER NOT NULL,
+    item_type TEXT NOT NULL,
+    item_name TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'running',
+    input_json TEXT NOT NULL DEFAULT '{}',
+    output_json TEXT NOT NULL DEFAULT '{}',
+    artifact_paths_json TEXT NOT NULL DEFAULT '[]',
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    duration_seconds DOUBLE,
+    PRIMARY KEY (item_id)
+);
+
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS seq INTEGER;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS item_type TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS item_name TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS input_json TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS output_json TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS artifact_paths_json TEXT;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS started_at TIMESTAMP;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE chat_turn_items ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE;
+
+CREATE TABLE IF NOT EXISTS chat_artifacts (
+    artifact_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    path TEXT NOT NULL,
+    mime_type TEXT NOT NULL DEFAULT '',
+    summary TEXT NOT NULL DEFAULT '',
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (artifact_id)
+);
+
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS session_id TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS turn_id TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS kind TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS path TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS mime_type TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS summary TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS meta_json TEXT;
+ALTER TABLE chat_artifacts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS chat_pending_actions (
+    action_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL DEFAULT '',
+    action_type TEXT NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'pending',
+    payload_json TEXT NOT NULL DEFAULT '{}',
+    result_json TEXT NOT NULL DEFAULT '{}',
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (action_id)
+);
+
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS session_id TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS turn_id TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS action_type TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS status TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS payload_json TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS result_json TEXT;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
+ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
+
 CREATE TABLE IF NOT EXISTS chat_memories (
     memory_id TEXT NOT NULL,
     memory_type TEXT NOT NULL,

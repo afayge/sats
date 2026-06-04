@@ -46,6 +46,35 @@ class ChatCliTest(unittest.TestCase):
         chat.assert_called_once_with("临时问题", settings=settings, memory_enabled=False)
         self.assertEqual(stdout.getvalue().strip(), "回答")
 
+    def test_cli_chat_can_confirm_runtime_action(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        runtime_result = SimpleNamespace(content="已执行", tool_call_count=0, data_names=("Runtime",), artifacts=(), pending_action=None)
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.confirm_pending_runtime_action", return_value=runtime_result) as confirm,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--confirm", "act_123"]), 0)
+
+        confirm.assert_called_once()
+        self.assertEqual(stdout.getvalue().strip(), "数据: Runtime\n已执行")
+
+    def test_cli_chat_can_show_runtime_trace(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.format_runtime_trace", return_value="Turn: turn_123") as trace,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--trace", "turn_123"]), 0)
+
+        trace.assert_called_once()
+        self.assertEqual(stdout.getvalue().strip(), "Turn: turn_123")
+
     def test_cli_chat_allows_stock_analysis_through_real_data_context(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")

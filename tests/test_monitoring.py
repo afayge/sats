@@ -128,6 +128,7 @@ class MonitorServiceTest(unittest.TestCase):
                 db_path=storage.db_path,
                 openai_model="main-model",
                 light_model_name="light-model",
+                llm_timeout_seconds=180,
             )
             service = MonitorService(settings=settings, storage=storage, provider=_FakeProvider())
 
@@ -140,6 +141,41 @@ class MonitorServiceTest(unittest.TestCase):
         self.assertEqual(review, "两句话摘要")
         self.assertEqual(calls[0]["model_name"], "light-model")
         self.assertEqual(calls[0]["profile"], "light")
+        self.assertEqual(calls[0]["timeout_seconds"], 180)
+
+    def test_llm_review_falls_back_to_default_when_light_times_out(self) -> None:
+        calls = []
+
+        class FakeLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.kwargs = kwargs
+                calls.append(kwargs)
+
+            def chat(self, messages):
+                if self.kwargs.get("profile") == "light":
+                    raise TimeoutError("light timeout")
+                return SimpleNamespace(content="主模型摘要")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            settings = SimpleNamespace(
+                db_path=storage.db_path,
+                openai_model="main-model",
+                light_model_name="light-model",
+                llm_timeout_seconds=180,
+            )
+            service = MonitorService(settings=settings, storage=storage, provider=_FakeProvider())
+
+            with (
+                patch("sats.monitoring.service.ChatLLM", FakeLLM),
+                patch("sats.monitoring.service.search_chan_knowledge", return_value=[]),
+            ):
+                review = service._llm_review("000001.SZ", "平安银行", {"label": "三买"}, {"price": 11})
+
+        self.assertEqual(review, "主模型摘要")
+        self.assertEqual([call["profile"] for call in calls], ["light", "default"])
+        self.assertEqual([call["timeout_seconds"] for call in calls], [180, 180])
+        self.assertEqual(calls[1]["model_name"], "main-model")
 
     def test_qmt_trading_provider_places_buy_order_with_limits(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -6,8 +6,10 @@ import shlex
 import shutil
 import sys
 import time
+import uuid
 from contextlib import redirect_stdout
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
@@ -20,10 +22,12 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 
 from sats import __version__
-from sats.chat import ChatSession, format_chat_result
+from sats.chat import ChatResult, ChatSession, format_chat_result
 from sats.chat_reference import build_chat_reference_context
+from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import load_settings
 from sats.history import InteractionHistoryStore
+from sats.memory import ChatMemoryStore
 from sats.output_saver import CapturedOutput, SaveRequest, extract_report_path, parse_save_request, save_captured_output
 from sats.progress import create_progress
 from sats.stock_question import extract_stock_symbols
@@ -56,11 +60,15 @@ CLI_COMMANDS = [
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 
 HELP_COMMANDS = [
     ("/help", "查看命令"),
+    ("/new", "开启新对话"),
+    ("/confirm", "确认运行待执行动作"),
+    ("/reject", "取消待执行动作"),
+    ("/trace", "查看对话 turn trace"),
     ("/clear", "清屏"),
     ("/save", "保存上一条输出"),
     ("/exit", "退出"),
@@ -109,8 +117,16 @@ HELP_EXAMPLES = [
     ("/discover --limit 5", "短线机会发现"),
     ("/indicators --symbols 000001.SZ --trade-date 20260514", "计算技术指标"),
     ("/factor list --zoo barra_style", "查看 Barra 风格近似因子"),
+    ("/factor pick --profile balanced --trade-date 20260514 --top 20", "默认画像多因子选股"),
     ("/factor pick --factors barra_style_value,barra_style_quality --trade-date 20260514 --top 20", "多因子选股"),
     ("/factor ml status", "检查 Qlib/ML 依赖"),
+    ("/factor ml train --profile balanced --model lightgbm --train-start 20250101 --train-end 20260430 --valid-end 20260514", "训练因子 ML 模型"),
+    ("/factor ml predict --model-run factor_ml_xxxxxxxx --trade-date 20260514 --top 20 --write-screening", "因子 ML 预测并写入筛选结果"),
+    ("/chat 分析000001的因子暴露", "自然语言因子暴露分析"),
+    ("/new 茅台估值复盘", "开启新的多轮对话"),
+    ("/chat 写一个5日/20日均线策略并回测000001", "生成待确认 runtime 动作"),
+    ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
+    ("/trace", "查看最近一次对话 trace"),
     ("/watchlist", "编辑关注列表"),
     ("/watchlist add --symbols 000001.SZ,600519.SH", "批量关注股票"),
     ("/monitor start --rules chan_signals", "启动实时监控"),
@@ -153,6 +169,7 @@ BANNER_COMMON_COMMANDS = [
     ("/analyze-chan --stocks 000001", "缠论指定股票分析"),
     ("/discover --limit 5", "短线机会发现"),
     ("/factor list --zoo barra_style", "股票因子"),
+    ("/factor pick --profile balanced", "画像选股"),
     ("/factor ml status", "ML 依赖"),
     ("/save --format md", "保存上一条输出"),
     ("/watchlist", "编辑关注列表"),
@@ -190,6 +207,7 @@ COMPLETION_DESCRIPTIONS = {
     "--neutralize": "中性化方式",
     "--write-screening": "写入筛选结果",
     "--profile": "因子筛选画像",
+    "--screening-profile": "筛选结果规则后缀",
     "--horizon": "收益标签周期",
     "--groups": "分组数量",
     "--category": "信号分类",
@@ -252,7 +270,7 @@ COMPLETION_DESCRIPTIONS = {
     "signals": "信号策略",
     "factor": "因子分析",
     "pick": "因子选股",
-    "ml": "因子 ML/Qlib",
+    "ml": "因子 ML",
     "setup": "安装可选依赖",
     "train": "训练模型",
     "evaluate": "评估模型",
@@ -321,6 +339,7 @@ class ReplState:
     last_duration_seconds: float | None = None
     session_id: str = "repl"
     history_store: InteractionHistoryStore | None = None
+    chat_session: ChatSession | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -341,6 +360,7 @@ def run_repl() -> int:
     state = ReplState(
         session_id=str(getattr(chat_session, "session_id", "") or "repl"),
         history_store=InteractionHistoryStore(settings.db_path),
+        chat_session=chat_session,
     )
     session = PromptSession(
         history=_history(),
@@ -621,7 +641,64 @@ def _record_last_duration(state: ReplState, started_at: float) -> None:
 
 
 def _record_session_id(session: object | None, state: ReplState) -> str:
+    session = _active_chat_session(session, state)
     return str(getattr(session, "session_id", "") or state.session_id or "repl")
+
+
+def _active_chat_session(session: object | None, state: ReplState) -> object | None:
+    return state.chat_session or session
+
+
+def _new_chat_session_id() -> str:
+    return f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+
+
+def _handle_new_chat_session(
+    title: str,
+    *,
+    current_session: ChatSession | None,
+    state: ReplState,
+    printer: Callable[[str], None],
+) -> None:
+    settings = getattr(current_session, "settings", None) or load_settings()
+    session_id = _new_chat_session_id()
+    kwargs = {"settings": settings, "session_id": session_id}
+    if current_session is not None:
+        kwargs.update(
+            {
+                "skills": getattr(current_session, "skills", None),
+                "llm_factory": getattr(current_session, "llm_factory", None),
+                "memory_extractor": getattr(current_session, "memory_extractor", None),
+                "memory_enabled": bool(getattr(current_session, "memory_enabled", True)),
+                "max_history_messages": int(getattr(current_session, "max_history_messages", 12)),
+                "summary_threshold_messages": int(getattr(current_session, "summary_threshold_messages", 24)),
+                "summary_refresh_messages": int(getattr(current_session, "summary_refresh_messages", 8)),
+                "tools_enabled": bool(getattr(current_session, "tools_enabled", True)),
+                "max_tool_iterations": int(getattr(current_session, "max_tool_iterations", 4)),
+                "preprocess_enabled": bool(getattr(current_session, "preprocess_enabled", True)),
+                "knowledge": getattr(current_session, "knowledge", None),
+            }
+        )
+    session = ChatSession(**kwargs)
+    state.chat_session = session
+    state.session_id = session_id
+    state.last_output = None
+    state.last_stock_output = None
+    clean_title = str(title or "").strip()
+    try:
+        store = session._ensure_memory_store()
+        if store is not None:
+            store.create_session(
+                session_id,
+                title=clean_title,
+                model_name=str(getattr(settings, "openai_model", "") or ""),
+            )
+    except Exception:
+        pass
+    if clean_title:
+        printer(f"新对话: {session_id} ({clean_title})")
+    else:
+        printer(f"新对话: {session_id}")
 
 
 def _record_interaction_history(
@@ -706,8 +783,39 @@ def handle_repl_line(
         if command == "help":
             render_help_box(printer=printer, formatted_printer=_help_formatted_printer(printer, formatted_printer))
             return True
+        if command == "new":
+            current_session = _active_chat_session(chat_session, state)
+            _handle_new_chat_session(
+                " ".join(argv[1:]).strip(),
+                current_session=current_session if isinstance(current_session, ChatSession) else None,
+                state=state,
+                printer=printer,
+            )
+            return True
         if command == "clear":
             printer("\033[2J\033[H")
+            return True
+        if command in {"confirm", "reject", "trace"}:
+            output, status = _handle_runtime_builtin(
+                command,
+                argv[1:],
+                current_session=_active_chat_session(chat_session, state),
+                state=state,
+            )
+            printer(output)
+            _remember_output(state, output, request=text, source=f"/{command}")
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="chat",
+                    request=text,
+                    source=f"/{command}",
+                    output=output,
+                    status=status,
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
             return True
         if command == "save":
             _handle_save_command(argv[1:], state=state, printer=printer)
@@ -858,7 +966,10 @@ def _handle_chat(
         _save_last_output(save_request, state=state, printer=printer)
         return None
     chat_message = save_request.cleaned_text if save_request is not None and save_request.cleaned_text else message
-    session = chat_session or ChatSession()
+    active_session = _active_chat_session(chat_session, state)
+    session = active_session if active_session is not None else ChatSession()
+    if isinstance(session, ChatSession):
+        state.chat_session = session
     session_id = _record_session_id(session, state)
     progress = create_progress(request=chat_message)
     try:
@@ -913,6 +1024,44 @@ def _handle_chat(
         status="done",
         report_path=str(captured.report_path or ""),
         session_id=session_id,
+    )
+
+
+def _handle_runtime_builtin(
+    command: str,
+    args: list[str],
+    *,
+    current_session: object | None,
+    state: ReplState,
+) -> tuple[str, str]:
+    try:
+        settings = getattr(current_session, "settings", None) or load_settings()
+        store = ChatMemoryStore(settings.db_path)
+        if command == "trace":
+            turn_id = args[0] if args else ""
+            return format_runtime_trace(store, turn_id=turn_id, session_id=state.session_id), "done"
+        if not args:
+            return f"错误: /{command} ACTION_ID", "error"
+        action_id = args[0]
+        if command == "confirm":
+            result = confirm_pending_runtime_action(action_id, settings=settings, store=store)
+        else:
+            result = reject_pending_runtime_action(action_id, settings=settings, store=store)
+        return format_chat_result(_chat_result_from_runtime(result)), "done"
+    except Exception as exc:
+        return f"错误: {exc}", "error"
+
+
+def _chat_result_from_runtime(result: object) -> ChatResult:
+    pending = getattr(result, "pending_action", None)
+    return ChatResult(
+        content=str(getattr(result, "content", "") or ""),
+        skill_names=(),
+        tool_call_count=int(getattr(result, "tool_call_count", 0) or 0),
+        data_names=tuple(getattr(result, "data_names", ()) or ()),
+        artifacts=tuple(artifact.to_dict() for artifact in getattr(result, "artifacts", ()) or ()),
+        requires_confirmation=pending is not None,
+        pending_action_id=getattr(pending, "action_id", None) if pending is not None else None,
     )
 
 

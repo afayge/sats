@@ -11,6 +11,8 @@ import pandas as pd
 
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.factors.profiles import DEFAULT_FACTOR_PROFILE
+from sats.factors.service import snapshot_from_screening_inputs
 from sats.indicators import IndicatorCalculator, IndicatorInput, IndicatorResult
 from sats.stock_question import StockQuestion, parse_stock_question
 from sats.storage.duckdb import DuckDBStorage
@@ -126,6 +128,12 @@ def ensure_stock_analysis_data(
         minute_lookback_days=minute_lookback_days,
     )
     quotes = _load_quotes(clean_symbols, astock_provider=provider) if _use_realtime(trade_date, question) else {}
+    factor_summary = _factor_summary_for_inputs(
+        inputs,
+        storage=storage,
+        trade_date=trade_date,
+        lookback_days=lookback_days,
+    )
     return _build_stock_contexts(
         clean_symbols,
         trade_date,
@@ -135,6 +143,7 @@ def ensure_stock_analysis_data(
         quotes=quotes,
         as_of_time=as_of_time,
         lookback_days=lookback_days,
+        factor_summary=factor_summary,
     )
 
 
@@ -175,9 +184,11 @@ def _build_stock_contexts(
     quotes: dict[str, dict[str, Any]],
     as_of_time: str | None,
     lookback_days: int,
+    factor_summary: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     contexts = {}
     as_of_trade_time = _as_of_trade_time(trade_date, as_of_time)
+    factor_summary = factor_summary or {}
     for symbol in symbols:
         item = inputs[symbol]
         result = indicator_results[symbol]
@@ -211,8 +222,34 @@ def _build_stock_contexts(
             },
             "data_sources": _data_sources(item, minute_frames, quotes.get(symbol, {})),
             "missing_fields": _missing_fields(item, quotes.get(symbol, {})),
+            "factor_summary": factor_summary.get(symbol, {}),
         }
     return contexts
+
+
+def _factor_summary_for_inputs(
+    inputs: list[IndicatorInput],
+    *,
+    storage: DuckDBStorage,
+    trade_date: str,
+    lookback_days: int,
+) -> dict[str, Any]:
+    try:
+        snapshot, _panel_result = snapshot_from_screening_inputs(
+            inputs,  # IndicatorInput has the same daily/daily_basic/stock_basic surface as ScreeningInput.
+            storage=storage,
+            trade_date=trade_date,
+            profile=DEFAULT_FACTOR_PROFILE,
+            lookback_days=max(lookback_days, 260),
+        )
+    except Exception as exc:
+        return {item.ts_code: {"profile": DEFAULT_FACTOR_PROFILE, "warnings": [f"factor_summary: {exc}"]} for item in inputs}
+    result = {}
+    for item in inputs:
+        exposure = snapshot.exposure_for(item.ts_code)
+        exposure["warnings"] = list(snapshot.warnings)
+        result[item.ts_code] = exposure
+    return result
 
 
 def _load_minute_frame(

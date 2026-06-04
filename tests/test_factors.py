@@ -15,8 +15,10 @@ import pandas as pd
 from sats.cli import main
 from sats.factors.analysis import analyze_factor_panel
 from sats.factors.composite import compute_factor_panels, compose_scores, pick_top
+from sats.factors.ml import predict_factor_ml_model, train_factor_ml_model
 from sats.factors.panel import panel_from_screening_inputs
 from sats.factors.registry import Registry, SkipAlpha
+from sats.factors.service import compute_factor_snapshot, summarize_factor_exposure
 from sats.screening.base import ScreeningInput
 from sats.storage.duckdb import DuckDBStorage
 
@@ -91,6 +93,18 @@ class FactorAnalysisAndPickTest(unittest.TestCase):
             self.assertIn(column, result.panel)
         self.assertEqual(len(result.symbols), 8)
         self.assertEqual(result.names["000001.SZ"], "股票1")
+
+    def test_factor_snapshot_profile_summarizes_exposure(self) -> None:
+        panel = _sample_panel()
+        trade_date = panel["close"].index[-3]
+        snapshot = compute_factor_snapshot(panel, trade_date=trade_date, profile="balanced")
+        payload = summarize_factor_exposure(snapshot, ["000001.SZ"])
+        self.assertEqual(payload["profile"], "balanced")
+        self.assertGreater(payload["coverage"], 0)
+        exposure = payload["exposures"][0]
+        self.assertEqual(exposure["ts_code"], "000001.SZ")
+        self.assertIn("barra_style_value", exposure["factor_values"])
+        self.assertFalse(np.isinf(float(exposure["score"])))
 
 
 class FactorCliTest(unittest.TestCase):
@@ -170,6 +184,104 @@ class FactorCliTest(unittest.TestCase):
             )
             self.assertEqual(len(rows), 3)
             self.assertIn("factor_values", rows[0]["metrics"])
+
+    def test_cli_factor_pick_uses_profile_when_factors_omitted(self) -> None:
+        inputs = _screening_inputs(days=260)
+        symbols = ",".join(item.ts_code for item in inputs)
+        fake_provider = _FakeFactorProvider(inputs)
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp), openai_model="test")
+            with (
+                patch("sats.cli.load_settings", return_value=settings),
+                patch("sats.cli.AStockDataProvider", return_value=fake_provider),
+            ):
+                stdout = StringIO()
+                with redirect_stdout(stdout):
+                    self.assertEqual(
+                        main(
+                            [
+                                "factor",
+                                "pick",
+                                "--profile",
+                                "balanced",
+                                "--trade-date",
+                                inputs[0].trade_date,
+                                "--symbols",
+                                symbols,
+                                "--top",
+                                "2",
+                                "--noreport",
+                            ]
+                        ),
+                        0,
+                    )
+        self.assertIn("run_id:", stdout.getvalue())
+
+
+class _MeanFactorModel:
+    def fit(self, x, y):
+        self.feature_columns = list(x.columns)
+        self.mean = float(y.mean())
+        return self
+
+    def predict(self, x):
+        return x.sum(axis=1).to_numpy(dtype=float) * 0.01 + self.mean
+
+
+class FactorMLTest(unittest.TestCase):
+    def test_train_and_predict_factor_ml_with_mock_model(self) -> None:
+        inputs = _screening_inputs(days=260)
+        fake_provider = _FakeFactorProvider(inputs)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            storage = DuckDBStorage(root / "sats.duckdb")
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb")
+            train = train_factor_ml_model(
+                settings=settings,
+                storage=storage,
+                provider=fake_provider,
+                model_type="lightgbm",
+                profile="balanced",
+                train_start=inputs[0].daily["trade_date"].iloc[20],
+                train_end=inputs[0].daily["trade_date"].iloc[-20],
+                valid_end=inputs[0].trade_date,
+                lookback_days=260,
+                horizon=1,
+                symbols=[item.ts_code for item in inputs],
+                model_factory=lambda model_type: _MeanFactorModel(),
+            )
+            self.assertTrue(Path(train.model_path).exists())
+            self.assertEqual(storage.get_factor_run(train.run_id)["kind"], "ml_train")
+
+            result = predict_factor_ml_model(
+                settings=settings,
+                storage=storage,
+                provider=fake_provider,
+                model_run=train.run_id,
+                trade_date=inputs[0].trade_date,
+                profile="balanced",
+                factor_ids=train.factor_ids,
+                top=3,
+                lookback_days=260,
+                symbols=[item.ts_code for item in inputs],
+            )
+
+            self.assertEqual(len(result.candidates), 3)
+            self.assertEqual(storage.get_factor_run(result.run_id)["kind"], "ml_predict")
+            self.assertIn("model_run", result.candidates[0].metrics)
+            with self.assertRaisesRegex(ValueError, "profile mismatch"):
+                predict_factor_ml_model(
+                    settings=settings,
+                    storage=storage,
+                    provider=fake_provider,
+                    model_run=train.run_id,
+                    trade_date=inputs[0].trade_date,
+                    profile="short_term",
+                    top=3,
+                    lookback_days=260,
+                    symbols=[item.ts_code for item in inputs],
+                )
 
 
 class _FakeFactorProvider:

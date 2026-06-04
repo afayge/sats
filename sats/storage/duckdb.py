@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import pandas as pd
 
@@ -1397,6 +1397,32 @@ class DuckDBStorage:
                 ],
             )
 
+    def get_factor_run(self, run_id: str) -> dict[str, Any] | None:
+        self.initialize()
+        with self.connect() as con:
+            row = con.execute(
+                """
+                SELECT run_id, kind, trade_date, universe, factor_ids_json,
+                       params_json, metrics_json, report_path, created_at
+                FROM factor_runs
+                WHERE run_id = ?
+                """,
+                [str(run_id)],
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "run_id": str(row[0] or ""),
+            "kind": str(row[1] or ""),
+            "trade_date": str(row[2] or ""),
+            "universe": str(row[3] or ""),
+            "factor_ids": _loads_json(row[4], default=[]),
+            "params": _loads_json(row[5], default={}),
+            "metrics": _loads_json(row[6], default={}),
+            "report_path": str(row[7] or ""),
+            "created_at": str(row[8] or ""),
+        }
+
     def upsert_factor_candidates(self, run_id: str, trade_date: str, candidates: Iterable[dict]) -> int:
         rows = list(candidates)
         if not rows:
@@ -1479,6 +1505,15 @@ def _optional_float(value) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _loads_json(value, *, default):
+    if value is None:
+        return default
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _stable_id(text: str) -> str:

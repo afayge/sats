@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 from sats.chat import ChatSession, build_chat_messages
 from sats.history import InteractionHistoryStore, format_history_detail, format_history_list
+from sats.llm import build_light_fallback_llm
 from sats.memory import ChatMemoryStore, MemoryCandidate, MemoryExtractor
 
 
@@ -51,6 +52,32 @@ class FailingExtractor(MemoryExtractor):
 
     def summarize(self, existing_summary, messages, *, llm):
         raise RuntimeError("summarize failed")
+
+
+class LightBadDefaultMemoryLLM:
+    instances: list["LightBadDefaultMemoryLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        LightBadDefaultMemoryLLM.instances.append(self)
+
+    def chat(self, messages):
+        if self.kwargs.get("profile") == "light":
+            return SimpleNamespace(content="不是 JSON")
+        return SimpleNamespace(content='{"memories":[{"type":"preference","content":"偏好轻量模型","tags":["llm"],"importance":0.8}]}')
+
+
+class LightTimeoutDefaultSummaryLLM:
+    instances: list["LightTimeoutDefaultSummaryLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        LightTimeoutDefaultSummaryLLM.instances.append(self)
+
+    def chat(self, messages):
+        if self.kwargs.get("profile") == "light":
+            raise TimeoutError("light timeout")
+        return SimpleNamespace(content="主模型摘要")
 
 
 class MemoryStoreTest(unittest.TestCase):
@@ -165,6 +192,94 @@ class ChatMemoryTest(unittest.TestCase):
             self.assertFalse(any("本地长期记忆" in item["content"] for item in sent))
             self.assertEqual(store.count_session_messages("default"), 0)
 
+    def test_chat_turn_trace_is_session_scoped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ChatMemoryStore(Path(tmp) / "sats.duckdb")
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=FakeLLM,
+                memory_store=store,
+                memory_extractor=NoopExtractor(),
+                session_id="chat_a",
+            ).ask("hello a")
+            ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=FakeLLM,
+                memory_store=store,
+                memory_extractor=NoopExtractor(),
+                session_id="chat_b",
+            ).ask("hello b")
+
+            with store.storage.connect() as con:
+                rows = con.execute(
+                    "SELECT session_id, COUNT(*) FROM chat_turns GROUP BY session_id ORDER BY session_id",
+                ).fetchall()
+                messages_a = con.execute(
+                    "SELECT COUNT(*) FROM chat_messages WHERE session_id = 'chat_a'",
+                ).fetchone()[0]
+                messages_b = con.execute(
+                    "SELECT COUNT(*) FROM chat_messages WHERE session_id = 'chat_b'",
+                ).fetchone()[0]
+
+            self.assertEqual(rows, [("chat_a", 1), ("chat_b", 1)])
+            self.assertEqual(messages_a, 2)
+            self.assertEqual(messages_b, 2)
+
+    def test_runtime_trace_items_artifacts_and_pending_actions_are_session_scoped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = ChatMemoryStore(Path(tmp) / "sats.duckdb")
+            store.start_chat_turn(turn_id="turn_a", session_id="chat_a", request="a")
+            store.start_chat_turn(turn_id="turn_b", session_id="chat_b", request="b")
+            store.add_chat_turn_item(turn_id="turn_a", item_type="runtime", item_name="report", status="done")
+            store.add_chat_artifact(
+                session_id="chat_a",
+                turn_id="turn_a",
+                kind="markdown_report",
+                title="报告",
+                path=str(Path(tmp) / "reports" / "chat" / "chat_a" / "turn_a" / "report.md"),
+            )
+            action_id = store.create_pending_action(
+                session_id="chat_b",
+                turn_id="turn_b",
+                action_type="strategy_draft",
+                title="策略",
+                payload={"ok": True},
+            )
+
+            trace_a = store.get_chat_turn_trace("turn_a")
+            trace_b = store.get_chat_turn_trace("turn_b")
+
+            self.assertEqual(trace_a["turn"]["session_id"], "chat_a")
+            self.assertEqual(len(trace_a["items"]), 1)
+            self.assertEqual(len(trace_a["artifacts"]), 1)
+            self.assertEqual(trace_b["turn"]["session_id"], "chat_b")
+            self.assertEqual(store.get_pending_action(action_id)["session_id"], "chat_b")
+
+    def test_chat_session_no_memory_still_emits_non_persistent_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            events = []
+            store = ChatMemoryStore(Path(tmp) / "sats.duckdb")
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            session = ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=FakeLLM,
+                memory_store=store,
+                memory_extractor=NoopExtractor(),
+            )
+
+            result = session.ask("hello", use_memory=False, event_sink=events.append)
+
+            store.storage.initialize()
+            with store.storage.connect() as con:
+                turn_count = con.execute("SELECT COUNT(*) FROM chat_turns").fetchone()[0]
+            self.assertEqual(result.content, "回答")
+            self.assertEqual(turn_count, 0)
+            self.assertIn("turn_completed", [event.event_type for event in events])
+
     def test_memory_extraction_failure_does_not_break_chat(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
@@ -183,6 +298,32 @@ class ChatMemoryTest(unittest.TestCase):
 
             self.assertEqual(result.content, "回答")
             self.assertEqual(store.list_memories(), [])
+
+    def test_memory_extractor_falls_back_to_default_when_light_json_is_bad(self) -> None:
+        LightBadDefaultMemoryLLM.instances = []
+        llm = build_light_fallback_llm(
+            LightBadDefaultMemoryLLM,
+            light_model_name="light-model",
+            default_model_name="main-model",
+        )
+
+        candidates = MemoryExtractor().extract("hello", "answer", llm=llm)
+
+        self.assertEqual(candidates[0].content, "偏好轻量模型")
+        self.assertEqual([item.kwargs["profile"] for item in LightBadDefaultMemoryLLM.instances], ["light", "default"])
+
+    def test_memory_summary_falls_back_to_default_when_light_times_out(self) -> None:
+        LightTimeoutDefaultSummaryLLM.instances = []
+        llm = build_light_fallback_llm(
+            LightTimeoutDefaultSummaryLLM,
+            light_model_name="light-model",
+            default_model_name="main-model",
+        )
+
+        summary = MemoryExtractor().summarize("", [{"role": "user", "content": "hello"}], llm=llm)
+
+        self.assertEqual(summary, "主模型摘要")
+        self.assertEqual([item.kwargs["profile"] for item in LightTimeoutDefaultSummaryLLM.instances], ["light", "default"])
 
     def test_summary_is_created_and_used_after_threshold(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

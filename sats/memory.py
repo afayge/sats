@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from sats.chat_events import ChatTurnEvent
 from sats.llm import extract_json_object
 from sats.storage.duckdb import DuckDBStorage
 
@@ -35,6 +36,35 @@ class MemoryCandidate:
 class ChatMemoryStore:
     def __init__(self, db_path: Path | str | None = None, *, storage: DuckDBStorage | None = None) -> None:
         self.storage = storage or DuckDBStorage(db_path or "data/sats.duckdb")
+
+    def create_session(self, session_id: str, *, title: str = "", model_name: str = "") -> None:
+        clean_session_id = _clean_required(session_id, "session_id")
+        clean_title = str(title or "").strip()
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            exists = con.execute(
+                "SELECT 1 FROM chat_sessions WHERE session_id = ?",
+                [clean_session_id],
+            ).fetchone()
+            if exists:
+                con.execute(
+                    """
+                    UPDATE chat_sessions
+                    SET title = COALESCE(NULLIF(?, ''), title),
+                        model_name = COALESCE(NULLIF(?, ''), model_name),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE session_id = ?
+                    """,
+                    [clean_title, str(model_name or ""), clean_session_id],
+                )
+                return
+            con.execute(
+                """
+                INSERT INTO chat_sessions (session_id, title, model_name, summary)
+                VALUES (?, ?, ?, '')
+                """,
+                [clean_session_id, clean_title or None, str(model_name or "")],
+            )
 
     def ensure_session(self, session_id: str, *, model_name: str = "") -> None:
         clean_session_id = _clean_required(session_id, "session_id")
@@ -66,6 +96,20 @@ class ChatMemoryStore:
                 VALUES (?, ?, '')
                 """,
                 [clean_session_id, str(model_name or "")],
+            )
+
+    def update_session_title(self, session_id: str, title: str) -> None:
+        clean_session_id = _clean_required(session_id, "session_id")
+        clean_title = str(title or "").strip()
+        self.create_session(clean_session_id)
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                UPDATE chat_sessions
+                SET title = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE session_id = ?
+                """,
+                [clean_title or None, clean_session_id],
             )
 
     def get_session_summary(self, session_id: str) -> str:
@@ -108,6 +152,480 @@ class ChatMemoryStore:
                 [clean_session_id],
             )
         return message_id
+
+    def start_chat_turn(
+        self,
+        *,
+        turn_id: str,
+        session_id: str,
+        request: str,
+        meta: dict[str, Any] | None = None,
+    ) -> str:
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        clean_session_id = _clean_required(session_id, "session_id")
+        clean_request = _clean_required(request, "request")
+        self.ensure_session(clean_session_id)
+        with self.storage.connect() as con:
+            exists = con.execute("SELECT 1 FROM chat_turns WHERE turn_id = ?", [clean_turn_id]).fetchone()
+            if exists:
+                con.execute(
+                    """
+                    UPDATE chat_turns
+                    SET session_id = ?, request = ?, status = 'running',
+                        meta_json = ?, started_at = CURRENT_TIMESTAMP,
+                        completed_at = NULL, error_json = NULL
+                    WHERE turn_id = ?
+                    """,
+                    [clean_session_id, clean_request, _json(meta or {}), clean_turn_id],
+                )
+            else:
+                con.execute(
+                    """
+                    INSERT INTO chat_turns (turn_id, session_id, request, status, meta_json)
+                    VALUES (?, ?, ?, 'running', ?)
+                    """,
+                    [clean_turn_id, clean_session_id, clean_request, _json(meta or {})],
+                )
+            con.execute(
+                "UPDATE chat_sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ?",
+                [clean_session_id],
+            )
+        return clean_turn_id
+
+    def add_chat_turn_event(self, event: ChatTurnEvent) -> str:
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                INSERT INTO chat_turn_events
+                    (event_id, turn_id, seq, event_type, item_type, item_name, status,
+                     content, payload_json, started_at, completed_at, duration_seconds)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    event.event_id,
+                    event.turn_id,
+                    int(event.seq),
+                    event.event_type,
+                    event.item_type,
+                    event.item_name,
+                    event.status,
+                    event.content,
+                    _json(dict(event.payload)),
+                    event.started_at,
+                    event.completed_at,
+                    event.duration_seconds,
+                ],
+            )
+        return event.event_id
+
+    def add_chat_turn_item(
+        self,
+        *,
+        turn_id: str,
+        item_type: str,
+        item_name: str = "",
+        status: str = "running",
+        input_payload: dict[str, Any] | None = None,
+        output_payload: dict[str, Any] | None = None,
+        artifact_paths: list[str] | tuple[str, ...] = (),
+        item_id: str | None = None,
+        seq: int | None = None,
+        duration_seconds: float | None = None,
+    ) -> str:
+        clean_item_id = str(item_id or "").strip() or _new_id("item")
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        clean_type = _clean_required(item_type, "item_type")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            item_seq = int(seq) if seq is not None else int(
+                con.execute(
+                    "SELECT COALESCE(MAX(seq), 0) + 1 FROM chat_turn_items WHERE turn_id = ?",
+                    [clean_turn_id],
+                ).fetchone()[0]
+                or 1
+            )
+            con.execute(
+                """
+                INSERT INTO chat_turn_items
+                    (item_id, turn_id, seq, item_type, item_name, status, input_json,
+                     output_json, artifact_paths_json, completed_at, duration_seconds)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'running' THEN NULL ELSE CURRENT_TIMESTAMP END, ?)
+                """,
+                [
+                    clean_item_id,
+                    clean_turn_id,
+                    item_seq,
+                    clean_type,
+                    str(item_name or ""),
+                    str(status or "running"),
+                    _json(input_payload or {}),
+                    _json(output_payload or {}),
+                    _json(list(artifact_paths)),
+                    str(status or "running"),
+                    duration_seconds,
+                ],
+            )
+        return clean_item_id
+
+    def complete_chat_turn_item(
+        self,
+        item_id: str,
+        *,
+        status: str = "done",
+        output_payload: dict[str, Any] | None = None,
+        artifact_paths: list[str] | tuple[str, ...] = (),
+        duration_seconds: float | None = None,
+    ) -> None:
+        clean_item_id = _clean_required(item_id, "item_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                UPDATE chat_turn_items
+                SET status = ?,
+                    output_json = ?,
+                    artifact_paths_json = ?,
+                    completed_at = CURRENT_TIMESTAMP,
+                    duration_seconds = ?
+                WHERE item_id = ?
+                """,
+                [
+                    str(status or "done"),
+                    _json(output_payload or {}),
+                    _json(list(artifact_paths)),
+                    duration_seconds,
+                    clean_item_id,
+                ],
+            )
+
+    def add_chat_artifact(
+        self,
+        *,
+        session_id: str,
+        turn_id: str,
+        kind: str,
+        path: str,
+        title: str = "",
+        mime_type: str = "",
+        summary: str = "",
+        meta: dict[str, Any] | None = None,
+        artifact_id: str | None = None,
+    ) -> str:
+        clean_artifact_id = str(artifact_id or "").strip() or _new_id("art")
+        clean_session_id = _clean_required(session_id, "session_id")
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        clean_kind = _clean_required(kind, "kind")
+        clean_path = _clean_required(path, "path")
+        self.ensure_session(clean_session_id)
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                INSERT INTO chat_artifacts
+                    (artifact_id, session_id, turn_id, kind, title, path, mime_type, summary, meta_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    clean_artifact_id,
+                    clean_session_id,
+                    clean_turn_id,
+                    clean_kind,
+                    str(title or ""),
+                    clean_path,
+                    str(mime_type or ""),
+                    str(summary or ""),
+                    _json(meta or {}),
+                ],
+            )
+            con.execute(
+                "UPDATE chat_sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ?",
+                [clean_session_id],
+            )
+        return clean_artifact_id
+
+    def create_pending_action(
+        self,
+        *,
+        session_id: str,
+        action_type: str,
+        payload: dict[str, Any],
+        turn_id: str = "",
+        title: str = "",
+        expires_at: str | None = None,
+        action_id: str | None = None,
+    ) -> str:
+        clean_action_id = str(action_id or "").strip() or _new_id("act")
+        clean_session_id = _clean_required(session_id, "session_id")
+        clean_type = _clean_required(action_type, "action_type")
+        self.ensure_session(clean_session_id)
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                INSERT INTO chat_pending_actions
+                    (action_id, session_id, turn_id, action_type, title, status,
+                     payload_json, result_json, expires_at)
+                VALUES (?, ?, ?, ?, ?, 'pending', ?, '{}', ?)
+                """,
+                [
+                    clean_action_id,
+                    clean_session_id,
+                    str(turn_id or ""),
+                    clean_type,
+                    str(title or ""),
+                    _json(payload or {}),
+                    expires_at,
+                ],
+            )
+            con.execute(
+                "UPDATE chat_sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ?",
+                [clean_session_id],
+            )
+        return clean_action_id
+
+    def get_pending_action(self, action_id: str) -> dict[str, Any] | None:
+        clean_action_id = _clean_required(action_id, "action_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            row = con.execute(
+                """
+                SELECT action_id, session_id, turn_id, action_type, title, status,
+                       payload_json, result_json, expires_at, created_at, updated_at
+                FROM chat_pending_actions
+                WHERE action_id = ?
+                """,
+                [clean_action_id],
+            ).fetchone()
+        if not row:
+            return None
+        return {
+            "action_id": str(row[0]),
+            "session_id": str(row[1] or ""),
+            "turn_id": str(row[2] or ""),
+            "action_type": str(row[3] or ""),
+            "title": str(row[4] or ""),
+            "status": str(row[5] or ""),
+            "payload": _loads_json_object(row[6]),
+            "result": _loads_json_object(row[7]),
+            "expires_at": str(row[8] or ""),
+            "created_at": str(row[9] or ""),
+            "updated_at": str(row[10] or ""),
+        }
+
+    def update_pending_action(
+        self,
+        action_id: str,
+        *,
+        status: str,
+        result: dict[str, Any] | None = None,
+    ) -> None:
+        clean_action_id = _clean_required(action_id, "action_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                UPDATE chat_pending_actions
+                SET status = ?, result_json = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE action_id = ?
+                """,
+                [str(status or ""), _json(result or {}), clean_action_id],
+            )
+
+    def latest_chat_turn_id(self, session_id: str = "") -> str:
+        self.storage.initialize()
+        clause = ""
+        params: list[Any] = []
+        if str(session_id or "").strip():
+            clause = "WHERE session_id = ?"
+            params.append(str(session_id).strip())
+        with self.storage.connect() as con:
+            row = con.execute(
+                f"""
+                SELECT turn_id
+                FROM chat_turns
+                {clause}
+                ORDER BY started_at DESC, turn_id DESC
+                LIMIT 1
+                """,
+                params,
+            ).fetchone()
+        return str(row[0] or "") if row else ""
+
+    def get_chat_turn_trace(self, turn_id: str) -> dict[str, Any] | None:
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            turn = con.execute(
+                """
+                SELECT turn_id, session_id, request, intent, status, started_at,
+                       completed_at, duration_seconds, meta_json, error_json
+                FROM chat_turns
+                WHERE turn_id = ?
+                """,
+                [clean_turn_id],
+            ).fetchone()
+            if not turn:
+                return None
+            events = con.execute(
+                """
+                SELECT seq, event_type, item_type, item_name, status, content,
+                       payload_json, duration_seconds
+                FROM chat_turn_events
+                WHERE turn_id = ?
+                ORDER BY seq ASC, event_id ASC
+                """,
+                [clean_turn_id],
+            ).fetchall()
+            items = con.execute(
+                """
+                SELECT seq, item_type, item_name, status, input_json, output_json,
+                       artifact_paths_json, duration_seconds
+                FROM chat_turn_items
+                WHERE turn_id = ?
+                ORDER BY seq ASC, item_id ASC
+                """,
+                [clean_turn_id],
+            ).fetchall()
+            artifacts = con.execute(
+                """
+                SELECT artifact_id, kind, title, path, mime_type, summary, meta_json, created_at
+                FROM chat_artifacts
+                WHERE turn_id = ?
+                ORDER BY created_at ASC, artifact_id ASC
+                """,
+                [clean_turn_id],
+            ).fetchall()
+        return {
+            "turn": {
+                "turn_id": str(turn[0]),
+                "session_id": str(turn[1] or ""),
+                "request": str(turn[2] or ""),
+                "intent": str(turn[3] or ""),
+                "status": str(turn[4] or ""),
+                "started_at": str(turn[5] or ""),
+                "completed_at": str(turn[6] or ""),
+                "duration_seconds": float(turn[7] or 0.0),
+                "meta": _loads_json_object(turn[8]),
+                "error": _loads_json_object(turn[9]),
+            },
+            "events": [
+                {
+                    "seq": int(row[0] or 0),
+                    "event_type": str(row[1] or ""),
+                    "item_type": str(row[2] or ""),
+                    "item_name": str(row[3] or ""),
+                    "status": str(row[4] or ""),
+                    "content": str(row[5] or ""),
+                    "payload": _loads_json_object(row[6]),
+                    "duration_seconds": float(row[7] or 0.0),
+                }
+                for row in events
+            ],
+            "items": [
+                {
+                    "seq": int(row[0] or 0),
+                    "item_type": str(row[1] or ""),
+                    "item_name": str(row[2] or ""),
+                    "status": str(row[3] or ""),
+                    "input": _loads_json_object(row[4]),
+                    "output": _loads_json_object(row[5]),
+                    "artifact_paths": _loads_json_list(row[6]),
+                    "duration_seconds": float(row[7] or 0.0),
+                }
+                for row in items
+            ],
+            "artifacts": [
+                {
+                    "artifact_id": str(row[0] or ""),
+                    "kind": str(row[1] or ""),
+                    "title": str(row[2] or ""),
+                    "path": str(row[3] or ""),
+                    "mime_type": str(row[4] or ""),
+                    "summary": str(row[5] or ""),
+                    "meta": _loads_json_object(row[6]),
+                    "created_at": str(row[7] or ""),
+                }
+                for row in artifacts
+            ],
+        }
+
+    def complete_chat_turn(
+        self,
+        turn_id: str,
+        *,
+        status: str = "done",
+        intent: str = "",
+        symbols: list[str] | tuple[str, ...] = (),
+        trade_date: str | None = None,
+        data_names: list[str] | tuple[str, ...] = (),
+        skill_names: list[str] | tuple[str, ...] = (),
+        model_name: str = "",
+        tool_call_count: int = 0,
+        user_message_id: str = "",
+        assistant_message_id: str = "",
+        duration_seconds: float | None = None,
+        meta: dict[str, Any] | None = None,
+    ) -> None:
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                UPDATE chat_turns
+                SET user_message_id = ?,
+                    assistant_message_id = ?,
+                    intent = ?,
+                    status = ?,
+                    symbols_json = ?,
+                    trade_date = ?,
+                    data_names_json = ?,
+                    skill_names_json = ?,
+                    model_name = ?,
+                    tool_call_count = ?,
+                    completed_at = CURRENT_TIMESTAMP,
+                    duration_seconds = ?,
+                    error_json = NULL,
+                    meta_json = ?
+                WHERE turn_id = ?
+                """,
+                [
+                    str(user_message_id or "") or None,
+                    str(assistant_message_id or "") or None,
+                    str(intent or ""),
+                    str(status or "done"),
+                    _json(list(symbols)),
+                    str(trade_date or "") or None,
+                    _json(list(data_names)),
+                    _json(list(skill_names)),
+                    str(model_name or ""),
+                    int(tool_call_count or 0),
+                    duration_seconds,
+                    _json(meta or {}),
+                    clean_turn_id,
+                ],
+            )
+
+    def fail_chat_turn(
+        self,
+        turn_id: str,
+        *,
+        status: str = "error",
+        error: dict[str, Any] | None = None,
+        duration_seconds: float | None = None,
+        meta: dict[str, Any] | None = None,
+    ) -> None:
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                UPDATE chat_turns
+                SET status = ?,
+                    completed_at = CURRENT_TIMESTAMP,
+                    duration_seconds = ?,
+                    error_json = ?,
+                    meta_json = ?
+                WHERE turn_id = ?
+                """,
+                [str(status or "error"), duration_seconds, _json(error or {}), _json(meta or {}), clean_turn_id],
+            )
 
     def list_recent_messages(self, session_id: str, *, limit: int = 12) -> list[dict[str, str]]:
         if limit <= 0:
@@ -307,8 +825,11 @@ class MemoryExtractor:
                 "content": f"用户消息：{user_message}\n\n助手回复：{assistant_message}",
             },
         ]
-        response = llm.chat(prompt)
-        parsed = extract_json_object(str(response.content or ""))
+        if hasattr(llm, "chat_validated"):
+            parsed = llm.chat_validated(prompt, _parse_required_json_response)
+        else:
+            response = llm.chat(prompt)
+            parsed = extract_json_object(str(response.content or ""))
         if not parsed:
             return []
         memories = parsed.get("memories")
@@ -364,6 +885,13 @@ def format_memory_list(memories: list[MemoryRecord]) -> str:
     return "\n".join(lines)
 
 
+def _parse_required_json_response(response: Any) -> dict[str, Any]:
+    parsed = extract_json_object(str(getattr(response, "content", "") or ""))
+    if not isinstance(parsed, dict):
+        raise ValueError("LLM response did not contain a JSON object")
+    return parsed
+
+
 def _memory_from_row(row: Any) -> MemoryRecord:
     tags = _loads_tags(row[3])
     return MemoryRecord(
@@ -389,8 +917,28 @@ def _loads_tags(raw: Any) -> list[str]:
     return [str(item).strip() for item in parsed if str(item).strip()]
 
 
+def _loads_json_object(raw: Any) -> dict[str, Any]:
+    try:
+        parsed = json.loads(str(raw or "{}"))
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _loads_json_list(raw: Any) -> list[Any]:
+    try:
+        parsed = json.loads(str(raw or "[]"))
+    except json.JSONDecodeError:
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
 def _new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:12]}"
+
+
+def _json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, default=str)
 
 
 def _clean_required(value: str, name: str) -> str:

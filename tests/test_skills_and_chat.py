@@ -22,6 +22,7 @@ from sats.chat_planner import build_chat_plan
 from sats.chat_reference import ChatReferenceContext
 from sats.cli import main
 from sats.llm import LLMResponse, ToolCallRequest
+from sats.analysis.opportunity_discovery import estimate_llm_message_tokens, llm_context_input_budget_tokens
 from sats.screening.rule_composer import GeneratedRuleResult
 from sats.skills import Skill, format_skill_list, load_skills, match_skills, parse_skill_file
 from sats.stock_question import StockQuestion
@@ -43,6 +44,37 @@ class FakeLLM:
         return SimpleNamespace(content="收到")
 
 
+class HotSectorClarificationLLM:
+    instances: list["HotSectorClarificationLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        self.messages = []
+        self.calls = []
+        HotSectorClarificationLLM.instances.append(self)
+
+    def chat(self, messages, tools=None, timeout=None):
+        self.messages = messages
+        self.calls.append({"messages": messages, "tools": tools})
+        prompt = "\n".join(str(message.get("content", "")) for message in messages)
+        if "按以下 JSON 字段输出" in prompt:
+            return SimpleNamespace(
+                content=json.dumps(
+                    {
+                        "intent": "opportunity_discovery",
+                        "stock_names": ["热点板块"],
+                        "needs_market_context": True,
+                        "needs_opportunity_discovery": True,
+                        "market_horizons": ["tomorrow"],
+                        "missing_questions": ["请明确您关注的热点板块名称或领域（如半导体、新能源、医药等）"],
+                        "confidence": 0.86,
+                    },
+                    ensure_ascii=False,
+                )
+            )
+        return SimpleNamespace(content="收到")
+
+
 class TimeoutLLM:
     instances: list["TimeoutLLM"] = []
 
@@ -56,6 +88,21 @@ class TimeoutLLM:
         raise TimeoutError("Request timed out.")
 
 
+class LightTimeoutDefaultLLM:
+    instances: list["LightTimeoutDefaultLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        self.messages = []
+        LightTimeoutDefaultLLM.instances.append(self)
+
+    def chat(self, messages, tools=None):
+        self.messages = messages
+        if self.kwargs.get("profile") == "light":
+            raise TimeoutError("light timeout")
+        return SimpleNamespace(content="默认模型回答")
+
+
 class TitleOnlyLLM:
     instances: list["TitleOnlyLLM"] = []
 
@@ -66,6 +113,18 @@ class TitleOnlyLLM:
     def chat(self, messages, tools=None):
         self.messages = messages
         return SimpleNamespace(content="# 下周大概率上涨的股票候选")
+
+
+class ContextLengthErrorLLM:
+    instances: list["ContextLengthErrorLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.messages = []
+        ContextLengthErrorLLM.instances.append(self)
+
+    def chat(self, messages, tools=None):
+        self.messages = messages
+        raise RuntimeError("maximum context length is 1048565 tokens")
 
 
 class RecordingMemoryExtractor:
@@ -598,15 +657,39 @@ class ChatSessionTest(unittest.TestCase):
             project_root=Path("."),
             openai_model="mimo-v2.5-pro",
             light_model_name="mimo-light",
+            llm_timeout_seconds=180,
         )
         session = ChatSession(settings=settings, skills=[], llm_factory=TimeoutLLM, memory_enabled=False)
         with patch("sats.chat.build_market_llm_context", return_value=SimpleNamespace(system_message="market")):
             result = session.ask("帮我总结今天的大盘")
 
         self.assertIn("请求超时", result.content)
+        self.assertIn("mimo-light / mimo-v2.5-pro", result.content)
         self.assertIn("切换更快的模型", result.content)
         self.assertEqual(TimeoutLLM.instances[0].kwargs["model_name"], "mimo-light")
         self.assertEqual(TimeoutLLM.instances[0].kwargs["profile"], "light")
+        self.assertEqual(TimeoutLLM.instances[0].kwargs["timeout_seconds"], 180)
+        self.assertEqual(TimeoutLLM.instances[1].kwargs["model_name"], "mimo-v2.5-pro")
+        self.assertEqual(TimeoutLLM.instances[1].kwargs["profile"], "default")
+        self.assertEqual(TimeoutLLM.instances[1].kwargs["timeout_seconds"], 180)
+
+    def test_chat_session_falls_back_to_default_model_when_light_times_out(self) -> None:
+        LightTimeoutDefaultLLM.instances = []
+        settings = SimpleNamespace(
+            project_root=Path("."),
+            openai_model="deepseek-v4-pro",
+            light_model_name="mimo-light",
+            llm_timeout_seconds=180,
+        )
+        session = ChatSession(settings=settings, skills=[], llm_factory=LightTimeoutDefaultLLM, memory_enabled=False)
+
+        with patch("sats.chat.build_market_llm_context", return_value=SimpleNamespace(system_message="market")):
+            result = session.ask("帮我总结今天的大盘")
+
+        self.assertEqual(result.content, "默认模型回答")
+        self.assertEqual([item.kwargs["profile"] for item in LightTimeoutDefaultLLM.instances], ["light", "default"])
+        self.assertEqual([item.kwargs["timeout_seconds"] for item in LightTimeoutDefaultLLM.instances], [180, 180])
+        self.assertEqual(LightTimeoutDefaultLLM.instances[1].kwargs["model_name"], "deepseek-v4-pro")
 
     def test_chat_session_uses_light_model_for_memory_tasks(self) -> None:
         FakeLLM.instances = []
@@ -634,8 +717,9 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(len(FakeLLM.instances), 1)
         self.assertEqual(FakeLLM.instances[0].kwargs["model_name"], "light-model")
         self.assertEqual(FakeLLM.instances[0].kwargs["profile"], "light")
-        self.assertIs(extractor.extract_llms[0], FakeLLM.instances[0])
-        self.assertIs(extractor.summary_llms[0], FakeLLM.instances[0])
+        self.assertEqual(extractor.extract_llms[0].kwargs["model_name"], "light-model")
+        self.assertEqual(extractor.extract_llms[0].kwargs["profile"], "light")
+        self.assertIs(extractor.extract_llms[0], extractor.summary_llms[0])
 
     def test_chat_session_generates_screening_rule_plan_without_llm(self) -> None:
         FakeLLM.instances = []
@@ -875,6 +959,47 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(messages[-1], {"role": "user", "content": "今天A股大盘分析，明天和下周走势预测"})
         self.assertEqual(result.data_names, ("大盘",))
 
+    def test_chat_session_handles_today_market_tomorrow_trend_question(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM)
+
+        with patch(
+            "sats.chat.build_market_llm_context",
+            return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+        ) as builder:
+            result = session.ask("分析今天大盘走势，预测明天走势")
+
+        self.assertEqual(result.content, "收到")
+        builder.assert_called_once()
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
+        messages = FakeLLM.instances[0].messages
+        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
+        self.assertEqual(messages[-1], {"role": "user", "content": "分析今天大盘走势，预测明天走势"})
+        self.assertEqual(result.data_names, ("大盘",))
+
+    def test_chat_session_handles_today_possessive_market_tomorrow_trend_question(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM)
+
+        with patch(
+            "sats.chat.build_market_llm_context",
+            return_value=SimpleNamespace(system_message='真实 A 股大盘结构化数据 {"indices":[{"ts_code":"000001.SH"}]}'),
+        ) as builder:
+            result = session.ask("分析今天的大盘走势，预测明天走势")
+
+        self.assertEqual(result.content, "收到")
+        self.assertNotIn("补充 6 位股票代码", result.content)
+        builder.assert_called_once()
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
+        messages = FakeLLM.instances[0].messages
+        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
+        self.assertEqual(messages[-1], {"role": "user", "content": "分析今天的大盘走势，预测明天走势"})
+        self.assertEqual(result.data_names, ("大盘",))
+
     def test_chat_session_injects_opportunity_discovery_context_before_llm(self) -> None:
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
@@ -907,6 +1032,42 @@ class ChatSessionTest(unittest.TestCase):
         self.assertIn("真实短线机会发现", payload)
         self.assertIn("000938.SZ", payload)
 
+    def test_chat_session_uses_compact_opportunity_context_for_final_llm(self) -> None:
+        FakeLLM.instances = []
+        settings = SimpleNamespace(
+            project_root=Path("."),
+            db_path=Path("sats.duckdb"),
+            openai_model="deepseek-v4-pro",
+            llm_context_limit_tokens=20000,
+            llm_context_output_reserve_tokens=0,
+        )
+        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        fake_result = SimpleNamespace(
+            system_message="FULL_DISCOVER_CONTEXT " + ("长字段" * 10000),
+            system_message_for_llm=lambda: 'COMPACT_DISCOVER_CONTEXT {"ts_code":"000938.SZ"}',
+            message="",
+            candidates=[],
+            report_path="",
+        )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=SimpleNamespace(system_message="FULL_MARKET_CONTEXT")),
+            patch("sats.chat.run_stock_picking_agent", return_value=fake_result),
+        ):
+            session.ask("给出几个股票，预计未来几天有上涨趋势的股票")
+
+        messages = FakeLLM.instances[0].messages
+        payload = "\n".join(message["content"] for message in messages)
+        self.assertIn("COMPACT_DISCOVER_CONTEXT", payload)
+        self.assertIn("000938.SZ", payload)
+        self.assertNotIn("FULL_DISCOVER_CONTEXT", payload)
+        self.assertNotIn("FULL_MARKET_CONTEXT", payload)
+        self.assertLess(
+            sum(estimate_llm_message_tokens(message["content"]) for message in messages),
+            llm_context_input_budget_tokens(settings),
+        )
+
     def test_chat_session_passes_requested_limit_and_tomorrow_horizon_to_stock_picking_agent(self) -> None:
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
@@ -925,6 +1086,26 @@ class ChatSessionTest(unittest.TestCase):
         discover.assert_called_once()
         self.assertEqual(discover.call_args.kwargs["limit"], 10)
         self.assertEqual(discover.call_args.kwargs["market_horizons"], ("tomorrow",))
+
+    def test_chat_session_treats_hot_sector_as_auto_discovery_context(self) -> None:
+        HotSectorClarificationLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=HotSectorClarificationLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch(
+                "sats.chat.run_stock_picking_agent",
+                return_value=SimpleNamespace(system_message='真实短线机会发现 {"ts_code":"000938.SZ"}'),
+            ) as discover,
+        ):
+            result = session.ask("根据今天的热点板块，筛选一些明天大概率上涨的股票")
+
+        self.assertNotIn("需要先确认", result.content)
+        discover.assert_called_once()
+        self.assertTrue(discover.call_args.kwargs["hot_sector_enabled"])
+        self.assertIn("tomorrow", discover.call_args.kwargs["market_horizons"])
 
     def test_chat_session_falls_back_when_opportunity_llm_returns_only_title(self) -> None:
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
@@ -960,6 +1141,50 @@ class ChatSessionTest(unittest.TestCase):
         self.assertIn("000938.SZ 紫光股份", result.content)
         self.assertIn("触发: 放量突破压力位", result.content)
         self.assertIn("报告: reports/opportunity_discovery_20260529.md", result.content)
+
+    def test_chat_session_falls_back_to_local_discover_output_on_final_context_error(self) -> None:
+        ContextLengthErrorLLM.instances = []
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=ContextLengthErrorLLM, memory_enabled=False)
+        candidate = SimpleNamespace(
+            ts_code="000938.SZ",
+            name="紫光股份",
+            events=[{"label": "蛟龙出海"}],
+            llm_reason="技术信号共振",
+            entry_trigger="放量突破压力位",
+            invalidation="跌破支撑位",
+            risk="市场情绪转弱",
+            hot_sectors=[],
+            chan_signals=[],
+            ranking_score=98.0,
+            local_score=90.0,
+            decision="买入观察",
+            trend="看多",
+        )
+        fake_result = SimpleNamespace(
+            message="",
+            candidates=[candidate],
+            candidate_count=1,
+            scanned_count=5,
+            trade_date="20260520",
+            signals="short_up",
+            llm_unavailable=False,
+            llm_pool_count=1,
+            report_path="reports/opportunity_discovery_20260520.md",
+            system_message_for_llm=lambda: 'COMPACT_DISCOVER_CONTEXT {"ts_code":"000938.SZ"}',
+        )
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch("sats.chat.run_stock_picking_agent", return_value=fake_result),
+        ):
+            result = session.ask("给出几个股票，预计未来几天有上涨趋势的股票")
+
+        self.assertIn("000938.SZ 紫光股份", result.content)
+        self.assertIn("触发: 放量突破压力位", result.content)
+        self.assertIn("报告: reports/opportunity_discovery_20260520.md", result.content)
+        self.assertNotIn("LLM错误", result.content)
 
     def test_build_chat_messages_without_skill(self) -> None:
         messages = build_chat_messages("hello", history=[{"role": "assistant", "content": "old"}], skills=[])
@@ -1305,6 +1530,59 @@ class ChatSessionTest(unittest.TestCase):
         self.assertTrue(assistant_tool_messages)
         self.assertNotIn("reasoning_content", assistant_tool_messages[0])
         self.assertNotIn("additional_kwargs", assistant_tool_messages[0])
+
+    def test_chat_session_tool_followup_falls_back_to_default_model(self) -> None:
+        class ToolFallbackLLM:
+            instances: list["ToolFallbackLLM"] = []
+
+            def __init__(self, *args, **kwargs) -> None:
+                self.kwargs = kwargs
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+                ToolFallbackLLM.instances.append(self)
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.kwargs.get("profile") == "light" and self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="load_skill",
+                                arguments={"name": "valuation-model"},
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                if self.kwargs.get("profile") == "light":
+                    raise TimeoutError("light followup timeout")
+                return LLMResponse(content="默认模型已总结")
+
+        skills = [
+            Skill(
+                "valuation-model",
+                "valuation-model",
+                "估值分析框架",
+                ("估值",),
+                "完整估值指引。",
+                Path("SKILL.md"),
+                category="analysis",
+                source="test",
+            )
+        ]
+        settings = SimpleNamespace(project_root=Path("."), openai_model="main-model", light_model_name="light-model", llm_timeout_seconds=180)
+        session = ChatSession(settings=settings, skills=skills, llm_factory=ToolFallbackLLM, memory_enabled=False)
+
+        result = session.ask("帮我做估值分析")
+
+        self.assertEqual(result.content, "默认模型已总结")
+        self.assertEqual(result.tool_call_count, 1)
+        self.assertEqual([item.kwargs["profile"] for item in ToolFallbackLLM.instances], ["light", "default"])
+        self.assertEqual([item.kwargs["timeout_seconds"] for item in ToolFallbackLLM.instances], [180, 180])
 
     def test_chat_session_can_fetch_market_context_with_readonly_tool(self) -> None:
         class MarketToolLLM:
@@ -1713,6 +1991,56 @@ class ChatSessionTest(unittest.TestCase):
         self.assertIn("run_internal_analysis", tool_names)
         tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
         self.assertIn("unsupported internal analysis kind", tool_messages[0]["content"])
+
+    def test_internal_analysis_tool_can_return_factor_summary(self) -> None:
+        class FactorToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="run_internal_analysis",
+                                arguments={"kind": "factor_summary", "symbols": ["000938"], "trade_date": "20260521"},
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="因子摘要返回")
+
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=FactorToolLLM, memory_enabled=False)
+        fake_payload = {
+            "kind": "factor_summary",
+            "profile": "balanced",
+            "exposures": [{"ts_code": "000938.SZ", "score": 1.2}],
+        }
+
+        with (
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+            patch("sats.chat.AStockDataProvider"),
+            patch("sats.chat.snapshot_from_screening_inputs") as snapshot,
+            patch("sats.chat.summarize_factor_exposure", return_value=fake_payload),
+            patch("sats.chat.ensure_optional_dependencies", create=True) as ensure,
+        ):
+            snapshot.return_value = (SimpleNamespace(), None)
+            result = session.ask("需要时调用因子摘要")
+
+        self.assertEqual(result.content, "因子摘要返回")
+        ensure.assert_not_called()
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("factor_summary", tool_messages[0]["content"])
+        self.assertIn("000938.SZ", tool_messages[0]["content"])
 
     def test_chat_session_preserves_reasoning_content_for_tool_followup(self) -> None:
         class ReasoningToolLLM:

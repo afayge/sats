@@ -5,7 +5,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from sats.llm.chat import ChatLLM
+from sats.llm.chat import ChatLLM, build_light_fallback_llm
 from sats.llm.provider import _sync_provider_env, build_llm, extract_json_object
 import sats.llm.provider as provider_mod
 
@@ -247,6 +247,65 @@ class LLMFactoryTest(unittest.TestCase):
 
         self.assertEqual(calls, [20, 5])
         self.assertEqual(response.content, "timeout=5")
+
+    def test_light_fallback_llm_uses_default_after_light_error(self) -> None:
+        factory_calls = []
+        chat_calls = []
+
+        class FakeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None) -> None:
+                self.model_name = model_name
+                self.profile = profile
+                factory_calls.append({"model_name": model_name, "profile": profile, "timeout_seconds": timeout_seconds})
+
+            def chat(self, messages, tools=None, timeout=None):
+                chat_calls.append({"model_name": self.model_name, "profile": self.profile, "timeout": timeout})
+                if self.profile == "light":
+                    raise TimeoutError("light timeout")
+                return SimpleNamespace(content=f"default:{self.model_name}", response_metadata={})
+
+        llm = build_light_fallback_llm(
+            FakeLLM,
+            light_model_name="light-model",
+            default_model_name="main-model",
+            timeout_seconds=6,
+        )
+        response = llm.chat([{"role": "user", "content": "hi"}], timeout=3)
+
+        self.assertEqual(response.content, "default:main-model")
+        self.assertEqual([call["profile"] for call in factory_calls], ["light", "default"])
+        self.assertEqual([call["profile"] for call in chat_calls], ["light", "default"])
+        self.assertEqual(chat_calls[-1]["timeout"], 3)
+
+    def test_light_fallback_llm_does_not_build_default_when_light_succeeds(self) -> None:
+        factory_calls = []
+
+        class FakeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None) -> None:
+                self.profile = profile
+                factory_calls.append(profile)
+
+            def chat(self, messages, tools=None, timeout=None):
+                return SimpleNamespace(content=self.profile, response_metadata={})
+
+        llm = build_light_fallback_llm(FakeLLM, light_model_name="light-model", default_model_name="main-model")
+        response = llm.chat([{"role": "user", "content": "hi"}])
+
+        self.assertEqual(response.content, "light")
+        self.assertEqual(factory_calls, ["light"])
+
+    def test_light_fallback_llm_reraises_default_error(self) -> None:
+        class FakeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None) -> None:
+                self.profile = profile
+
+            def chat(self, messages, tools=None, timeout=None):
+                raise RuntimeError(f"{self.profile} failed")
+
+        llm = build_light_fallback_llm(FakeLLM, light_model_name="light-model", default_model_name="main-model")
+
+        with self.assertRaisesRegex(RuntimeError, "default failed"):
+            llm.chat([{"role": "user", "content": "hi"}])
 
 
 class LLMResponseParsingTest(unittest.TestCase):

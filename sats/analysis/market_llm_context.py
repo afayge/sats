@@ -123,6 +123,8 @@ def is_market_question(message: str) -> bool:
     lowered = text.lower()
     if "a股" in lowered and any(word in text for word in _A_SHARE_CONTEXT_WORDS):
         return True
+    if "市场" in text and any(word in text for word in ("走势", "行情", "涨跌", "怎么看", "怎么走", "表现", "分析", "预测")):
+        return True
     return any(keyword in text for keyword in _MARKET_KEYWORDS)
 
 

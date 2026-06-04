@@ -103,7 +103,7 @@ class OptionalDependencyTest(unittest.TestCase):
                     ensure_optional_dependencies("qlib_ml", project_root=root)
             pip_run.assert_not_called()
 
-    def test_factor_ml_train_enters_dependency_gate_without_claiming_training(self) -> None:
+    def test_factor_ml_train_enters_dependency_gate_then_calls_train_engine(self) -> None:
         status = SimpleNamespace(
             available=True,
             present=["pyqlib", "lightgbm", "xgboost", "scikit-learn"],
@@ -113,14 +113,51 @@ class OptionalDependencyTest(unittest.TestCase):
             error="",
             to_dict=lambda: {"available": True},
         )
+        fake_result = SimpleNamespace(
+            run_id="factor_ml_test",
+            model_type="lightgbm",
+            profile="balanced",
+            factor_ids=["barra_style_value"],
+            horizon=1,
+            model_path="models/factors/factor_ml_test/model.pkl",
+            metrics={"train_rows": 10},
+            to_dict=lambda: {
+                "run_id": "factor_ml_test",
+                "model_type": "lightgbm",
+                "profile": "balanced",
+                "factor_ids": ["barra_style_value"],
+                "horizon": 1,
+                "model_path": "models/factors/factor_ml_test/model.pkl",
+                "metrics": {"train_rows": 10},
+            },
+        )
         with (
             patch("sats.cli.load_settings", return_value=SimpleNamespace(project_root=Path("."), db_path=Path("x.duckdb"))),
             patch("sats.cli.ensure_optional_dependencies", return_value=status) as ensure,
+            patch("sats.cli.AStockDataProvider"),
+            patch("sats.cli.train_factor_ml_model", return_value=fake_result) as train,
         ):
-            with self.assertRaises(SystemExit) as raised:
-                main(["factor", "ml", "train", "--profile", "ml_lgbm", "--model", "lightgbm"])
+            stdout = StringIO()
+            with redirect_stdout(stdout):
+                self.assertEqual(
+                    main(
+                        [
+                            "factor",
+                            "ml",
+                            "train",
+                            "--profile",
+                            "balanced",
+                            "--model",
+                            "lightgbm",
+                            "--train-end",
+                            "20260514",
+                        ]
+                    ),
+                    0,
+                )
         ensure.assert_called_once()
-        self.assertIn("training/prediction engine is not wired yet", str(raised.exception))
+        train.assert_called_once()
+        self.assertIn("factor_ml_test", stdout.getvalue())
 
     def test_ordinary_factor_list_does_not_touch_ml_dependency_gate(self) -> None:
         with patch("sats.cli.ensure_optional_dependencies") as ensure:

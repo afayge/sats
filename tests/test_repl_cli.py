@@ -18,6 +18,7 @@ from sats import __version__
 from sats.chat import ChatResult, ChatSession
 from sats.cli import main
 from sats.history import InteractionHistoryStore
+from sats.memory import ChatMemoryStore
 from sats.output_saver import CapturedOutput
 from sats.repl import (
     CLI_COMMANDS,
@@ -55,6 +56,14 @@ class RecordingChatSession(ChatSession):
     def ask(self, message, **kwargs):
         self.calls.append((message, kwargs))
         return ChatResult(content="回答", skill_names=())
+
+
+class ReplFakeLLM:
+    def __init__(self, *args, **kwargs) -> None:
+        pass
+
+    def chat(self, messages, tools=None):
+        return SimpleNamespace(content="回答")
 
 
 def _completion_map(text: str):
@@ -611,6 +620,62 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, ["hello world"])
         self.assertEqual(output, ["回答"])
 
+    def test_repl_new_command_creates_chat_session_and_title(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            current = ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=ReplFakeLLM,
+                memory_extractor=SimpleNamespace(extract=lambda *args, **kwargs: []),
+                preprocess_enabled=False,
+            )
+            state = ReplState(
+                session_id=current.session_id,
+                chat_session=current,
+                history_store=InteractionHistoryStore(settings.db_path),
+            )
+            output: list[str] = []
+
+            keep_running = handle_repl_line("/new 茅台估值复盘", chat_session=current, printer=output.append, state=state)
+
+            self.assertTrue(keep_running)
+            self.assertIsInstance(state.chat_session, ChatSession)
+            self.assertNotEqual(state.chat_session.session_id, current.session_id)
+            self.assertEqual(state.session_id, state.chat_session.session_id)
+            self.assertIn("茅台估值复盘", output[0])
+            store = ChatMemoryStore(settings.db_path)
+            with store.storage.connect() as con:
+                row = con.execute(
+                    "SELECT title FROM chat_sessions WHERE session_id = ?",
+                    [state.chat_session.session_id],
+                ).fetchone()
+            self.assertEqual(row[0], "茅台估值复盘")
+
+    def test_repl_new_session_resets_stock_followup_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            current = ChatSession(
+                settings=settings,
+                skills=[],
+                llm_factory=ReplFakeLLM,
+                memory_enabled=False,
+                preprocess_enabled=False,
+            )
+            current._last_stock_question = SimpleNamespace(
+                symbols=["000001.SZ"],
+                trade_date="20260514",
+                as_of_time=None,
+                has_stock_question=True,
+            )
+            state = ReplState(session_id=current.session_id, chat_session=current)
+            output: list[str] = []
+
+            self.assertTrue(handle_repl_line("/new", chat_session=current, printer=output.append, state=state))
+            self.assertTrue(handle_repl_line("继续分析它", chat_session=current, printer=output.append, state=state))
+
+            self.assertIn("请先提供明确股票代码", output[-1])
+
     def test_repl_records_chat_slash_command_history(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             store = InteractionHistoryStore(Path(tmp) / "sats.duckdb")
@@ -703,6 +768,43 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, [("hello world", False)])
         self.assertEqual(output, ["回答"])
+
+    def test_repl_trace_builtin_prints_latest_turn_trace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            store = ChatMemoryStore(settings.db_path)
+            store.start_chat_turn(turn_id="turn_trace", session_id="repl", request="hello")
+            state = ReplState(session_id="repl", history_store=InteractionHistoryStore(settings.db_path))
+            output: list[str] = []
+
+            with patch("sats.repl.load_settings", return_value=settings):
+                keep_running = handle_repl_line("/trace", printer=output.append, state=state)
+
+            self.assertTrue(keep_running)
+            self.assertIn("Turn: turn_trace", output[-1])
+
+    def test_repl_confirm_builtin_executes_pending_action(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            state = ReplState(session_id="repl", history_store=InteractionHistoryStore(settings.db_path))
+            output: list[str] = []
+            runtime_result = SimpleNamespace(
+                content="已执行",
+                skill_names=(),
+                tool_call_count=0,
+                data_names=("Runtime",),
+                artifacts=(),
+                pending_action=None,
+            )
+
+            with patch("sats.repl.load_settings", return_value=settings), patch(
+                "sats.repl.confirm_pending_runtime_action", return_value=runtime_result
+            ) as confirm:
+                keep_running = handle_repl_line("/confirm act_123", printer=output.append, state=state)
+
+            self.assertTrue(keep_running)
+            confirm.assert_called_once()
+            self.assertEqual(output[-1], "数据: Runtime\n已执行")
 
     def test_repl_chat_passes_reference_context_from_last_output(self) -> None:
         state = ReplState()
@@ -944,7 +1046,11 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertIn("factor", CLI_COMMANDS)
         self.assertIn("/factor list --zoo barra_style", help_text())
+        self.assertIn("/factor pick --profile balanced --trade-date 20260514 --top 20", help_text())
         self.assertIn("/factor ml status", help_text())
+        self.assertIn("/factor ml train --profile balanced --model lightgbm", help_text())
+        self.assertIn("/factor ml predict --model-run factor_ml_xxxxxxxx", help_text())
+        self.assertIn("/chat 分析000001的因子暴露", help_text())
 
         keep_running = handle_repl_line(
             "/factor ml status",

@@ -12,18 +12,25 @@ from sats.analysis.opportunity_discovery import (
     DEFAULT_CANDIDATE_LIMIT,
     DEFAULT_DISCOVERY_LIMIT,
     DEFAULT_DISCOVERY_SIGNALS,
+    LLMContextBudgetExceeded,
+    LLMRankResult,
     OpportunityCandidate,
     OpportunityDiscoveryResult,
     extract_opportunity_discovery_limit,
     format_opportunity_discovery,
+    is_generic_hot_sector_discovery_question,
+    prepare_llm_context_prompt,
     run_opportunity_discovery,
     write_opportunity_report,
+    _is_context_length_error,
     _resolve_trade_date,
 )
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
-from sats.llm import ChatLLM
+from sats.factors.profiles import DEFAULT_FACTOR_PROFILE
+from sats.factors.service import snapshot_from_screening_inputs
+from sats.llm import ChatLLM, build_light_fallback_llm
 from sats.rag.knowledge import infer_stock_collections
 from sats.skills import Skill, default_skills_dir, find_skill, load_skills, match_skills
 from sats.storage.duckdb import DuckDBStorage
@@ -52,6 +59,21 @@ _THEME_STOP_WORDS = {
     "题材",
     "热点",
     "热点板块",
+    "热点题材",
+    "热点概念",
+    "市场热点",
+    "当前热点",
+    "今日热点",
+    "今天的热点",
+    "近期热点",
+    "市场主线",
+    "主线板块",
+    "强势板块",
+    "强势行业",
+    "强势概念",
+    "根据今天的热点",
+    "根据今日热点",
+    "根据当前热点",
     "基本面",
     "低估值",
     "风险",
@@ -79,6 +101,16 @@ class ThemeUniverseStock:
             "ts_code": self.ts_code,
             "name": self.name,
             "reason": self.reason,
+            "confidence": self.confidence,
+            "relation_type": self.relation_type,
+            "source": self.source,
+        }
+
+    def to_llm_context(self) -> dict[str, Any]:
+        return {
+            "ts_code": self.ts_code,
+            "name": self.name,
+            "reason": _short_text(self.reason, 120),
             "confidence": self.confidence,
             "relation_type": self.relation_type,
             "source": self.source,
@@ -112,6 +144,20 @@ class ThemeUniverse:
             "source": self.source,
             "confidence": self.confidence,
             "warnings": list(self.warnings),
+        }
+
+    def to_llm_context(self, *, stock_summary_limit: int = 50) -> dict[str, Any]:
+        stocks = list(self.stocks)
+        return {
+            "theme": self.theme,
+            "count": self.count,
+            "stocks": [stock.to_llm_context() for stock in stocks[:stock_summary_limit]],
+            "stock_summary_truncated_count": max(0, len(stocks) - stock_summary_limit),
+            "symbols": list(self.symbols[: max(stock_summary_limit, 0)]),
+            "matched_sector": self.matched_sector,
+            "source": self.source,
+            "confidence": self.confidence,
+            "warnings": [_short_text(item, 160) for item in self.warnings[:20]],
         }
 
 
@@ -200,6 +246,32 @@ class StockPickingAgentResult:
             + json.dumps(self.to_dict(), ensure_ascii=False, default=str)
         )
 
+    def to_llm_context(self) -> dict[str, Any]:
+        return {
+            "query": self.query,
+            "message": self.message,
+            "agent_plan": self.plan.to_dict(),
+            "theme_universe": self.theme_universe.to_llm_context(),
+            "evidence_sources": [_compact_evidence_source(item) for item in self.evidence_sources[:12]],
+            "evidence_context": _short_text(self.evidence_context, 3000),
+            "llm_unavailable": bool(self.llm_unavailable or self.discovery.llm_unavailable),
+            "opportunity_discovery": self.discovery.to_llm_context(),
+            "data_policy": (
+                "SATS stock-picking Agent used local skills and DuckDB knowledge as methodology context; "
+                "real candidates came from structured SATS A-share data and Analyze signals. "
+                "Results are research candidates only, not trading instructions."
+            ),
+        }
+
+    def system_message_for_llm(self) -> str:
+        return (
+            "以下是 SATS 自然语言选股 Agent 基于真实本地数据、skills 和知识库证据生成的 A 股候选精简上下文。"
+            "skills/RAG 只作为方法论和证据来源；该上下文已移除原始长 K 线、全量热点成员映射、"
+            "冗长因子明细和重复 discovery 嵌套。不要编造未提供的行情、新闻、财务或题材，"
+            "不要承诺未来必然上涨，必须给出触发条件、失效条件和风险提示。\n"
+            + json.dumps(self.to_llm_context(), ensure_ascii=False, default=str)
+        )
+
 
 def build_stock_picking_plan(
     query: str,
@@ -248,6 +320,9 @@ def run_stock_picking_agent(
     llm_factory: Callable[..., Any] | None = None,
     hot_sector_enabled: bool = True,
     hot_sector_days: int = 5,
+    factor_enabled: bool = True,
+    factor_profile: str = DEFAULT_FACTOR_PROFILE,
+    factor_weight: float = 2.0,
     market_indices: list[str] | tuple[str, ...] | None = None,
     market_dimensions: list[str] | tuple[str, ...] | None = None,
     market_horizons: list[str] | tuple[str, ...] | None = None,
@@ -340,10 +415,22 @@ def run_stock_picking_agent(
     llm_unavailable = False
     if discovery.candidates:
         ranked_local = _rank_locally(discovery.candidates, plan=plan)
+        if factor_enabled and resolved_trade_date:
+            _apply_factor_overlay(
+                ranked_local[:scan_limit],
+                provider=provider,
+                storage=storage,
+                trade_date=str(resolved_trade_date),
+                profile=factor_profile,
+                weight=factor_weight,
+                lookback_days=max(lookback_days, 260),
+            )
+            ranked_local = sorted(ranked_local, key=lambda item: (-item.ranking_score, -item.local_score, item.ts_code))
         discovery.candidates = ranked_local[:final_limit]
+        discovery.llm_pool_count = 0
         if llm_enabled:
             try:
-                discovery.candidates = _rank_with_agent_llm(
+                rank_result = _rank_with_agent_llm(
                     ranked_local[:scan_limit],
                     all_candidates=ranked_local[:scan_limit],
                     settings=settings,
@@ -353,9 +440,22 @@ def run_stock_picking_agent(
                     limit=final_limit,
                     llm_factory=llm_factory or ChatLLM,
                 )
+                discovery.candidates = rank_result.candidates
+                discovery.llm_pool_count = rank_result.llm_pool_count
+                if rank_result.warnings:
+                    discovery.missing_fields = list(_dedupe([*discovery.missing_fields, *rank_result.warnings]))
+                if rank_result.llm_unavailable:
+                    llm_unavailable = True
+                    discovery.llm_unavailable = True
+            except LLMContextBudgetExceeded as exc:
+                llm_unavailable = True
+                discovery.llm_unavailable = True
+                discovery.llm_pool_count = 0
+                discovery.missing_fields = list(_dedupe([*discovery.missing_fields, *exc.warnings]))
             except Exception:
                 llm_unavailable = True
                 discovery.llm_unavailable = True
+                discovery.llm_pool_count = 0
         if report and reports_dir is not None:
             discovery.report_path = str(write_opportunity_report(discovery, reports_dir=reports_dir))
     return StockPickingAgentResult(
@@ -607,8 +707,7 @@ def _resolve_llm_theme_universe(
     )
     try:
         llm = _build_llm(llm_factory, settings=settings or object())
-        response = llm.chat([{"role": "user", "content": prompt}])
-        data = _parse_json_object(str(getattr(response, "content", "") or ""))
+        data = _chat_json(llm, [{"role": "user", "content": prompt}])
     except Exception as exc:
         warnings.append(f"llm_theme_universe: {exc}")
         return ThemeUniverse(theme=theme, source="none", warnings=tuple(_dedupe(warnings)))
@@ -728,6 +827,8 @@ def _extract_theme_from_query(query: str) -> str:
     text = str(query or "").strip()
     if not text:
         return ""
+    if is_generic_hot_sector_discovery_question(text):
+        return ""
     patterns = [
         r"([A-Za-z][A-Za-z0-9+\-_/]{1,24})\s*(?:相关(?:股票|个股|A股)?|概念股|概念|板块|题材|产业链)",
         r"([\u4e00-\u9fffA-Za-z0-9+\-_/]{2,18})\s*(?:相关(?:股票|个股|A股)?|概念股|概念|板块|题材|产业链)",
@@ -750,7 +851,32 @@ def _extract_theme_from_query(query: str) -> str:
 
 def _clean_theme_candidate(value: str) -> str:
     text = str(value or "").strip(" ，,。.!！?？:：；;、（）()[]【】“”\"'")
-    for prefix in ("帮我", "请", "优先", "偏向", "找", "筛", "推荐", "给出", "分析", "看看", "关注", "有没有"):
+    for prefix in (
+        "根据今天的",
+        "根据今日的",
+        "根据当前的",
+        "根据近期的",
+        "根据今天",
+        "根据今日",
+        "根据当前",
+        "根据近期",
+        "今天的",
+        "今日的",
+        "当前的",
+        "近期的",
+        "帮我",
+        "请",
+        "优先",
+        "偏向",
+        "找",
+        "筛",
+        "推荐",
+        "给出",
+        "分析",
+        "看看",
+        "关注",
+        "有没有",
+    ):
         if text.startswith(prefix):
             text = text[len(prefix) :].strip()
     for suffix in ("相关股票", "相关个股", "相关A股", "概念股", "相关", "股票", "个股", "概念", "板块", "题材", "产业链", "的"):
@@ -915,6 +1041,64 @@ def _rank_locally(candidates: list[OpportunityCandidate], *, plan: StockPickingP
     return sorted(ranked, key=lambda item: (-item.ranking_score, -item.local_score, item.ts_code))
 
 
+def _apply_factor_overlay(
+    candidates: list[OpportunityCandidate],
+    *,
+    provider: Any,
+    storage: DuckDBStorage,
+    trade_date: str,
+    profile: str,
+    weight: float,
+    lookback_days: int,
+) -> None:
+    if not candidates:
+        return
+    symbols = [candidate.ts_code for candidate in candidates]
+    try:
+        inputs = provider.load_screening_inputs(
+            symbols,
+            trade_date,
+            storage=storage,
+            trade_days=max(1, int(lookback_days)),
+            rule_name="factor_overlay",
+        )
+        snapshot, _panel_result = snapshot_from_screening_inputs(
+            inputs,
+            storage=storage,
+            trade_date=trade_date,
+            profile=profile,
+            lookback_days=max(1, int(lookback_days)),
+        )
+    except Exception as exc:
+        warning = f"factor_overlay: {exc}"
+        for candidate in candidates:
+            candidate.missing_fields = _dedupe([*candidate.missing_fields, warning])
+        return
+    warnings = list(snapshot.warnings)
+    for candidate in candidates:
+        exposure = snapshot.exposure_for(candidate.ts_code)
+        score = exposure.get("score")
+        factor_payload = {
+            "profile": snapshot.profile,
+            "score": score,
+            "coverage": exposure.get("coverage"),
+            "factor_values": exposure.get("factor_values") or {},
+            "missing_factors": exposure.get("missing_factors") or [],
+            "warnings": warnings,
+        }
+        candidate.indicator["factor"] = factor_payload
+        if score is None:
+            candidate.missing_fields = _dedupe([*candidate.missing_fields, "factor_overlay: no_score", *warnings])
+            continue
+        candidate.ranking_score = round(
+            float(candidate.ranking_score or candidate.local_score or 0.0)
+            + max(-3.0, min(3.0, float(score))) * float(weight),
+            4,
+        )
+        if warnings:
+            candidate.missing_fields = _dedupe([*candidate.missing_fields, *warnings])
+
+
 def _profile_score(candidate: OpportunityCandidate, *, plan: StockPickingPlan) -> float:
     score = float(candidate.ranking_score or candidate.local_score or 0.0)
     labels = " ".join(str(event.get("label") or "") for event in candidate.events)
@@ -949,21 +1133,80 @@ def _rank_with_agent_llm(
     research_context: StockResearchContext | None,
     limit: int,
     llm_factory: Callable[..., Any],
-) -> list[OpportunityCandidate]:
+) -> LLMRankResult:
+    def build_prompt(pool: list[OpportunityCandidate]) -> str:
+        return _build_agent_llm_prompt(
+            pool,
+            plan=plan,
+            theme_universe=theme_universe,
+            research_context=research_context,
+        )
+
+    budgeted = prepare_llm_context_prompt(
+        candidates,
+        settings=settings,
+        build_prompt=build_prompt,
+        min_candidates=limit,
+    )
+    if budgeted.skipped:
+        raise LLMContextBudgetExceeded(budgeted.warnings)
+    pool = budgeted.candidates
+    prompt = budgeted.prompt
+    warnings = list(budgeted.warnings)
+    llm = _build_llm(llm_factory, settings=settings)
+    try:
+        data = _chat_json(llm, [{"role": "user", "content": prompt}])
+    except Exception as exc:
+        if not _is_context_length_error(exc) or len(pool) <= 1:
+            raise
+        retry_count = max(1, len(pool) // 2)
+        if retry_count >= len(pool):
+            retry_count = len(pool) - 1
+        retry_pool = pool[:retry_count]
+        retry_budgeted = prepare_llm_context_prompt(
+            retry_pool,
+            settings=settings,
+            build_prompt=build_prompt,
+            min_candidates=1,
+        )
+        warnings.extend(retry_budgeted.warnings)
+        warnings.append(f"llm_context_budget: retry_reduced_pool {len(pool)}->{len(retry_budgeted.candidates)} after_context_error")
+        if retry_budgeted.skipped:
+            raise LLMContextBudgetExceeded(warnings)
+        pool = retry_budgeted.candidates
+        prompt = retry_budgeted.prompt
+        data = _chat_json(llm, [{"role": "user", "content": prompt}])
+    ranked = _parse_agent_llm_rankings(data, pool, all_candidates=all_candidates, limit=limit)
+    return LLMRankResult(
+        candidates=ranked,
+        warnings=tuple(_dedupe(warnings)),
+        llm_pool_count=len(pool),
+    )
+
+
+def _build_agent_llm_prompt(
+    candidates: list[OpportunityCandidate],
+    *,
+    plan: StockPickingPlan,
+    theme_universe: ThemeUniverse,
+    research_context: StockResearchContext | None,
+) -> str:
     payload = {
         "agent_plan": plan.to_dict(),
         "knowledge_policy": "skills/RAG 只提供方法论证据，真实行情和结论必须来自 candidates 结构化字段。",
         "chan_policy": "chan_score 来自 SATS Analyze 的结构化缠论买点/共振信号，只能作为排序证据，不能保证上涨。",
-        "theme_universe": theme_universe.to_dict(),
+        "theme_universe": theme_universe.to_llm_context(),
         "theme_universe_policy": (
             "theme_universe 只限定研究股票池；source=llm_theme_universe 时只能称为 LLM 主题线索，"
             "不能称为同花顺概念板块，也不能把相关性当作上涨理由。"
         ),
-        "evidence_sources": research_context.sources if research_context is not None else (),
-        "evidence_context": research_context.system_message if research_context is not None else "",
-        "candidates": [candidate.to_dict() for candidate in candidates],
+        "evidence_sources": [_compact_evidence_source(item) for item in research_context.sources[:12]]
+        if research_context is not None
+        else (),
+        "evidence_context": _short_text(research_context.system_message, 3000) if research_context is not None else "",
+        "candidates": [candidate.to_llm_context() for candidate in candidates],
     }
-    prompt = (
+    return (
         "你是 SATS 自然语言选股 Agent 的排序器。请只基于 JSON 中的真实结构化候选和本地方法论证据排序，"
         "chan_score/chan_signals 只代表 SATS Analyze 已识别的缠论买点证据，不能写成上涨保证。"
         "不要编造新闻、题材、价格或财务字段。若候选来自 LLM 主题股票池，只能把它作为纳入研究池的线索，"
@@ -973,13 +1216,39 @@ def _rank_with_agent_llm(
         "最多返回 limit 只。\n"
         + json.dumps(payload, ensure_ascii=False, default=str)
     )
-    llm = _build_llm(llm_factory, settings=settings)
-    response = llm.chat([{"role": "user", "content": prompt}])
-    data = _parse_json_object(str(getattr(response, "content", "") or ""))
+
+
+def _short_text(value: Any, limit: int = 160) -> str:
+    text = str(value or "").strip()
+    if limit <= 0 or len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + "..."
+
+
+def _compact_evidence_source(item: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {"source": _short_text(item, 120)}
+    compact: dict[str, Any] = {}
+    for key in ("collection", "source", "skill", "title", "path"):
+        if key in item:
+            compact[key] = _short_text(item.get(key), 160)
+    if not compact:
+        compact["source"] = _short_text(item, 160)
+    return compact
+
+
+def _parse_agent_llm_rankings(
+    data: dict[str, Any],
+    candidates: list[OpportunityCandidate],
+    *,
+    all_candidates: list[OpportunityCandidate],
+    limit: int,
+) -> list[OpportunityCandidate]:
     rankings = data.get("rankings")
     if not isinstance(rankings, list):
         raise ValueError("LLM did not return rankings")
     by_code = {candidate.ts_code: candidate for candidate in all_candidates}
+    allowed = {candidate.ts_code for candidate in candidates}
     ranked: list[OpportunityCandidate] = []
     seen: set[str] = set()
     for row in rankings:
@@ -987,7 +1256,7 @@ def _rank_with_agent_llm(
             continue
         ts_code = str(row.get("ts_code") or "").strip().upper()
         candidate = by_code.get(ts_code)
-        if candidate is None or ts_code in seen:
+        if candidate is None or ts_code in seen or ts_code not in allowed:
             continue
         seen.add(ts_code)
         candidate.llm_reason = _merge_reason(row)
@@ -1000,7 +1269,7 @@ def _rank_with_agent_llm(
     if not ranked:
         raise ValueError("LLM rankings had no valid candidates")
     if len(ranked) < limit:
-        ranked.extend(candidate for candidate in all_candidates if candidate.ts_code not in seen)
+        ranked.extend(candidate for candidate in candidates if candidate.ts_code not in seen)
     return ranked[:limit]
 
 
@@ -1026,18 +1295,40 @@ def _float(value: Any, *, default: float = 0.0) -> float:
 
 
 def _build_llm(llm_factory: Callable[..., Any], *, settings: Settings) -> Any:
-    model_name = _light_model_name(settings)
-    try:
-        return llm_factory(model_name=model_name, profile="light")
-    except TypeError:
-        try:
-            return llm_factory(model_name=model_name)
-        except TypeError:
-            return llm_factory()
+    return build_light_fallback_llm(
+        llm_factory,
+        light_model_name=_light_model_name(settings),
+        default_model_name=_main_model_name(settings),
+        timeout_seconds=_llm_timeout_seconds(settings),
+    )
 
 
 def _light_model_name(settings: Settings) -> str:
     return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "")
+
+
+def _main_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "openai_model", "") or "")
+
+
+def _llm_timeout_seconds(settings: Settings) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
+def _chat_json(llm: Any, messages: list[dict[str, str]]) -> dict[str, Any]:
+    if hasattr(llm, "chat_validated"):
+        return llm.chat_validated(messages, _parse_response_json)
+    response = llm.chat(messages)
+    return _parse_response_json(response)
+
+
+def _parse_response_json(response: Any) -> dict[str, Any]:
+    return _parse_json_object(str(getattr(response, "content", "") or ""))
 
 
 def _parse_json_object(content: str) -> dict[str, Any]:

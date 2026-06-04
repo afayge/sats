@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 from sats.llm.provider import build_llm
 
@@ -120,6 +120,151 @@ class ChatLLM:
             reasoning_content=additional.get("reasoning_content"),
             finish_reason=_dedupe_finish_reason(str(finish_reason)),
         )
+
+
+class LightFallbackChatLLM:
+    def __init__(
+        self,
+        factory: Callable[..., Any],
+        *,
+        light_model_name: str,
+        default_model_name: str,
+        timeout_seconds: int | None = None,
+    ) -> None:
+        self.factory = factory
+        self.light_model_name = light_model_name
+        self.default_model_name = default_model_name
+        self.timeout_seconds = timeout_seconds
+        self.kwargs = {
+            "model_name": light_model_name,
+            "profile": "light",
+            "timeout_seconds": timeout_seconds,
+        }
+        self._light_llm: Any | None = None
+        self._default_llm: Any | None = None
+        self._last_llm: Any | None = None
+
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+        timeout: int | None = None,
+    ) -> Any:
+        return self._with_fallback(lambda llm: _call_chat_compatible(llm, messages, tools=tools, timeout=timeout))
+
+    def chat_validated(
+        self,
+        messages: list[dict[str, Any]],
+        validator: Callable[[Any], Any],
+        *,
+        tools: list[dict[str, Any]] | None = None,
+        timeout: int | None = None,
+    ) -> Any:
+        return self._with_fallback(lambda llm: validator(_call_chat_compatible(llm, messages, tools=tools, timeout=timeout)))
+
+    def _with_fallback(self, call: Callable[[Any], Any]) -> Any:
+        try:
+            self._last_llm = self._light_client()
+            return call(self._last_llm)
+        except Exception:
+            self._last_llm = self._default_client()
+            return call(self._last_llm)
+
+    def _light_client(self) -> Any:
+        if self._light_llm is None:
+            self._light_llm = _create_llm_client(
+                self.factory,
+                self.light_model_name,
+                profile="light",
+                timeout_seconds=self.timeout_seconds,
+            )
+        return self._light_llm
+
+    def _default_client(self) -> Any:
+        if self._default_llm is None:
+            self._default_llm = _create_llm_client(
+                self.factory,
+                self.default_model_name,
+                profile="default",
+                timeout_seconds=self.timeout_seconds,
+            )
+        return self._default_llm
+
+    def __getattr__(self, name: str) -> Any:
+        target = self._last_llm if self._last_llm is not None else self._light_client()
+        return getattr(target, name)
+
+
+def build_light_fallback_llm(
+    factory: Callable[..., Any],
+    *,
+    light_model_name: str,
+    default_model_name: str,
+    timeout_seconds: int | None = None,
+) -> LightFallbackChatLLM:
+    return LightFallbackChatLLM(
+        factory,
+        light_model_name=light_model_name,
+        default_model_name=default_model_name,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+def _create_llm_client(
+    factory: Callable[..., Any],
+    model_name: str,
+    *,
+    profile: str,
+    timeout_seconds: int | None = None,
+) -> Any:
+    try:
+        return factory(
+            model_name=model_name,
+            profile=profile,
+            timeout_seconds=timeout_seconds,
+        )
+    except TypeError:
+        try:
+            return factory(model_name=model_name, timeout_seconds=timeout_seconds)
+        except TypeError:
+            try:
+                return factory(model_name=model_name, profile=profile)
+            except TypeError:
+                try:
+                    return factory(model_name=model_name)
+                except TypeError:
+                    return factory()
+
+
+def _call_chat_compatible(
+    llm: Any,
+    messages: list[dict[str, Any]],
+    *,
+    tools: list[dict[str, Any]] | None = None,
+    timeout: int | None = None,
+) -> Any:
+    if tools is not None and timeout is not None:
+        try:
+            return llm.chat(messages, tools=tools, timeout=timeout)
+        except TypeError:
+            try:
+                return llm.chat(messages, tools=tools)
+            except TypeError:
+                try:
+                    return llm.chat(messages, timeout=timeout)
+                except TypeError:
+                    return llm.chat(messages)
+    if tools is not None:
+        try:
+            return llm.chat(messages, tools=tools)
+        except TypeError:
+            return llm.chat(messages)
+    if timeout is not None:
+        try:
+            return llm.chat(messages, timeout=timeout)
+        except TypeError:
+            return llm.chat(messages)
+    return llm.chat(messages)
 
 
 def _parse_tool_call(tool_call: Any) -> ToolCallRequest:

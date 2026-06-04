@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import threading
-from dataclasses import asdict, dataclass
+import time
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Callable
 
 from sats.config import Settings, load_settings
-from sats.llm import ChatLLM, LLMResponse
+from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm
 from sats.memory import ChatMemoryStore, MemoryExtractor, MemoryRecord, MemoryRetriever
 from sats.screening.registry import list_rules
 from sats.screening.rule_composer import (
@@ -27,8 +28,11 @@ from sats.analysis.dsa_native import run_dsa_analysis
 from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context
 from sats.analysis.opportunity_discovery import (
     DEFAULT_CANDIDATE_LIMIT,
+    estimate_llm_message_tokens,
     extract_opportunity_discovery_limit,
     format_opportunity_discovery,
+    is_llm_context_length_error,
+    llm_context_input_budget_tokens,
 )
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
 from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
@@ -36,8 +40,18 @@ from sats.analysis.stock_llm_context import build_stock_llm_context, ensure_stoc
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.chat_planner import build_chat_plan, skills_for_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
+from sats.chat_events import ChatEventSink, ChatTurnRecorder
 from sats.chat_reference import ChatReferenceContext
+from sats.chat_runtime import (
+    ChatResearchRuntime,
+    RuntimeContext,
+    RuntimeResult,
+    build_research_plan,
+    is_runtime_request,
+)
 from sats.data.astock_provider import AStockDataProvider
+from sats.factors.profiles import DEFAULT_FACTOR_PROFILE, FACTOR_PROFILE_CHOICES
+from sats.factors.service import snapshot_from_screening_inputs, summarize_factor_exposure
 from sats.signals import SignalInput, analyze_signal_inputs
 from sats.stock_question import StockQuestion, extract_intraday_time, extract_trade_date, parse_stock_question
 from sats.symbols import normalize_symbols
@@ -50,6 +64,7 @@ SYSTEM_PROMPT = (
     "对自然语言选股问题，SATS 会先运行本地选股 Agent，用 skills/RAG 理解约束，再用 Analyze 中短期上涨信号做临时全市场筛选并注入候选上下文；"
     "skills/RAG 只提供方法论，真实候选必须来自结构化行情；热点板块只做优先加权，不能把热点或题材当作上涨保证；"
     "只能把候选表达为观察名单、触发条件和失效条件，不能保证上涨。"
+    "因子分数、因子画像和 ML 预测只作为研究证据和排序辅助，不能解释为确定收益或买卖指令；"
     "当用户要求新增、生成或创建筛选规则时，必须先展示规则生成计划和确认口令；"
     "只有用户明确回复“确认生成规则 <rule_name>”后，SATS 才会写入 generated 目录并注册规则。"
     "涉及股票、交易或投资判断时，必须说明内容不构成投资建议。回答保持简洁、直接、可操作。"
@@ -76,6 +91,11 @@ class ChatResult:
     tool_call_count: int = 0
     data_names: tuple[str, ...] = ()
     sources: tuple[dict[str, Any], ...] = ()
+    artifacts: tuple[dict[str, Any], ...] = ()
+    requires_confirmation: bool = False
+    pending_action_id: str | None = None
+    turn_id: str | None = None
+    session_id: str = ""
 
 
 class ChatSession:
@@ -130,47 +150,71 @@ class ChatSession:
         progress: Any | None = None,
         reference_context: ChatReferenceContext | None = None,
         defer_memory_updates: bool = False,
+        event_sink: ChatEventSink | None = None,
     ) -> ChatResult:
         active_progress = progress if progress is not None else self.progress
         text = str(message or "").strip()
         if not text:
             raise ValueError("chat message is required")
-        rule_result = self._maybe_handle_rule_generation(text)
-        if rule_result is not None:
-            return rule_result
         effective_memory = self.memory_enabled if use_memory is None else use_memory
         store = self._ensure_memory_store() if effective_memory else None
-        if store is not None:
+        recorder = ChatTurnRecorder(
+            session_id=self.session_id,
+            request=text,
+            store=store,
+            event_sink=event_sink,
+        )
+        started_at = time.monotonic()
+        recorder.start(payload={"memory_enabled": bool(store), "session_id": self.session_id})
+        try:
+            rule_result = self._maybe_handle_rule_generation(text)
+            if rule_result is not None:
+                result = replace(rule_result, turn_id=recorder.turn_id, session_id=self.session_id)
+                recorder.complete(
+                    content=result.content,
+                    intent="screening_rule_generation",
+                    data_names=result.data_names,
+                    skill_names=result.skill_names,
+                    model_name=_main_model_name(self.settings),
+                    duration_seconds=max(0.0, time.monotonic() - started_at),
+                )
+                return result
+            if store is not None:
+                try:
+                    self._load_persisted_history(store)
+                except Exception:
+                    store = None
+                    recorder.store = None
             try:
-                self._load_persisted_history(store)
+                memories = MemoryRetriever(store).retrieve(text) if store is not None else []
+                summary = store.get_session_summary(self.session_id) if store is not None else ""
             except Exception:
                 store = None
-        try:
-            memories = MemoryRetriever(store).retrieve(text) if store is not None else []
-            summary = store.get_session_summary(self.session_id) if store is not None else ""
-        except Exception:
-            store = None
-            memories = []
-            summary = ""
-        matched = match_skills(text, self.skills)
-        preprocess: ChatPreprocessResult | None = None
-        if active_progress is None:
-            preprocess = self._preprocess_chat(text, reference_context=reference_context)
-            if preprocess.missing_questions:
-                return self._direct_result(text, _format_preprocess_questions(preprocess.missing_questions))
-            resolved_stock_question = self._resolved_stock_question_from_preprocess(text, preprocess, reference_context)
-            plan = build_chat_plan(
-                text,
-                skills=self.skills,
-                stock_question=resolved_stock_question,
-                preprocess=preprocess,
-            )
-        else:
-            with active_progress.step("输入分析") as step:
+                recorder.store = None
+                memories = []
+                summary = ""
+            matched = match_skills(text, self.skills)
+            preprocess: ChatPreprocessResult | None = None
+            if active_progress is None:
                 preprocess = self._preprocess_chat(text, reference_context=reference_context)
                 if preprocess.missing_questions:
-                    step.complete(message="需要澄清")
-                    return self._direct_result(text, _format_preprocess_questions(preprocess.missing_questions))
+                    content = _format_preprocess_questions(preprocess.missing_questions)
+                    recorder.emit(
+                        "clarification_required",
+                        item_type="plan",
+                        item_name="preprocess",
+                        status="done",
+                        content=content,
+                        payload={"questions": list(preprocess.missing_questions)},
+                    )
+                    result = replace(self._direct_result(text, content), turn_id=recorder.turn_id, session_id=self.session_id)
+                    recorder.complete(
+                        content=result.content,
+                        intent="clarification_required",
+                        model_name=_main_model_name(self.settings),
+                        duration_seconds=max(0.0, time.monotonic() - started_at),
+                    )
+                    return result
                 resolved_stock_question = self._resolved_stock_question_from_preprocess(text, preprocess, reference_context)
                 plan = build_chat_plan(
                     text,
@@ -178,121 +222,306 @@ class ChatSession:
                     stock_question=resolved_stock_question,
                     preprocess=preprocess,
                 )
-                step.complete(message=plan.intent)
-        if active_progress is None:
-            matched = skills_for_plan(plan, self.skills, matched)
-        else:
-            with active_progress.step("加载 skill") as step:
-                matched = skills_for_plan(plan, self.skills, matched)
-                step.complete(message=",".join(skill.name for skill in matched) or "none")
-        if resolved_stock_question is None and _is_stock_followup(text):
-            return ChatResult(
-                content="请先提供明确股票代码，例如：用缠论分析 002436。",
-                skill_names=tuple(skill.name for skill in matched),
-                memory_count=len(memories),
-            )
-        stock_context = None
-        data_names: list[str] = []
-        if reference_context is not None:
-            data_names.append(reference_context.data_name)
-        quote_context = None
-        if (
-            preprocess is not None
-            and getattr(preprocess, "needs_realtime_quote_context", False)
-            and resolved_stock_question is not None
-            and resolved_stock_question.has_stock_question
-        ):
-            if active_progress is None:
-                quote_context = build_stock_quote_llm_context(
-                    text,
-                    settings=self.settings,
-                    symbols=list(resolved_stock_question.symbols),
-                )
             else:
-                with active_progress.step("实盘数据") as step:
+                with active_progress.step("输入分析") as step:
+                    preprocess = self._preprocess_chat(text, reference_context=reference_context)
+                    if preprocess.missing_questions:
+                        step.complete(message="需要澄清")
+                        content = _format_preprocess_questions(preprocess.missing_questions)
+                        recorder.emit(
+                            "clarification_required",
+                            item_type="plan",
+                            item_name="preprocess",
+                            status="done",
+                            content=content,
+                            payload={"questions": list(preprocess.missing_questions)},
+                        )
+                        result = replace(self._direct_result(text, content), turn_id=recorder.turn_id, session_id=self.session_id)
+                        recorder.complete(
+                            content=result.content,
+                            intent="clarification_required",
+                            model_name=_main_model_name(self.settings),
+                            duration_seconds=max(0.0, time.monotonic() - started_at),
+                        )
+                        return result
+                    resolved_stock_question = self._resolved_stock_question_from_preprocess(text, preprocess, reference_context)
+                    plan = build_chat_plan(
+                        text,
+                        skills=self.skills,
+                        stock_question=resolved_stock_question,
+                        preprocess=preprocess,
+                    )
+                    step.complete(message=plan.intent)
+            plan_symbols = list(getattr(resolved_stock_question, "symbols", ()) or ())
+            plan_trade_date = getattr(resolved_stock_question, "trade_date", None) if resolved_stock_question is not None else None
+            recorder.emit(
+                "plan_ready",
+                item_type="plan",
+                item_name=plan.intent,
+                status="done",
+                content=plan.reason,
+                payload={
+                    "intent": plan.intent,
+                    "skills": list(plan.skills),
+                    "data_requirements": list(plan.data_requirements),
+                    "internal_actions": list(plan.internal_actions),
+                    "external_actions": list(plan.external_actions),
+                    "risk_level": plan.risk_level,
+                    "symbols": plan_symbols,
+                    "trade_date": plan_trade_date or "",
+                    "preprocess": _preprocess_event_payload(preprocess),
+                },
+            )
+            if active_progress is None:
+                matched = skills_for_plan(plan, self.skills, matched)
+            else:
+                with active_progress.step("加载 skill") as step:
+                    matched = skills_for_plan(plan, self.skills, matched)
+                    step.complete(message=",".join(skill.name for skill in matched) or "none")
+            recorder.emit(
+                "context_completed",
+                item_type="skills",
+                item_name="matched_skills",
+                status="done",
+                payload={"skills": [skill.name for skill in matched]},
+            )
+            if resolved_stock_question is None and _is_stock_followup(text):
+                content = "请先提供明确股票代码，例如：用缠论分析 002436。"
+                recorder.emit(
+                    "clarification_required",
+                    item_type="plan",
+                    item_name="stock_followup",
+                    status="done",
+                    content=content,
+                    payload={"reason": "missing_stock_for_followup"},
+                )
+                result = ChatResult(
+                    content=content,
+                    skill_names=tuple(skill.name for skill in matched),
+                    memory_count=len(memories),
+                    turn_id=recorder.turn_id,
+                    session_id=self.session_id,
+                )
+                recorder.complete(
+                    content=result.content,
+                    intent=plan.intent,
+                    skill_names=result.skill_names,
+                    model_name=_main_model_name(self.settings),
+                    duration_seconds=max(0.0, time.monotonic() - started_at),
+                )
+                return result
+            if is_runtime_request(text):
+                runtime_plan = build_research_plan(text, symbols=tuple(plan_symbols))
+                runtime = ChatResearchRuntime(
+                    settings=self.settings,
+                    store=store,
+                    recorder=recorder,
+                    llm=self._light_llm_client(),
+                    tool_registry=ChatToolRegistry(self.skills, self.settings),
+                    max_iterations=self.max_tool_iterations,
+                )
+                runtime_result = runtime.run(
+                    RuntimeContext(
+                        session_id=self.session_id,
+                        turn_id=recorder.turn_id,
+                        request=text,
+                        project_root=Path(getattr(self.settings, "project_root", ".")),
+                        symbols=tuple(plan_symbols),
+                        trade_date=str(plan_trade_date or ""),
+                        memory_enabled=bool(store),
+                    ),
+                    plan=runtime_plan,
+                )
+                user_message_id = ""
+                assistant_message_id = ""
+                if store is not None:
+                    try:
+                        store.touch_memories([memory.memory_id for memory in memories])
+                        user_message_id = store.add_message(self.session_id, "user", text)
+                        assistant_message_id = store.add_message(self.session_id, "assistant", runtime_result.content)
+                    except Exception:
+                        store = None
+                self._append_history("user", text)
+                self._append_history("assistant", runtime_result.content)
+                if store is not None:
+                    if defer_memory_updates:
+                        self._defer_memory_maintenance(store, text, runtime_result.content)
+                    else:
+                        self._maintain_memory(store, text, runtime_result.content)
+                result = _chat_result_from_runtime(
+                    runtime_result,
+                    skill_names=tuple(skill.name for skill in matched),
+                    memory_count=len(memories),
+                    turn_id=recorder.turn_id,
+                    session_id=self.session_id,
+                )
+                recorder.complete(
+                    content=result.content,
+                    intent=f"runtime:{runtime_result.plan.workflow_kind}",
+                    symbols=plan_symbols,
+                    trade_date=plan_trade_date,
+                    data_names=result.data_names,
+                    skill_names=result.skill_names,
+                    model_name=_light_model_name(self.settings),
+                    tool_call_count=result.tool_call_count,
+                    user_message_id=user_message_id,
+                    assistant_message_id=assistant_message_id,
+                    duration_seconds=max(0.0, time.monotonic() - started_at),
+                    meta={"runtime_plan": runtime_result.plan.to_dict()},
+                )
+                return result
+            stock_context = None
+            data_names: list[str] = []
+            if reference_context is not None:
+                data_names.append(reference_context.data_name)
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="reference_context",
+                    status="done",
+                    payload={"data_name": reference_context.data_name, "symbols": list(reference_context.symbols)},
+                )
+            quote_context = None
+            if (
+                preprocess is not None
+                and getattr(preprocess, "needs_realtime_quote_context", False)
+                and resolved_stock_question is not None
+                and resolved_stock_question.has_stock_question
+            ):
+                context_started = time.monotonic()
+                recorder.emit(
+                    "context_started",
+                    item_type="context",
+                    item_name="quote_context",
+                    status="running",
+                    payload={"symbols": list(resolved_stock_question.symbols)},
+                )
+                if active_progress is None:
                     quote_context = build_stock_quote_llm_context(
                         text,
                         settings=self.settings,
                         symbols=list(resolved_stock_question.symbols),
                     )
-                    step.complete(message="报价")
-            if quote_context is not None:
-                data_names.append("实时报价")
-        if plan.needs_stock_context and resolved_stock_question is not None and resolved_stock_question.has_stock_question:
-            if active_progress is None:
-                stock_context = build_stock_llm_context(text, settings=self.settings, question=resolved_stock_question)
-            else:
-                with active_progress.step("实盘数据") as step:
+                else:
+                    with active_progress.step("实盘数据") as step:
+                        quote_context = build_stock_quote_llm_context(
+                            text,
+                            settings=self.settings,
+                            symbols=list(resolved_stock_question.symbols),
+                        )
+                        step.complete(message="报价")
+                if quote_context is not None:
+                    data_names.append("实时报价")
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="quote_context",
+                    status="done",
+                    payload={"available": quote_context is not None, "symbols": list(resolved_stock_question.symbols)},
+                    duration_seconds=max(0.0, time.monotonic() - context_started),
+                )
+            if plan.needs_stock_context and resolved_stock_question is not None and resolved_stock_question.has_stock_question:
+                context_started = time.monotonic()
+                recorder.emit(
+                    "context_started",
+                    item_type="context",
+                    item_name="stock_context",
+                    status="running",
+                    payload={"symbols": list(resolved_stock_question.symbols), "trade_date": resolved_stock_question.trade_date or ""},
+                )
+                if active_progress is None:
                     stock_context = build_stock_llm_context(text, settings=self.settings, question=resolved_stock_question)
-                    step.complete(message="个股")
+                else:
+                    with active_progress.step("实盘数据") as step:
+                        stock_context = build_stock_llm_context(text, settings=self.settings, question=resolved_stock_question)
+                        step.complete(message="个股")
+                if stock_context is not None:
+                    data_names.append("个股")
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="stock_context",
+                    status="done",
+                    payload={"available": stock_context is not None, "symbols": list(resolved_stock_question.symbols)},
+                    duration_seconds=max(0.0, time.monotonic() - context_started),
+                )
             if stock_context is not None:
-                data_names.append("个股")
-        if stock_context is not None:
-            context_question = getattr(stock_context, "question", resolved_stock_question)
-            context_trade_date = str(getattr(stock_context, "trade_date", "") or context_question.trade_date or "")
-            self._last_stock_question = StockQuestion(
-                symbols=list(context_question.symbols),
-                trade_date=context_trade_date or None,
-                as_of_time=context_question.as_of_time,
-                has_stock_question=True,
-            )
-        show_market_progress = active_progress is not None and plan.needs_market_context
-        market_indices = tuple(getattr(preprocess, "market_indices", ()) or ()) if preprocess is not None else ()
-        market_dimensions = tuple(getattr(preprocess, "market_dimensions", ()) or ()) if preprocess is not None else ()
-        market_horizons = tuple(getattr(preprocess, "market_horizons", ()) or ()) if preprocess is not None else ()
-        market_plan_source = str(getattr(preprocess, "market_plan_source", "") or "") if preprocess is not None else ""
-        market_context = None
-        if not plan.needs_market_context:
+                context_question = getattr(stock_context, "question", resolved_stock_question)
+                context_trade_date = str(getattr(stock_context, "trade_date", "") or context_question.trade_date or "")
+                self._last_stock_question = StockQuestion(
+                    symbols=list(context_question.symbols),
+                    trade_date=context_trade_date or None,
+                    as_of_time=context_question.as_of_time,
+                    has_stock_question=True,
+                )
+            show_market_progress = active_progress is not None and plan.needs_market_context
+            market_indices = tuple(getattr(preprocess, "market_indices", ()) or ()) if preprocess is not None else ()
+            market_dimensions = tuple(getattr(preprocess, "market_dimensions", ()) or ()) if preprocess is not None else ()
+            market_horizons = tuple(getattr(preprocess, "market_horizons", ()) or ()) if preprocess is not None else ()
+            market_plan_source = str(getattr(preprocess, "market_plan_source", "") or "") if preprocess is not None else ""
             market_context = None
-        elif active_progress is None or not show_market_progress:
-            market_context = build_market_llm_context(
-                text,
-                settings=self.settings,
-                trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
-                indices=market_indices or None,
-                dimensions=market_dimensions or None,
-                horizons=market_horizons or None,
-                market_plan_source=market_plan_source or None,
-                force=plan.needs_market_context,
-            )
-        else:
-            with active_progress.step("实盘数据") as step:
-                market_context = build_market_llm_context(
-                    text,
-                    settings=self.settings,
-                    trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
-                    indices=market_indices or None,
-                    dimensions=market_dimensions or None,
-                    horizons=market_horizons or None,
-                    market_plan_source=market_plan_source or None,
-                    force=plan.needs_market_context,
-                )
-                step.complete(message="大盘")
-        if market_context is not None:
-            data_names.append("大盘")
-        opportunity_context = None
-        if resolved_stock_question is None and plan.needs_opportunity_discovery:
-            storage = DuckDBStorage(self.settings.db_path)
-            requested_limit = getattr(preprocess, "requested_limit", None) if preprocess is not None else None
-            if active_progress is None:
-                opportunity_context = run_stock_picking_agent(
-                    query=text,
-                    settings=self.settings,
-                    storage=storage,
-                    skills=self.skills,
-                    trade_date=extract_trade_date(text),
-                    limit=requested_limit,
-                    hot_sector_enabled=True,
-                    hot_sector_days=5,
-                    market_indices=market_indices or None,
-                    market_dimensions=market_dimensions or None,
-                    market_horizons=market_horizons or None,
-                    market_plan_source=market_plan_source or None,
-                    reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
-                    report=True,
-                )
+            if not plan.needs_market_context:
+                market_context = None
             else:
-                with active_progress.step("内部分析") as step:
+                context_started = time.monotonic()
+                recorder.emit(
+                    "context_started",
+                    item_type="context",
+                    item_name="market_context",
+                    status="running",
+                    payload={
+                        "indices": list(market_indices),
+                        "dimensions": list(market_dimensions),
+                        "horizons": list(market_horizons),
+                    },
+                )
+                if active_progress is None or not show_market_progress:
+                    market_context = build_market_llm_context(
+                        text,
+                        settings=self.settings,
+                        trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
+                        indices=market_indices or None,
+                        dimensions=market_dimensions or None,
+                        horizons=market_horizons or None,
+                        market_plan_source=market_plan_source or None,
+                        force=plan.needs_market_context,
+                    )
+                else:
+                    with active_progress.step("实盘数据") as step:
+                        market_context = build_market_llm_context(
+                            text,
+                            settings=self.settings,
+                            trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
+                            indices=market_indices or None,
+                            dimensions=market_dimensions or None,
+                            horizons=market_horizons or None,
+                            market_plan_source=market_plan_source or None,
+                            force=plan.needs_market_context,
+                        )
+                        step.complete(message="大盘")
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="market_context",
+                    status="done",
+                    payload={"available": market_context is not None},
+                    duration_seconds=max(0.0, time.monotonic() - context_started),
+                )
+            if market_context is not None:
+                data_names.append("大盘")
+            opportunity_context = None
+            if resolved_stock_question is None and plan.needs_opportunity_discovery:
+                context_started = time.monotonic()
+                recorder.emit(
+                    "context_started",
+                    item_type="context",
+                    item_name="opportunity_discovery",
+                    status="running",
+                    payload={"query": text},
+                )
+                storage = DuckDBStorage(self.settings.db_path)
+                requested_limit = getattr(preprocess, "requested_limit", None) if preprocess is not None else None
+                if active_progress is None:
                     opportunity_context = run_stock_picking_agent(
                         query=text,
                         settings=self.settings,
@@ -308,72 +537,181 @@ class ChatSession:
                         market_plan_source=market_plan_source or None,
                         reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
                         report=True,
-                        progress=active_progress,
                     )
-                    step.complete(message="选股Agent")
-            data_names.extend(["热点板块", "选股Agent"])
-        chan_context = None
-        if plan.needs_chan_context:
-            chan_context = build_chan_chat_context(text, skills=self.skills)
-            if chan_context is not None:
-                data_names.append("缠论RAG")
-        research_context = self._build_research_context(
-            text,
-            plan_collections=_collections_for_plan(plan),
-            explicit_knowledge=self.knowledge,
-        )
-        if research_context is not None:
-            data_names.append("知识库RAG")
-        conversation = ConversationContextBuilder().build(
-            message=text,
-            history=self.history,
-            skills=matched,
-            plan_context=plan.system_message(),
-            memories=memories,
-            session_summary=summary,
-            stock_context=_stock_context_message(stock_context, market_context),
-            market_context=market_context.system_message if stock_context is None and market_context is not None else "",
-            opportunity_context=opportunity_context.system_message if opportunity_context is not None else "",
-            chan_context=chan_context.system_message if chan_context is not None else "",
-            research_context=research_context.system_message if research_context is not None else "",
-            quote_context=quote_context.system_message if quote_context is not None else "",
-            reference_context=reference_context.system_message if reference_context is not None else "",
-            preprocess_context=preprocess.system_message()
-            if preprocess is not None and _should_include_preprocess_context(preprocess)
-            else "",
-            sources=research_context.sources if research_context is not None else (),
-        )
-        messages = conversation.messages
-        response, tool_call_count = self._chat_with_optional_tools(
-            messages,
-            progress=active_progress,
-        )
-        content = str(response.content or "").strip()
-        if opportunity_context is not None:
-            content = _opportunity_discovery_content_or_fallback(content, opportunity_context)
-        content = content or "无响应"
-        if store is not None:
-            try:
-                store.touch_memories([memory.memory_id for memory in memories])
-                store.add_message(self.session_id, "user", text)
-                store.add_message(self.session_id, "assistant", content)
-            except Exception:
-                store = None
-        self._append_history("user", text)
-        self._append_history("assistant", content)
-        if store is not None:
-            if defer_memory_updates:
-                self._defer_memory_maintenance(store, text, content)
+                else:
+                    with active_progress.step("内部分析") as step:
+                        opportunity_context = run_stock_picking_agent(
+                            query=text,
+                            settings=self.settings,
+                            storage=storage,
+                            skills=self.skills,
+                            trade_date=extract_trade_date(text),
+                            limit=requested_limit,
+                            hot_sector_enabled=True,
+                            hot_sector_days=5,
+                            market_indices=market_indices or None,
+                            market_dimensions=market_dimensions or None,
+                            market_horizons=market_horizons or None,
+                            market_plan_source=market_plan_source or None,
+                            reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
+                            report=True,
+                            progress=active_progress,
+                        )
+                        step.complete(message="选股Agent")
+                data_names.extend(["热点板块", "选股Agent"])
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="opportunity_discovery",
+                    status="done",
+                    payload={"available": opportunity_context is not None, "requested_limit": requested_limit},
+                    duration_seconds=max(0.0, time.monotonic() - context_started),
+                )
+            chan_context = None
+            if plan.needs_chan_context:
+                context_started = time.monotonic()
+                recorder.emit("context_started", item_type="context", item_name="chan_rag", status="running")
+                chan_context = build_chan_chat_context(text, skills=self.skills)
+                if chan_context is not None:
+                    data_names.append("缠论RAG")
+                recorder.emit(
+                    "context_completed",
+                    item_type="context",
+                    item_name="chan_rag",
+                    status="done",
+                    payload={"available": chan_context is not None},
+                    duration_seconds=max(0.0, time.monotonic() - context_started),
+                )
+            context_started = time.monotonic()
+            recorder.emit(
+                "context_started",
+                item_type="context",
+                item_name="knowledge_rag",
+                status="running",
+                payload={"collections": list(_collections_for_plan(plan))},
+            )
+            research_context = self._build_research_context(
+                text,
+                plan_collections=_collections_for_plan(plan),
+                explicit_knowledge=self.knowledge,
+            )
+            if research_context is not None:
+                data_names.append("知识库RAG")
+            recorder.emit(
+                "context_completed",
+                item_type="context",
+                item_name="knowledge_rag",
+                status="done",
+                payload={"available": research_context is not None, "collections": list(_collections_for_plan(plan))},
+                duration_seconds=max(0.0, time.monotonic() - context_started),
+            )
+            conversation = ConversationContextBuilder().build(
+                message=text,
+                history=self.history,
+                skills=matched,
+                plan_context=plan.system_message(),
+                memories=memories,
+                session_summary=summary,
+                stock_context=_stock_context_message(stock_context, market_context if opportunity_context is None else None),
+                market_context=_context_system_message_for_llm(market_context)
+                if stock_context is None and market_context is not None and opportunity_context is None
+                else "",
+                opportunity_context=_context_system_message_for_llm(opportunity_context) if opportunity_context is not None else "",
+                chan_context=chan_context.system_message if chan_context is not None else "",
+                research_context=research_context.system_message if research_context is not None else "",
+                quote_context=quote_context.system_message if quote_context is not None else "",
+                reference_context=reference_context.system_message if reference_context is not None else "",
+                preprocess_context=preprocess.system_message()
+                if preprocess is not None and _should_include_preprocess_context(preprocess)
+                else "",
+                sources=research_context.sources if research_context is not None else (),
+            )
+            messages = conversation.messages
+            messages, budget_meta = _fit_chat_messages_to_context_budget_with_metadata(
+                messages,
+                settings=self.settings,
+                opportunity_context=opportunity_context,
+            )
+            recorder.emit(
+                "context_completed",
+                item_type="context",
+                item_name="context_budget",
+                status="done",
+                payload=budget_meta,
+            )
+            if messages is None:
+                content = _opportunity_discovery_content_or_fallback("", opportunity_context)
+                tool_call_count = 0
             else:
-                self._maintain_memory(store, text, content)
-        return ChatResult(
-            content=content,
-            skill_names=tuple(skill.name for skill in matched),
-            memory_count=len(memories),
-            tool_call_count=tool_call_count,
-            data_names=tuple(_dedupe(data_names)),
-            sources=conversation.sources,
-        )
+                try:
+                    response, tool_call_count = self._chat_with_optional_tools(
+                        messages,
+                        progress=active_progress,
+                        event_recorder=recorder,
+                    )
+                except Exception as exc:
+                    if opportunity_context is not None and is_llm_context_length_error(exc):
+                        content = _opportunity_discovery_content_or_fallback("", opportunity_context)
+                        tool_call_count = 0
+                    else:
+                        raise
+                else:
+                    content = str(response.content or "").strip()
+            if opportunity_context is not None:
+                content = _opportunity_discovery_content_or_fallback(content, opportunity_context)
+            content = content or "无响应"
+            user_message_id = ""
+            assistant_message_id = ""
+            if store is not None:
+                try:
+                    store.touch_memories([memory.memory_id for memory in memories])
+                    user_message_id = store.add_message(self.session_id, "user", text)
+                    assistant_message_id = store.add_message(self.session_id, "assistant", content)
+                except Exception:
+                    store = None
+            self._append_history("user", text)
+            self._append_history("assistant", content)
+            if store is not None:
+                if defer_memory_updates:
+                    self._defer_memory_maintenance(store, text, content)
+                else:
+                    self._maintain_memory(store, text, content)
+            result = ChatResult(
+                content=content,
+                skill_names=tuple(skill.name for skill in matched),
+                memory_count=len(memories),
+                tool_call_count=tool_call_count,
+                data_names=tuple(_dedupe(data_names)),
+                sources=conversation.sources,
+                turn_id=recorder.turn_id,
+                session_id=self.session_id,
+            )
+            completion_trade_date = ""
+            if stock_context is not None:
+                completion_trade_date = str(getattr(stock_context, "trade_date", "") or "")
+            elif resolved_stock_question is not None:
+                completion_trade_date = str(resolved_stock_question.trade_date or "")
+            recorder.complete(
+                content=result.content,
+                intent=plan.intent,
+                symbols=plan_symbols,
+                trade_date=completion_trade_date or plan_trade_date,
+                data_names=result.data_names,
+                skill_names=result.skill_names,
+                model_name=_light_model_name(self.settings),
+                tool_call_count=tool_call_count,
+                user_message_id=user_message_id,
+                assistant_message_id=assistant_message_id,
+                duration_seconds=max(0.0, time.monotonic() - started_at),
+                meta={"context_budget": budget_meta},
+            )
+            return result
+        except KeyboardInterrupt as exc:
+            recorder.fail(exc, status="interrupted", duration_seconds=max(0.0, time.monotonic() - started_at))
+            raise
+        except Exception as exc:
+            recorder.fail(exc, duration_seconds=max(0.0, time.monotonic() - started_at))
+            raise
 
     def _maybe_handle_rule_generation(self, text: str) -> ChatResult | None:
         confirmed_rule = parse_rule_generation_confirmation(text)
@@ -481,11 +819,11 @@ class ChatSession:
 
     def _light_llm_client(self) -> Any:
         if self._light_llm is None:
-            self._light_llm = _create_llm(
+            self._light_llm = build_light_fallback_llm(
                 self.llm_factory,
-                _light_model_name(self.settings),
-                profile="light",
-                timeout_seconds=6,
+                light_model_name=_light_model_name(self.settings),
+                default_model_name=_main_model_name(self.settings),
+                timeout_seconds=_llm_timeout_seconds(self.settings),
             )
         return self._light_llm
 
@@ -494,6 +832,7 @@ class ChatSession:
         messages: list[dict[str, Any]],
         *,
         progress: Any | None = None,
+        event_recorder: ChatTurnRecorder | None = None,
     ) -> tuple[Any, int]:
         llm = self._light_llm_client()
         self._llm = llm
@@ -508,9 +847,9 @@ class ChatSession:
                 return response, 0
             except Exception as exc:
                 if _is_timeout_exception(exc):
-                    return LLMResponse(content=_timeout_message(model_name)), 0
+                    return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), 0
                 raise
-        registry = _ChatSkillToolRegistry(self.skills, self.settings)
+        registry = ChatToolRegistry(self.skills, self.settings)
         definitions = registry.definitions()
         try:
             if progress is None:
@@ -528,7 +867,7 @@ class ChatSession:
             return response, 0
         except Exception as exc:
             if _is_timeout_exception(exc):
-                return LLMResponse(content=_timeout_message(model_name)), 0
+                return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), 0
             raise
         tool_call_count = 0
         for _ in range(self.max_tool_iterations):
@@ -538,19 +877,44 @@ class ChatSession:
             messages.append(_assistant_tool_call_message(response))
             for call in tool_calls:
                 tool_call_count += 1
+                tool_started = time.monotonic()
+                if event_recorder is not None:
+                    event_recorder.emit(
+                        "tool_started",
+                        item_type="tool",
+                        item_name=str(call.name),
+                        status="running",
+                        payload={
+                            "tool": str(call.name),
+                            "arguments": _tool_event_arguments(call.arguments),
+                            "metadata": registry.metadata(str(call.name)),
+                        },
+                    )
                 if progress is None:
                     tool_result = registry.execute(call.name, call.arguments)
                 else:
                     with progress.step(f"工具 {call.name}") as step:
                         tool_result = registry.execute(call.name, call.arguments)
                         step.complete()
+                if event_recorder is not None:
+                    event_recorder.emit(
+                        "tool_completed",
+                        item_type="tool",
+                        item_name=str(call.name),
+                        status=_tool_result_event_status(tool_result),
+                        payload={
+                            "tool": str(call.name),
+                            "result_size": len(str(tool_result or "")),
+                        },
+                        duration_seconds=max(0.0, time.monotonic() - tool_started),
+                    )
                 messages.append(_tool_result_message(call, tool_result))
             if progress is None:
                 try:
                     response = llm.chat(messages, tools=definitions)
                 except Exception as exc:
                     if _is_timeout_exception(exc):
-                        return LLMResponse(content=_timeout_message(model_name)), tool_call_count
+                        return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), tool_call_count
                     raise
             else:
                 with progress.step(f"{model_name} LLM") as step:
@@ -559,7 +923,7 @@ class ChatSession:
                     except Exception as exc:
                         if _is_timeout_exception(exc):
                             step.complete(message="Request timed out.")
-                            return LLMResponse(content=_timeout_message(model_name)), tool_call_count
+                            return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), tool_call_count
                         raise
                     step.complete()
         if not str(getattr(response, "content", "") or "").strip():
@@ -686,6 +1050,29 @@ def run_chat_once(
     return session.ask(message)
 
 
+def _chat_result_from_runtime(
+    runtime_result: RuntimeResult,
+    *,
+    skill_names: tuple[str, ...] = (),
+    memory_count: int = 0,
+    turn_id: str | None = None,
+    session_id: str = "",
+) -> ChatResult:
+    pending = runtime_result.pending_action
+    return ChatResult(
+        content=runtime_result.content,
+        skill_names=skill_names,
+        memory_count=memory_count,
+        tool_call_count=runtime_result.tool_call_count,
+        data_names=runtime_result.data_names,
+        artifacts=tuple(artifact.to_dict() for artifact in runtime_result.artifacts),
+        requires_confirmation=pending is not None,
+        pending_action_id=pending.action_id if pending is not None else None,
+        turn_id=turn_id,
+        session_id=session_id,
+    )
+
+
 def build_chat_messages(
     message: str,
     *,
@@ -787,6 +1174,146 @@ def _stock_context_message(stock_context: Any | None, market_context: Any | None
     return "\n".join(part for part in parts if part)
 
 
+def _context_system_message_for_llm(context: Any | None) -> str:
+    if context is None:
+        return ""
+    builder = getattr(context, "system_message_for_llm", None)
+    if callable(builder):
+        return str(builder() or "")
+    return str(getattr(context, "system_message", "") or "")
+
+
+def _context_payload_for_llm(context: Any) -> Any:
+    builder = getattr(context, "to_llm_context", None)
+    if callable(builder):
+        return builder()
+    payload = getattr(context, "payload", None)
+    if payload is not None:
+        return payload
+    to_dict = getattr(context, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    return {}
+
+
+def _fit_chat_messages_to_context_budget(
+    messages: list[dict[str, Any]],
+    *,
+    settings: Settings,
+    opportunity_context: Any | None = None,
+) -> list[dict[str, Any]] | None:
+    fitted, _ = _fit_chat_messages_to_context_budget_with_metadata(
+        messages,
+        settings=settings,
+        opportunity_context=opportunity_context,
+    )
+    return fitted
+
+
+def _fit_chat_messages_to_context_budget_with_metadata(
+    messages: list[dict[str, Any]],
+    *,
+    settings: Settings,
+    opportunity_context: Any | None = None,
+) -> tuple[list[dict[str, Any]] | None, dict[str, Any]]:
+    budget = llm_context_input_budget_tokens(settings)
+    original_tokens = _estimate_chat_messages_tokens(messages)
+    meta: dict[str, Any] = {
+        "budget_tokens": budget,
+        "input_tokens": original_tokens,
+        "message_count": len(messages),
+        "compressed": False,
+        "skipped_final_llm": False,
+        "compressed_context": "",
+    }
+    if original_tokens <= budget:
+        return messages, meta
+    if opportunity_context is None:
+        meta["over_budget_kept"] = True
+        return messages, meta
+    compact = [message for index, message in enumerate(messages) if _is_essential_discover_message(message, index=index)]
+    compact_tokens = _estimate_chat_messages_tokens(compact)
+    meta.update(
+        {
+            "compressed": True,
+            "compressed_context": "opportunity_discovery",
+            "compact_tokens": compact_tokens,
+            "compact_message_count": len(compact),
+        }
+    )
+    if compact_tokens <= budget:
+        return compact, meta
+    meta["skipped_final_llm"] = True
+    return None, meta
+
+
+def _estimate_chat_messages_tokens(messages: list[dict[str, Any]]) -> int:
+    return sum(
+        estimate_llm_message_tokens(str(message.get("role", "")))
+        + estimate_llm_message_tokens(str(message.get("content", "")))
+        for message in messages
+    )
+
+
+def _is_essential_discover_message(message: dict[str, Any], *, index: int) -> bool:
+    content = str(message.get("content", "") or "")
+    role = str(message.get("role", "") or "")
+    if index == 0 or role == "user":
+        return True
+    return any(
+        marker in content
+        for marker in (
+            "SATS chat_preprocess",
+            "SATS chat_plan",
+            "短线机会发现精简上下文",
+            "选股 Agent 基于真实本地数据",
+        )
+    )
+
+
+def _preprocess_event_payload(preprocess: ChatPreprocessResult | None) -> dict[str, Any]:
+    if preprocess is None:
+        return {}
+    return {
+        "source": str(getattr(preprocess, "source", "") or "local"),
+        "intent": str(getattr(preprocess, "intent", "") or "general_qa"),
+        "symbols": list(getattr(preprocess, "symbols", ()) or ()),
+        "stock_names": list(getattr(preprocess, "stock_names", ()) or ()),
+        "trade_date": getattr(preprocess, "trade_date", None) or "",
+        "as_of_time": getattr(preprocess, "as_of_time", None) or "",
+        "reference_needed": bool(getattr(preprocess, "reference_needed", False)),
+        "needs_stock_context": bool(getattr(preprocess, "needs_stock_context", False)),
+        "needs_market_context": bool(getattr(preprocess, "needs_market_context", False)),
+        "needs_opportunity_discovery": bool(getattr(preprocess, "needs_opportunity_discovery", False)),
+        "needs_indicators": bool(getattr(preprocess, "needs_indicators", False)),
+        "needs_realtime_quote_context": getattr(preprocess, "needs_realtime_quote_context", False),
+        "market_indices": list(getattr(preprocess, "market_indices", ()) or ()),
+        "market_dimensions": list(getattr(preprocess, "market_dimensions", ()) or ()),
+        "market_horizons": list(getattr(preprocess, "market_horizons", ()) or ()),
+        "requested_limit": getattr(preprocess, "requested_limit", None),
+        "skill_hints": list(getattr(preprocess, "skill_hints", ()) or ()),
+        "confidence": float(getattr(preprocess, "confidence", 0.0) or 0.0),
+    }
+
+
+def _tool_event_arguments(arguments: Any) -> Any:
+    if isinstance(arguments, (dict, list, tuple)):
+        text = json.dumps(arguments, ensure_ascii=False, default=str)
+        return arguments if len(text) <= 2000 else {"truncated_json": text[:2000]}
+    text = str(arguments or "")
+    return text if len(text) <= 2000 else text[:2000]
+
+
+def _tool_result_event_status(result: str) -> str:
+    try:
+        payload = json.loads(str(result or ""))
+    except Exception:
+        return "done"
+    if isinstance(payload, dict) and str(payload.get("status") or "").lower() == "error":
+        return "error"
+    return "done"
+
+
 def format_chat_result(result: ChatResult) -> str:
     lines = []
     if result.skill_names:
@@ -794,6 +1321,15 @@ def format_chat_result(result: ChatResult) -> str:
     if result.data_names:
         lines.append(f"数据: {', '.join(result.data_names)}")
     lines.append(result.content)
+    for artifact in result.artifacts:
+        path = str(artifact.get("path") or "").strip()
+        if path and f"产物: {path}" not in lines and f"报告: {path}" not in result.content:
+            lines.append(f"产物: {path}")
+    if result.requires_confirmation and result.pending_action_id:
+        action_id = result.pending_action_id
+        hint = f"待确认动作: {action_id}。确认: /confirm {action_id}；取消: /reject {action_id}"
+        if hint not in lines and action_id not in result.content:
+            lines.append(hint)
     return "\n".join(lines)
 
 
@@ -966,6 +1502,21 @@ def _light_model_name(settings: Settings) -> str:
     return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "LLM")
 
 
+def _timeout_model_name(settings: Settings) -> str:
+    light = _light_model_name(settings)
+    main = _main_model_name(settings)
+    return light if light == main else f"{light} / {main}"
+
+
+def _llm_timeout_seconds(settings: Settings) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
 def _is_timeout_exception(exc: Exception) -> bool:
     if isinstance(exc, TimeoutError):
         return True
@@ -980,10 +1531,49 @@ def _timeout_message(model_name: str) -> str:
     )
 
 
-class _ChatSkillToolRegistry:
+class ChatToolRegistry:
     def __init__(self, skills: list[Skill], settings: Settings) -> None:
         self.skills = skills
         self.settings = settings
+
+    def metadata(self, name: str) -> dict[str, Any]:
+        known = {str(item.get("function", {}).get("name") or ""): item for item in self.definitions()}
+        definition = known.get(str(name or ""))
+        function = definition.get("function", {}) if isinstance(definition, dict) else {}
+        tool_name = str(name or "")
+        metadata = {
+            "name": str(name or ""),
+            "description": str(function.get("description") or ""),
+            "readonly": True,
+            "repeatable": False,
+            "requires_confirmation": False,
+            "writes_artifact": False,
+            "category": "research",
+            "max_result_chars": 6000,
+        }
+        if tool_name.startswith("list_"):
+            metadata.update({"repeatable": True, "category": "catalog", "max_result_chars": 4000})
+        elif tool_name.startswith("load_skill"):
+            metadata.update({"repeatable": True, "category": "skill", "max_result_chars": 12000})
+        elif tool_name.startswith("get_tushare"):
+            metadata.update({"repeatable": True, "category": "market_data", "max_result_chars": 8000})
+        elif tool_name == "get_a_share_market_context":
+            metadata.update({"repeatable": True, "category": "market_context", "max_result_chars": 8000})
+        elif tool_name == "get_stock_research_context":
+            metadata.update({"repeatable": True, "category": "stock_context", "max_result_chars": 8000})
+        elif tool_name == "discover_a_share_opportunities":
+            metadata.update(
+                {
+                    "readonly": False,
+                    "repeatable": True,
+                    "writes_artifact": True,
+                    "category": "research_workflow",
+                    "max_result_chars": 10000,
+                }
+            )
+        elif tool_name == "run_internal_analysis":
+            metadata.update({"repeatable": True, "category": "internal_analysis", "max_result_chars": 8000})
+        return metadata
 
     def definitions(self) -> list[dict[str, Any]]:
         return [
@@ -1198,7 +1788,7 @@ class _ChatSkillToolRegistry:
                         "properties": {
                             "kind": {
                                 "type": "string",
-                                "enum": ["indicators", "analyze_signals", "native_dsa"],
+                                "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary"],
                                 "description": "内部分析类型",
                             },
                             "symbols": {
@@ -1208,6 +1798,12 @@ class _ChatSkillToolRegistry:
                             },
                             "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略为最近交易日"},
                             "signals": {"type": "string", "description": "analyze_signals 使用的信号组，默认 short_up"},
+                            "profile": {
+                                "type": "string",
+                                "enum": list(FACTOR_PROFILE_CHOICES),
+                                "description": "factor_summary 使用的因子画像，默认 balanced",
+                            },
+                            "lookback_days": {"type": "integer", "description": "factor_summary 使用的历史窗口，默认 260"},
                         },
                         "required": ["kind", "symbols"],
                     },
@@ -1316,8 +1912,8 @@ class _ChatSkillToolRegistry:
                 )
             except Exception as exc:
                 return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
-            payload = result.to_dict()
-            legacy = result.discovery.to_dict() if hasattr(result, "discovery") else payload
+            payload = _context_payload_for_llm(result)
+            legacy = result.discovery.to_llm_context() if hasattr(result, "discovery") else payload
             return json.dumps({"status": "ok", "stock_picking_agent": payload, "opportunity_discovery": legacy}, ensure_ascii=False)
         if name == "get_stock_research_context":
             try:
@@ -1345,9 +1941,12 @@ class _ChatSkillToolRegistry:
         return json.dumps({"status": "error", "error": f"unknown tool: {name}"}, ensure_ascii=False)
 
 
+_ChatSkillToolRegistry = ChatToolRegistry
+
+
 def _run_internal_analysis_tool(settings: Settings, arguments: dict[str, Any]) -> dict[str, Any]:
     kind = str(arguments.get("kind") or "").strip()
-    if kind not in {"indicators", "analyze_signals", "native_dsa"}:
+    if kind not in {"indicators", "analyze_signals", "native_dsa", "factor_summary"}:
         raise ValueError(f"unsupported internal analysis kind: {kind}")
     symbols = normalize_symbols(arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else [], required=True)
     trade_date = str(arguments.get("trade_date") or "").strip() or extract_trade_date(" ".join(symbols))
@@ -1368,6 +1967,27 @@ def _run_internal_analysis_tool(settings: Settings, arguments: dict[str, Any]) -
             "rankings": [asdict(ranking) for ranking in result.rankings],
             "message": result.message,
         }
+    if kind == "factor_summary":
+        provider = AStockDataProvider(settings)
+        resolved_trade_date = trade_date or _today_yyyymmdd()
+        inputs = provider.load_screening_inputs(
+            symbols,
+            resolved_trade_date,
+            storage=storage,
+            trade_days=max(1, int(arguments.get("lookback_days") or 260)),
+            rule_name="factor_summary",
+        )
+        snapshot, _panel_result = snapshot_from_screening_inputs(
+            inputs,
+            storage=storage,
+            trade_date=resolved_trade_date,
+            profile=str(arguments.get("profile") or DEFAULT_FACTOR_PROFILE).strip() or DEFAULT_FACTOR_PROFILE,
+            lookback_days=max(1, int(arguments.get("lookback_days") or 260)),
+        )
+        payload = summarize_factor_exposure(snapshot, symbols)
+        payload["kind"] = kind
+        payload["data_policy"] = "Factor exposures are research evidence only, not guaranteed returns or trading instructions."
+        return payload
     contexts = ensure_stock_analysis_data(
         symbols,
         trade_date or _today_yyyymmdd(),

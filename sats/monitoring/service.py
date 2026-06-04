@@ -13,7 +13,7 @@ import pandas as pd
 
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
-from sats.llm import ChatLLM
+from sats.llm import ChatLLM, build_light_fallback_llm
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.screening.base import ScreeningInput
 from sats.screening.registry import get_rule
@@ -275,8 +275,13 @@ class MonitorService:
             f"规则依据: {json.dumps(cards, ensure_ascii=False, default=str)}\n"
             f"指标: {json.dumps(metrics, ensure_ascii=False, default=str)[:3000]}"
         )
-        model_name = str(getattr(self.settings, "light_model_name", "") or getattr(self.settings, "openai_model", "") or "")
-        response = ChatLLM(model_name=model_name or None, profile="light").chat([{"role": "user", "content": prompt}])
+        llm = build_light_fallback_llm(
+            ChatLLM,
+            light_model_name=str(getattr(self.settings, "light_model_name", "") or getattr(self.settings, "openai_model", "") or ""),
+            default_model_name=str(getattr(self.settings, "openai_model", "") or ""),
+            timeout_seconds=_llm_timeout_seconds(self.settings),
+        )
+        response = llm.chat([{"role": "user", "content": prompt}])
         return response.content or ""
 
     def _validate_rules(self, rules: tuple[str, ...]) -> None:
@@ -286,6 +291,15 @@ class MonitorService:
             rule = get_rule(rule_name)
             if not isinstance(rule, ChanSignalsRule):
                 raise ValueError("monitor v1 only supports chan_signals")
+
+
+def _llm_timeout_seconds(settings: Any) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
 
 
 class NoopTradingProvider:

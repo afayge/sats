@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -16,7 +17,7 @@ from sats.analysis.market_llm_context import get_a_share_market_context
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.indicators import IndicatorCalculator, IndicatorInput, IndicatorResult
-from sats.llm import ChatLLM
+from sats.llm import ChatLLM, build_light_fallback_llm
 from sats.screening.base import ScreeningInput
 from sats.signals import SignalAnalysisResult, SignalEvent, SignalInput, analyze_signal_input
 from sats.storage.duckdb import DuckDBStorage
@@ -29,6 +30,7 @@ DEFAULT_DISCOVERY_LIMIT = 5
 DEFAULT_CANDIDATE_LIMIT = 50
 DEFAULT_LOCAL_SCORE_THRESHOLD = 58.0
 DEFAULT_HOT_SECTOR_DAYS = 5
+DEFAULT_LLM_CONTEXT_LIMIT_TOKENS = 1_048_565
 HOT_SECTOR_SCORE_CAP = 12.0
 CHAN_SCORE_CAP = 8.0
 DIVERSITY_SCORE_TOLERANCE = 8.0
@@ -46,6 +48,47 @@ _OPPORTUNITY_KEYWORDS = (
     "可能上涨",
     "有上涨",
     "强势股",
+)
+_GENERIC_HOT_SECTOR_TERMS = (
+    "热点板块",
+    "热点题材",
+    "热点概念",
+    "市场热点",
+    "当前热点",
+    "今日热点",
+    "今天的热点",
+    "近期热点",
+    "市场主线",
+    "主线板块",
+    "强势板块",
+    "强势行业",
+    "强势概念",
+    "涨幅居前",
+    "涨幅靠前",
+    "上涨较好",
+    "上涨比较好",
+)
+_STOCK_PICKING_GOAL_TERMS = (
+    "股票",
+    "个股",
+    "A股",
+    "a股",
+    "标的",
+    "选股",
+    "筛选",
+    "推荐",
+    "列出",
+    "给出",
+    "找出",
+    "选出",
+    "挑选",
+    "短线机会",
+    "上涨",
+    "大概率",
+    "可能涨",
+    "未来几天",
+    "未来几日",
+    "明天",
 )
 
 
@@ -96,6 +139,30 @@ class OpportunityCandidate:
             "missing_fields": self.missing_fields,
         }
 
+    def to_llm_context(self) -> dict[str, Any]:
+        return {
+            "ts_code": self.ts_code,
+            "name": self.name,
+            "trade_date": self.trade_date,
+            "local_score": self.local_score,
+            "ranking_score": self.ranking_score,
+            "hot_sector_score": self.hot_sector_score,
+            "chan_score": self.chan_score,
+            "decision": self.decision,
+            "trend": self.trend,
+            "close": self.close,
+            "events": [_compact_event_for_llm(event) for event in self.events[:6]],
+            "key_levels": self.key_levels,
+            "indicator": _compact_indicator_for_llm(self.indicator),
+            "hot_sectors": [_compact_hot_sector_for_llm(item) for item in self.hot_sectors[:6]],
+            "chan_signals": [_compact_chan_signal_for_llm(item) for item in self.chan_signals[:6]],
+            "llm_reason": _truncate_text(self.llm_reason, 160),
+            "entry_trigger": _truncate_text(self.entry_trigger, 120),
+            "invalidation": _truncate_text(self.invalidation, 120),
+            "risk": _truncate_text(self.risk, 160),
+            "missing_fields": [_truncate_text(item, 120) for item in self.missing_fields[:8]],
+        }
+
 
 @dataclass(slots=True)
 class OpportunityDiscoveryResult:
@@ -139,16 +206,86 @@ class OpportunityDiscoveryResult:
             + json.dumps(payload, ensure_ascii=False, default=str)
         )
 
+    def to_llm_context(self, *, candidate_limit: int | None = None) -> dict[str, Any]:
+        candidates = self.candidates
+        if candidate_limit is not None and candidate_limit >= 0:
+            candidates = candidates[:candidate_limit]
+        return {
+            "trade_date": self.trade_date,
+            "signals": self.signals,
+            "candidates": [candidate.to_llm_context() for candidate in candidates],
+            "candidate_count": self.candidate_count,
+            "scanned_count": self.scanned_count,
+            "market_context": _compact_market_context(self.market_context),
+            "hot_sector_context": _compact_hot_sector_context(self.hot_sector_context),
+            "missing_fields": [_truncate_text(item, 160) for item in self.missing_fields[:20]],
+            "report_path": self.report_path,
+            "message": self.message,
+            "llm_unavailable": self.llm_unavailable,
+            "llm_pool_count": self.llm_pool_count,
+            "data_policy": "SATS used Analyze short-term bullish signals for temporary screening; screening_results was not written.",
+        }
+
+    def system_message_for_llm(self) -> str:
+        payload = self.to_llm_context()
+        return (
+            "以下是 SATS 已基于真实本地数据完成的 A 股短线机会发现精简上下文。"
+            "候选股来自 Analyze 中短期上涨信号的临时筛选；"
+            "该上下文已移除原始长 K 线、全量热点成员映射和冗长因子明细。"
+            "不要编造未提供的数据，不要承诺未来必然上涨，必须给出触发条件、失效条件和风险提示。\n"
+            + json.dumps(payload, ensure_ascii=False, default=str)
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class LLMContextBudgetResult:
+    candidates: list[OpportunityCandidate]
+    prompt: str
+    estimated_tokens: int
+    input_budget_tokens: int
+    warnings: tuple[str, ...] = ()
+    skipped: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class LLMRankResult:
+    candidates: list[OpportunityCandidate]
+    warnings: tuple[str, ...] = ()
+    llm_pool_count: int = 0
+    llm_unavailable: bool = False
+
+
+class LLMContextBudgetExceeded(RuntimeError):
+    def __init__(self, warnings: Iterable[str]) -> None:
+        self.warnings = tuple(str(item) for item in warnings if str(item).strip())
+        super().__init__("LLM prompt exceeds configured context budget")
+
 
 def is_opportunity_discovery_question(message: str) -> bool:
     text = str(message or "").strip()
     if not text:
         return False
+    if is_generic_hot_sector_discovery_question(text):
+        return True
     if any(keyword in text for keyword in _OPPORTUNITY_KEYWORDS):
         return True
     if _has_stock_picking_action(text):
         return True
     return ("股票" in text and any(term in text for term in ("上涨", "短线", "未来", "机会", "推荐")))
+
+
+def is_generic_hot_sector_discovery_question(message: str) -> bool:
+    text = str(message or "").strip()
+    if not text:
+        return False
+    if not any(term in text for term in _STOCK_PICKING_GOAL_TERMS):
+        return False
+    if any(term in text for term in _GENERIC_HOT_SECTOR_TERMS):
+        return True
+    return bool(
+        re.search(r"(?:行业|概念|板块|题材).{0,8}(?:上涨|涨幅|表现).{0,8}(?:较好|比较好|最好|靠前|居前)", text)
+        or re.search(r"(?:上涨|涨幅|表现).{0,8}(?:较好|比较好|最好|靠前|居前).{0,8}(?:行业|概念|板块|题材)", text)
+    )
 
 
 def extract_opportunity_discovery_limit(message: str) -> int | None:
@@ -388,12 +525,12 @@ def run_opportunity_discovery(
             )
             step.update(len(local_candidates))
     missing.extend(_candidate_missing_fields(enriched))
-    llm_pool_count = len(enriched)
+    llm_pool_count = len(enriched) if llm_enabled else 0
     llm_unavailable = False
     if llm_enabled:
         try:
             if progress is None:
-                enriched = _rank_with_llm(
+                rank_result = _rank_with_llm(
                     enriched,
                     settings=settings,
                     market_context=market_context,
@@ -404,7 +541,7 @@ def run_opportunity_discovery(
             else:
                 model_name = str(getattr(settings, "openai_model", "") or "LLM")
                 with progress.step(f"{model_name} 排名") as step:
-                    enriched = _rank_with_llm(
+                    rank_result = _rank_with_llm(
                         enriched,
                         settings=settings,
                         market_context=market_context,
@@ -413,8 +550,18 @@ def run_opportunity_discovery(
                         llm_factory=llm_factory or ChatLLM,
                     )
                     step.complete()
+            enriched = rank_result.candidates
+            llm_pool_count = rank_result.llm_pool_count
+            missing.extend(rank_result.warnings)
+            llm_unavailable = rank_result.llm_unavailable
+        except LLMContextBudgetExceeded as exc:
+            missing.extend(exc.warnings)
+            llm_pool_count = 0
+            llm_unavailable = True
+            enriched = enriched[:limit]
         except Exception:
             llm_unavailable = True
+            llm_pool_count = 0
             enriched = enriched[:limit]
     else:
         enriched = enriched[:limit]
@@ -1295,7 +1442,64 @@ def _rank_with_llm(
     trade_date: str,
     limit: int,
     llm_factory: Callable[..., Any],
-) -> list[OpportunityCandidate]:
+) -> LLMRankResult:
+    def build_prompt(pool: list[OpportunityCandidate]) -> str:
+        return _build_opportunity_llm_prompt(
+            pool,
+            market_context=market_context,
+            trade_date=trade_date,
+            limit=limit,
+        )
+
+    budgeted = prepare_llm_context_prompt(
+        candidates,
+        settings=settings,
+        build_prompt=build_prompt,
+        min_candidates=limit,
+    )
+    if budgeted.skipped:
+        raise LLMContextBudgetExceeded(budgeted.warnings)
+    pool = budgeted.candidates
+    prompt = budgeted.prompt
+    warnings = list(budgeted.warnings)
+    llm = _build_llm(llm_factory, settings=settings)
+    try:
+        data = _chat_json(llm, [{"role": "user", "content": prompt}])
+    except Exception as exc:
+        if not _is_context_length_error(exc) or len(pool) <= 1:
+            raise
+        retry_count = max(1, len(pool) // 2)
+        if retry_count >= len(pool):
+            retry_count = len(pool) - 1
+        retry_pool = pool[:retry_count]
+        retry_budgeted = prepare_llm_context_prompt(
+            retry_pool,
+            settings=settings,
+            build_prompt=build_prompt,
+            min_candidates=1,
+        )
+        warnings.extend(retry_budgeted.warnings)
+        warnings.append(f"llm_context_budget: retry_reduced_pool {len(pool)}->{len(retry_budgeted.candidates)} after_context_error")
+        if retry_budgeted.skipped:
+            raise LLMContextBudgetExceeded(warnings)
+        pool = retry_budgeted.candidates
+        prompt = retry_budgeted.prompt
+        data = _chat_json(llm, [{"role": "user", "content": prompt}])
+    ranked = _parse_llm_rankings(data, pool, limit=limit)
+    return LLMRankResult(
+        candidates=ranked,
+        warnings=tuple(_dedupe(warnings)),
+        llm_pool_count=len(pool),
+    )
+
+
+def _build_opportunity_llm_prompt(
+    candidates: list[OpportunityCandidate],
+    *,
+    market_context: dict[str, Any],
+    trade_date: str,
+    limit: int,
+) -> str:
     payload = {
         "trade_date": trade_date,
         "limit": limit,
@@ -1305,9 +1509,9 @@ def _rank_with_llm(
         "chan_policy": "chan_score 来自 SATS Analyze 的结构化缠论买点/共振信号，只能作为排序证据，不能保证上涨。",
         "diversity_policy": "若候选分数接近，最终 Top N 应避免全部来自同一交易板块、行业或热点概念；只有信号明显更强时才允许集中。",
         "candidate_boundary": "只能从 candidates 中选择和排序，不得新增、替换或补齐未提供的股票。",
-        "candidates": [candidate.to_dict() for candidate in candidates],
+        "candidates": [candidate.to_llm_context() for candidate in candidates],
     }
-    prompt = (
+    return (
         "你是 SATS A 股短线机会排序助手。请只基于 JSON 中的真实结构化数据排序，"
         "只能从 candidates 里选择，不得新增股票或为了凑数量补齐弱信号；"
         "优先解释技术信号、3-5 日持续热点板块共振和 SATS Analyze 缠论买点加分；"
@@ -1318,9 +1522,9 @@ def _rank_with_llm(
         "最多返回 limit 只。\n"
         + json.dumps(payload, ensure_ascii=False, default=str)
     )
-    llm = _build_llm(llm_factory, settings=settings)
-    response = llm.chat([{"role": "user", "content": prompt}])
-    data = _parse_json_object(str(getattr(response, "content", "") or ""))
+
+
+def _parse_llm_rankings(data: dict[str, Any], candidates: list[OpportunityCandidate], *, limit: int) -> list[OpportunityCandidate]:
     rankings = data.get("rankings")
     if not isinstance(rankings, list):
         raise ValueError("LLM did not return rankings")
@@ -1349,6 +1553,116 @@ def _rank_with_llm(
     return _rebalance_ranked_candidates(ranked[:limit], candidates, limit=limit)
 
 
+def prepare_llm_context_prompt(
+    candidates: list[OpportunityCandidate],
+    *,
+    settings: Settings,
+    build_prompt: Callable[[list[OpportunityCandidate]], str],
+    min_candidates: int,
+) -> LLMContextBudgetResult:
+    original_count = len(candidates)
+    current_count = original_count
+    input_budget = _llm_context_input_budget_tokens(settings)
+    warnings: list[str] = []
+    while True:
+        pool = candidates[:current_count]
+        prompt = build_prompt(pool)
+        estimated = estimate_llm_message_tokens(prompt)
+        if estimated <= input_budget:
+            if current_count < original_count:
+                warnings.append(
+                    f"llm_context_budget: reduced_pool {original_count}->{current_count} "
+                    f"estimated_tokens={estimated} budget={input_budget}"
+                )
+            return LLMContextBudgetResult(
+                candidates=pool,
+                prompt=prompt,
+                estimated_tokens=estimated,
+                input_budget_tokens=input_budget,
+                warnings=tuple(warnings),
+            )
+        if current_count <= 1:
+            warnings.append(
+                f"llm_context_budget: prompt_too_large estimated_tokens={estimated} budget={input_budget}"
+            )
+            return LLMContextBudgetResult(
+                candidates=[],
+                prompt="",
+                estimated_tokens=estimated,
+                input_budget_tokens=input_budget,
+                warnings=tuple(warnings),
+                skipped=True,
+            )
+        if current_count > max(1, min_candidates):
+            target = max(int(min_candidates), int(current_count * input_budget / max(estimated, 1) * 0.85))
+            if target >= current_count:
+                target = max(int(min_candidates), current_count // 2)
+        else:
+            target = max(1, int(current_count * input_budget / max(estimated, 1) * 0.85))
+            if target >= current_count:
+                target = current_count - 1
+        current_count = max(1, target)
+
+
+def estimate_llm_message_tokens(message: str) -> int:
+    text = str(message or "")
+    return max(1, len(text), math.ceil(len(text.encode("utf-8")) / 2))
+
+
+def llm_context_input_budget_tokens(settings: Settings) -> int:
+    return _llm_context_input_budget_tokens(settings)
+
+
+def _llm_context_input_budget_tokens(settings: Settings) -> int:
+    limit = _positive_int(getattr(settings, "llm_context_limit_tokens", None)) or DEFAULT_LLM_CONTEXT_LIMIT_TOKENS
+    reserve = _positive_int(getattr(settings, "llm_context_output_reserve_tokens", None))
+    if reserve is None:
+        reserve = min(8192, max(0, int(limit * 0.05)))
+    safety_ratio = _safe_float(getattr(settings, "llm_context_safety_ratio", None), default=0.92)
+    safety_ratio = max(0.1, min(1.0, safety_ratio))
+    return max(1, int(limit * safety_ratio) - int(reserve))
+
+
+def _is_context_length_error(exc: Exception) -> bool:
+    text = str(exc or "").lower()
+    if "context_length_exceeded" in text:
+        return True
+    if "maximum context length" in text:
+        return True
+    return "context" in text and ("length" in text or "token" in text) and ("exceed" in text or "too long" in text)
+
+
+def is_llm_context_length_error(exc: Exception) -> bool:
+    return _is_context_length_error(exc)
+
+
+def _positive_int(value: Any) -> int | None:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number > 0 else None
+
+
+def _safe_float(value: Any, *, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _dedupe(items: Iterable[str]) -> tuple[str, ...]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        text = str(item or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        result.append(text)
+    return tuple(result)
+
+
 def _parse_json_object(content: str) -> dict[str, Any]:
     text = content.strip()
     if text.startswith("```"):
@@ -1365,6 +1679,82 @@ def _parse_json_object(content: str) -> dict[str, Any]:
     return data
 
 
+def _truncate_text(value: Any, limit: int = 120) -> str:
+    text = str(value or "").strip()
+    if limit <= 0 or len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + "..."
+
+
+def _compact_event_for_llm(event: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(event, dict):
+        return {"label": _truncate_text(event, 80)}
+    return {
+        "signal_id": event.get("signal_id"),
+        "label": event.get("label"),
+        "category": event.get("category"),
+        "side": event.get("side"),
+        "confidence": event.get("confidence"),
+        "score": event.get("score"),
+        "reason": _truncate_text(event.get("reason"), 120),
+        "risk_flags": [_truncate_text(item, 80) for item in list(event.get("risk_flags") or [])[:5]],
+        "components": [_truncate_text(item, 80) for item in list(event.get("components") or [])[:6]],
+        "related_chan": [_truncate_text(item, 80) for item in list(event.get("related_chan") or [])[:6]],
+    }
+
+
+def _compact_hot_sector_for_llm(item: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {"name": _truncate_text(item, 40)}
+    return {
+        "sector_code": item.get("sector_code"),
+        "name": item.get("name"),
+        "sector_type": item.get("sector_type"),
+        "heat_score": item.get("heat_score"),
+        "return_5d": item.get("return_5d"),
+        "return_3d": item.get("return_3d"),
+        "latest_pct_chg": item.get("latest_pct_chg"),
+        "up_days_5": item.get("up_days_5"),
+        "up_days_3": item.get("up_days_3"),
+    }
+
+
+def _compact_chan_signal_for_llm(item: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {"label": _truncate_text(item, 60)}
+    return {
+        "signal_id": item.get("signal_id"),
+        "label": item.get("label"),
+        "category": item.get("category"),
+        "confidence": item.get("confidence"),
+        "score": item.get("score"),
+        "chan_type": item.get("chan_type"),
+        "bonus": item.get("bonus"),
+    }
+
+
+def _compact_indicator_for_llm(payload: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(payload, dict) or not payload:
+        return {}
+    result = {
+        "technical": payload.get("technical", {}),
+        "volume": payload.get("volume", {}),
+        "support_resistance": payload.get("support_resistance", {}),
+        "moneyflow": payload.get("moneyflow", {}),
+        "fundamentals": payload.get("fundamentals", {}),
+        "data_sources": payload.get("data_sources", {}),
+    }
+    factor = payload.get("factor")
+    if isinstance(factor, dict):
+        result["factor"] = {
+            "profile": factor.get("profile"),
+            "score": factor.get("score"),
+            "coverage": factor.get("coverage"),
+            "missing_factors": list(factor.get("missing_factors") or [])[:12],
+        }
+    return result
+
+
 def _compact_indicator(payload: dict[str, Any]) -> dict[str, Any]:
     if not payload:
         return {}
@@ -1378,7 +1768,7 @@ def _compact_indicator(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _compact_market_context(payload: dict[str, Any]) -> dict[str, Any]:
+def _compact_market_context(payload: dict[str, Any], *, daily_tail_limit: int = 0) -> dict[str, Any]:
     if not payload:
         return {}
     return {
@@ -1386,29 +1776,81 @@ def _compact_market_context(payload: dict[str, Any]) -> dict[str, Any]:
         "requested_indices": payload.get("requested_indices"),
         "requested_dimensions": payload.get("requested_dimensions"),
         "requested_horizons": payload.get("requested_horizons"),
-        "indices": payload.get("indices"),
+        "indices": [_compact_index_context(item, daily_tail_limit=daily_tail_limit) for item in list(payload.get("indices") or [])],
         "market_breadth": payload.get("market_breadth"),
         "limit_sentiment": payload.get("limit_sentiment"),
-        "hot_sector_context": payload.get("hot_sector_context"),
+        "hot_sector_context": _compact_hot_sector_context(payload.get("hot_sector_context")),
         "market_plan_source": payload.get("market_plan_source"),
         "missing_fields": payload.get("missing_fields"),
         "data_sources": payload.get("data_sources"),
     }
 
 
+def _compact_index_context(item: dict[str, Any], *, daily_tail_limit: int) -> dict[str, Any]:
+    if not isinstance(item, dict):
+        return {}
+    result = {
+        "ts_code": item.get("ts_code"),
+        "name": item.get("name"),
+        "trade_date": item.get("trade_date"),
+        "latest": item.get("latest"),
+        "technical": item.get("technical"),
+        "missing_fields": item.get("missing_fields"),
+        "data_sources": item.get("data_sources"),
+    }
+    if daily_tail_limit > 0:
+        result["daily_tail"] = list(item.get("daily_tail") or [])[-daily_tail_limit:]
+    return result
+
+
+def _compact_hot_sector_context(payload: Any, *, limit: int = 10) -> dict[str, Any]:
+    if not isinstance(payload, dict) or not payload:
+        return {}
+    return {
+        "trade_date": payload.get("trade_date"),
+        "lookback_days": payload.get("lookback_days"),
+        "hot_industries": [_compact_hot_sector_for_llm(item) for item in list(payload.get("hot_industries") or [])[:limit]],
+        "hot_concepts": [_compact_hot_sector_for_llm(item) for item in list(payload.get("hot_concepts") or [])[:limit]],
+        "missing_fields": payload.get("missing_fields"),
+        "data_sources": payload.get("data_sources"),
+    }
+
+
 def _build_llm(llm_factory: Callable[..., Any], *, settings: Settings) -> Any:
-    model_name = _light_model_name(settings)
-    try:
-        return llm_factory(model_name=model_name, profile="light")
-    except TypeError:
-        try:
-            return llm_factory(model_name=model_name)
-        except TypeError:
-            return llm_factory()
+    return build_light_fallback_llm(
+        llm_factory,
+        light_model_name=_light_model_name(settings),
+        default_model_name=_main_model_name(settings),
+        timeout_seconds=_llm_timeout_seconds(settings),
+    )
 
 
 def _light_model_name(settings: Settings) -> str:
     return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "")
+
+
+def _main_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "openai_model", "") or "")
+
+
+def _llm_timeout_seconds(settings: Settings) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
+def _chat_json(llm: Any, messages: list[dict[str, str]]) -> dict[str, Any]:
+    if hasattr(llm, "chat_validated"):
+        return llm.chat_validated(messages, _parse_response_json)
+    response = llm.chat(messages)
+    return _parse_response_json(response)
+
+
+def _parse_response_json(response: Any) -> dict[str, Any]:
+    return _parse_json_object(str(getattr(response, "content", "") or ""))
 
 
 def _hot_sector_score(hot_sectors: list[dict[str, Any]]) -> float:

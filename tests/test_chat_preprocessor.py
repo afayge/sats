@@ -60,6 +60,25 @@ class _ProfileJSONLLM:
         )
 
 
+class _LightBadDefaultJSONLLM:
+    instances: list["_LightBadDefaultJSONLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.kwargs = kwargs
+        _LightBadDefaultJSONLLM.instances.append(self)
+
+    def chat(self, messages, timeout=None):
+        if self.kwargs.get("profile") == "light":
+            return LLMResponse(content="不是 JSON")
+        return LLMResponse(
+            content=(
+                '{"intent":"stock_analysis","stock_names":["紫光股份"],'
+                '"needs_stock_context":true,"needs_market_context":true,'
+                '"needs_indicators":true,"confidence":0.9}'
+            )
+        )
+
+
 class _MarketPlanningLLM:
     def __init__(self, *args, **kwargs) -> None:
         pass
@@ -73,6 +92,58 @@ class _MarketPlanningLLM:
                 '"market_horizons":["tomorrow","day_after_tomorrow"],'
                 '"missing_questions":["您想预测哪个大盘指数？","请您提供具体的预测日期。"],'
                 '"confidence":0.88}'
+            )
+        )
+
+
+class _MarketStockNameLLM:
+    def __init__(self, *args, **kwargs) -> None:
+        pass
+
+    def chat(self, messages, timeout=None):
+        return LLMResponse(
+            content=(
+                '{"intent":"market_analysis","stock_names":["今天大盘"],'
+                '"needs_market_context":true,"market_horizons":["today","tomorrow"],'
+                '"missing_questions":["请补充股票代码。"],"confidence":0.86}'
+            )
+        )
+
+
+class _MarketPossessiveStockNameLLM:
+    instances: list["_MarketPossessiveStockNameLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.messages = []
+        _MarketPossessiveStockNameLLM.instances.append(self)
+
+    def chat(self, messages, timeout=None):
+        self.messages = messages
+        return LLMResponse(
+            content=(
+                '{"intent":"market_analysis","stock_names":["今天的大盘"],'
+                '"needs_market_context":true,"market_horizons":["today","tomorrow"],'
+                '"missing_questions":["请补充股票代码。"],"confidence":0.86}'
+            )
+        )
+
+
+class _HotSectorClarificationLLM:
+    instances: list["_HotSectorClarificationLLM"] = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.messages = []
+        _HotSectorClarificationLLM.instances.append(self)
+
+    def chat(self, messages, timeout=None):
+        self.messages = messages
+        return LLMResponse(
+            content=(
+                '{"intent":"opportunity_discovery","stock_names":["热点板块"],'
+                '"needs_market_context":true,"needs_opportunity_discovery":true,'
+                '"market_horizons":["tomorrow"],'
+                '"missing_questions":["请明确您关注的热点板块名称或领域（如半导体、新能源、医药等）"],'
+                '"confidence":0.86}'
             )
         )
 
@@ -280,6 +351,117 @@ class ChatPreprocessorTest(unittest.TestCase):
         self.assertFalse(result.needs_stock_context)
         self.assertEqual(result.market_horizons, ("today", "tomorrow"))
 
+    def test_market_question_does_not_treat_today_market_as_stock_name(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "分析今天大盘走势，预测明天走势",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "market_analysis")
+        self.assertEqual(result.stock_names, ())
+        self.assertEqual(result.missing_questions, ())
+        self.assertFalse(result.needs_stock_context)
+        self.assertTrue(result.needs_market_context)
+        self.assertEqual(result.market_horizons, ("today", "tomorrow"))
+
+    def test_market_question_does_not_treat_today_possessive_market_as_stock_name(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "分析今天的大盘走势，预测明天走势",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "market_analysis")
+        self.assertEqual(result.stock_names, ())
+        self.assertEqual(result.missing_questions, ())
+        self.assertFalse(result.needs_stock_context)
+        self.assertTrue(result.needs_market_context)
+        self.assertEqual(result.market_horizons, ("today", "tomorrow"))
+
+    def test_market_question_filters_llm_market_scope_stock_name(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "分析今天大盘走势，预测明天走势",
+            settings=settings,
+            llm_factory=_MarketStockNameLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "market_analysis")
+        self.assertEqual(result.stock_names, ())
+        self.assertEqual(result.missing_questions, ())
+        self.assertTrue(result.needs_market_context)
+        self.assertEqual(result.market_horizons, ("today", "tomorrow"))
+
+    def test_market_question_filters_llm_possessive_market_scope_stock_name(self) -> None:
+        _MarketPossessiveStockNameLLM.instances = []
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "分析今天的大盘走势，预测明天走势",
+            settings=settings,
+            llm_factory=_MarketPossessiveStockNameLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "market_analysis")
+        self.assertEqual(result.stock_names, ())
+        self.assertEqual(result.missing_questions, ())
+        self.assertTrue(result.needs_market_context)
+        self.assertEqual(result.market_horizons, ("today", "tomorrow"))
+        prompt = "\n".join(message["content"] for message in _MarketPossessiveStockNameLLM.instances[0].messages)
+        self.assertIn("市场范围词不得放入 stock_names", prompt)
+        self.assertIn("分析今天的大盘走势，预测明天走势", prompt)
+
+    def test_market_scope_phrases_with_de_are_not_stock_names(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        market = preprocess_chat_message(
+            "今天的市场怎么看，明天怎么走",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+        index = preprocess_chat_message(
+            "今天的上证指数怎么看",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(market.intent, "market_analysis")
+        self.assertEqual(market.stock_names, ())
+        self.assertEqual(market.missing_questions, ())
+        self.assertEqual(market.market_horizons, ("today", "tomorrow"))
+        self.assertEqual(index.intent, "market_analysis")
+        self.assertEqual(index.stock_names, ())
+        self.assertEqual(index.missing_questions, ())
+        self.assertTrue(index.needs_market_context)
+
+    def test_stock_name_with_trend_still_resolves(self) -> None:
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "分析紫光股份走势",
+            settings=settings,
+            llm_factory=_BadJSONLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "stock_analysis")
+        self.assertEqual(result.stock_names, ("紫光股份",))
+        self.assertEqual(result.symbols, ("000938.SZ",))
+        self.assertTrue(result.needs_stock_context)
+        self.assertTrue(result.needs_market_context)
+
     def test_market_question_does_not_block_on_llm_clarification_questions(self) -> None:
         settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
 
@@ -295,6 +477,26 @@ class ChatPreprocessorTest(unittest.TestCase):
         self.assertEqual(result.market_horizons, ("tomorrow", "day_after_tomorrow"))
         self.assertEqual(result.market_dimensions, ("core_indices", "limit_sentiment"))
         self.assertEqual(result.market_indices, ("000001.SH", "399006.SZ", "000300.SH"))
+
+    def test_hot_sector_opportunity_question_does_not_require_specific_sector(self) -> None:
+        _HotSectorClarificationLLM.instances = []
+        settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
+
+        result = preprocess_chat_message(
+            "根据今天的热点板块，筛选一些明天大概率上涨的股票",
+            settings=settings,
+            llm_factory=_HotSectorClarificationLLM,
+            provider_factory=_Provider,
+        )
+
+        self.assertEqual(result.intent, "opportunity_discovery")
+        self.assertEqual(result.stock_names, ())
+        self.assertEqual(result.missing_questions, ())
+        self.assertTrue(result.needs_opportunity_discovery)
+        self.assertTrue(result.needs_market_context)
+        self.assertIn("tomorrow", result.market_horizons)
+        prompt = "\n".join(message["content"] for message in _HotSectorClarificationLLM.instances[0].messages)
+        self.assertIn("不得要求用户指定单一板块", prompt)
 
     def test_market_question_keeps_explicit_indices_and_can_merge_core_basket_hints(self) -> None:
         settings = SimpleNamespace(db_path=Path("missing.duckdb"), openai_model="m")
@@ -383,6 +585,7 @@ class ChatPreprocessorTest(unittest.TestCase):
                 db_path=Path(tmp) / "sats.duckdb",
                 openai_model="main-model",
                 light_model_name="light-model",
+                llm_timeout_seconds=180,
             )
 
             result = preprocess_chat_message(
@@ -395,6 +598,29 @@ class ChatPreprocessorTest(unittest.TestCase):
         self.assertEqual(result.symbols, ("000938.SZ",))
         self.assertEqual(_ProfileJSONLLM.instances[0].kwargs["model_name"], "light-model")
         self.assertEqual(_ProfileJSONLLM.instances[0].kwargs["profile"], "light")
+        self.assertEqual(_ProfileJSONLLM.instances[0].kwargs["timeout_seconds"], 180)
+
+    def test_preprocess_falls_back_to_default_when_light_returns_bad_json(self) -> None:
+        _LightBadDefaultJSONLLM.instances = []
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(
+                db_path=Path(tmp) / "sats.duckdb",
+                openai_model="main-model",
+                light_model_name="light-model",
+                llm_timeout_seconds=180,
+            )
+
+            result = preprocess_chat_message(
+                "分析紫光股份技术面",
+                settings=settings,
+                llm_factory=_LightBadDefaultJSONLLM,
+                provider_factory=_Provider,
+            )
+
+        self.assertEqual(result.symbols, ("000938.SZ",))
+        self.assertEqual([item.kwargs["profile"] for item in _LightBadDefaultJSONLLM.instances], ["light", "default"])
+        self.assertEqual(_LightBadDefaultJSONLLM.instances[1].kwargs["model_name"], "main-model")
+        self.assertEqual([item.kwargs["timeout_seconds"] for item in _LightBadDefaultJSONLLM.instances], [180, 180])
 
 
 if __name__ == "__main__":

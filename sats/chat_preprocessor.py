@@ -17,11 +17,15 @@ from sats.analysis.market_llm_context import (
     resolve_market_horizons,
     resolve_market_indices,
 )
-from sats.analysis.opportunity_discovery import extract_opportunity_discovery_limit, is_opportunity_discovery_question
+from sats.analysis.opportunity_discovery import (
+    extract_opportunity_discovery_limit,
+    is_generic_hot_sector_discovery_question,
+    is_opportunity_discovery_question,
+)
 from sats.chat_reference import ChatReferenceContext, is_reference_question
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
-from sats.llm import ChatLLM, extract_json_object
+from sats.llm import ChatLLM, build_light_fallback_llm, extract_json_object
 from sats.stock_basic_lookup import (
     load_stock_basic_frame,
     names_from_stock_basic,
@@ -91,7 +95,7 @@ def preprocess_chat_message(
     reference_context: ChatReferenceContext | None = None,
     llm_factory: Callable[..., Any] | None = ChatLLM,
     llm_enabled: bool = True,
-    timeout_seconds: int = 6,
+    timeout_seconds: int | None = None,
     storage_factory: Callable[[Path], DuckDBStorage] = DuckDBStorage,
     provider_factory: Callable[[Settings], AStockDataProvider] = AStockDataProvider,
 ) -> ChatPreprocessResult:
@@ -102,7 +106,7 @@ def preprocess_chat_message(
         reference_context=reference_context,
         llm_factory=llm_factory,
         llm_enabled=llm_enabled,
-        timeout_seconds=timeout_seconds,
+        timeout_seconds=timeout_seconds if timeout_seconds is not None else _llm_timeout_seconds(settings),
     )
     local = _local_preprocess(text, reference_context=reference_context)
     result = _merge_llm_and_local(text, llm_payload, local, reference_context=reference_context)
@@ -123,20 +127,24 @@ def _run_llm_preprocess(
     reference_context: ChatReferenceContext | None,
     llm_factory: Callable[..., Any] | None,
     llm_enabled: bool,
-    timeout_seconds: int,
+    timeout_seconds: int | None,
 ) -> dict[str, Any]:
     if not llm_enabled or llm_factory is None:
         return {}
     try:
-        llm = _create_llm(llm_factory, _light_model_name(settings), timeout_seconds, profile="light")
-        response = _call_llm(
-            llm,
-            _preprocess_messages(message, reference_context=reference_context),
+        llm = build_light_fallback_llm(
+            llm_factory,
+            light_model_name=_light_model_name(settings),
+            default_model_name=_main_model_name(settings),
             timeout_seconds=timeout_seconds,
+        )
+        payload = llm.chat_validated(
+            _preprocess_messages(message, reference_context=reference_context),
+            _parse_required_json_response,
+            timeout=timeout_seconds,
         )
     except Exception:
         return {}
-    payload = extract_json_object(str(getattr(response, "content", "") or ""))
     return payload if isinstance(payload, dict) else {}
 
 
@@ -153,7 +161,12 @@ def _preprocess_messages(message: str, *, reference_context: ChatReferenceContex
                 "必须把这些 symbols 当作本轮股票输入，不得要求用户再次提供股票代码或名称。"
                 "当用户询问大盘、指数或市场走势时，不要要求用户先确认单一指数或具体绝对日期；"
                 "应从 A 股核心指数池中给出 market_indices，并给出 market_dimensions 与 market_horizons。"
-                "市场问题的 missing_questions 默认留空，除非存在本地无法唯一确认的股票名称歧义。"
+                "大盘、市场、指数、沪指、创业板指、沪深300 等市场范围词不得放入 stock_names。"
+                "例如“分析今天的大盘走势，预测明天走势”应输出 intent=market_analysis, "
+                "stock_names=[], needs_market_context=true, market_horizons=[\"today\",\"tomorrow\"]。"
+                "当用户在选股请求中提到热点板块、强势板块、市场主线或上涨较好的行业概念时，"
+                "应理解为让 SATS 自动获取真实热点板块上下文，不得要求用户指定单一板块。"
+                "市场和选股问题的 missing_questions 默认留空，除非存在本地无法唯一确认的股票名称歧义。"
             ),
         },
         {
@@ -182,31 +195,28 @@ def _reference_context_summary(reference_context: ChatReferenceContext | None) -
     )
 
 
-def _call_llm(llm: Any, messages: list[dict[str, str]], *, timeout_seconds: int) -> Any:
-    try:
-        return llm.chat(messages, timeout=timeout_seconds)
-    except TypeError:
-        return llm.chat(messages)
-
-
-def _create_llm(factory: Callable[..., Any], model_name: str, timeout_seconds: int, *, profile: str) -> Any:
-    try:
-        return factory(model_name=model_name, timeout_seconds=timeout_seconds, profile=profile)
-    except TypeError:
-        try:
-            return factory(model_name=model_name, timeout_seconds=timeout_seconds)
-        except TypeError:
-            try:
-                return factory(model_name=model_name, profile=profile)
-            except TypeError:
-                try:
-                    return factory(model_name=model_name)
-                except TypeError:
-                    return factory()
-
-
 def _light_model_name(settings: Settings) -> str:
     return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "")
+
+
+def _main_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "openai_model", "") or "")
+
+
+def _llm_timeout_seconds(settings: Settings) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
+
+
+def _parse_required_json_response(response: Any) -> dict[str, Any]:
+    payload = extract_json_object(str(getattr(response, "content", "") or ""))
+    if not isinstance(payload, dict):
+        raise ValueError("LLM response did not contain a JSON object")
+    return payload
 
 
 def _local_preprocess(message: str, *, reference_context: ChatReferenceContext | None) -> ChatPreprocessResult:
@@ -276,11 +286,21 @@ def _merge_llm_and_local(
 ) -> ChatPreprocessResult:
     llm_intent = _clean_string(payload.get("intent"))
     intent = local.intent if local.intent != "general_qa" else llm_intent or local.intent
-    stock_names = _dedupe(
-        [
-            *_string_list(payload.get("stock_names")),
-            *([] if _looks_like_symbol_followup(message) else _names_from_message(message)),
-        ]
+    market = local.needs_market_context or _bool(payload.get("needs_market_context"))
+    opportunity = local.needs_opportunity_discovery or _bool(payload.get("needs_opportunity_discovery"))
+    stock_names = _filter_market_scope_stock_names(
+        message,
+        _filter_opportunity_stock_names(
+            message,
+            _dedupe(
+                [
+                    *_string_list(payload.get("stock_names")),
+                    *([] if _looks_like_symbol_followup(message) else _names_from_message(message)),
+                ]
+            ),
+            opportunity=opportunity,
+        ),
+        market=market,
     )
     llm_symbols = normalize_symbols(_string_list(payload.get("symbols")), required=False)
     reference_needed = local.reference_needed or _bool(payload.get("reference_needed"))
@@ -291,8 +311,6 @@ def _merge_llm_and_local(
     )
     symbols = _dedupe([*local.symbols, *reference_symbols, *llm_symbols])
     has_stock = bool(symbols or stock_names)
-    market = local.needs_market_context or _bool(payload.get("needs_market_context"))
-    opportunity = local.needs_opportunity_discovery or _bool(payload.get("needs_opportunity_discovery"))
     indicators = local.needs_indicators or _bool(payload.get("needs_indicators")) or _is_indicator_question(message)
     quote = local.needs_realtime_quote_context or _bool(payload.get("needs_realtime_quote_context")) or _is_quote_question(message)
     quote_only = bool(quote and not _needs_full_stock_context(message))
@@ -309,6 +327,7 @@ def _merge_llm_and_local(
     market_horizons = tuple(local.market_horizons or llm_market_horizons)
     missing = _sanitize_missing_questions(
         _string_list(payload.get("missing_questions")),
+        message=message,
         intent=intent or local.intent,
         has_stock=has_stock,
         has_symbols=bool(symbols),
@@ -590,6 +609,7 @@ def _safe_extract_trade_date(text: str) -> str | None:
 def _sanitize_missing_questions(
     questions: Iterable[str],
     *,
+    message: str,
     intent: str,
     has_stock: bool,
     has_symbols: bool = False,
@@ -600,7 +620,97 @@ def _sanitize_missing_questions(
         result = _filter_missing_stock_identifier_questions(result)
     if intent == "market_analysis" and needs_market_context and not has_stock:
         return []
+    if intent == "opportunity_discovery" and needs_market_context and not has_stock:
+        return [
+            question
+            for question in result
+            if not _is_missing_stock_identifier_question(question)
+            and not _is_missing_market_scope_question(question)
+        ]
+    if is_generic_hot_sector_discovery_question(message):
+        result = [question for question in result if not _is_missing_market_scope_question(question)]
     return result
+
+
+def _filter_opportunity_stock_names(message: str, names: Iterable[str], *, opportunity: bool) -> list[str]:
+    result = _dedupe([str(item or "").strip() for item in names if str(item or "").strip()])
+    if not opportunity or not is_generic_hot_sector_discovery_question(message):
+        return result
+    return [name for name in result if not _is_generic_market_scope_value(name)]
+
+
+def _filter_market_scope_stock_names(message: str, names: Iterable[str], *, market: bool) -> list[str]:
+    result = _dedupe([str(item or "").strip() for item in names if str(item or "").strip()])
+    if not market:
+        return result
+    return [name for name in result if not _is_market_scope_stock_name(name)]
+
+
+def _is_market_scope_stock_name(value: str) -> bool:
+    text = re.sub(r"\s+", "", str(value or "").strip().lower())
+    text = re.sub(r"^(分析|看看|预测|判断|研究|复盘)+", "", text)
+    text = re.sub(r"(走势|行情|表现|涨跌|怎么走|怎么看|如何|分析|预测)+$", "", text)
+    text = text.strip("，。；;、:：")
+    if not text:
+        return False
+    for prefix in ("今天", "今日", "当前", "现在", "盘中", "盘后", "明天", "次日", "后天", "明后", "明后天", "下周", "未来"):
+        if text.startswith(prefix) and len(text) > len(prefix):
+            text = text[len(prefix) :]
+            break
+    text = re.sub(r"^(的|之)", "", text)
+    exact = {
+        "a股",
+        "a股大盘",
+        "大盘",
+        "市场",
+        "a股市场",
+        "整体市场",
+        "全市场",
+        "指数",
+        "大盘指数",
+        "核心指数",
+        "上证",
+        "上证指数",
+        "沪指",
+        "深成指",
+        "深证成指",
+        "创业板",
+        "创业板指",
+        "深证100",
+        "深100",
+        "沪深300",
+        "中证500",
+        "科创50",
+        "北证50",
+    }
+    return text in exact
+
+
+def _is_generic_market_scope_value(value: str) -> bool:
+    text = re.sub(r"\s+", "", str(value or "").strip().lower())
+    if not text:
+        return False
+    exact = {
+        "热点",
+        "热点板块",
+        "热点题材",
+        "热点概念",
+        "市场热点",
+        "当前热点",
+        "今日热点",
+        "今天的热点",
+        "近期热点",
+        "市场主线",
+        "主线",
+        "主线板块",
+        "强势板块",
+        "强势行业",
+        "强势概念",
+        "行业概念",
+        "行业板块",
+        "概念板块",
+    }
+    return text in exact or bool(re.search(r"(上涨|涨幅|表现).{0,8}(较好|比较好|最好|靠前|居前)", text))
 
 
 def _filter_missing_stock_identifier_questions(questions: Iterable[str]) -> list[str]:
@@ -611,9 +721,18 @@ def _is_missing_stock_identifier_question(question: str) -> bool:
     text = str(question or "").strip()
     if not text:
         return False
-    has_request = any(term in text for term in ("提供", "指定", "输入", "确认", "补充", "缺少", "需要"))
+    has_request = any(term in text for term in ("提供", "指定", "输入", "确认", "补充", "缺少", "需要", "明确"))
     has_stock_target = any(term in text for term in ("股票", "代码", "名称", "证券", "标的"))
     return has_request and has_stock_target
+
+
+def _is_missing_market_scope_question(question: str) -> bool:
+    text = str(question or "").strip()
+    if not text:
+        return False
+    has_request = any(term in text for term in ("提供", "指定", "输入", "确认", "补充", "缺少", "需要", "明确", "选择"))
+    has_market_scope = any(term in text for term in ("热点", "板块", "行业", "概念", "领域", "题材", "方向", "赛道", "主线", "范围", "主题"))
+    return has_request and has_market_scope
 
 
 def _market_plan_source(local: ChatPreprocessResult, payload: dict[str, Any], market_indices: tuple[str, ...]) -> str:
