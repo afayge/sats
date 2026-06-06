@@ -37,22 +37,48 @@ class SavedOutputResult:
 
 
 _SAVE_TERMS = ("保存", "导出", "存为")
-_REFERENCE_TERMS = ("上面", "刚才", "上一条", "前面", "之前", "本次", "这次", "当前", "结果", "输出", "答案", "内容", "报告")
+_REFERENCE_TERMS = (
+    "上面对话",
+    "刚才对话",
+    "上一个",
+    "上一次",
+    "上一轮",
+    "上面",
+    "刚才",
+    "上一条",
+    "前面",
+    "之前",
+    "本次",
+    "这次",
+    "当前",
+    "结果",
+    "输出",
+    "答案",
+    "内容",
+    "报告",
+    "对话",
+    "回复",
+    "回答",
+)
+_REFERENCE_PATTERN = r"(?:上面对话|刚才对话|上一个|上一次|上一轮|上面|刚才|上一条|前面|之前|本次|这次|当前)?"
+_OUTPUT_PATTERN = r"(?:结果|输出|答案|内容|报告|对话|回复|回答)?"
+_FORMAT_PATTERN = r"(?:MD|Markdown|PDF|md|markdown|pdf)"
+_CONNECTOR_PATTERN = r"(?:到出到|出到|为|成|到|至)?"
 _SAVE_PATTERNS = (
     re.compile(
         r"(?:[，,。；;]\s*)?(?:并(?:且)?|然后|同时)?\s*(?:保存|导出|存为)\s*"
-        r"(?:上面|刚才|上一条|前面|之前|本次|这次|当前)?(?:结果|输出|答案|内容|报告)?\s*"
-        r"(?:为|成|到|至)?\s*(?:MD|Markdown|PDF|md|markdown|pdf)?\s*(?:格式|文件)?"
+        rf"{_REFERENCE_PATTERN}{_OUTPUT_PATTERN}\s*"
+        rf"{_CONNECTOR_PATTERN}\s*{_FORMAT_PATTERN}?\s*(?:格式|文件)?"
     ),
     re.compile(
         r"(?:[，,。；;]\s*)?(?:并(?:且)?|然后|同时)?\s*(?:把|将)\s*"
-        r"(?:上面|刚才|上一条|前面|之前|本次|这次|当前)?(?:结果|输出|答案|内容|报告)?\s*"
-        r"(?:保存|导出|存为)\s*(?:为|成|到|至)?\s*(?:MD|Markdown|PDF|md|markdown|pdf)?\s*(?:格式|文件)?"
+        rf"{_REFERENCE_PATTERN}{_OUTPUT_PATTERN}\s*"
+        rf"(?:保存|导出|存为)\s*{_CONNECTOR_PATTERN}\s*{_FORMAT_PATTERN}?\s*(?:格式|文件)?"
     ),
     re.compile(
         r"(?:[，,。；;]\s*)?(?:并(?:且)?|然后|同时)?\s*(?:把|将)?\s*"
-        r"(?:上面|刚才|上一条|前面|之前|本次|这次|当前)?(?:结果|输出|答案|内容|报告)?\s*"
-        r"(?:输出|转|转换)\s*(?:为|成|到|至)?\s*(?:MD|Markdown|PDF|md|markdown|pdf)\s*(?:格式|文件)?"
+        rf"{_REFERENCE_PATTERN}{_OUTPUT_PATTERN}\s*"
+        rf"(?:输出|转|转换)\s*{_CONNECTOR_PATTERN}\s*{_FORMAT_PATTERN}\s*(?:格式|文件)?"
     ),
 )
 
@@ -188,7 +214,10 @@ def _is_pure_save_request(raw: str, cleaned: str) -> bool:
     stripped = raw.strip()
     return stripped.startswith(_SAVE_TERMS) or (
         stripped.startswith(("把", "将"))
-        and any(term in stripped for term in ("上面", "刚才", "上一条", "前面", "之前", "报告", "结果", "输出"))
+        and any(term in stripped for term in _REFERENCE_TERMS)
+    ) or (
+        compact in _REFERENCE_TERMS
+        or any(compact == f"{reference}{output}" for reference in _REFERENCE_TERMS for output in _REFERENCE_TERMS)
     )
 
 

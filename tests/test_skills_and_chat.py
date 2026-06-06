@@ -951,7 +951,7 @@ class ChatSessionTest(unittest.TestCase):
 
         self.assertEqual(result.content, "收到")
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow", "next_week"))
         messages = FakeLLM.instances[0].messages
         self.assertIn("chat_plan", messages[1]["content"])
@@ -972,7 +972,7 @@ class ChatSessionTest(unittest.TestCase):
 
         self.assertEqual(result.content, "收到")
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
         self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
@@ -993,7 +993,7 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(result.content, "收到")
         self.assertNotIn("补充 6 位股票代码", result.content)
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment"))
+        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
         self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])

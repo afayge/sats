@@ -8,8 +8,13 @@ CREATE TABLE IF NOT EXISTS stock_daily (
     vol DOUBLE,
     amount DOUBLE,
     pct_chg DOUBLE,
+    data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (ts_code, trade_date)
 );
+
+ALTER TABLE stock_daily ADD COLUMN IF NOT EXISTS data_source TEXT;
+ALTER TABLE stock_daily ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS stock_daily_basic (
     ts_code TEXT NOT NULL,
@@ -24,6 +29,8 @@ CREATE TABLE IF NOT EXISTS stock_daily_basic (
     pe DOUBLE,
     pb DOUBLE,
     ps DOUBLE,
+    data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (ts_code, trade_date)
 );
 
@@ -35,6 +42,8 @@ ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS total_mv DOUBLE;
 ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS pe DOUBLE;
 ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS pb DOUBLE;
 ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS ps DOUBLE;
+ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS data_source TEXT;
+ALTER TABLE stock_daily_basic ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS stock_basic (
     ts_code TEXT NOT NULL,
@@ -54,7 +63,56 @@ CREATE TABLE IF NOT EXISTS industry_daily (
     index_code TEXT NOT NULL,
     trade_date TEXT NOT NULL,
     close DOUBLE,
+    open DOUBLE,
+    high DOUBLE,
+    low DOUBLE,
+    vol DOUBLE,
+    amount DOUBLE,
+    pct_chg DOUBLE,
+    data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (index_code, trade_date)
+);
+
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS open DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS high DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS low DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS vol DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS amount DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS pct_chg DOUBLE;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS data_source TEXT;
+ALTER TABLE industry_daily ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS stock_minute_cache (
+    ts_code TEXT NOT NULL,
+    period TEXT NOT NULL,
+    datetime TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    open DOUBLE,
+    high DOUBLE,
+    low DOUBLE,
+    close DOUBLE,
+    vol DOUBLE,
+    amount DOUBLE,
+    data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ts_code, period, datetime)
+);
+
+CREATE TABLE IF NOT EXISTS realtime_quote_cache (
+    ts_code TEXT NOT NULL,
+    as_of_time TEXT NOT NULL,
+    price DOUBLE,
+    open DOUBLE,
+    high DOUBLE,
+    low DOUBLE,
+    pre_close DOUBLE,
+    volume DOUBLE,
+    amount DOUBLE,
+    pct_chg DOUBLE,
+    data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ts_code)
 );
 
 CREATE TABLE IF NOT EXISTS sector_basic (

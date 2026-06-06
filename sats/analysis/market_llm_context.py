@@ -32,6 +32,7 @@ DEFAULT_MARKET_DIMENSIONS: tuple[str, ...] = (
     "core_indices",
     "market_breadth",
     "limit_sentiment",
+    "hot_sectors",
 )
 SUPPORTED_MARKET_DIMENSIONS: tuple[str, ...] = (
     "core_indices",

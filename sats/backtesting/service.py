@@ -10,6 +10,7 @@ import pandas as pd
 from sats.backtesting.strategy_spec import StrategySpec, validate_strategy_spec
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.data.resolver import MarketDataResolver
 from sats.storage.duckdb import DuckDBStorage
 
 
@@ -39,16 +40,20 @@ def run_strategy_backtest(
     settings: Settings,
     storage: DuckDBStorage | None = None,
     provider: AStockDataProvider | None = None,
+    resolver: MarketDataResolver | None = None,
 ) -> BacktestResult:
     clean_spec = validate_strategy_spec(spec)
     storage = storage or DuckDBStorage(settings.db_path)
-    provider = provider or AStockDataProvider(settings)
-    daily = provider.load_historical_daily_klines(
-        list(clean_spec.symbols),
-        start_date=clean_spec.start_date,
-        end_date=clean_spec.end_date,
-        storage=storage,
-    )
+    if resolver is not None:
+        daily = resolver.load_stock_daily(list(clean_spec.symbols), start_date=clean_spec.start_date, end_date=clean_spec.end_date)
+    else:
+        provider = provider or AStockDataProvider(settings)
+        daily = provider.load_historical_daily_klines(
+            list(clean_spec.symbols),
+            start_date=clean_spec.start_date,
+            end_date=clean_spec.end_date,
+            storage=storage,
+        )
     if daily.empty:
         raise ValueError("无法获取回测所需 A 股日线数据")
     source = str(daily.attrs.get("data_source") or "unknown")

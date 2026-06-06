@@ -132,7 +132,7 @@ class MarketLLMContextTest(unittest.TestCase):
         payload = context.payload
         self.assertEqual(payload["trade_date"], "20260521")
         self.assertEqual(payload["requested_horizons"], ["today", "tomorrow", "next_week"])
-        self.assertEqual(payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment"])
+        self.assertEqual(payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
         self.assertEqual(payload["indices"][0]["ts_code"], "000001.SH")
         self.assertIn("399330.SZ", payload["requested_indices"])
         self.assertIn("ma60", payload["indices"][0]["technical"]["ma"])
@@ -143,8 +143,9 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertIn("broken_limit_count:tushare_unavailable", payload["limit_sentiment"]["missing_fields"])
         self.assertEqual(payload["data_sources"]["index_daily"], "tickflow_index_daily")
         self.assertIn("limit_sentiment", payload["data_sources"])
-        self.assertEqual(payload["hot_sector_context"], {})
-        self.assertEqual(payload["data_sources"]["hot_sector_context"], "not_requested")
+        self.assertEqual(payload["hot_sector_context"]["hot_industries"][0]["name"], "电力")
+        self.assertEqual(payload["hot_sector_context"]["hot_concepts"][0]["name"], "AI算力")
+        self.assertIn("fake", payload["data_sources"]["hot_sector_context"])
         self.assertIn("不得编造价格", context.system_message)
         self.assertIn("limit_sentiment 来自涨停、跌停、炸板统计", context.system_message)
 

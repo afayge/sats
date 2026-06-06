@@ -20,19 +20,35 @@ from sats.skills import Skill
 class ChatCliTest(unittest.TestCase):
     def test_cli_chat_prints_llm_response(self) -> None:
         stdout = StringIO()
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ("sats-market-assistant",))) as chat,
+            patch("sats.cli.run_agent_once", return_value=fake) as agent,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "帮我", "解释筛选规则"]), 0)
 
-        chat.assert_called_once_with("帮我 解释筛选规则", settings=settings, memory_enabled=True)
-        self.assertEqual(stdout.getvalue().strip(), "使用 skill: sats-market-assistant\n回答")
+        agent.assert_called_once()
+        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n回答")
 
     def test_cli_chat_can_disable_memory(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_agent_once", return_value=fake) as agent,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--no-memory", "临时问题"]), 0)
+
+        agent.assert_called_once()
+        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n回答")
+
+    def test_cli_chat_no_agent_can_disable_memory(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
 
@@ -41,7 +57,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ())) as chat,
             redirect_stdout(stdout),
         ):
-            self.assertEqual(main(["chat", "--no-memory", "临时问题"]), 0)
+            self.assertEqual(main(["chat", "--no-agent", "--no-memory", "临时问题"]), 0)
 
         chat.assert_called_once_with("临时问题", settings=settings, memory_enabled=False)
         self.assertEqual(stdout.getvalue().strip(), "回答")
@@ -77,17 +93,18 @@ class ChatCliTest(unittest.TestCase):
 
     def test_cli_chat_allows_stock_analysis_through_real_data_context(self) -> None:
         stdout = StringIO()
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        fake = SimpleNamespace(content="真实数据分析", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_chat_once", return_value=ChatResult("真实数据分析", ())) as chat,
+            patch("sats.cli.run_agent_once", return_value=fake) as agent,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "分析002436"]), 0)
 
-        chat.assert_called_once_with("分析002436", settings=settings, memory_enabled=True)
-        self.assertEqual(stdout.getvalue().strip(), "真实数据分析")
+        agent.assert_called_once()
+        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n真实数据分析")
 
     def test_cli_chat_reports_stock_context_failure_before_llm_output(self) -> None:
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
@@ -97,7 +114,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", side_effect=ValueError("缺少真实分钟K数据")) as chat,
         ):
             with self.assertRaises(SystemExit) as raised:
-                main(["chat", "分析002436"])
+                main(["chat", "--no-agent", "分析002436"])
 
         chat.assert_called_once()
         self.assertEqual(str(raised.exception), "缺少真实分钟K数据")
@@ -213,7 +230,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ())) as chat,
             redirect_stdout(stdout),
         ):
-            self.assertEqual(main(["chat", "--knowledge", "chan", "解释三买"]), 0)
+            self.assertEqual(main(["chat", "--no-agent", "--knowledge", "chan", "解释三买"]), 0)
 
         chat.assert_called_once_with("解释三买", settings=settings, memory_enabled=True, knowledge="chan")
 

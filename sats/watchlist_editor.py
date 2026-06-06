@@ -80,6 +80,15 @@ def delete_watchlist_symbols(storage: DuckDBStorage, symbols: list[str]) -> int:
     return count
 
 
+def clear_watchlist(storage: DuckDBStorage) -> int:
+    count = 0
+    for row in storage.list_monitor_watchlist():
+        symbol = str(row.get("ts_code") or "").strip()
+        if symbol and storage.delete_monitor_watchlist(symbol):
+            count += 1
+    return count
+
+
 def import_screened_to_watchlist(
     storage: DuckDBStorage,
     *,

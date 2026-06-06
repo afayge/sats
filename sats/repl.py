@@ -22,6 +22,8 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 
 from sats import __version__
+from sats.agent import AgentExecutionPolicy, run_agent_once
+from sats.agent.progress import agent_progress_event_sink
 from sats.chat import ChatResult, ChatSession, format_chat_result
 from sats.chat_reference import build_chat_reference_context
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
@@ -60,7 +62,7 @@ CLI_COMMANDS = [
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace", "goal"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 
 HELP_COMMANDS = [
@@ -85,6 +87,7 @@ HELP_COMMANDS = [
     ("/chan-kb", "搜索缠论知识库"),
     ("/discover", "短线机会发现"),
     ("/chat", "LLM 聊天"),
+    ("/goal", "设置/查看 Agent 目标"),
     ("/model", "模型配置切换"),
     ("/memory", "管理聊天记忆"),
     ("/history", "查询执行历史"),
@@ -125,10 +128,13 @@ HELP_EXAMPLES = [
     ("/chat 分析000001的因子暴露", "自然语言因子暴露分析"),
     ("/new 茅台估值复盘", "开启新的多轮对话"),
     ("/chat 写一个5日/20日均线策略并回测000001", "生成待确认 runtime 动作"),
+    ("筛选短线机会并保存报告", "自然语言自主执行 Agent"),
+    ("/goal 明天按信号自动买入不超过2万", "设置并运行 Agent 目标"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
     ("/trace", "查看最近一次对话 trace"),
     ("/watchlist", "编辑关注列表"),
-    ("/watchlist add --symbols 000001.SZ,600519.SH", "批量关注股票"),
+    ("/watchlist add --stocks 000001.SZ,600519.SH", "批量关注股票"),
+    ("/watchlist clear", "清空关注列表"),
     ("/monitor start --rules chan_signals", "启动实时监控"),
     ("/monitor-display start", "当前终端打开监控显示"),
     ("/schedule list", "查看定时任务"),
@@ -255,9 +261,13 @@ COMPLETION_DESCRIPTIONS = {
     "--token": "Bridge Token",
     "--broker": "交易券商",
     "--auto-trade": "自动交易动作",
+    "--live-trading": "允许 Agent 实盘交易",
     "--max-order-value": "单笔金额上限",
     "--max-position-pct": "仓位比例上限",
     "--sell-ratio": "卖出比例",
+    "--max-iterations": "Agent 最大步骤数",
+    "--command-timeout": "Agent 命令超时秒数",
+    "--python-timeout": "Agent Python 超时秒数",
     "--lists": "列表名称",
     "--llm-review": "启用 LLM 复核",
     "--once": "只运行一次",
@@ -340,6 +350,7 @@ class ReplState:
     session_id: str = "repl"
     history_store: InteractionHistoryStore | None = None
     chat_session: ChatSession | None = None
+    agent_goal: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -792,6 +803,22 @@ def handle_repl_line(
                 printer=printer,
             )
             return True
+        if command == "goal":
+            subcommand = str(argv[1]).lower() if len(argv) > 1 else "status"
+            if subcommand == "status":
+                output = f"当前 Agent 目标: {state.agent_goal}" if state.agent_goal else "当前没有 Agent 目标。"
+                printer(output)
+                _remember_output(state, output, request=text, source="/goal")
+                return True
+            if subcommand in {"cancel", "clear"}:
+                state.agent_goal = ""
+                output = "已取消 Agent 目标。"
+                printer(output)
+                _remember_output(state, output, request=text, source="/goal")
+                return True
+            state.agent_goal = " ".join(argv[1:]).strip()
+            argv = ["agent", *argv[1:]]
+            command = "agent"
         if command == "clear":
             printer("\033[2J\033[H")
             return True
@@ -823,8 +850,12 @@ def handle_repl_line(
         if command == "chat":
             chat_args = list(argv[1:])
             use_memory = None
+            agent_enabled = True
             if chat_args and chat_args[0] == "--no-memory":
                 use_memory = False
+                chat_args = chat_args[1:]
+            if chat_args and chat_args[0] == "--no-agent":
+                agent_enabled = False
                 chat_args = chat_args[1:]
             message = " ".join(chat_args).strip()
             if not message:
@@ -851,10 +882,10 @@ def handle_repl_line(
                 status="interrupted",
                 session_id=_record_session_id(chat_session, state),
             )
-            record = _handle_chat(message, chat_session=chat_session, printer=printer, use_memory=use_memory, state=state)
+            record = _handle_chat(message, chat_session=chat_session, printer=printer, use_memory=use_memory, state=state, agent_enabled=agent_enabled)
             _record_interaction_history(record, state=state, started_at=started_at)
             return True
-        if command not in CLI_COMMANDS:
+        if command not in CLI_COMMANDS and command != "agent":
             message = f"未知命令: /{command}。输入 /help 查看可用命令。"
             printer(message)
             _record_interaction_history(
@@ -959,6 +990,7 @@ def _handle_chat(
     printer: Callable[[str], None],
     use_memory: bool | None = None,
     state: ReplState | None = None,
+    agent_enabled: bool = True,
 ) -> ReplExecutionRecord | None:
     state = state or ReplState()
     save_request = parse_save_request(message)
@@ -970,6 +1002,7 @@ def _handle_chat(
     session = active_session if active_session is not None else ChatSession()
     if isinstance(session, ChatSession):
         state.chat_session = session
+    agent_enabled = agent_enabled and type(session) is ChatSession
     session_id = _record_session_id(session, state)
     progress = create_progress(request=chat_message)
     try:
@@ -982,9 +1015,19 @@ def _handle_chat(
             kwargs["reference_context"] = reference_context
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
-        if isinstance(session, ChatSession):
-            kwargs["defer_memory_updates"] = True
-        result = session.ask(chat_message, **kwargs)
+        if agent_enabled:
+            agent_result = run_agent_once(
+                chat_message,
+                settings=settings,
+                policy=AgentExecutionPolicy(),
+                session_id=session_id or "repl_agent",
+                event_sink=agent_progress_event_sink(progress),
+            )
+            result = _chat_result_from_agent(agent_result)
+        else:
+            if isinstance(session, ChatSession):
+                kwargs["defer_memory_updates"] = True
+            result = session.ask(chat_message, **kwargs)
     except ValueError as exc:
         progress.close()
         output = f"错误: {exc}"
@@ -1013,13 +1056,14 @@ def _handle_chat(
         progress.close()
     output = format_chat_result(result)
     printer(output)
-    captured = _remember_output(state, output, request=chat_message, source="chat")
+    source = "agent" if agent_enabled else "chat"
+    captured = _remember_output(state, output, request=chat_message, source=source)
     if save_request is not None:
         _save_output(captured, save_request, printer=printer)
     return ReplExecutionRecord(
         kind="chat",
         request=chat_message,
-        source="chat",
+        source=source,
         output=output,
         status="done",
         report_path=str(captured.report_path or ""),
@@ -1062,6 +1106,18 @@ def _chat_result_from_runtime(result: object) -> ChatResult:
         artifacts=tuple(artifact.to_dict() for artifact in getattr(result, "artifacts", ()) or ()),
         requires_confirmation=pending is not None,
         pending_action_id=getattr(pending, "action_id", None) if pending is not None else None,
+    )
+
+
+def _chat_result_from_agent(result: object) -> ChatResult:
+    return ChatResult(
+        content=str(getattr(result, "content", "") or ""),
+        skill_names=tuple(getattr(result, "skill_names", ()) or ()),
+        tool_call_count=int(getattr(result, "tool_call_count", 0) or 0),
+        data_names=tuple(getattr(result, "data_names", ()) or ()),
+        artifacts=tuple(getattr(result, "artifacts", ()) or ()),
+        turn_id=getattr(result, "turn_id", None),
+        session_id=str(getattr(result, "session_id", "") or ""),
     )
 
 

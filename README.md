@@ -135,6 +135,11 @@ sats> 确认生成规则 nl_low_volume_breakout
 sats> /chat 帮我解释筛选结果怎么查询
 sats> /chat --knowledge chan 解释三买和背驰
 sats> /chat --no-memory 临时问题
+sats> 上一个输出到markdown文件
+sats> /save --format pdf
+sats> 筛选短线机会并保存报告
+sats> /chat 生成一个均线策略并回测000001
+sats> /goal 明天按信号自动买入不超过2万
 sats> /knowledge search --query 三买 --knowledge chan
 sats> /knowledge ingest --knowledge chan --path knowledge/chan/rules
 sats> /knowledge sync-stock-basic
@@ -142,9 +147,15 @@ sats> /knowledge sync-stock-basic
 
 聊天模式会先做轻量输入规划，再匹配相关 skill、拉取真实研究数据，必要时调用 SATS 白名单内部分析能力，最后才把结构化上下文交给 LLM。为避免模拟行情，普通文本、`/chat` 和 `sats chat` 遇到股票代码或可唯一识别的股票名称都会先统一解析为 `ts_code`，再同时取真实个股数据和真实大盘数据；如果个股日线/分钟 K 或核心指数日线等硬数据缺失，SATS 会直接报错并停止调用 LLM。大盘类问题支持把“明天”“后天”“明后”“下周”这类相对时间直接映射为分析 horizon，不要求用户额外给出单一指数或绝对日期。大盘市场宽度、财务、热点板块或实时 quote 等辅助数据缺失时会标记 `missing_fields`，不会用旧数据冒充。指定交易日时使用该日数据；指定日内时点时，15m/30m 曲线会截断到该时点。REPL 同一个 `ChatSession` 内，`继续分析它/它们/这只/这些` 等追问会继承上一轮股票代码和时间；一次性 `sats chat` 不从长期记忆恢复股票代码，追问时仍需写明代码或股票名称。若股票简称匹配到多个结果，SATS 会要求用户改用 6 位代码。
 
+REPL 支持把上一条输出保存为文件：可以输入 `/save --format md|pdf`，也可以用“上一个输出到 markdown 文件”“保存刚才对话为 PDF”这类自然语言请求。默认文件写入 `reports/saved_outputs/`；需要指定路径时使用 `/save --path <PATH>`。
+
 聊天也支持用自然语言创建新的筛选规则。用户先描述规则，例如“新增一个低位放量突破筛选规则”，SATS 会生成包含中文决策名称、`rule_name`、数据依赖、条件、评分和风险说明的规则计划；如果描述里包含当前 `ScreeningInput` 不支持的数据，例如新闻、分钟级盘口、筹码或资金流，SATS 会先要求用户确认降级方式。只有在同一个 REPL 会话里回复 `确认生成规则 <rule_name>` 后，SATS 才会用受控模板生成 Python 文件到 `sats/screening/rules/generated/`，并自动加入 `screen --rule <rule_name>` 可用的筛选规则注册表。一次性 `sats chat` 适合生成计划，真正写代码建议在 REPL 中完成二次确认。
 
-复杂自然语言研究任务会进入 SATS-native runtime。runtime 会记录 `turn/event/item/artifact` trace，可编排白名单研究工具，并把报告、策略草稿、回测指标等产物限制在 `reports/chat/<session_id>/<turn_id>/` 或 `artifacts/chat/<session_id>/<turn_id>/`。生成研究报告可以直接保存；生成策略草稿或运行轻量回测会先返回待确认动作，用户通过 `/confirm <action_id>` 或 `sats chat --confirm <action_id>` 执行。runtime 不开放 shell，不执行 LLM 生成的 Python，不自动交易；轻量回测只执行受限 `strategy_spec.json`，仅用于研究，不构成投资建议。
+自然语言默认进入 Agent-first runtime：REPL 普通输入、`/chat ...` 和 `sats chat ...` 都会先由 Agent 理解目标，再选择普通 `chat.answer`、A 股数据 resolver、research、factor、SATS argv 命令、受限 Python 或交易工具。普通解释和总结只是 Agent 的只读聊天子工具；需要取数、筛选、回测、保存报告、监控、定时或交易时，Agent 会生成多步计划并写入 `turn/event/item/artifact` trace。`/goal <目标>` 保留为强制目标执行入口；`sats agent ...` 仅作为兼容入口，不再是推荐用法。
+
+Agent 工具分为 `chat.*`、`data.*`、`research.*`、`factor.*`、`sats_command.*` 和 `trade.*`。股票/指数价格、成交量、K 线、分钟 K、报价和指标输入采用 DuckDB-first resolver：先读本地 DuckDB，缺失、覆盖不足或实时 quote 过期时才调用 `AStockDataProvider`，provider 成功后写回 DuckDB。LLM 不能自造行情数据；没有 SATS provenance 的市场数据不能进入分析、Python 策略或交易决策。Agent 自动执行 SATS 命令时只使用 argv runner，不开放任意 shell。LLM 生成 Python 只在受限 runtime 中运行，禁止 import、文件、网络和 subprocess，只能通过注入的 resolver 获取行情。
+
+自动交易默认关闭。只有本轮显式传入 `--auto-trade buy,sell`，并在需要实盘时同时传入 `--broker qmt --live-trading`，Agent 才能提交 QMT 订单；未传 `--live-trading` 时交易命令会 dry-run。下单前 SATS 会重新用 DuckDB/provider resolver 获取最新 quote，并校验 100 股买入整数倍、可用持仓、`--max-order-value`、`--max-position-pct` 和 `--sell-ratio`，所有订单写入 broker order、monitor trade event 和 agent trace。
 
 一次性命令也可以调用聊天：
 
@@ -159,9 +170,12 @@ python -m sats chat --trace turn_xxxxxxxx
 python -m sats chat --knowledge chan 解释三买和背驰
 python -m sats chat --no-memory 临时问题
 sats chat --no-memory 临时问题
+python -m sats chat --max-iterations 4 筛选短线机会并保存报告
+sats chat 生成一个均线策略并回测000001
+sats chat --auto-trade buy --broker qmt --live-trading --max-order-value 20000 明天按信号自动买入不超过2万
 ```
 
-SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。REPL 会按用户输入和聊天规划自动匹配最多 5 个 skill，并把匹配到的 skill 摘要注入 LLM 上下文；匹配时终端会先显示 `使用 skill: ...`。缠论问题会额外自动加载 `chan-theory` skill 和本地缠论知识库 RAG 规则卡片。聊天模型也可以通过只读工具 `list_skills` / `load_skill` 按需查看本地 skill 的完整内容，并可用只读工具 `get_a_share_market_context` 获取 A 股大盘上下文、`get_stock_research_context` 获取个股研究上下文、`discover_a_share_opportunities` 调用自然语言选股 Agent、`run_internal_analysis` 调用白名单内部研究能力；Tushare 数据可通过只读工具 `list_tushare_datasets` / `get_tushare_data` 按需查询，覆盖 6000 分以内股票数据和 ETF、指数、公募基金、宏观、公告新闻/研报政策、港股、美股等常用跨类接口，旧的 `list_tushare_stock_datasets` / `get_tushare_stock_data` 继续兼容股票目录。这些工具只提供研究上下文，不会交易，也不会执行任意 shell 命令或未封装的外部接口。
+SATS 本地 skills 位于工程根目录 `skills/<skill_id>/SKILL.md`。Agent 可以通过只读 `chat.list_skills` / `chat.load_skill` 按需查看本地 skill 的完整内容；缠论问题可调用本地缠论知识库，知识库问题可调用 RAG search。A 股大盘、个股研究、自然语言选股、内部分析、Tushare 白名单数据、因子分析/选股/ML、monitor、schedule、qmt 等 SATS 能力都以工具形式暴露给 Agent，但仍按只读、写产物/写库、长任务、实盘交易分级执行，不会执行任意 shell 命令或未封装的外部接口。
 
 管理本地知识库：
 
@@ -651,8 +665,9 @@ python -m sats results --trade-date 20260430 --passed
 python -m sats watchlist
 sats watchlist
 sats watchlist list
-sats watchlist add --symbols 000001,605300
-sats watchlist remove --symbols 000001
+sats watchlist add --stocks 000001,605300
+sats watchlist remove --stocks 000001
+sats watchlist clear
 sats watchlist import-screened --trade-date 20260514 --rule price_volume_ma
 ```
 
@@ -668,7 +683,8 @@ Q 退出
 
 ```text
 sats> /watchlist
-sats> /watchlist add --symbols 000001,605300
+sats> /watchlist add --stocks 000001,605300
+sats> /watchlist clear
 sats> /watchlist import-screened --trade-date 20260514
 ```
 

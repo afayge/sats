@@ -1157,7 +1157,14 @@ class ReplCliTest(unittest.TestCase):
         )
         self.assertTrue(
             handle_repl_line(
-                "/watchlist add --symbols 000001.SZ",
+                "/watchlist add --stocks 000001.SZ",
+                runner=lambda argv: calls.append(argv) or 0,
+                printer=output.append,
+            )
+        )
+        self.assertTrue(
+            handle_repl_line(
+                "/watchlist clear",
                 runner=lambda argv: calls.append(argv) or 0,
                 printer=output.append,
             )
@@ -1165,7 +1172,14 @@ class ReplCliTest(unittest.TestCase):
 
         self.assertIn("watchlist", CLI_COMMANDS)
         self.assertIn("/watchlist", help_text())
-        self.assertEqual(calls, [["watchlist"], ["watchlist", "add", "--symbols", "000001.SZ"]])
+        self.assertEqual(
+            calls,
+            [
+                ["watchlist"],
+                ["watchlist", "add", "--stocks", "000001.SZ"],
+                ["watchlist", "clear"],
+            ],
+        )
         self.assertEqual(output, [])
 
     def test_repl_allows_quote_command(self) -> None:
@@ -1283,7 +1297,7 @@ class ReplCliTest(unittest.TestCase):
             with patch("sats.repl.load_settings", return_value=settings):
                 self.assertTrue(
                     handle_repl_line(
-                        "保存上面结果为PDF",
+                        "上一个输出到出到markdown文件",
                         chat_session=chat_session,
                         printer=output.append,
                         state=state,
@@ -1303,7 +1317,7 @@ class ReplCliTest(unittest.TestCase):
             with patch("sats.repl.load_settings", return_value=settings):
                 self.assertTrue(
                     handle_repl_line(
-                        "保存上面结果为PDF",
+                        "上一个输出到出到markdown文件",
                         chat_session=chat_session,
                         printer=output.append,
                         state=state,
@@ -1313,8 +1327,9 @@ class ReplCliTest(unittest.TestCase):
             self.assertEqual(calls, [])
             self.assertTrue(output[-1].startswith("已保存: "))
             saved_path = Path(output[-1].split("已保存: ", 1)[1])
-            self.assertEqual(saved_path.suffix, ".pdf")
+            self.assertEqual(saved_path.suffix, ".md")
             self.assertTrue(saved_path.exists())
+            self.assertIn("上一条回答", saved_path.read_text(encoding="utf-8"))
 
     def test_repl_output_as_pdf_uses_last_output_without_llm(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

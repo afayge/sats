@@ -1037,6 +1037,8 @@ def run_chat_once(
     memory_enabled: bool = True,
     progress: Any | None = None,
     knowledge: str | None = None,
+    tools_enabled: bool = True,
+    preprocess_enabled: bool = True,
 ) -> ChatResult:
     session = ChatSession(
         settings=settings,
@@ -1046,6 +1048,8 @@ def run_chat_once(
         max_history_messages=0,
         progress=progress,
         knowledge=knowledge,
+        tools_enabled=tools_enabled,
+        preprocess_enabled=preprocess_enabled,
     )
     return session.ask(message)
 

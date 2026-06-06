@@ -16,6 +16,8 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 from prompt_toolkit.utils import get_cwidth
 
+from sats.agent import AgentExecutionPolicy, run_agent_once
+from sats.agent.progress import agent_progress_event_sink
 from sats.analysis.chan_llm_review import DEFAULT_CHAN_RULE_NAME, run_chan_llm_review
 from sats.analysis.daily_stock_analysis import run_daily_stock_analysis_for_symbols, run_screened_stock_analysis
 from sats.analysis.dsa_native import run_dsa_analysis
@@ -82,6 +84,7 @@ from sats.trading.monitor_provider import AutoTradeConfig, QmtTradingProvider
 from sats.trading.qmt_bridge import QmtBridgeConfig, run_bridge
 from sats.trading.sync import sync_positions_to_monitor
 from sats.watchlist_editor import (
+    clear_watchlist,
     delete_watchlist_symbols,
     format_watchlist,
     import_screened_to_watchlist,
@@ -158,6 +161,18 @@ def _add_monitor_trade_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-order-value", type=float, default=20000.0, help="Max buy order value")
     parser.add_argument("--max-position-pct", type=float, default=0.2, help="Max buy value as total asset ratio")
     parser.add_argument("--sell-ratio", type=float, default=1.0, help="Sell ratio for position signals")
+
+
+def _add_agent_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--auto-trade", default="", help="Explicitly enabled agent trade actions: buy,sell")
+    parser.add_argument("--broker", choices=["noop", "qmt"], default="noop", help="Broker used by agent trading")
+    parser.add_argument("--live-trading", action="store_true", help="Allow live QMT orders when --auto-trade permits the side")
+    parser.add_argument("--max-order-value", type=float, default=20000.0, help="Max buy order value")
+    parser.add_argument("--max-position-pct", type=float, default=0.2, help="Max buy value as total asset ratio")
+    parser.add_argument("--sell-ratio", type=float, default=1.0, help="Sell ratio for position signals")
+    parser.add_argument("--max-iterations", type=int, default=6, help="Maximum agent steps")
+    parser.add_argument("--command-timeout", type=int, default=120, help="Per SATS command timeout seconds")
+    parser.add_argument("--python-timeout", type=int, default=30, help="Restricted Python timeout seconds")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -250,10 +265,17 @@ def build_parser() -> argparse.ArgumentParser:
     chat = sub.add_parser("chat", help="Chat with the configured LLM")
     chat.add_argument("--no-memory", action="store_true", help="Disable local chat memory for this message")
     chat.add_argument("--knowledge", help="Knowledge base name/id to force into this chat")
+    chat.add_argument("--agent", action="store_true", help=argparse.SUPPRESS)
+    chat.add_argument("--no-agent", action="store_true", help="Disable Agent-first routing and run plain chat")
+    _add_agent_args(chat)
     chat.add_argument("--confirm", help="Confirm and execute a pending SATS runtime action")
     chat.add_argument("--reject", help="Reject a pending SATS runtime action")
     chat.add_argument("--trace", help="Show a chat turn trace")
     chat.add_argument("message", nargs=argparse.REMAINDER, help="Message to send to the LLM")
+
+    agent = sub.add_parser("agent", help="Run SATS autonomous agent")
+    _add_agent_args(agent)
+    agent.add_argument("message", nargs=argparse.REMAINDER, help="Natural-language agent goal")
 
     model = sub.add_parser("model", help="Manage LLM model profiles")
     model_sub = model.add_subparsers(dest="model_command")
@@ -394,13 +416,14 @@ def build_parser() -> argparse.ArgumentParser:
     watchlist.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_sub.add_parser("list", help="List watchlist").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_add = watchlist_sub.add_parser("add", help="Add watchlist symbols")
-    watchlist_add.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names")
+    watchlist_add.add_argument("--stocks", required=True, help="Comma-separated symbols or stock names")
     watchlist_add.add_argument("--name", default="", help="Optional name used for all symbols")
     watchlist_add.add_argument("--note", default="")
     watchlist_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_remove = watchlist_sub.add_parser("remove", help="Remove watchlist symbols")
-    watchlist_remove.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names")
+    watchlist_remove.add_argument("--stocks", required=True, help="Comma-separated symbols or stock names")
     watchlist_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    watchlist_sub.add_parser("clear", help="Clear watchlist").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_delete = watchlist_sub.add_parser("select-delete", help="Interactively select watchlist symbols to delete")
     watchlist_delete.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     watchlist_import = watchlist_sub.add_parser("import-screened", help="Select passed screened stocks to add to watchlist")
@@ -584,6 +607,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_discover(args)
     if args.command == "chat":
         return cmd_chat(args)
+    if args.command == "agent":
+        return cmd_agent(args)
     if args.command == "model":
         return cmd_model(args)
     if args.command == "memory":
@@ -1114,6 +1139,20 @@ def cmd_chat(args: argparse.Namespace) -> int:
     message = " ".join(args.message).strip()
     if not message:
         raise SystemExit("chat message is required")
+    if not getattr(args, "no_agent", False):
+        progress = _progress_for_args(args)
+        try:
+            result = run_agent_once(
+                message,
+                settings=settings,
+                policy=_agent_policy_from_args(args),
+                session_id="chat_agent",
+                event_sink=agent_progress_event_sink(progress),
+            )
+        finally:
+            progress.close()
+        print(format_chat_result(_chat_result_from_agent(result)))
+        return 0
     progress = _progress_for_args(args)
     try:
         kwargs = {"settings": settings, "memory_enabled": not args.no_memory}
@@ -1130,6 +1169,26 @@ def cmd_chat(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_agent(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    message = " ".join(args.message).strip()
+    if not message:
+        raise SystemExit("agent message is required")
+    progress = _progress_for_args(args)
+    try:
+        result = run_agent_once(
+            message,
+            settings=settings,
+            policy=_agent_policy_from_args(args),
+            session_id="agent",
+            event_sink=agent_progress_event_sink(progress),
+        )
+    finally:
+        progress.close()
+    print(format_chat_result(_chat_result_from_agent(result)))
+    return 0
+
+
 def _chat_result_from_runtime(runtime_result) -> ChatResult:
     pending = runtime_result.pending_action
     return ChatResult(
@@ -1140,6 +1199,32 @@ def _chat_result_from_runtime(runtime_result) -> ChatResult:
         artifacts=tuple(artifact.to_dict() for artifact in runtime_result.artifacts),
         requires_confirmation=pending is not None,
         pending_action_id=pending.action_id if pending is not None else None,
+    )
+
+
+def _chat_result_from_agent(agent_result) -> ChatResult:
+    return ChatResult(
+        content=agent_result.content,
+        skill_names=tuple(getattr(agent_result, "skill_names", ()) or ()),
+        tool_call_count=agent_result.tool_call_count,
+        data_names=agent_result.data_names,
+        artifacts=agent_result.artifacts,
+        turn_id=agent_result.turn_id,
+        session_id=agent_result.session_id,
+    )
+
+
+def _agent_policy_from_args(args: argparse.Namespace) -> AgentExecutionPolicy:
+    return AgentExecutionPolicy(
+        auto_trade=tuple(_parse_optional_csv(getattr(args, "auto_trade", ""))),
+        broker=str(getattr(args, "broker", "noop") or "noop"),
+        live_trading=bool(getattr(args, "live_trading", False)),
+        max_order_value=float(getattr(args, "max_order_value", 20000.0) or 0.0),
+        max_position_pct=float(getattr(args, "max_position_pct", 0.2) or 0.0),
+        sell_ratio=float(getattr(args, "sell_ratio", 1.0) or 1.0),
+        max_iterations=max(1, int(getattr(args, "max_iterations", 6) or 6)),
+        command_timeout=max(1, int(getattr(args, "command_timeout", 120) or 120)),
+        python_timeout=max(1, int(getattr(args, "python_timeout", 30) or 30)),
     )
 
 
@@ -1733,12 +1818,16 @@ def cmd_watchlist(args: argparse.Namespace) -> int:
         print(format_watchlist(storage.list_monitor_watchlist()))
         return 0
     if command == "add":
-        count = upsert_watchlist_symbols(storage, _parse_symbols_or_names(args.symbols, settings), name=args.name, note=args.note)
+        count = upsert_watchlist_symbols(storage, _parse_symbols_or_names(args.stocks, settings), name=args.name, note=args.note)
         print(f"已加入关注列表 {count} 只股票" if count else "未加入股票")
         return 0
     if command == "remove":
-        count = delete_watchlist_symbols(storage, _parse_symbols_or_names(args.symbols, settings))
+        count = delete_watchlist_symbols(storage, _parse_symbols_or_names(args.stocks, settings))
         print(f"已删除 {count} 只股票" if count else "未找到关注股票")
+        return 0
+    if command == "clear":
+        count = clear_watchlist(storage)
+        print(f"已清空关注列表 {count} 只股票" if count else "关注列表已为空")
         return 0
     if command == "select-delete":
         select_and_delete_watchlist(storage)
@@ -1747,7 +1836,7 @@ def cmd_watchlist(args: argparse.Namespace) -> int:
         rule_name = get_rule(args.rule).name if args.rule else None
         import_screened_to_watchlist(storage, trade_date=args.trade_date, rule_name=rule_name)
         return 0
-    raise SystemExit("watchlist requires list, add, remove, select-delete or import-screened")
+    raise SystemExit("watchlist requires list, add, remove, clear, select-delete or import-screened")
 
 
 def cmd_monitor(args: argparse.Namespace) -> int:

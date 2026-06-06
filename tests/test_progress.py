@@ -171,7 +171,7 @@ class ProgressReporterTest(unittest.TestCase):
             patch("sats.chat.ChatLLM", return_value=FakeLLM()),
             redirect_stdout(io.StringIO()),
         ):
-            self.assertEqual(main(["chat", "分析大盘"]), 0)
+            self.assertEqual(main(["chat", "--no-agent", "分析大盘"]), 0)
 
         self.assertIn(FILLED_BLOCK, progress_stream.getvalue())
         self.assertIn("deepseek-v4-pro", progress_stream.getvalue())

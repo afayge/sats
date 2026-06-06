@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -43,8 +44,8 @@ class DuckDBStorage:
         return DuckDBStorage(self.db_path, read_only=True)
 
     def upsert_stock_daily(self, frame: pd.DataFrame) -> int:
-        columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"]
-        data = _prepare_frame(frame, columns, required=["ts_code", "trade_date"])
+        columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg", "data_source", "fetched_at"]
+        data = _prepare_frame(_with_cache_metadata(frame), columns, required=["ts_code", "trade_date"])
         return self._upsert_frame("stock_daily", columns, data)
 
     def upsert_stock_daily_basic(self, frame: pd.DataFrame) -> int:
@@ -61,8 +62,10 @@ class DuckDBStorage:
             "pe",
             "pb",
             "ps",
+            "data_source",
+            "fetched_at",
         ]
-        data = _prepare_frame(frame, columns, required=["ts_code", "trade_date"])
+        data = _prepare_frame(_with_cache_metadata(frame), columns, required=["ts_code", "trade_date"])
         return self._upsert_frame("stock_daily_basic", columns, data)
 
     def upsert_stock_moneyflow(self, frame: pd.DataFrame) -> int:
@@ -120,15 +123,59 @@ class DuckDBStorage:
             ).fetchdf()
 
     def upsert_industry_daily(self, index_code: str, frame: pd.DataFrame) -> int:
-        data = frame.copy()
+        data = _with_cache_metadata(frame)
         if data.empty:
             return 0
         if "index_code" not in data.columns:
             data["index_code"] = data["ts_code"] if "ts_code" in data.columns else index_code
         data["index_code"] = data["index_code"].fillna(index_code).astype(str)
-        columns = ["index_code", "trade_date", "close"]
+        columns = ["index_code", "trade_date", "close", "open", "high", "low", "vol", "amount", "pct_chg", "data_source", "fetched_at"]
         data = _prepare_frame(data, columns, required=["index_code", "trade_date"])
         return self._upsert_frame("industry_daily", columns, data)
+
+    def upsert_stock_minute_cache(self, frame: pd.DataFrame, *, period: str = "1m") -> int:
+        data = _with_cache_metadata(frame)
+        if data.empty:
+            return 0
+        if "datetime" not in data.columns:
+            for candidate in ("trade_time", "time", "bar_time"):
+                if candidate in data.columns:
+                    data["datetime"] = data[candidate]
+                    break
+        if "trade_date" not in data.columns and "datetime" in data.columns:
+            data["trade_date"] = data["datetime"].astype(str).str.replace("-", "", regex=False).str[:8]
+        data["period"] = str(period or "1m")
+        columns = ["ts_code", "period", "datetime", "trade_date", "open", "high", "low", "close", "vol", "amount", "data_source", "fetched_at"]
+        data = _prepare_frame(data, columns, required=["ts_code", "period", "datetime"])
+        return self._upsert_frame("stock_minute_cache", columns, data)
+
+    def upsert_realtime_quote_cache(self, frame: pd.DataFrame) -> int:
+        data = _with_cache_metadata(frame)
+        if data.empty:
+            return 0
+        if "as_of_time" not in data.columns:
+            for candidate in ("datetime", "trade_time", "time", "update_time"):
+                if candidate in data.columns:
+                    data["as_of_time"] = data[candidate]
+                    break
+        if "as_of_time" not in data.columns:
+            data["as_of_time"] = _now_timestamp()
+        columns = [
+            "ts_code",
+            "as_of_time",
+            "price",
+            "open",
+            "high",
+            "low",
+            "pre_close",
+            "volume",
+            "amount",
+            "pct_chg",
+            "data_source",
+            "fetched_at",
+        ]
+        data = _prepare_frame(_normalize_quote_columns(data), columns, required=["ts_code"])
+        return self._upsert_frame("realtime_quote_cache", columns, data)
 
     def upsert_sector_basic(self, frame: pd.DataFrame) -> int:
         columns = ["sector_code", "name", "sector_type", "exchange", "list_date", "data_source"]
@@ -210,6 +257,19 @@ class DuckDBStorage:
             "stock_daily",
             ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"],
             trade_dates,
+        )
+
+    def get_stock_daily_range(self, symbols: list[str], *, start_date: str, end_date: str, with_meta: bool = True) -> pd.DataFrame:
+        columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"]
+        if with_meta:
+            columns.extend(["data_source", "fetched_at"])
+        return self._get_symbol_date_range(
+            "stock_daily",
+            columns,
+            symbols,
+            start_date=start_date,
+            end_date=end_date,
+            symbol_column="ts_code",
         )
 
     def get_stock_daily_basic(self, trade_dates: list[str]) -> pd.DataFrame:
@@ -307,6 +367,82 @@ class DuckDBStorage:
                 ORDER BY trade_date ASC
                 """,
                 [index_code, *dates],
+            ).fetchdf()
+
+    def get_index_daily_range(self, index_codes: list[str], *, start_date: str, end_date: str, with_meta: bool = True) -> pd.DataFrame:
+        columns = ["index_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"]
+        if with_meta:
+            columns.extend(["data_source", "fetched_at"])
+        return self._get_symbol_date_range(
+            "industry_daily",
+            columns,
+            index_codes,
+            start_date=start_date,
+            end_date=end_date,
+            symbol_column="index_code",
+        )
+
+    def get_stock_minute_cache(
+        self,
+        symbols: list[str],
+        *,
+        period: str = "1m",
+        start_time: str | None = None,
+        end_time: str | None = None,
+    ) -> pd.DataFrame:
+        columns = ["ts_code", "period", "datetime", "trade_date", "open", "high", "low", "close", "vol", "amount", "data_source", "fetched_at"]
+        clean_symbols = [str(symbol).strip() for symbol in symbols if str(symbol).strip()]
+        if not clean_symbols:
+            return pd.DataFrame(columns=columns)
+        self.initialize()
+        clauses = [f"ts_code IN ({', '.join('?' for _ in clean_symbols)})", "period = ?"]
+        params: list[object] = [*clean_symbols, str(period or "1m")]
+        if start_time:
+            clauses.append("datetime >= ?")
+            params.append(str(start_time))
+        if end_time:
+            clauses.append("datetime <= ?")
+            params.append(str(end_time))
+        with self.connect() as con:
+            return con.execute(
+                f"""
+                SELECT {", ".join(columns)}
+                FROM stock_minute_cache
+                WHERE {" AND ".join(clauses)}
+                ORDER BY ts_code ASC, datetime ASC
+                """,
+                params,
+            ).fetchdf()
+
+    def get_realtime_quote_cache(self, symbols: list[str]) -> pd.DataFrame:
+        columns = [
+            "ts_code",
+            "as_of_time",
+            "price",
+            "open",
+            "high",
+            "low",
+            "pre_close",
+            "volume",
+            "amount",
+            "pct_chg",
+            "data_source",
+            "fetched_at",
+        ]
+        clean_symbols = [str(symbol).strip() for symbol in symbols if str(symbol).strip()]
+        if not clean_symbols:
+            return pd.DataFrame(columns=columns)
+        self.initialize()
+        placeholders = ", ".join("?" for _ in clean_symbols)
+        with self.connect() as con:
+            return con.execute(
+                f"""
+                SELECT {", ".join(columns)}
+                FROM realtime_quote_cache
+                WHERE ts_code IN ({placeholders})
+                ORDER BY ts_code ASC
+                """,
+                clean_symbols,
             ).fetchdf()
 
     def get_sector_basic(self, *, sector_types: list[str] | None = None) -> pd.DataFrame:
@@ -1237,6 +1373,34 @@ class DuckDBStorage:
                 dates,
             ).fetchdf()
 
+    def _get_symbol_date_range(
+        self,
+        table: str,
+        columns: list[str],
+        symbols: list[str],
+        *,
+        start_date: str,
+        end_date: str,
+        symbol_column: str,
+    ) -> pd.DataFrame:
+        clean_symbols = [str(symbol).strip() for symbol in symbols if str(symbol).strip()]
+        if not clean_symbols:
+            return pd.DataFrame(columns=columns)
+        self.initialize()
+        placeholders = ", ".join("?" for _ in clean_symbols)
+        with self.connect() as con:
+            return con.execute(
+                f"""
+                SELECT {", ".join(columns)}
+                FROM {table}
+                WHERE {symbol_column} IN ({placeholders})
+                  AND trade_date >= ?
+                  AND trade_date <= ?
+                ORDER BY {symbol_column} ASC, trade_date ASC
+                """,
+                [*clean_symbols, str(start_date), str(end_date)],
+            ).fetchdf()
+
     def upsert_screening_results(self, results: Iterable[ScreeningResult]) -> int:
         rows = list(results)
         if not rows:
@@ -1473,6 +1637,43 @@ def _prepare_frame(frame: pd.DataFrame, columns: list[str], *, required: list[st
     if "trade_date" in data.columns:
         data["trade_date"] = data["trade_date"].astype(str).str.strip()
     return data.drop_duplicates(subset=required, keep="last").reset_index(drop=True)
+
+
+def _with_cache_metadata(frame: pd.DataFrame) -> pd.DataFrame:
+    data = frame.copy()
+    if data.empty:
+        return data
+    source = str(data.attrs.get("data_source") or data.attrs.get("source") or "").strip()
+    if "data_source" not in data.columns:
+        data["data_source"] = source
+    elif source:
+        data["data_source"] = data["data_source"].fillna(source)
+        data.loc[data["data_source"].astype(str).str.strip() == "", "data_source"] = source
+    if "fetched_at" not in data.columns:
+        data["fetched_at"] = _now_timestamp()
+    return data
+
+
+def _normalize_quote_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    data = frame.copy()
+    aliases = {
+        "price": ("price", "last_price", "latest", "latest_price", "current", "close"),
+        "volume": ("volume", "vol"),
+        "pre_close": ("pre_close", "preclose", "prev_close"),
+        "pct_chg": ("pct_chg", "change_pct", "pct_change"),
+    }
+    for target, names in aliases.items():
+        if target in data.columns:
+            continue
+        for name in names:
+            if name in data.columns:
+                data[target] = data[name]
+                break
+    return data
+
+
+def _now_timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def _scheduled_task_row(row) -> dict:

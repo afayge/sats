@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -243,13 +244,13 @@ class MonitorCliTest(unittest.TestCase):
 
             with patch("builtins.print") as printer:
                 self.assertEqual(
-                    main(["watchlist", "add", "--symbols", "000001,600519", "--db", str(db)]),
+                    main(["watchlist", "add", "--stocks", "000001,600519", "--db", str(db)]),
                     0,
                 )
                 self.assertEqual(main(["watchlist", "list", "--db", str(db)]), 0)
                 with patch("sats.cli.sys.stdin.isatty", return_value=False), patch("sats.cli.sys.stdout.isatty", return_value=False):
                     self.assertEqual(main(["watchlist", "--db", str(db)]), 0)
-                self.assertEqual(main(["watchlist", "remove", "--symbols", "000001", "--db", str(db)]), 0)
+                self.assertEqual(main(["watchlist", "remove", "--stocks", "000001", "--db", str(db)]), 0)
 
             printed = "\n".join(str(call.args[0]) for call in printer.call_args_list if call.args)
             self.assertIn("已加入关注列表 2 只股票", printed)
@@ -258,6 +259,27 @@ class MonitorCliTest(unittest.TestCase):
             self.assertIn("已删除 1 只股票", printed)
             rows = DuckDBStorage(db).list_monitor_watchlist()
             self.assertEqual([row["ts_code"] for row in rows], ["600519.SH"])
+
+    def test_cli_watchlist_clear_removes_all_symbols(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.upsert_monitor_watchlist(ts_code="000001.SZ", name="平安银行")
+            storage.upsert_monitor_watchlist(ts_code="600519.SH", name="贵州茅台")
+
+            with patch("builtins.print") as printer:
+                self.assertEqual(main(["watchlist", "clear", "--db", str(db)]), 0)
+
+            printed = "\n".join(str(call.args[0]) for call in printer.call_args_list if call.args)
+            self.assertIn("已清空关注列表 2 只股票", printed)
+            self.assertEqual(DuckDBStorage(db).list_monitor_watchlist(), [])
+
+    def test_cli_watchlist_symbols_option_is_not_supported(self) -> None:
+        with patch("sys.stderr", new=io.StringIO()):
+            with self.assertRaises(SystemExit):
+                main(["watchlist", "add", "--symbols", "000001"])
+            with self.assertRaises(SystemExit):
+                main(["watchlist", "remove", "--symbols", "000001"])
 
     def test_cli_watchlist_import_screened_imports_selected_passed_rows(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -8,6 +8,7 @@ data/
 !sats/data/
 sats/data/*
 !sats/data/astock_provider.py
+!sats/data/resolver.py
 !sats/data/tushare_provider.py
 !sats/data/tushare_stock_datasets.py
 reports/
