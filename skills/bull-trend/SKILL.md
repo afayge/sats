@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: bull_trend, 多头趋势, 趋势分析, 趋势向上, MA5, MA10, MA20, 回踩低吸, 不追高
 requires_tools: indicators, tickflow_provider
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: full
+priority: 76
+aliases: 多头趋势, bull trend, 趋势策略
 ---
 
 # bull-trend
@@ -21,4 +26,4 @@ requires_tools: indicators, tickflow_provider
 ## SATS 边界
 
 只使用 SATS 已注入的个股行情、指标和大盘上下文。没有真实结构化数据时，只能解释方法或建议运行 `/dsa --stocks ...`、`/chat 分析...`。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

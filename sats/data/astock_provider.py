@@ -10,6 +10,7 @@ from sats.data.akshare_provider import AkShareDataProvider
 from sats.data.base import MarketDataProvider
 from sats.data.limit_sentiment import build_limit_sentiment_payload, build_quote_limit_sentiment_payload
 from sats.data.tickflow_provider import DEFAULT_A_SHARE_UNIVERSE_ID, TickFlowDataProvider
+from sats.data.provider_capabilities import list_provider_capabilities
 from sats.data.tushare_provider import SCREENING_TRADE_DAYS, TushareDataProvider
 from sats.data.tushare_stock_datasets import (
     get_tushare_dataset,
@@ -98,6 +99,21 @@ class AStockDataProvider(MarketDataProvider):
             except Exception:
                 return []
         return []
+
+    def load_provider_capabilities(
+        self,
+        *,
+        provider: str | None = None,
+        category: str | None = None,
+        realtime: bool | None = None,
+        compact: bool = False,
+    ) -> list[dict[str, Any]]:
+        return list_provider_capabilities(
+            provider=provider,
+            category=category,
+            realtime=realtime,
+            compact=compact,
+        )
 
     def load_stock_basic(self, *, storage: DuckDBStorage | None = None) -> pd.DataFrame:
         tick = self.tickflow
@@ -435,6 +451,18 @@ class AStockDataProvider(MarketDataProvider):
         provider = self.tushare
         if provider is not None and hasattr(provider, "_load_ths_sector_members"):
             return provider._load_ths_sector_members(sector_codes, storage=storage)
+        return storage.get_sector_members(sector_codes)
+
+    def load_sw_sector_basic(self, *, storage: DuckDBStorage) -> pd.DataFrame:
+        provider = self.tushare
+        if provider is not None and hasattr(provider, "_load_sw_sector_basic"):
+            return provider._load_sw_sector_basic(storage=storage)
+        return storage.get_sector_basic(sector_types=["sw_l1", "sw_l2", "sw_l3"])
+
+    def load_sw_sector_members(self, sector_codes: list[str], *, storage: DuckDBStorage) -> pd.DataFrame:
+        provider = self.tushare
+        if provider is not None and hasattr(provider, "_load_sw_sector_members"):
+            return provider._load_sw_sector_members(sector_codes, storage=storage)
         return storage.get_sector_members(sector_codes)
 
     def load_chip_context(self, symbols: list[str]) -> dict[str, dict[str, Any]]:

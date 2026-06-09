@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Mapping
 
+from sats.data.provider_capabilities import planner_provider_capabilities
 from sats.agent.date_policy import sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy
 
@@ -103,7 +104,14 @@ class AgentToolRegistry:
         return rows
 
     def planner_context(self) -> str:
-        return json.dumps(self.summaries(), ensure_ascii=False, default=str)
+        return json.dumps(
+            {
+                "tools": self.summaries(),
+                "data_capabilities": planner_provider_capabilities(),
+            },
+            ensure_ascii=False,
+            default=str,
+        )
 
     def execute(self, name: str, arguments: Mapping[str, Any] | None, context: AgentToolContext) -> AgentToolResult:
         tool_name = str(name or "").strip()

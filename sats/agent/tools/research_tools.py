@@ -11,10 +11,20 @@ from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSp
 from sats.analysis.stock_llm_context import ensure_stock_analysis_data
 from sats.backtesting.service import format_backtest_report, run_strategy_backtest
 from sats.backtesting.strategy_spec import strategy_draft_python, strategy_spec_from_request, validate_strategy_spec
+from sats.chat_components import (
+    build_chan_context_component,
+    build_knowledge_context_component,
+    build_market_context_component,
+    build_opportunity_component,
+    build_stock_context_component,
+    run_internal_analysis_component,
+    run_rule_generation_component,
+)
 from sats.chat_artifacts import save_json_artifact, save_markdown_artifact
+from sats.memory import ChatMemoryStore
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.signals import SignalInput, analyze_signal_inputs
-from sats.stock_question import extract_stock_symbols
+from sats.stock_question import StockQuestion, extract_stock_symbols
 from sats.symbols import normalize_symbols
 
 
@@ -35,7 +45,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                     "dimensions": {"type": "array", "items": {"type": "string"}},
                 }
             ),
-            executor=_chat_registry_tool("get_a_share_market_context", "market_context"),
+            executor=_market_context,
         ),
         AgentToolSpec(
             name="research.stock_context",
@@ -71,7 +81,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 },
                 ["query"],
             ),
-            executor=_chat_registry_tool("discover_a_share_opportunities", "opportunity_discovery"),
+            executor=_discover_opportunities,
         ),
         AgentToolSpec(
             name="research.internal_analysis",
@@ -92,6 +102,45 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 ["kind", "symbols"],
             ),
             executor=_internal_analysis,
+        ),
+        AgentToolSpec(
+            name="research.chan_context",
+            description="获取缠论分析所需的本地 skill 与知识卡上下文。",
+            category="research",
+            side_effect="readonly",
+            timeout=30,
+            input_schema=object_schema({"message": {"type": "string"}}),
+            executor=_chan_context,
+        ),
+        AgentToolSpec(
+            name="research.knowledge_context",
+            description="按知识库或 collection 构建本地研究上下文。",
+            category="knowledge",
+            side_effect="readonly",
+            timeout=30,
+            input_schema=object_schema(
+                {
+                    "message": {"type": "string"},
+                    "knowledge": {"type": "string"},
+                    "collections": {"type": "array", "items": {"type": "string"}},
+                }
+            ),
+            executor=_knowledge_context,
+        ),
+        AgentToolSpec(
+            name="research.rule_generation",
+            description="运行筛选规则计划、修订或确认生成。",
+            category="research_workflow",
+            side_effect="write_artifact",
+            timeout=60,
+            input_schema=object_schema(
+                {
+                    "message": {"type": "string"},
+                    "action": {"type": "string", "enum": ["auto", "plan", "revise", "confirm"]},
+                    "rule_name": {"type": "string"},
+                }
+            ),
+            executor=_rule_generation,
         ),
         AgentToolSpec(
             name="research.chan_kb_search",
@@ -149,30 +198,74 @@ def research_tool_specs() -> list[AgentToolSpec]:
     ]
 
 
-def _chat_registry_tool(name: str, data_name: str):
-    def execute(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
-        from sats.chat import ChatToolRegistry
-
-        registry = ChatToolRegistry(list(context.skills), context.settings)
-        text = registry.execute(name, arguments)
-        try:
-            payload = json.loads(text)
-        except json.JSONDecodeError:
-            payload = {"raw": text}
-        status = str(payload.get("status") or "done") if isinstance(payload, dict) else "done"
-        return AgentToolResult(
-            status="done" if status == "ok" else status,
-            content=text,
-            payload=payload if isinstance(payload, dict) else {"raw": payload},
-            data_names=(data_name,),
+def _market_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    payload = _context_payload(
+        build_market_context_component(
+            str(arguments.get("message") or context.message or "获取大盘上下文"),
+            settings=context.settings,
+            trade_date=str(arguments.get("trade_date") or "").strip() or None,
+            indices=arguments.get("indices") if isinstance(arguments.get("indices"), list) else (),
+            dimensions=arguments.get("dimensions") if isinstance(arguments.get("dimensions"), list) else (),
+            horizons=arguments.get("horizons") if isinstance(arguments.get("horizons"), list) else ([arguments.get("horizon")] if arguments.get("horizon") else ()),
         )
+    )
+    result_payload = {"status": "ok", "market_context": payload}
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(result_payload, ensure_ascii=False, default=str),
+        payload=result_payload,
+        data_names=("market_context",),
+    )
 
-    return execute
+
+def _discover_opportunities(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    result = build_opportunity_component(
+        str(arguments.get("query") or context.message or ""),
+        settings=context.settings,
+        skills=list(context.skills),
+        trade_date=str(arguments.get("trade_date") or "").strip() or None,
+        limit=int(arguments.get("limit")) if arguments.get("limit") is not None else None,
+        candidate_limit=int(arguments.get("candidate_limit") or 50),
+        hot_sector_enabled=bool(arguments.get("hot_sector", True)),
+        hot_sector_days=int(arguments.get("hot_sector_days") or 5),
+        progress=None,
+    )
+    payload = _context_payload(result)
+    legacy = result.discovery.to_llm_context() if hasattr(result, "discovery") else payload
+    artifacts: list[dict[str, Any]] = []
+    report_path = str(getattr(result, "report_path", "") or "").strip()
+    if report_path:
+        artifacts.append({"kind": "report", "title": "opportunity_report", "path": report_path, "mime_type": "text/markdown"})
+    result_payload = {"status": "ok", "stock_picking_agent": payload, "opportunity_discovery": legacy}
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(result_payload, ensure_ascii=False, default=str),
+        payload=result_payload,
+        data_names=("opportunity_discovery",),
+        artifacts=tuple(artifacts),
+    )
 
 
 def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     if not is_forecast_without_intraday(context.message, arguments):
-        return _chat_registry_tool("get_stock_research_context", "stock_context")(context, arguments)
+        symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
+        stock_context = build_stock_context_component(
+            " ".join(symbols),
+            settings=context.settings,
+            question=StockQuestion(
+                symbols=symbols,
+                trade_date=str(arguments.get("trade_date") or "").strip() or None,
+                has_stock_question=True,
+            ),
+        )
+        payload = _context_payload(stock_context)
+        result_payload = {"status": "ok", "stock_context": payload}
+        return AgentToolResult(
+            status="done",
+            content=json.dumps(result_payload, ensure_ascii=False, default=str),
+            payload=result_payload,
+            data_names=("stock_context",),
+        )
     symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
     trade_date = str(arguments.get("trade_date") or agent_today())
     stock_contexts = ensure_stock_analysis_data(
@@ -194,7 +287,14 @@ def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> Agen
 def _internal_analysis(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     kind = str(arguments.get("kind") or "").strip()
     if kind not in {"indicators", "analyze_signals"} or not is_forecast_without_intraday(context.message, arguments):
-        return _chat_registry_tool("run_internal_analysis", "internal_analysis")(context, arguments)
+        payload = run_internal_analysis_component(context.settings, arguments)
+        result_payload = {"status": "ok", "analysis": payload}
+        return AgentToolResult(
+            status="done",
+            content=json.dumps(result_payload, ensure_ascii=False, default=str),
+            payload=result_payload,
+            data_names=("internal_analysis",),
+        )
     symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
     trade_date = str(arguments.get("trade_date") or agent_today())
     stock_contexts = ensure_stock_analysis_data(
@@ -233,6 +333,70 @@ def _internal_analysis(context: AgentToolContext, arguments: dict[str, Any]) -> 
         content=json.dumps({"status": "ok", "analysis": payload}, ensure_ascii=False, default=str),
         payload={"status": "ok", "analysis": payload},
         data_names=("internal_analysis",),
+    )
+
+
+def _chan_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    payload = _context_payload(build_chan_context_component(str(arguments.get("message") or context.message or ""), skills=list(context.skills)))
+    result_payload = {"status": "ok", "chan_context": payload}
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(result_payload, ensure_ascii=False, default=str),
+        payload=result_payload,
+        data_names=("chan_context",),
+    )
+
+
+def _knowledge_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    knowledge_context = build_knowledge_context_component(
+        str(arguments.get("message") or context.message or ""),
+        settings=context.settings,
+        explicit_knowledge=str(arguments.get("knowledge") or "").strip() or None,
+        collections=arguments.get("collections") if isinstance(arguments.get("collections"), list) else (),
+    )
+    payload = {}
+    if knowledge_context is not None:
+        payload = {
+            "collections": list(knowledge_context.collections),
+            "sources": list(knowledge_context.sources),
+            "system_message": knowledge_context.system_message,
+        }
+    result_payload = {"status": "ok", "knowledge_context": payload}
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(result_payload, ensure_ascii=False, default=str),
+        payload=result_payload,
+        data_names=("knowledge_context",),
+    )
+
+
+def _rule_generation(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    store = context.store or ChatMemoryStore(getattr(context.settings, "db_path", None))
+    outcome = run_rule_generation_component(
+        str(arguments.get("message") or context.message or ""),
+        settings=context.settings,
+        store=store,
+        session_id=context.session_id or "agent",
+        action=str(arguments.get("action") or "auto"),
+        rule_name=str(arguments.get("rule_name") or ""),
+    )
+    payload = {
+        "status": "ok",
+        "rule_generation": {
+            "content": outcome.content,
+            "data_names": list(outcome.data_names),
+            "payload": outcome.payload,
+            "pending_action_id": outcome.pending_action_id or "",
+            "requires_confirmation": outcome.requires_confirmation,
+            "artifacts": list(outcome.artifacts),
+        },
+    }
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(payload, ensure_ascii=False, default=str),
+        payload=payload,
+        data_names=tuple(outcome.data_names),
+        artifacts=tuple(outcome.artifacts),
     )
 
 
@@ -408,3 +572,18 @@ def _artifact_dict(context: AgentToolContext, write: Any) -> dict[str, Any]:
 
 def _project_root(context: AgentToolContext) -> Path:
     return Path(getattr(context.settings, "project_root", "."))
+
+
+def _context_payload(context: Any) -> Any:
+    if context is None:
+        return {}
+    builder = getattr(context, "to_llm_context", None)
+    if callable(builder):
+        return builder()
+    payload = getattr(context, "payload", None)
+    if payload is not None:
+        return payload
+    to_dict = getattr(context, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    return {}

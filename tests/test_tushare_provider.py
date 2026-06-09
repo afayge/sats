@@ -54,6 +54,8 @@ class FakeBatchPro:
         self.ths_index_types: list[str] = []
         self.ths_daily_calls: list[str] = []
         self.ths_member_calls: list[str] = []
+        self.index_classify_calls: list[dict] = []
+        self.index_member_all_calls: list[dict] = []
         self.limit_list_d_calls: list[str] = []
 
     def stock_basic(self, **kwargs):
@@ -131,6 +133,35 @@ class FakeBatchPro:
                 "is_new": ["N"] * len(members),
             }
         )
+
+    def index_classify(self, **kwargs):
+        self.index_classify_calls.append(dict(kwargs))
+        level = kwargs.get("level", "")
+        rows = {
+            "L1": [{"index_code": "801780.SI", "industry_name": "银行", "level": "L1", "src": "SW2021"}],
+            "L2": [{"index_code": "801783.SI", "industry_name": "股份制银行Ⅱ", "level": "L2", "src": "SW2021"}],
+            "L3": [{"index_code": "851911.SI", "industry_name": "贸易Ⅲ", "level": "L3", "src": "SW2021"}],
+        }.get(level, [])
+        return pd.DataFrame(rows)
+
+    def index_member_all(self, **kwargs):
+        self.index_member_all_calls.append(dict(kwargs))
+        if kwargs.get("l1_code") == "801780.SI":
+            rows = [
+                {"l1_code": "801780.SI", "l1_name": "银行", "ts_code": "000001.SZ", "name": "平安银行", "is_new": "Y"},
+                {"l1_code": "801780.SI", "l1_name": "银行", "ts_code": "00700.HK", "name": "腾讯控股", "is_new": "Y"},
+            ]
+        elif kwargs.get("l2_code") == "801783.SI":
+            rows = [
+                {"l2_code": "801783.SI", "l2_name": "股份制银行Ⅱ", "ts_code": "600000.SH", "name": "浦发银行", "is_new": "N"}
+            ]
+        elif kwargs.get("l3_code") == "851911.SI":
+            rows = [
+                {"l3_code": "851911.SI", "l3_name": "贸易Ⅲ", "ts_code": "600153.SH", "name": "建发股份", "is_new": "Y"}
+            ]
+        else:
+            rows = []
+        return pd.DataFrame(rows)
 
     def limit_list_d(self, **kwargs):
         limit_type = kwargs.get("limit_type", "")
@@ -914,6 +945,46 @@ class TushareDataProviderTest(unittest.TestCase):
 
             self.assertEqual(cached_context["data_sources"]["sector_basic"], "duckdb_cache_or_unavailable")
             self.assertEqual(cached_context["stock_hot_sectors"]["000938.SZ"][0]["name"], "AI算力")
+
+    def test_load_sw_sector_basic_and_members_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            provider = object.__new__(TushareDataProvider)
+            provider.pro = FakeBatchPro()
+            provider._stock_basic_cache = {}
+
+            basic = provider._load_sw_sector_basic(storage=storage)
+            members = provider._load_sw_sector_members(["801780.SI", "801783.SI", "851911.SI"], storage=storage)
+
+            self.assertEqual([call["level"] for call in provider.pro.index_classify_calls], ["L1", "L2", "L3"])
+            self.assertTrue(all(call["src"] == "SW2021" for call in provider.pro.index_classify_calls))
+            self.assertEqual(basic.attrs["data_source"], "tushare_sw_index_classify")
+            self.assertEqual(
+                basic[["sector_code", "name", "sector_type"]].values.tolist(),
+                [
+                    ["801780.SI", "银行", "sw_l1"],
+                    ["801783.SI", "股份制银行Ⅱ", "sw_l2"],
+                    ["851911.SI", "贸易Ⅲ", "sw_l3"],
+                ],
+            )
+            self.assertEqual(
+                provider.pro.index_member_all_calls,
+                [{"l1_code": "801780.SI"}, {"l2_code": "801783.SI"}, {"l3_code": "851911.SI"}],
+            )
+            self.assertEqual(members.attrs["data_source"], "tushare_sw_index_member_all")
+            self.assertEqual(members["ts_code"].tolist(), ["000001.SZ", "600000.SH", "600153.SH"])
+            self.assertEqual(storage.get_sector_basic(sector_types=["sw_l3"]).iloc[0]["sector_code"], "851911.SI")
+            self.assertEqual(storage.get_sector_members(["801780.SI"])["ts_code"].tolist(), ["000001.SZ"])
+
+            cached_provider = object.__new__(TushareDataProvider)
+            cached_provider.pro = None
+            cached_provider._stock_basic_cache = {}
+            cached_basic = cached_provider._load_sw_sector_basic(storage=storage)
+            cached_members = cached_provider._load_sw_sector_members(["851911.SI"], storage=storage)
+
+            self.assertEqual(cached_basic.attrs["data_source"], "duckdb_cache_or_unavailable")
+            self.assertEqual(cached_members.attrs["data_source"], "duckdb_cache_or_unavailable")
+            self.assertEqual(cached_members.iloc[0]["ts_code"], "600153.SH")
 
     def test_load_hot_sector_context_degrades_when_tushare_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

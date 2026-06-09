@@ -5,6 +5,11 @@ category: analysis
 source: Vibe-Trading adapted for SATS
 triggers: 情绪, 市场情绪, 北向资金, 融资融券, 涨跌停, 舆情, 新闻, 恐慌, 贪婪
 requires_tools: tushare_provider
+applies_to: market_analysis, opportunity_discovery, stock_analysis
+evidence: market_context, market_breadth, limit_sentiment, hot_sectors
+auto_load: full
+priority: 88
+aliases: 情绪面, 市场宽度, 涨跌停情绪
 ---
 
 # sentiment-analysis
@@ -15,3 +20,4 @@ requires_tools: tushare_provider
 - 资金情绪：北向资金、主力净流入、板块资金。
 - 新闻舆情：若 SATS 未配置新闻源，只能解释框架，不能编造新闻。
 - 输出建议：偏热 / 中性 / 偏冷，并说明依据与缺失项。
+- 价格、成交量、K 线、quote、情绪字段、因子和信号必须来自 SATS observations/provenance。

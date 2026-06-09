@@ -40,7 +40,8 @@ from sats.symbols import normalize_symbols, normalize_ts_code
 
 DEFAULT_AGENT_PROFILE = "technical_short_up"
 STOCK_PICKING_ACTION = "stock_picking_agent"
-ThemeUniverseSource = Literal["ths_sector", "llm_theme_universe", "none"]
+ThemeUniverseSource = Literal["ths_sector", "sw_sector", "llm_theme_universe", "none"]
+SW_SECTOR_TYPES = ("sw_l1", "sw_l2", "sw_l3")
 _THEME_STOP_WORDS = {
     "a股",
     "个股",
@@ -85,6 +86,18 @@ _THEME_STOP_WORDS = {
     "pb",
     "roe",
 }
+_GENERIC_SHORT_UP_QUANTIFIERS = (
+    "一些",
+    "几个",
+    "几只",
+    "几支",
+    "若干",
+    "多只",
+    "十只",
+    "十支",
+    "10只",
+    "10支",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -517,18 +530,35 @@ def resolve_theme_universe(
         hot_sector_days=hot_sector_days,
         max_symbols=max_symbols,
     )
-    if ths_universe.source == "ths_sector":
+    if ths_universe.source == "ths_sector" and ths_universe.symbols:
         return ths_universe
+    sw_universe = _resolve_sw_theme_universe(
+        theme,
+        provider=provider,
+        storage=storage,
+        max_symbols=max_symbols,
+    )
+    if sw_universe.source == "sw_sector" and sw_universe.symbols:
+        return sw_universe
     if not llm_enabled or llm_factory is None:
-        warnings = [*ths_universe.warnings, "llm_theme_universe: disabled"]
-        return ThemeUniverse(theme=theme, source="none", warnings=tuple(_dedupe(warnings)))
+        warnings = [*ths_universe.warnings, *sw_universe.warnings, "llm_theme_universe: disabled"]
+        return ThemeUniverse(
+            theme=theme,
+            matched_sector=ths_universe.matched_sector or sw_universe.matched_sector,
+            source="none",
+            warnings=tuple(_dedupe(warnings)),
+        )
+    matched_sector = ths_universe.matched_sector or sw_universe.matched_sector
+    matched_sector_source = "ths" if ths_universe.matched_sector else "sw" if sw_universe.matched_sector else ""
     llm_universe = _resolve_llm_theme_universe(
         theme,
         provider=provider,
         storage=storage,
         llm_factory=llm_factory,
         settings=settings,
-        prior_warnings=ths_universe.warnings,
+        prior_warnings=tuple(_dedupe([*ths_universe.warnings, *sw_universe.warnings])),
+        matched_sector=matched_sector,
+        matched_sector_source=matched_sector_source,
     )
     return llm_universe
 
@@ -627,6 +657,77 @@ def _load_ths_sector_members(*, provider: Any, storage: DuckDBStorage, sector_co
         return pd.DataFrame()
 
 
+def _resolve_sw_theme_universe(
+    theme: str,
+    *,
+    provider: Any,
+    storage: DuckDBStorage,
+    max_symbols: int,
+) -> ThemeUniverse:
+    warnings: list[str] = []
+    sectors = _load_sw_sector_basic(provider=provider, storage=storage)
+    if sectors.empty:
+        return ThemeUniverse(theme=theme, source="none", warnings=("sw_sector: no_sector_basic",))
+    match = _match_ths_sector(theme, sectors)
+    if match is None:
+        return ThemeUniverse(theme=theme, source="none")
+    sector_code = str(match.get("sector_code") or "").strip()
+    matched_sector = str(match.get("name") or theme).strip()
+    if not sector_code:
+        return ThemeUniverse(
+            theme=theme,
+            matched_sector=matched_sector,
+            source="sw_sector",
+            confidence=0.9,
+            warnings=("sw_sector: missing_sector_code",),
+        )
+    members = _load_sw_sector_members(provider=provider, storage=storage, sector_codes=[sector_code])
+    if members.empty:
+        warnings.append(f"sw_sector_members: empty:{matched_sector}")
+    stocks = _theme_stocks_from_ths_members(members, source="sw_sector", max_symbols=max_symbols)
+    if not stocks:
+        warnings.append(f"sw_sector_members: no_valid_symbols:{matched_sector}")
+    return ThemeUniverse(
+        theme=theme,
+        stocks=tuple(stocks),
+        matched_sector=matched_sector,
+        source="sw_sector",
+        confidence=0.94,
+        warnings=tuple(_dedupe(warnings)),
+    )
+
+
+def _load_sw_sector_basic(*, provider: Any, storage: DuckDBStorage) -> pd.DataFrame:
+    if hasattr(provider, "load_sw_sector_basic"):
+        try:
+            frame = provider.load_sw_sector_basic(storage=storage)
+            if isinstance(frame, pd.DataFrame) and not frame.empty:
+                return frame
+        except Exception:
+            pass
+    try:
+        frame = storage.get_sector_basic(sector_types=list(SW_SECTOR_TYPES))
+        if isinstance(frame, pd.DataFrame):
+            return frame
+    except Exception:
+        pass
+    return pd.DataFrame()
+
+
+def _load_sw_sector_members(*, provider: Any, storage: DuckDBStorage, sector_codes: list[str]) -> pd.DataFrame:
+    if hasattr(provider, "load_sw_sector_members"):
+        try:
+            frame = provider.load_sw_sector_members(sector_codes, storage=storage)
+            if isinstance(frame, pd.DataFrame):
+                return frame
+        except Exception:
+            pass
+    try:
+        return storage.get_sector_members(sector_codes)
+    except Exception:
+        return pd.DataFrame()
+
+
 def _theme_stocks_from_ths_members(
     members: pd.DataFrame,
     *,
@@ -637,6 +738,7 @@ def _theme_stocks_from_ths_members(
         return []
     stocks: list[ThemeUniverseStock] = []
     seen: set[str] = set()
+    relation_type = "sw_member" if source == "sw_sector" else "ths_member"
     for _, row in members.iterrows():
         ts_code = normalize_ts_code(str(row.get("ts_code") or "").strip())
         if not _is_a_share_ts_code(ts_code) or ts_code in seen:
@@ -646,7 +748,7 @@ def _theme_stocks_from_ths_members(
             ThemeUniverseStock(
                 ts_code=ts_code,
                 name=str(row.get("name") or "").strip(),
-                relation_type="ths_member",
+                relation_type=relation_type,
                 source=source,
                 confidence=0.98,
             )
@@ -690,14 +792,24 @@ def _resolve_llm_theme_universe(
     llm_factory: Callable[..., Any],
     settings: Settings | None,
     prior_warnings: tuple[str, ...],
+    matched_sector: str = "",
+    matched_sector_source: str = "",
 ) -> ThemeUniverse:
     warnings = list(prior_warnings)
     stock_basic = _load_stock_basic_for_theme(provider=provider, storage=storage)
     if stock_basic.empty:
         warnings.append("stock_basic: unavailable")
+    if matched_sector:
+        matched_label = "申万" if matched_sector_source == "sw" else "同花顺"
+        lookup_instruction = (
+            f"{matched_label}命中了“{matched_sector}”板块，但板块成分股查询没有得到可校验的中国 A 股代码。"
+            f"请回答“{matched_sector}板块有哪些 A 股股票？”。\n"
+        )
+    else:
+        lookup_instruction = f"THS/同花顺和申万都没有找到“{theme}”相关行业/概念板块。请回答“{theme} 相关 A 股股票有哪些？”。\n"
     prompt = (
         "你是 SATS 的 A 股主题股票池解析器，只提供候选股票池线索，不做行情、热度、买卖或上涨判断。"
-        f"HTS/同花顺没有找到“{theme}”相关行业/概念板块。请回答“{theme} 相关 A 股股票有哪些？”。\n"
+        f"{lookup_instruction}"
         "只返回你明确知道与该主题相关的具体中国 A 股上市公司；不要为了数量补充弱相关股票。"
         "不要返回板块名、行业名、ETF、指数、港股、美股，也不要从行业/板块名自行扩展成分股。"
         "返回严格 JSON，不能有 Markdown，结构必须是："
@@ -710,17 +822,18 @@ def _resolve_llm_theme_universe(
         data = _chat_json(llm, [{"role": "user", "content": prompt}])
     except Exception as exc:
         warnings.append(f"llm_theme_universe: {exc}")
-        return ThemeUniverse(theme=theme, source="none", warnings=tuple(_dedupe(warnings)))
+        return ThemeUniverse(theme=theme, matched_sector=matched_sector, source="none", warnings=tuple(_dedupe(warnings)))
     stocks, validation_warnings = _validate_llm_theme_stocks(data, stock_basic=stock_basic)
     warnings.extend(validation_warnings)
     uncertainties = data.get("uncertainties")
     if isinstance(uncertainties, list):
         warnings.extend(f"llm_uncertainty: {item}" for item in uncertainties[:5] if str(item).strip())
     if not stocks:
-        return ThemeUniverse(theme=theme, source="none", warnings=tuple(_dedupe(warnings)))
+        return ThemeUniverse(theme=theme, matched_sector=matched_sector, source="none", warnings=tuple(_dedupe(warnings)))
     return ThemeUniverse(
         theme=str(data.get("theme") or theme).strip() or theme,
         stocks=tuple(stocks),
+        matched_sector=matched_sector,
         source="llm_theme_universe",
         confidence=0.75,
         warnings=tuple(_dedupe(warnings)),
@@ -827,12 +940,12 @@ def _extract_theme_from_query(query: str) -> str:
     text = str(query or "").strip()
     if not text:
         return ""
-    if is_generic_hot_sector_discovery_question(text):
+    if is_generic_hot_sector_discovery_question(text) or _is_generic_short_up_discovery_query(text):
         return ""
     patterns = [
         r"([A-Za-z][A-Za-z0-9+\-_/]{1,24})\s*(?:相关(?:股票|个股|A股)?|概念股|概念|板块|题材|产业链)",
         r"([\u4e00-\u9fffA-Za-z0-9+\-_/]{2,18})\s*(?:相关(?:股票|个股|A股)?|概念股|概念|板块|题材|产业链)",
-        r"(?:找|筛|推荐|给出|分析|看看|关注)\s*([\u4e00-\u9fffA-Za-z0-9+\-_/]{2,18})(?:相关|概念股|股票|个股|产业链)",
+        r"(?:找|筛|推荐|给出|分析|看看|关注)\s*([\u4e00-\u9fffA-Za-z0-9+\-_/]{2,18})(?:相关|概念股|产业链)",
     ]
     for pattern in patterns:
         match = re.search(pattern, text, flags=re.IGNORECASE)
@@ -847,6 +960,20 @@ def _extract_theme_from_query(query: str) -> str:
             if theme:
                 return theme
     return ""
+
+
+def _is_generic_short_up_discovery_query(value: str) -> bool:
+    text = re.sub(r"\s+", "", str(value or "").strip())
+    if not text:
+        return False
+    has_action = any(term in text for term in ("给出", "推荐", "筛选", "找出", "选出", "挑选", "列出", "返回"))
+    has_stock = any(term in text for term in ("股票", "个股", "标的", "候选"))
+    has_upside = any(term in text for term in ("上涨", "涨", "短线", "机会", "强势", "未来几天", "未来几日", "明天", "下周"))
+    has_quantity = any(term in text for term in _GENERIC_SHORT_UP_QUANTIFIERS) or bool(
+        re.search(r"(?:top|前)?[0-9一二两三四五六七八九十百]+(?:只|支|个|名)?", text, flags=re.IGNORECASE)
+    )
+    has_explicit_theme_marker = any(term in text for term in ("相关", "概念股", "概念", "板块", "题材", "产业链", "行业", "赛道"))
+    return has_action and has_stock and has_upside and has_quantity and not has_explicit_theme_marker
 
 
 def _clean_theme_candidate(value: str) -> str:
@@ -882,11 +1009,20 @@ def _clean_theme_candidate(value: str) -> str:
     for suffix in ("相关股票", "相关个股", "相关A股", "概念股", "相关", "股票", "个股", "概念", "板块", "题材", "产业链", "的"):
         if text.endswith(suffix):
             text = text[: -len(suffix)].strip()
-    if not text or _theme_key(text) in _THEME_STOP_WORDS:
+    if not text or _theme_key(text) in _THEME_STOP_WORDS or _is_generic_short_up_theme_phrase(text):
         return ""
     if len(text) > 24:
         return ""
     return text.upper() if re.fullmatch(r"[A-Za-z0-9+\-_/]+", text) else text
+
+
+def _is_generic_short_up_theme_phrase(value: str) -> bool:
+    text = _theme_key(value)
+    if not text:
+        return True
+    if any(term in text for term in ("上涨", "短线", "机会", "可能涨", "未来几天", "未来几日", "大概率", "强势")):
+        return True
+    return text in {"一些", "几个", "几只", "几支", "十只", "十支", "候选", "标的"}
 
 
 def _theme_key(value: str) -> str:
@@ -910,12 +1046,18 @@ def _format_theme_universe_line(universe: ThemeUniverse) -> str:
         return ""
     if universe.source == "ths_sector" and universe.symbols:
         sector = universe.matched_sector or universe.theme
-        return f"主题股票池: THS 概念板块 {sector}，共 {universe.count} 只"
+        return f"主题股票池: THS 板块 {sector}，共 {universe.count} 只"
+    if universe.source == "sw_sector" and universe.symbols:
+        sector = universe.matched_sector or universe.theme
+        return f"主题股票池: 申万行业 {sector}，共 {universe.count} 只"
     if universe.source == "llm_theme_universe" and universe.symbols:
         return f"主题股票池: LLM 主题线索 {universe.theme}，经本地 stock_basic 校验，共 {universe.count} 只"
     if universe.source == "ths_sector":
         sector = universe.matched_sector or universe.theme
-        return f"主题股票池: THS 概念板块 {sector}，但未取得有效成分股"
+        return f"主题股票池: THS 板块 {sector}，但未取得有效成分股"
+    if universe.source == "sw_sector":
+        sector = universe.matched_sector or universe.theme
+        return f"主题股票池: 申万行业 {sector}，但未取得有效成分股"
     return f"主题股票池: 未能确认 {universe.theme} 相关 A 股股票，不关联无关板块"
 
 

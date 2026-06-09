@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: one_yang_three_yin, 一阳夹三阴, 一阳穿三阴, K线整理, 缩量整理, 趋势延续形态
 requires_tools: indicators
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: summary
+priority: 50
+aliases: 一阳夹三阴, K线整理
 ---
 
 # one-yang-three-yin
@@ -20,4 +25,4 @@ requires_tools: indicators
 - 失效条件：整理期间放量下跌、跌破第 1 日起点或突破失败。
 
 该形态必须结合趋势、量能和位置解释，不单独作为买入依据。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

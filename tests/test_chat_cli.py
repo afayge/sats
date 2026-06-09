@@ -31,7 +31,10 @@ class ChatCliTest(unittest.TestCase):
             self.assertEqual(main(["chat", "帮我", "解释筛选规则"]), 0)
 
         agent.assert_called_once()
-        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n回答")
+        output = stdout.getvalue()
+        self.assertIn("# SATS 自然对话输出", output)
+        self.assertIn("`数据: Agent`", output)
+        self.assertIn("> 回答", output)
 
     def test_cli_chat_can_disable_memory(self) -> None:
         stdout = StringIO()
@@ -46,7 +49,10 @@ class ChatCliTest(unittest.TestCase):
             self.assertEqual(main(["chat", "--no-memory", "临时问题"]), 0)
 
         agent.assert_called_once()
-        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n回答")
+        output = stdout.getvalue()
+        self.assertIn("# SATS 自然对话输出", output)
+        self.assertIn("`数据: Agent`", output)
+        self.assertIn("> 回答", output)
 
     def test_cli_chat_no_agent_can_disable_memory(self) -> None:
         stdout = StringIO()
@@ -60,7 +66,9 @@ class ChatCliTest(unittest.TestCase):
             self.assertEqual(main(["chat", "--no-agent", "--no-memory", "临时问题"]), 0)
 
         chat.assert_called_once_with("临时问题", settings=settings, memory_enabled=False)
-        self.assertEqual(stdout.getvalue().strip(), "回答")
+        output = stdout.getvalue()
+        self.assertIn("# SATS 自然对话输出", output)
+        self.assertIn("> 回答", output)
 
     def test_cli_chat_can_confirm_runtime_action(self) -> None:
         stdout = StringIO()
@@ -75,7 +83,10 @@ class ChatCliTest(unittest.TestCase):
             self.assertEqual(main(["chat", "--confirm", "act_123"]), 0)
 
         confirm.assert_called_once()
-        self.assertEqual(stdout.getvalue().strip(), "数据: Runtime\n已执行")
+        output = stdout.getvalue()
+        self.assertIn("# SATS 执行结果", output)
+        self.assertIn("`数据: Runtime`", output)
+        self.assertIn("> 已执行", output)
 
     def test_cli_chat_can_show_runtime_trace(self) -> None:
         stdout = StringIO()
@@ -104,7 +115,10 @@ class ChatCliTest(unittest.TestCase):
             self.assertEqual(main(["chat", "分析002436"]), 0)
 
         agent.assert_called_once()
-        self.assertEqual(stdout.getvalue().strip(), "数据: Agent\n真实数据分析")
+        output = stdout.getvalue()
+        self.assertIn("# SATS 自然对话输出", output)
+        self.assertIn("`数据: Agent`", output)
+        self.assertIn("> 真实数据分析", output)
 
     def test_cli_chat_reports_stock_context_failure_before_llm_output(self) -> None:
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")

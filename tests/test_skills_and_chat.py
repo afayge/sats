@@ -24,6 +24,7 @@ from sats.cli import main
 from sats.llm import LLMResponse, ToolCallRequest
 from sats.analysis.opportunity_discovery import estimate_llm_message_tokens, llm_context_input_budget_tokens
 from sats.screening.rule_composer import GeneratedRuleResult
+from sats.skill_routing import SkillRouteContext, select_skills
 from sats.skills import Skill, format_skill_list, load_skills, match_skills, parse_skill_file
 from sats.stock_question import StockQuestion
 
@@ -361,6 +362,79 @@ class SkillLoadingTest(unittest.TestCase):
         self.assertEqual(skill.triggers, ())
         self.assertEqual(skill.content, "正文。")
 
+    def test_loads_skill_auto_routing_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "SKILL.md"
+            path.write_text(
+                "---\n"
+                "name: custom-stock-skill\n"
+                "description: 自定义个股分析方法\n"
+                "category: analysis\n"
+                "triggers: 自定义\n"
+                "requires_tools: indicators\n"
+                "applies_to: stock_analysis, opportunity_discovery\n"
+                "evidence: indicators, analyze_signals\n"
+                "auto_load: full\n"
+                "priority: 77\n"
+                "aliases: 自定义股票方法, custom stock\n"
+                "---\n"
+                "\n"
+                "正文。\n",
+                encoding="utf-8",
+            )
+
+            skill = parse_skill_file(path, skill_id="custom-stock-skill")
+
+        self.assertEqual(skill.applies_to, ("stock_analysis", "opportunity_discovery"))
+        self.assertEqual(skill.evidence, ("indicators", "analyze_signals"))
+        self.assertEqual(skill.auto_load, "full")
+        self.assertEqual(skill.priority, 77)
+        self.assertEqual(skill.aliases, ("自定义股票方法", "custom stock"))
+
+    def test_skill_router_selects_metadata_only_stock_skill(self) -> None:
+        skills = [
+            Skill(
+                "custom-stock-skill",
+                "custom-stock-skill",
+                "自定义个股分析方法",
+                (),
+                "正文。",
+                Path("SKILL.md"),
+                category="analysis",
+                applies_to=("stock_analysis",),
+                evidence=("indicators",),
+                auto_load="full",
+                priority=10,
+            )
+        ]
+
+        route = select_skills(
+            SkillRouteContext(
+                message="分析 000938 下周走势",
+                intent="stock_analysis",
+                planned_tools=("research.stock_context", "research.internal_analysis"),
+                internal_analysis_kinds=("indicators",),
+            ),
+            skills,
+        )
+
+        self.assertEqual(route.skill_ids, ("custom-stock-skill",))
+        self.assertEqual(route.selections[0].load_mode, "full")
+        self.assertIn("technical", route.collections)
+
+    def test_skill_router_prioritizes_explicit_skill_name(self) -> None:
+        skills = [
+            Skill("market", "market", "", (), "body", Path("market")),
+            Skill("risk-analysis", "risk-analysis", "", (), "body", Path("risk")),
+        ]
+
+        route = select_skills(
+            SkillRouteContext(message="只用 risk-analysis 解释", intent="market_analysis", explicit_skill_names=("risk-analysis",)),
+            skills,
+        )
+
+        self.assertEqual(route.skill_ids[0], "risk-analysis")
+
     def test_matches_skills_by_trigger_and_limits_results(self) -> None:
         skills = [
             Skill("a", "a", "", ("股票",), "a", Path("a")),
@@ -521,16 +595,25 @@ class ChatSessionTest(unittest.TestCase):
         self.assertIn("stock_context", stock_plan.data_requirements)
         self.assertIn("market_context", stock_plan.data_requirements)
         self.assertIn("technical-basic", stock_plan.skills)
+        self.assertIn("risk-analysis", stock_plan.skills)
+        self.assertIn("bull-trend", stock_plan.skills)
 
         market_plan = build_chat_plan("今天A股大盘分析，明天走势预测", skills=skills)
         self.assertEqual(market_plan.intent, "market_analysis")
         self.assertIn("market_context", market_plan.data_requirements)
+        self.assertIn("sats-market-assistant", market_plan.skills)
+        self.assertIn("sentiment-analysis", market_plan.skills)
+        self.assertIn("sector-rotation", market_plan.skills)
+        self.assertIn("market-microstructure", market_plan.skills)
+        self.assertIn("emotion-cycle", market_plan.skills)
 
         discovery_plan = build_chat_plan("给出几个未来几天可能上涨的股票", skills=skills)
         self.assertEqual(discovery_plan.intent, "stock_picking_agent")
         self.assertIn("stock_picking_agent", discovery_plan.internal_actions)
         self.assertIn("opportunity_discovery", discovery_plan.internal_actions)
         self.assertIn("sats-market-assistant", discovery_plan.skills)
+        self.assertIn("hot-theme", discovery_plan.skills)
+        self.assertIn("sector-rotation", discovery_plan.skills)
 
         rule_plan = build_chat_plan("新增一个低位放量突破筛选规则", skills=skills)
         self.assertEqual(rule_plan.intent, "screening_rule_generation")
@@ -541,6 +624,15 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(general_plan.intent, "general_qa")
         self.assertEqual(general_plan.data_requirements, ())
         self.assertEqual(general_plan.internal_actions, ())
+
+        financial_plan = build_chat_plan(
+            "评价 000938 基本面和估值",
+            skills=skills,
+            stock_question=StockQuestion(symbols=["000938.SZ"], has_stock_question=True),
+        )
+        self.assertIn("financial-statement", financial_plan.skills)
+        self.assertIn("valuation-model", financial_plan.skills)
+        self.assertIn("fundamental-filter", financial_plan.skills)
 
     def test_stock_analysis_defaults_to_all_stock_domain_rag_collections(self) -> None:
         skills = load_skills(Path("skills"))
@@ -723,10 +815,11 @@ class ChatSessionTest(unittest.TestCase):
 
     def test_chat_session_generates_screening_rule_plan_without_llm(self) -> None:
         FakeLLM.instances = []
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
-        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
-
-        result = session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_low_volume_breakout_chat")
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path("."), db_path=Path(tmp) / "sats.duckdb", openai_model="deepseek-v4-pro")
+            session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+            with patch("sats.chat_components.list_rules", return_value=[]):
+                result = session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_low_volume_breakout_chat")
 
         self.assertIn("新筛选规则生成计划", result.content)
         self.assertIn("nl_test_low_volume_breakout_chat", result.content)
@@ -735,17 +828,22 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(FakeLLM.instances, [])
 
     def test_chat_session_confirms_pending_screening_rule_generation(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
-        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
-        session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_confirm_rule_chat")
-        generated = GeneratedRuleResult(
-            rule_name="nl_test_confirm_rule_chat",
-            class_name="NlTestConfirmRuleChatRule",
-            path=Path("sats/screening/rules/generated/nl_test_confirm_rule_chat.py"),
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path("."), db_path=Path(tmp) / "sats.duckdb", openai_model="deepseek-v4-pro")
+            session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+            with patch("sats.chat_components.list_rules", return_value=[]):
+                session.ask("新增一个低位放量突破筛选规则 rule_name: nl_test_confirm_rule_chat")
+            generated = GeneratedRuleResult(
+                rule_name="nl_test_confirm_rule_chat",
+                class_name="NlTestConfirmRuleChatRule",
+                path=Path("sats/screening/rules/generated/nl_test_confirm_rule_chat.py"),
+            )
 
-        with patch("sats.chat.generate_rule_code", return_value=generated) as generator:
-            result = session.ask("确认生成规则 nl_test_confirm_rule_chat")
+            with (
+                patch("sats.chat_components.list_rules", return_value=[]),
+                patch("sats.chat.generate_rule_code", return_value=generated) as generator,
+            ):
+                result = session.ask("确认生成规则 nl_test_confirm_rule_chat")
 
         generator.assert_called_once()
         self.assertIn("已生成筛选规则: nl_test_confirm_rule_chat", result.content)
@@ -753,22 +851,26 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(result.data_names, ("生成规则",))
 
     def test_chat_session_rejects_confirmation_without_pending_rule(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
-        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path("."), db_path=Path(tmp) / "sats.duckdb", openai_model="deepseek-v4-pro")
+            session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
 
-        result = session.ask("确认生成规则 nl_missing")
+            result = session.ask("确认生成规则 nl_missing")
 
         self.assertIn("当前没有待生成规则", result.content)
 
     def test_chat_session_revises_rule_plan_questions(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
-        session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path("."), db_path=Path(tmp) / "sats.duckdb", openai_model="deepseek-v4-pro")
+            session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
 
-        first = session.ask("新增筛选规则 rule_name: nl_test_news_volume 使用新闻舆情和放量")
-        self.assertIn("需要你确认", first.content)
-        self.assertIn("新闻/舆情", first.content)
+            with patch("sats.chat_components.list_rules", return_value=[]):
+                first = session.ask("新增筛选规则 rule_name: nl_test_news_volume 使用新闻舆情和放量")
+            self.assertIn("需要你确认", first.content)
+            self.assertIn("新闻/舆情", first.content)
 
-        second = session.ask("去掉新闻舆情条件")
+            with patch("sats.chat_components.list_rules", return_value=[]):
+                second = session.ask("去掉新闻舆情条件")
 
         self.assertIn("确认生成规则 nl_test_news_volume", second.content)
         self.assertNotIn("暂不支持的数据需求", second.content)
@@ -1828,6 +1930,23 @@ class ChatSessionTest(unittest.TestCase):
         tool_names = [item["function"]["name"] for item in registry.definitions()]
         self.assertIn("list_tushare_datasets", tool_names)
         self.assertIn("get_tushare_data", tool_names)
+
+    def test_chat_tool_registry_lists_provider_capabilities(self) -> None:
+        registry = _ChatSkillToolRegistry([], SimpleNamespace())
+
+        payload = json.loads(
+            registry.execute(
+                "list_provider_capabilities",
+                {"provider": "tickflow", "realtime": True, "compact": True},
+            )
+        )
+
+        self.assertEqual(payload["status"], "ok")
+        capability_ids = {item["capability_id"] for item in payload["capabilities"]}
+        self.assertIn("tickflow.realtime_quotes", capability_ids)
+        self.assertIn("tickflow.realtime_minute_klines", capability_ids)
+        tool_names = [item["function"]["name"] for item in registry.definitions()]
+        self.assertIn("list_provider_capabilities", tool_names)
 
     def test_chat_session_can_fetch_tushare_stock_data_with_readonly_tool(self) -> None:
         class TushareDataToolLLM:

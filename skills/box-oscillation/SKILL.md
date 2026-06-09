@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: box_oscillation, 箱体, 箱体震荡, 横盘震荡, 区间交易, 箱底, 箱顶
 requires_tools: indicators
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: summary
+priority: 55
+aliases: 箱体震荡, 区间交易
 ---
 
 # box-oscillation
@@ -20,4 +25,4 @@ requires_tools: indicators
 - 失败信号：跌破箱底或突破后快速回落箱内。
 
 输出时优先给出区间、当前所处位置、触发条件和失效条件；无结构化数据时不报具体箱体价位。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

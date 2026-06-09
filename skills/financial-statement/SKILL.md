@@ -5,6 +5,11 @@ category: analysis
 source: Vibe-Trading + finskills China-market adapted for SATS
 triggers: 财报, 财务报表, 利润表, 资产负债表, 现金流量表, ROE, 杜邦分析, 盈利质量, Z值, M值, 营收, 利润, 负债率, 财务质量
 requires_tools: tushare_provider
+applies_to: financial_analysis, stock_analysis
+evidence: stock_context, factor_summary, tushare_data
+auto_load: full
+priority: 85
+aliases: 财务分析, 基本面, 财务质量
 ---
 
 # financial-statement
@@ -20,6 +25,7 @@ requires_tools: tushare_provider
 5. 风险：一次性收益、财务费用、减值、审计意见。
 
 若 SATS 没有取到对应字段，应明确列出缺失项。
+价格、成交量、K 线、quote、财务字段、因子和信号必须来自 SATS observations/provenance，不能由 skill 或 LLM 补造。
 
 ## 深度财务分析增强
 

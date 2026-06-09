@@ -22,7 +22,7 @@
       "type": "file",
       "path": "/Users/elliotge/python/SATS/data/sats.duckdb",
       "readOnly": true,
-      "attached": true
+      "attached": false
     }
   ],
   "duckdb.defaultDatabase": "sats"

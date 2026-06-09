@@ -5,6 +5,11 @@ category: analysis
 source: Vibe-Trading adapted for SATS
 triggers: 基本面, 价值筛选, 成长筛选, 质量筛选, 高ROE低负债, 基本面筛选
 requires_tools: tushare_provider, indicators
+applies_to: financial_analysis, stock_analysis, opportunity_discovery
+evidence: stock_context, factor_summary, tushare_data
+auto_load: summary
+priority: 70
+aliases: 基本面筛选, fundamental
 ---
 
 # fundamental-filter
@@ -22,3 +27,4 @@ requires_tools: tushare_provider, indicators
 
 - 优先使用 `TushareDataProvider` 已缓存或可取的 PIT 安全财务字段。
 - 若某字段未接入，提示需要补齐 provider 字段，不要伪造数值。
+- 价格、K 线、quote、财务字段、因子和信号必须来自 SATS observations/provenance。

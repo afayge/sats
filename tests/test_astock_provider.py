@@ -141,6 +141,8 @@ class _TushareBackend:
         self.index_calls = 0
         self.indicator_calls = 0
         self.hot_sector_calls = 0
+        self.sw_basic_calls = 0
+        self.sw_member_calls: list[list[str]] = []
         self.stock_basic_calls = 0
         self.limit_sentiment_calls = 0
         self.stock_dataset_calls = 0
@@ -188,6 +190,24 @@ class _TushareBackend:
             "missing_fields": [],
             "data_sources": {"hot_sector": "tushare_ths"},
         }
+
+    def _load_sw_sector_basic(self, *, storage):
+        self.sw_basic_calls += 1
+        frame = pd.DataFrame(
+            [{"sector_code": "851911.SI", "name": "贸易Ⅲ", "sector_type": "sw_l3", "exchange": "SW2021"}]
+        )
+        if storage is not None:
+            storage.upsert_sector_basic(frame)
+        return frame
+
+    def _load_sw_sector_members(self, sector_codes, *, storage):
+        self.sw_member_calls.append(list(sector_codes))
+        frame = pd.DataFrame(
+            [{"sector_code": "851911.SI", "ts_code": "600153.SH", "name": "建发股份", "data_source": "fake_sw"}]
+        )
+        if storage is not None:
+            storage.upsert_sector_members(frame)
+        return frame[frame["sector_code"].isin(sector_codes)].copy()
 
     def load_limit_sentiment(self, trade_date, storage=None):
         self.limit_sentiment_calls += 1
@@ -473,6 +493,37 @@ class AStockDataProviderTest(unittest.TestCase):
             self.assertEqual(payload["hot_industries"][0]["name"], "银行")
             self.assertEqual(tushare.hot_sector_calls, 1)
 
+    def test_sw_sector_loaders_delegate_to_tushare_and_cache_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            tushare = _TushareBackend()
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=tushare,
+            )
+
+            basic = provider.load_sw_sector_basic(storage=storage)
+            members = provider.load_sw_sector_members(["851911.SI"], storage=storage)
+
+            self.assertEqual(tushare.sw_basic_calls, 1)
+            self.assertEqual(tushare.sw_member_calls, [["851911.SI"]])
+            self.assertEqual(basic.iloc[0]["sector_type"], "sw_l3")
+            self.assertEqual(members.iloc[0]["ts_code"], "600153.SH")
+
+            cached_provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=None,
+            )
+            cached_provider._tushare_failed = True
+
+            cached_basic = cached_provider.load_sw_sector_basic(storage=storage)
+            cached_members = cached_provider.load_sw_sector_members(["851911.SI"], storage=storage)
+
+            self.assertEqual(cached_basic.iloc[0]["sector_code"], "851911.SI")
+            self.assertEqual(cached_members.iloc[0]["ts_code"], "600153.SH")
+
     def test_limit_sentiment_prefers_tushare(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tushare = _TushareBackend()
@@ -582,6 +633,19 @@ class AStockDataProviderTest(unittest.TestCase):
             self.assertEqual(payload["domain"], "指数专题")
             self.assertEqual(payload["data_source"], "tushare_index_daily")
             self.assertEqual(tushare.dataset_calls, 1)
+
+    def test_provider_capabilities_facade_lists_tickflow_and_tushare(self) -> None:
+        provider = AStockDataProvider(
+            _settings(Path("sats.duckdb")),
+            tickflow_provider=_TickFlowBackend(),
+            tushare_provider=_TushareBackend(),
+        )
+
+        tickflow = provider.load_provider_capabilities(provider="tickflow", realtime=True, compact=True)
+        tushare = provider.load_provider_capabilities(provider="tushare", category="指数专题", compact=True)
+
+        self.assertIn("tickflow.realtime_quotes", {item["capability_id"] for item in tickflow})
+        self.assertIn("tushare.index_member_all", {item["capability_id"] for item in tushare})
 
     def test_tushare_stock_dataset_facade_returns_structured_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -7,6 +7,7 @@ from sats.analysis.market_llm_context import is_market_question
 from sats.analysis.opportunity_discovery import is_opportunity_discovery_question
 from sats.analysis.stock_picking_agent import STOCK_PICKING_ACTION
 from sats.screening.rule_composer import is_rule_generation_request
+from sats.skill_routing import SkillRouteContext, select_skills
 from sats.skills import Skill, find_skill, match_skills
 from sats.stock_question import StockQuestion
 
@@ -169,6 +170,17 @@ def build_chat_plan(
             risk_level = "medium"
         skill_ids.extend(str(item) for item in getattr(preprocess, "skill_hints", ()) or ())
 
+    route = select_skills(
+        SkillRouteContext(
+            message=text,
+            intent=intent,
+            symbols=tuple(_route_symbols(stock_question=stock_question, preprocess=preprocess)),
+            explicit_skill_names=tuple(skill_ids),
+        ),
+        skills,
+        limit=12,
+    )
+    skill_ids.extend(route.skill_ids)
     skill_ids = _existing_skill_ids(skill_ids, skills)
     requirements = _dedupe(requirements)
     actions = _dedupe(actions)
@@ -198,7 +210,16 @@ def skills_for_plan(plan: ChatPlan, skills: list[Skill], matched: Iterable[Skill
         if skill is not None and skill.id not in seen:
             result.append(skill)
             seen.add(skill.id)
-    return result[:5]
+    return result[:10]
+
+
+def _route_symbols(*, stock_question: StockQuestion | None, preprocess: Any | None) -> list[str]:
+    values: list[str] = []
+    if stock_question is not None:
+        values.extend(str(item) for item in getattr(stock_question, "symbols", ()) or ())
+    if preprocess is not None:
+        values.extend(str(item) for item in getattr(preprocess, "symbols", ()) or ())
+    return _dedupe(values)
 
 
 def _is_chan_question(text: str) -> bool:

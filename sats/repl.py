@@ -24,7 +24,8 @@ from prompt_toolkit.utils import get_cwidth
 from sats import __version__
 from sats.agent import AgentExecutionPolicy, run_agent_once
 from sats.agent.progress import agent_progress_event_sink
-from sats.chat import ChatResult, ChatSession, format_chat_result
+from sats.chat import ChatResult, ChatSession, format_chat_result, render_chat_result
+from sats.natural_output import build_output_semantic_lexicon, render_natural_output
 from sats.chat_reference import build_chat_reference_context
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import load_settings
@@ -761,7 +762,13 @@ def handle_repl_line(
                 status="interrupted",
                 session_id=_record_session_id(chat_session, state),
             )
-            record = _handle_chat(text, chat_session=chat_session, printer=printer, state=state)
+            record = _handle_chat(
+                text,
+                chat_session=chat_session,
+                printer=printer,
+                formatted_printer=formatted_printer,
+                state=state,
+            )
             _record_interaction_history(record, state=state, started_at=started_at)
             return True
         try:
@@ -829,7 +836,16 @@ def handle_repl_line(
                 current_session=_active_chat_session(chat_session, state),
                 state=state,
             )
-            printer(output)
+            current_settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
+            if command in {"confirm", "reject"}:
+                _print_natural_output(
+                    output,
+                    printer=printer,
+                    formatted_printer=formatted_printer,
+                    db_path=getattr(current_settings, "db_path", None),
+                )
+            else:
+                printer(output)
             _remember_output(state, output, request=text, source=f"/{command}")
             _record_interaction_history(
                 ReplExecutionRecord(
@@ -882,7 +898,15 @@ def handle_repl_line(
                 status="interrupted",
                 session_id=_record_session_id(chat_session, state),
             )
-            record = _handle_chat(message, chat_session=chat_session, printer=printer, use_memory=use_memory, state=state, agent_enabled=agent_enabled)
+            record = _handle_chat(
+                message,
+                chat_session=chat_session,
+                printer=printer,
+                formatted_printer=formatted_printer,
+                use_memory=use_memory,
+                state=state,
+                agent_enabled=agent_enabled,
+            )
             _record_interaction_history(record, state=state, started_at=started_at)
             return True
         if command not in CLI_COMMANDS and command != "agent":
@@ -988,6 +1012,7 @@ def _handle_chat(
     *,
     chat_session: ChatSession | None,
     printer: Callable[[str], None],
+    formatted_printer: Callable[[FormattedText], None] | None = None,
     use_memory: bool | None = None,
     state: ReplState | None = None,
     agent_enabled: bool = True,
@@ -1022,6 +1047,7 @@ def _handle_chat(
                 policy=AgentExecutionPolicy(),
                 session_id=session_id or "repl_agent",
                 event_sink=agent_progress_event_sink(progress),
+                reference_context=reference_context,
             )
             result = _chat_result_from_agent(agent_result)
         else:
@@ -1055,7 +1081,12 @@ def _handle_chat(
     finally:
         progress.close()
     output = format_chat_result(result)
-    printer(output)
+    _print_chat_result(
+        result,
+        printer=printer,
+        formatted_printer=formatted_printer,
+        db_path=getattr(settings, "db_path", None),
+    )
     source = "agent" if agent_enabled else "chat"
     captured = _remember_output(state, output, request=chat_message, source=source)
     if save_request is not None:
@@ -1119,6 +1150,49 @@ def _chat_result_from_agent(result: object) -> ChatResult:
         turn_id=getattr(result, "turn_id", None),
         session_id=str(getattr(result, "session_id", "") or ""),
     )
+
+
+def _print_chat_result(
+    result: ChatResult,
+    *,
+    printer: Callable[[str], None],
+    formatted_printer: Callable[[FormattedText], None] | None,
+    db_path: Path | str | None,
+) -> None:
+    if printer is not print and formatted_printer is None:
+        printer(format_chat_result(result))
+        return
+    width = _banner_width()
+    tty = printer is print or formatted_printer is not None
+    rendered = render_chat_result(result, channel="repl", tty=tty, width=width, db_path=db_path)
+    if isinstance(rendered, str):
+        printer(rendered)
+        return
+    (_help_formatted_printer(printer, formatted_printer) or print_formatted_text)(rendered)
+
+
+def _print_natural_output(
+    output: str,
+    *,
+    printer: Callable[[str], None],
+    formatted_printer: Callable[[FormattedText], None] | None,
+    db_path: Path | str | None,
+) -> None:
+    if printer is not print and formatted_printer is None:
+        printer(output)
+        return
+    semantic_lexicon = build_output_semantic_lexicon(output, db_path=db_path)
+    rendered = render_natural_output(
+        output,
+        channel="repl",
+        tty=True,
+        width=_banner_width(),
+        semantic_lexicon=semantic_lexicon,
+    )
+    if isinstance(rendered, str):
+        printer(rendered)
+        return
+    (_help_formatted_printer(printer, formatted_printer) or print_formatted_text)(rendered)
 
 
 def repl_command_to_argv(line: str) -> list[str]:
@@ -1287,7 +1361,7 @@ def _save_output(captured: CapturedOutput, request: SaveRequest, *, printer: Cal
     settings = load_settings()
     output_dir = Path(getattr(settings, "project_root", ".")) / "reports" / "saved_outputs"
     try:
-        result = save_captured_output(captured, request, output_dir=output_dir)
+        result = save_captured_output(captured, request, output_dir=output_dir, db_path=getattr(settings, "db_path", None))
     except Exception as exc:
         printer(f"保存失败: {exc}")
         return

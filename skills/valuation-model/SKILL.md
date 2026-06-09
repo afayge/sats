@@ -5,6 +5,11 @@ category: analysis
 source: Vibe-Trading adapted for SATS
 triggers: 估值, 安全边际, 低估, 高估, 估值模型, 同业估值, 历史估值
 requires_tools: tushare_provider
+applies_to: financial_analysis, stock_analysis
+evidence: stock_context, factor_summary, tushare_data
+auto_load: full
+priority: 82
+aliases: 估值分析, valuation, 安全边际
 ---
 
 # valuation-model
@@ -20,3 +25,4 @@ requires_tools: tushare_provider
 - 行业对比：估值必须放在同业和历史区间中解释。
 
 输出时给出“估值偏低/合理/偏高/不可判断”和依据。
+价格、估值字段、财务字段、K 线、quote、因子和信号必须来自 SATS observations/provenance，不能由 skill 或 LLM 补造。

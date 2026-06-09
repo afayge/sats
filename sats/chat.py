@@ -3,41 +3,41 @@ from __future__ import annotations
 import json
 import threading
 import time
-from dataclasses import asdict, dataclass, replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable
 
+from sats.chat_components import (
+    ChatEvidenceBundle,
+    ChatRequestRoute,
+    build_plain_chat_answer,
+    chat_tool_definitions,
+    collect_chat_evidence,
+    execute_chat_tool,
+    match_skills_for_route,
+    preprocess_chat_route,
+    run_internal_analysis_component,
+    skill_context,
+    synthesize_chat_response,
+)
 from sats.config import Settings, load_settings
 from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm
 from sats.memory import ChatMemoryStore, MemoryExtractor, MemoryRecord, MemoryRetriever
-from sats.screening.registry import list_rules
-from sats.screening.rule_composer import (
-    RuleGenerationPlan,
-    compose_rule_generation_plan,
-    format_generated_rule_result,
-    format_rule_generation_plan,
-    generate_rule_code,
-    is_rule_generation_request,
-    parse_rule_generation_confirmation,
-    revise_rule_generation_plan,
-)
+from sats.natural_output import build_output_semantic_lexicon, normalize_natural_markdown, render_natural_output
 from sats.skills import Skill, default_skills_dir, find_skill, load_skills, match_skills, skill_summaries
 from sats.storage.duckdb import DuckDBStorage
-from sats.analysis.chan_chat_context import build_chan_chat_context
-from sats.analysis.dsa_native import run_dsa_analysis
-from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context
 from sats.analysis.opportunity_discovery import (
-    DEFAULT_CANDIDATE_LIMIT,
     estimate_llm_message_tokens,
-    extract_opportunity_discovery_limit,
     format_opportunity_discovery,
     is_llm_context_length_error,
     llm_context_input_budget_tokens,
 )
+from sats.analysis.chan_chat_context import build_chan_chat_context
+from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
-from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
-from sats.analysis.stock_llm_context import build_stock_llm_context, ensure_stock_analysis_data
-from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
+from sats.analysis.stock_llm_context import build_stock_llm_context
+from sats.analysis.stock_picking_agent import run_stock_picking_agent
+from sats.analysis.stock_research_context import build_stock_research_context
 from sats.chat_planner import build_chat_plan, skills_for_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
 from sats.chat_events import ChatEventSink, ChatTurnRecorder
@@ -52,8 +52,10 @@ from sats.chat_runtime import (
 from sats.data.astock_provider import AStockDataProvider
 from sats.factors.profiles import DEFAULT_FACTOR_PROFILE, FACTOR_PROFILE_CHOICES
 from sats.factors.service import snapshot_from_screening_inputs, summarize_factor_exposure
-from sats.signals import SignalInput, analyze_signal_inputs
-from sats.stock_question import StockQuestion, extract_intraday_time, extract_trade_date, parse_stock_question
+from sats.screening.rule_composer import generate_rule_code
+from sats.signals import SignalInput
+from sats.skill_routing import collections_for_skill_ids
+from sats.stock_question import StockQuestion, extract_trade_date
 from sats.symbols import normalize_symbols
 
 SYSTEM_PROMPT = (
@@ -140,7 +142,6 @@ class ChatSession:
         self._light_llm: Any | None = None
         self._memory_lock = threading.Lock()
         self._last_stock_question: StockQuestion | None = None
-        self._pending_rule_plan: RuleGenerationPlan | None = None
 
     def ask(
         self,
@@ -167,18 +168,6 @@ class ChatSession:
         started_at = time.monotonic()
         recorder.start(payload={"memory_enabled": bool(store), "session_id": self.session_id})
         try:
-            rule_result = self._maybe_handle_rule_generation(text)
-            if rule_result is not None:
-                result = replace(rule_result, turn_id=recorder.turn_id, session_id=self.session_id)
-                recorder.complete(
-                    content=result.content,
-                    intent="screening_rule_generation",
-                    data_names=result.data_names,
-                    skill_names=result.skill_names,
-                    model_name=_main_model_name(self.settings),
-                    duration_seconds=max(0.0, time.monotonic() - started_at),
-                )
-                return result
             if store is not None:
                 try:
                     self._load_persisted_history(store)
@@ -194,89 +183,68 @@ class ChatSession:
                 memories = []
                 summary = ""
             matched = match_skills(text, self.skills)
-            preprocess: ChatPreprocessResult | None = None
             if active_progress is None:
-                preprocess = self._preprocess_chat(text, reference_context=reference_context)
-                if preprocess.missing_questions:
-                    content = _format_preprocess_questions(preprocess.missing_questions)
-                    recorder.emit(
-                        "clarification_required",
-                        item_type="plan",
-                        item_name="preprocess",
-                        status="done",
-                        content=content,
-                        payload={"questions": list(preprocess.missing_questions)},
-                    )
-                    result = replace(self._direct_result(text, content), turn_id=recorder.turn_id, session_id=self.session_id)
-                    recorder.complete(
-                        content=result.content,
-                        intent="clarification_required",
-                        model_name=_main_model_name(self.settings),
-                        duration_seconds=max(0.0, time.monotonic() - started_at),
-                    )
-                    return result
-                resolved_stock_question = self._resolved_stock_question_from_preprocess(text, preprocess, reference_context)
-                plan = build_chat_plan(
+                preprocess, resolved_stock_question, plan, route = preprocess_chat_route(
                     text,
+                    settings=self.settings,
                     skills=self.skills,
-                    stock_question=resolved_stock_question,
-                    preprocess=preprocess,
+                    llm_factory=self.llm_factory,
+                    preprocess_enabled=self.preprocess_enabled,
+                    reference_context=reference_context,
+                    explicit_knowledge=self.knowledge,
+                    last_stock_question=self._last_stock_question,
                 )
             else:
                 with active_progress.step("输入分析") as step:
-                    preprocess = self._preprocess_chat(text, reference_context=reference_context)
-                    if preprocess.missing_questions:
-                        step.complete(message="需要澄清")
-                        content = _format_preprocess_questions(preprocess.missing_questions)
-                        recorder.emit(
-                            "clarification_required",
-                            item_type="plan",
-                            item_name="preprocess",
-                            status="done",
-                            content=content,
-                            payload={"questions": list(preprocess.missing_questions)},
-                        )
-                        result = replace(self._direct_result(text, content), turn_id=recorder.turn_id, session_id=self.session_id)
-                        recorder.complete(
-                            content=result.content,
-                            intent="clarification_required",
-                            model_name=_main_model_name(self.settings),
-                            duration_seconds=max(0.0, time.monotonic() - started_at),
-                        )
-                        return result
-                    resolved_stock_question = self._resolved_stock_question_from_preprocess(text, preprocess, reference_context)
-                    plan = build_chat_plan(
+                    preprocess, resolved_stock_question, plan, route = preprocess_chat_route(
                         text,
+                        settings=self.settings,
                         skills=self.skills,
-                        stock_question=resolved_stock_question,
-                        preprocess=preprocess,
+                        llm_factory=self.llm_factory,
+                        preprocess_enabled=self.preprocess_enabled,
+                        reference_context=reference_context,
+                        explicit_knowledge=self.knowledge,
+                        last_stock_question=self._last_stock_question,
                     )
-                    step.complete(message=plan.intent)
-            plan_symbols = list(getattr(resolved_stock_question, "symbols", ()) or ())
-            plan_trade_date = getattr(resolved_stock_question, "trade_date", None) if resolved_stock_question is not None else None
+                    step.complete(message=route.route_kind)
+            if preprocess.missing_questions:
+                content = _format_preprocess_questions(preprocess.missing_questions)
+                recorder.emit(
+                    "clarification_required",
+                    item_type="plan",
+                    item_name="preprocess",
+                    status="done",
+                    content=content,
+                    payload={"questions": list(preprocess.missing_questions)},
+                )
+                result = replace(self._direct_result(text, content), turn_id=recorder.turn_id, session_id=self.session_id)
+                recorder.complete(
+                    content=result.content,
+                    intent="clarification_required",
+                    model_name=_main_model_name(self.settings),
+                    duration_seconds=max(0.0, time.monotonic() - started_at),
+                )
+                return result
+            route = replace(route, requires_runtime=is_runtime_request(text))
+            plan_symbols = list(route.symbols)
+            plan_trade_date = route.trade_date
             recorder.emit(
                 "plan_ready",
                 item_type="plan",
-                item_name=plan.intent,
+                item_name=route.route_kind,
                 status="done",
-                content=plan.reason,
+                content=route.reason,
                 payload={
+                    "route": route.to_dict(),
                     "intent": plan.intent,
-                    "skills": list(plan.skills),
-                    "data_requirements": list(plan.data_requirements),
-                    "internal_actions": list(plan.internal_actions),
-                    "external_actions": list(plan.external_actions),
-                    "risk_level": plan.risk_level,
-                    "symbols": plan_symbols,
-                    "trade_date": plan_trade_date or "",
                     "preprocess": _preprocess_event_payload(preprocess),
                 },
             )
             if active_progress is None:
-                matched = skills_for_plan(plan, self.skills, matched)
+                matched = match_skills_for_route(route, self.skills, matched=matched)
             else:
                 with active_progress.step("加载 skill") as step:
-                    matched = skills_for_plan(plan, self.skills, matched)
+                    matched = match_skills_for_route(route, self.skills, matched=matched)
                     step.complete(message=",".join(skill.name for skill in matched) or "none")
             recorder.emit(
                 "context_completed",
@@ -310,7 +278,7 @@ class ChatSession:
                     duration_seconds=max(0.0, time.monotonic() - started_at),
                 )
                 return result
-            if is_runtime_request(text):
+            if route.requires_runtime:
                 runtime_plan = build_research_plan(text, symbols=tuple(plan_symbols))
                 runtime = ChatResearchRuntime(
                     settings=self.settings,
@@ -370,296 +338,49 @@ class ChatSession:
                     meta={"runtime_plan": runtime_result.plan.to_dict()},
                 )
                 return result
-            stock_context = None
-            data_names: list[str] = []
-            if reference_context is not None:
-                data_names.append(reference_context.data_name)
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="reference_context",
-                    status="done",
-                    payload={"data_name": reference_context.data_name, "symbols": list(reference_context.symbols)},
-                )
-            quote_context = None
-            if (
-                preprocess is not None
-                and getattr(preprocess, "needs_realtime_quote_context", False)
-                and resolved_stock_question is not None
-                and resolved_stock_question.has_stock_question
-            ):
-                context_started = time.monotonic()
-                recorder.emit(
-                    "context_started",
-                    item_type="context",
-                    item_name="quote_context",
-                    status="running",
-                    payload={"symbols": list(resolved_stock_question.symbols)},
-                )
-                if active_progress is None:
-                    quote_context = build_stock_quote_llm_context(
-                        text,
-                        settings=self.settings,
-                        symbols=list(resolved_stock_question.symbols),
-                    )
-                else:
-                    with active_progress.step("实盘数据") as step:
-                        quote_context = build_stock_quote_llm_context(
-                            text,
-                            settings=self.settings,
-                            symbols=list(resolved_stock_question.symbols),
-                        )
-                        step.complete(message="报价")
-                if quote_context is not None:
-                    data_names.append("实时报价")
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="quote_context",
-                    status="done",
-                    payload={"available": quote_context is not None, "symbols": list(resolved_stock_question.symbols)},
-                    duration_seconds=max(0.0, time.monotonic() - context_started),
-                )
-            if plan.needs_stock_context and resolved_stock_question is not None and resolved_stock_question.has_stock_question:
-                context_started = time.monotonic()
-                recorder.emit(
-                    "context_started",
-                    item_type="context",
-                    item_name="stock_context",
-                    status="running",
-                    payload={"symbols": list(resolved_stock_question.symbols), "trade_date": resolved_stock_question.trade_date or ""},
-                )
-                if active_progress is None:
-                    stock_context = build_stock_llm_context(text, settings=self.settings, question=resolved_stock_question)
-                else:
-                    with active_progress.step("实盘数据") as step:
-                        stock_context = build_stock_llm_context(text, settings=self.settings, question=resolved_stock_question)
-                        step.complete(message="个股")
-                if stock_context is not None:
-                    data_names.append("个股")
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="stock_context",
-                    status="done",
-                    payload={"available": stock_context is not None, "symbols": list(resolved_stock_question.symbols)},
-                    duration_seconds=max(0.0, time.monotonic() - context_started),
-                )
-            if stock_context is not None:
-                context_question = getattr(stock_context, "question", resolved_stock_question)
-                context_trade_date = str(getattr(stock_context, "trade_date", "") or context_question.trade_date or "")
+            evidence = collect_chat_evidence(
+                text,
+                route=route,
+                settings=self.settings,
+                skills=self.skills,
+                explicit_knowledge=self.knowledge,
+                store=store,
+                session_id=self.session_id,
+                reference_context=reference_context,
+                progress=active_progress,
+                recorder=recorder,
+            )
+            if evidence.stock_context is not None:
+                context_question = getattr(evidence.stock_context, "question", resolved_stock_question)
+                context_trade_date = str(getattr(evidence.stock_context, "trade_date", "") or getattr(context_question, "trade_date", "") or "")
                 self._last_stock_question = StockQuestion(
-                    symbols=list(context_question.symbols),
+                    symbols=list(getattr(context_question, "symbols", ()) or route.symbols),
                     trade_date=context_trade_date or None,
-                    as_of_time=context_question.as_of_time,
+                    as_of_time=getattr(context_question, "as_of_time", None),
                     has_stock_question=True,
                 )
-            show_market_progress = active_progress is not None and plan.needs_market_context
-            market_indices = tuple(getattr(preprocess, "market_indices", ()) or ()) if preprocess is not None else ()
-            market_dimensions = tuple(getattr(preprocess, "market_dimensions", ()) or ()) if preprocess is not None else ()
-            market_horizons = tuple(getattr(preprocess, "market_horizons", ()) or ()) if preprocess is not None else ()
-            market_plan_source = str(getattr(preprocess, "market_plan_source", "") or "") if preprocess is not None else ""
-            market_context = None
-            if not plan.needs_market_context:
-                market_context = None
-            else:
-                context_started = time.monotonic()
-                recorder.emit(
-                    "context_started",
-                    item_type="context",
-                    item_name="market_context",
-                    status="running",
-                    payload={
-                        "indices": list(market_indices),
-                        "dimensions": list(market_dimensions),
-                        "horizons": list(market_horizons),
-                    },
-                )
-                if active_progress is None or not show_market_progress:
-                    market_context = build_market_llm_context(
-                        text,
-                        settings=self.settings,
-                        trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
-                        indices=market_indices or None,
-                        dimensions=market_dimensions or None,
-                        horizons=market_horizons or None,
-                        market_plan_source=market_plan_source or None,
-                        force=plan.needs_market_context,
-                    )
-                else:
-                    with active_progress.step("实盘数据") as step:
-                        market_context = build_market_llm_context(
-                            text,
-                            settings=self.settings,
-                            trade_date=getattr(stock_context, "trade_date", None) if stock_context is not None else None,
-                            indices=market_indices or None,
-                            dimensions=market_dimensions or None,
-                            horizons=market_horizons or None,
-                            market_plan_source=market_plan_source or None,
-                            force=plan.needs_market_context,
-                        )
-                        step.complete(message="大盘")
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="market_context",
-                    status="done",
-                    payload={"available": market_context is not None},
-                    duration_seconds=max(0.0, time.monotonic() - context_started),
-                )
-            if market_context is not None:
-                data_names.append("大盘")
-            opportunity_context = None
-            if resolved_stock_question is None and plan.needs_opportunity_discovery:
-                context_started = time.monotonic()
-                recorder.emit(
-                    "context_started",
-                    item_type="context",
-                    item_name="opportunity_discovery",
-                    status="running",
-                    payload={"query": text},
-                )
-                storage = DuckDBStorage(self.settings.db_path)
-                requested_limit = getattr(preprocess, "requested_limit", None) if preprocess is not None else None
-                if active_progress is None:
-                    opportunity_context = run_stock_picking_agent(
-                        query=text,
-                        settings=self.settings,
-                        storage=storage,
-                        skills=self.skills,
-                        trade_date=extract_trade_date(text),
-                        limit=requested_limit,
-                        hot_sector_enabled=True,
-                        hot_sector_days=5,
-                        market_indices=market_indices or None,
-                        market_dimensions=market_dimensions or None,
-                        market_horizons=market_horizons or None,
-                        market_plan_source=market_plan_source or None,
-                        reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
-                        report=True,
-                    )
-                else:
-                    with active_progress.step("内部分析") as step:
-                        opportunity_context = run_stock_picking_agent(
-                            query=text,
-                            settings=self.settings,
-                            storage=storage,
-                            skills=self.skills,
-                            trade_date=extract_trade_date(text),
-                            limit=requested_limit,
-                            hot_sector_enabled=True,
-                            hot_sector_days=5,
-                            market_indices=market_indices or None,
-                            market_dimensions=market_dimensions or None,
-                            market_horizons=market_horizons or None,
-                            market_plan_source=market_plan_source or None,
-                            reports_dir=Path(getattr(self.settings, "project_root", ".")) / "reports",
-                            report=True,
-                            progress=active_progress,
-                        )
-                        step.complete(message="选股Agent")
-                data_names.extend(["热点板块", "选股Agent"])
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="opportunity_discovery",
-                    status="done",
-                    payload={"available": opportunity_context is not None, "requested_limit": requested_limit},
-                    duration_seconds=max(0.0, time.monotonic() - context_started),
-                )
-            chan_context = None
-            if plan.needs_chan_context:
-                context_started = time.monotonic()
-                recorder.emit("context_started", item_type="context", item_name="chan_rag", status="running")
-                chan_context = build_chan_chat_context(text, skills=self.skills)
-                if chan_context is not None:
-                    data_names.append("缠论RAG")
-                recorder.emit(
-                    "context_completed",
-                    item_type="context",
-                    item_name="chan_rag",
-                    status="done",
-                    payload={"available": chan_context is not None},
-                    duration_seconds=max(0.0, time.monotonic() - context_started),
-                )
-            context_started = time.monotonic()
-            recorder.emit(
-                "context_started",
-                item_type="context",
-                item_name="knowledge_rag",
-                status="running",
-                payload={"collections": list(_collections_for_plan(plan))},
-            )
-            research_context = self._build_research_context(
+            synthesis = synthesize_chat_response(
                 text,
-                plan_collections=_collections_for_plan(plan),
-                explicit_knowledge=self.knowledge,
-            )
-            if research_context is not None:
-                data_names.append("知识库RAG")
-            recorder.emit(
-                "context_completed",
-                item_type="context",
-                item_name="knowledge_rag",
-                status="done",
-                payload={"available": research_context is not None, "collections": list(_collections_for_plan(plan))},
-                duration_seconds=max(0.0, time.monotonic() - context_started),
-            )
-            conversation = ConversationContextBuilder().build(
-                message=text,
-                history=self.history,
+                route=route,
+                evidence=evidence,
+                settings=self.settings,
+                llm_factory=self.llm_factory,
                 skills=matched,
-                plan_context=plan.system_message(),
+                history=self.history,
                 memories=memories,
                 session_summary=summary,
-                stock_context=_stock_context_message(stock_context, market_context if opportunity_context is None else None),
-                market_context=_context_system_message_for_llm(market_context)
-                if stock_context is None and market_context is not None and opportunity_context is None
-                else "",
-                opportunity_context=_context_system_message_for_llm(opportunity_context) if opportunity_context is not None else "",
-                chan_context=chan_context.system_message if chan_context is not None else "",
-                research_context=research_context.system_message if research_context is not None else "",
-                quote_context=quote_context.system_message if quote_context is not None else "",
-                reference_context=reference_context.system_message if reference_context is not None else "",
-                preprocess_context=preprocess.system_message()
-                if preprocess is not None and _should_include_preprocess_context(preprocess)
-                else "",
-                sources=research_context.sources if research_context is not None else (),
-            )
-            messages = conversation.messages
-            messages, budget_meta = _fit_chat_messages_to_context_budget_with_metadata(
-                messages,
-                settings=self.settings,
-                opportunity_context=opportunity_context,
-            )
-            recorder.emit(
-                "context_completed",
-                item_type="context",
-                item_name="context_budget",
-                status="done",
-                payload=budget_meta,
-            )
-            if messages is None:
-                content = _opportunity_discovery_content_or_fallback("", opportunity_context)
-                tool_call_count = 0
-            else:
-                try:
-                    response, tool_call_count = self._chat_with_optional_tools(
+                tool_chat=(
+                    lambda messages: self._chat_with_optional_tools(
                         messages,
                         progress=active_progress,
                         event_recorder=recorder,
                     )
-                except Exception as exc:
-                    if opportunity_context is not None and is_llm_context_length_error(exc):
-                        content = _opportunity_discovery_content_or_fallback("", opportunity_context)
-                        tool_call_count = 0
-                    else:
-                        raise
-                else:
-                    content = str(response.content or "").strip()
-            if opportunity_context is not None:
-                content = _opportunity_discovery_content_or_fallback(content, opportunity_context)
-            content = content or "无响应"
+                )
+                if route.route_kind == "general_qa"
+                else None,
+            )
+            content = synthesis.content or "无响应"
+            tool_call_count = synthesis.tool_call_count
             user_message_id = ""
             assistant_message_id = ""
             if store is not None:
@@ -681,21 +402,19 @@ class ChatSession:
                 skill_names=tuple(skill.name for skill in matched),
                 memory_count=len(memories),
                 tool_call_count=tool_call_count,
-                data_names=tuple(_dedupe(data_names)),
-                sources=conversation.sources,
+                data_names=evidence.data_names,
+                sources=evidence.sources,
+                artifacts=evidence.artifacts,
+                requires_confirmation=evidence.requires_confirmation,
+                pending_action_id=evidence.pending_action_id,
                 turn_id=recorder.turn_id,
                 session_id=self.session_id,
             )
-            completion_trade_date = ""
-            if stock_context is not None:
-                completion_trade_date = str(getattr(stock_context, "trade_date", "") or "")
-            elif resolved_stock_question is not None:
-                completion_trade_date = str(resolved_stock_question.trade_date or "")
             recorder.complete(
                 content=result.content,
-                intent=plan.intent,
+                intent=route.intent,
                 symbols=plan_symbols,
-                trade_date=completion_trade_date or plan_trade_date,
+                trade_date=evidence.completion_trade_date or plan_trade_date,
                 data_names=result.data_names,
                 skill_names=result.skill_names,
                 model_name=_light_model_name(self.settings),
@@ -703,7 +422,7 @@ class ChatSession:
                 user_message_id=user_message_id,
                 assistant_message_id=assistant_message_id,
                 duration_seconds=max(0.0, time.monotonic() - started_at),
-                meta={"context_budget": budget_meta},
+                meta={"route": route.to_dict(), "evidence": evidence.to_dict()},
             )
             return result
         except KeyboardInterrupt as exc:
@@ -713,100 +432,10 @@ class ChatSession:
             recorder.fail(exc, duration_seconds=max(0.0, time.monotonic() - started_at))
             raise
 
-    def _maybe_handle_rule_generation(self, text: str) -> ChatResult | None:
-        confirmed_rule = parse_rule_generation_confirmation(text)
-        if confirmed_rule is not None:
-            return self._confirm_rule_generation(text, confirmed_rule)
-        if is_rule_generation_request(text):
-            plan = compose_rule_generation_plan(text, existing_rule_names=list_rules())
-            self._pending_rule_plan = plan
-            return self._direct_result(text, format_rule_generation_plan(plan), data_names=("规则计划",))
-        if self._pending_rule_plan is not None and _looks_like_rule_plan_revision(text):
-            plan = revise_rule_generation_plan(self._pending_rule_plan, text, existing_rule_names=list_rules())
-            self._pending_rule_plan = plan
-            return self._direct_result(text, format_rule_generation_plan(plan), data_names=("规则计划",))
-        return None
-
-    def _confirm_rule_generation(self, text: str, confirmed_rule: str) -> ChatResult:
-        plan = self._pending_rule_plan
-        if plan is None:
-            return self._direct_result(text, "当前没有待生成规则。请先描述要新增的筛选规则。")
-        if confirmed_rule != plan.rule_name:
-            return self._direct_result(text, f"确认的规则名 {confirmed_rule} 与当前计划 {plan.rule_name} 不一致，请重新确认。")
-        if plan.questions:
-            return self._direct_result(
-                text,
-                "规则计划仍有待确认问题，暂不能生成代码。\n\n" + format_rule_generation_plan(plan),
-                data_names=("规则计划",),
-            )
-        if confirmed_rule in list_rules():
-            return self._direct_result(text, f"规则名 {confirmed_rule} 已存在，请换一个 rule_name 后重新生成计划。")
-        result = generate_rule_code(plan)
-        self._pending_rule_plan = None
-        return self._direct_result(text, format_generated_rule_result(result), data_names=("生成规则",))
-
     def _direct_result(self, user_text: str, content: str, *, data_names: tuple[str, ...] = ()) -> ChatResult:
         self._append_history("user", user_text)
         self._append_history("assistant", content)
         return ChatResult(content=content, skill_names=(), data_names=data_names)
-
-    def _preprocess_chat(
-        self,
-        message: str,
-        *,
-        reference_context: ChatReferenceContext | None = None,
-    ) -> ChatPreprocessResult:
-        return preprocess_chat_message(
-            message,
-            settings=self.settings,
-            reference_context=reference_context,
-            llm_factory=self.llm_factory,
-            llm_enabled=self.preprocess_enabled and self.llm_factory is ChatLLM,
-        )
-
-    def _resolved_stock_question_from_preprocess(
-        self,
-        message: str,
-        preprocess: ChatPreprocessResult,
-        reference_context: ChatReferenceContext | None,
-    ) -> StockQuestion | None:
-        parsed = parse_stock_question(message)
-        if parsed.has_stock_question:
-            return self._resolve_stock_question(message, parsed)
-        symbols = list(preprocess.symbols)
-        if symbols:
-            return self._resolve_stock_question(
-                message,
-                StockQuestion(
-                    symbols=symbols,
-                    trade_date=preprocess.trade_date or (reference_context.trade_date if reference_context else None),
-                    as_of_time=preprocess.as_of_time,
-                    has_stock_question=True,
-                ),
-            )
-        if reference_context is not None and reference_context.symbols:
-            return self._resolve_stock_question(
-                message,
-                StockQuestion(
-                    symbols=list(reference_context.symbols),
-                    trade_date=preprocess.trade_date or reference_context.trade_date,
-                    as_of_time=preprocess.as_of_time,
-                    has_stock_question=True,
-                ),
-            )
-        return self._resolve_stock_question(message, parsed)
-
-    def _resolve_stock_question(self, message: str, parsed: StockQuestion) -> StockQuestion | None:
-        if parsed.has_stock_question:
-            return parsed
-        if self._last_stock_question is None or not _is_stock_followup(message):
-            return None
-        return StockQuestion(
-            symbols=list(self._last_stock_question.symbols),
-            trade_date=extract_trade_date(message) or self._last_stock_question.trade_date,
-            as_of_time=extract_intraday_time(message) or self._last_stock_question.as_of_time,
-            has_stock_question=True,
-        )
 
     def _llm_client(self) -> Any:
         if self._llm is None:
@@ -1319,22 +948,33 @@ def _tool_result_event_status(result: str) -> str:
 
 
 def format_chat_result(result: ChatResult) -> str:
-    lines = []
-    if result.skill_names:
-        lines.append(f"使用 skill: {', '.join(result.skill_names)}")
-    if result.data_names:
-        lines.append(f"数据: {', '.join(result.data_names)}")
-    lines.append(result.content)
-    for artifact in result.artifacts:
-        path = str(artifact.get("path") or "").strip()
-        if path and f"产物: {path}" not in lines and f"报告: {path}" not in result.content:
-            lines.append(f"产物: {path}")
-    if result.requires_confirmation and result.pending_action_id:
-        action_id = result.pending_action_id
-        hint = f"待确认动作: {action_id}。确认: /confirm {action_id}；取消: /reject {action_id}"
-        if hint not in lines and action_id not in result.content:
-            lines.append(hint)
-    return "\n".join(lines)
+    return normalize_natural_markdown(
+        result.content,
+        data_names=result.data_names,
+        skill_names=result.skill_names,
+        artifacts=result.artifacts,
+        requires_confirmation=result.requires_confirmation,
+        pending_action_id=result.pending_action_id,
+    )
+
+
+def render_chat_result(
+    result: ChatResult,
+    *,
+    channel: str,
+    tty: bool,
+    width: int,
+    db_path: Path | str | None = None,
+):
+    markdown_text = format_chat_result(result)
+    semantic_lexicon = build_output_semantic_lexicon(markdown_text, db_path=db_path) if tty else None
+    return render_natural_output(
+        markdown_text,
+        channel=channel,
+        tty=tty,
+        width=width,
+        semantic_lexicon=semantic_lexicon,
+    )
 
 
 def _format_preprocess_questions(questions: tuple[str, ...]) -> str:
@@ -1425,6 +1065,7 @@ def _collections_for_plan(plan: Any) -> tuple[str, ...]:
         collections.append("sentiment")
     if {"risk-analysis", "portfolio-health-check", "risk-adjusted-return-optimizer", "suitability-report-generator"} & skills:
         collections.append("risk")
+    collections.extend(collections_for_skill_ids(skills, intent=intent))
     return tuple(_dedupe(collections))
 
 
@@ -1535,6 +1176,137 @@ def _timeout_message(model_name: str) -> str:
     )
 
 
+_SHARED_CHAT_TOOL_NAMES = {
+    "list_skills",
+    "load_skill",
+    "get_a_share_market_context",
+    "discover_a_share_opportunities",
+    "get_stock_research_context",
+    "run_internal_analysis",
+    "get_chan_context",
+    "get_knowledge_context",
+    "run_rule_generation",
+}
+
+
+def _tushare_chat_tool_definitions() -> list[dict[str, Any]]:
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": "list_provider_capabilities",
+                "description": "列出 SATS 已接入的 Tushare/TickFlow 数据能力目录，说明可用场景、入参、输出字段和推荐工具。只读，不写库、不交易。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "provider": {"type": "string", "description": "可选 provider：tushare 或 tickflow"},
+                        "category": {"type": "string", "description": "可选能力分类关键词，如 行情、财务、资金流、分钟K、实时"},
+                        "realtime": {"type": "boolean", "description": "可选：true 仅实时能力，false 仅非实时能力"},
+                        "compact": {"type": "boolean", "description": "是否返回压缩字段摘要，默认 false"},
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "list_tushare_datasets",
+                "description": "列出 SATS 已白名单接入的 Tushare 数据集，覆盖股票和常用跨类数据。只读，不写库、不交易。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "domain": {"type": "string", "description": "可选领域，如 股票数据、ETF专题、指数专题、宏观经济"},
+                        "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
+                        "include_deprecated": {
+                            "type": "boolean",
+                            "description": "是否包含 Tushare 标记停用的数据集，默认 true",
+                        },
+                        "tags": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选标签过滤，如 etf、fund、index、macro、news、hk、us",
+                        },
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_tushare_data",
+                "description": "按需获取 Tushare 白名单数据集的结构化行数据。只读，不写库、不交易；默认限制行数和字段数。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "dataset": {
+                            "type": "string",
+                            "description": "Tushare 数据集名，例如 daily_basic、index_daily、fund_daily、cn_cpi、news",
+                        },
+                        "params": {
+                            "type": "object",
+                            "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date、m",
+                        },
+                        "fields": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选字段列表；最多保留 30 个白名单字段",
+                        },
+                        "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
+                    },
+                    "required": ["dataset"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "list_tushare_stock_datasets",
+                "description": "列出 SATS 已白名单接入的 Tushare 股票数据集及字段摘要。只读，不写库、不交易。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
+                        "include_deprecated": {
+                            "type": "boolean",
+                            "description": "是否包含 Tushare 标记停用的数据集，默认 true",
+                        },
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_tushare_stock_data",
+                "description": "按需获取 Tushare 股票数据集的结构化行数据。只读，不写库、不交易；仅支持 SATS 白名单数据集。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "dataset": {
+                            "type": "string",
+                            "description": "Tushare 股票数据集名，例如 daily_basic、income、top_list",
+                        },
+                        "params": {
+                            "type": "object",
+                            "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date",
+                        },
+                        "fields": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选字段列表；省略时使用 SATS 默认字段，避免返回过宽表",
+                        },
+                        "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
+                    },
+                    "required": ["dataset"],
+                },
+            },
+        },
+    ]
+
+
 class ChatToolRegistry:
     def __init__(self, skills: list[Skill], settings: Settings) -> None:
         self.skills = skills
@@ -1577,243 +1349,25 @@ class ChatToolRegistry:
             )
         elif tool_name == "run_internal_analysis":
             metadata.update({"repeatable": True, "category": "internal_analysis", "max_result_chars": 8000})
+        elif tool_name == "get_chan_context":
+            metadata.update({"repeatable": True, "category": "chan_context", "max_result_chars": 8000})
+        elif tool_name == "get_knowledge_context":
+            metadata.update({"repeatable": True, "category": "knowledge_context", "max_result_chars": 8000})
+        elif tool_name == "run_rule_generation":
+            metadata.update(
+                {
+                    "readonly": False,
+                    "repeatable": True,
+                    "writes_artifact": True,
+                    "requires_confirmation": True,
+                    "category": "rule_generation",
+                    "max_result_chars": 10000,
+                }
+            )
         return metadata
 
     def definitions(self) -> list[dict[str, Any]]:
-        return [
-            {
-                "type": "function",
-                "function": {
-                    "name": "list_skills",
-                    "description": "列出 SATS 本地 skills 的分类摘要。只读，不执行任何交易或数据写入。",
-                    "parameters": {"type": "object", "properties": {}, "required": []},
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "load_skill",
-                    "description": "按 skill 名称或 id 加载完整 SKILL.md 内容。只读，用于获得更完整的分析指引。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string", "description": "Skill name or id, e.g. valuation-model"}
-                        },
-                        "required": ["name"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "list_tushare_datasets",
-                    "description": "列出 SATS 已白名单接入的 Tushare 数据集，覆盖股票和常用跨类数据。只读，不写库、不交易。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "domain": {"type": "string", "description": "可选领域，如 股票数据、ETF专题、指数专题、宏观经济"},
-                            "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
-                            "include_deprecated": {
-                                "type": "boolean",
-                                "description": "是否包含 Tushare 标记停用的数据集，默认 true",
-                            },
-                            "tags": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "可选标签过滤，如 etf、fund、index、macro、news、hk、us",
-                            },
-                        },
-                        "required": [],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_tushare_data",
-                    "description": "按需获取 Tushare 白名单数据集的结构化行数据。只读，不写库、不交易；默认限制行数和字段数。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "dataset": {
-                                "type": "string",
-                                "description": "Tushare 数据集名，例如 daily_basic、index_daily、fund_daily、cn_cpi、news",
-                            },
-                            "params": {
-                                "type": "object",
-                                "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date、m",
-                            },
-                            "fields": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "可选字段列表；最多保留 30 个白名单字段",
-                            },
-                            "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
-                        },
-                        "required": ["dataset"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "list_tushare_stock_datasets",
-                    "description": "列出 SATS 已白名单接入的 Tushare 股票数据集及字段摘要。只读，不写库、不交易。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "category": {"type": "string", "description": "可选分类，如 基础数据、行情数据、财务数据"},
-                            "include_deprecated": {
-                                "type": "boolean",
-                                "description": "是否包含 Tushare 标记停用的数据集，默认 true",
-                            },
-                        },
-                        "required": [],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_tushare_stock_data",
-                    "description": "按需获取 Tushare 股票数据集的结构化行数据。只读，不写库、不交易；仅支持 SATS 白名单数据集。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "dataset": {
-                                "type": "string",
-                                "description": "Tushare 股票数据集名，例如 daily_basic、income、top_list",
-                            },
-                            "params": {
-                                "type": "object",
-                                "description": "Tushare 入参，如 ts_code、trade_date、start_date、end_date、ann_date",
-                            },
-                            "fields": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "可选字段列表；省略时使用 SATS 默认字段，避免返回过宽表",
-                            },
-                            "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
-                        },
-                        "required": ["dataset"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_a_share_market_context",
-                    "description": "获取真实 A 股大盘指数和市场宽度上下文。只读，不写库、不交易。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略为今天"},
-                            "horizon": {
-                                "type": "string",
-                                "enum": ["today", "tomorrow", "day_after_tomorrow", "next_week"],
-                                "description": "分析视角，默认 today",
-                            },
-                            "horizons": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "enum": ["today", "tomorrow", "day_after_tomorrow", "next_week"],
-                                },
-                                "description": "多个分析视角，可替代 horizon",
-                            },
-                            "indices": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "指数代码或名称，可省略使用默认 A 股指数池",
-                            },
-                            "dimensions": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "enum": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"],
-                                },
-                                "description": "需要拉取的市场维度，默认核心指数+市场宽度+涨跌停情绪",
-                            },
-                        },
-                        "required": [],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "discover_a_share_opportunities",
-                    "description": "基于 Analyze 中短期上涨信号做临时全 A 机会发现，并返回候选股票排序上下文。只读研究，不交易。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略为最近交易日"},
-                            "query": {"type": "string", "description": "自然语言选股约束，例如热点板块、缠论三买、低估值或风险优先"},
-                            "signals": {"type": "string", "description": "信号组或信号 id，默认 short_up"},
-                            "limit": {"type": "integer", "description": "返回股票数量，默认 5"},
-                            "candidate_limit": {"type": "integer", "description": "本地候选池数量，默认 50"},
-                            "hot_sector": {"type": "boolean", "description": "是否启用热点板块优先，默认 true"},
-                            "hot_sector_days": {
-                                "type": "integer",
-                                "enum": [3, 4, 5],
-                                "description": "热点板块持续性参考天数，默认 5",
-                            },
-                        },
-                        "required": [],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "get_stock_research_context",
-                    "description": "获取指定 A 股个股真实研究上下文。只读，不写库、不交易。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "symbols": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "股票代码列表，支持裸代码",
-                            },
-                            "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略"},
-                        },
-                        "required": ["symbols"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "run_internal_analysis",
-                    "description": "运行 SATS 白名单内部分析能力。只读研究，不接受自由 shell 命令。",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "kind": {
-                                "type": "string",
-                                "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary"],
-                                "description": "内部分析类型",
-                            },
-                            "symbols": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "股票代码列表，支持裸代码",
-                            },
-                            "trade_date": {"type": "string", "description": "交易日 YYYYMMDD，可省略为最近交易日"},
-                            "signals": {"type": "string", "description": "analyze_signals 使用的信号组，默认 short_up"},
-                            "profile": {
-                                "type": "string",
-                                "enum": list(FACTOR_PROFILE_CHOICES),
-                                "description": "factor_summary 使用的因子画像，默认 balanced",
-                            },
-                            "lookback_days": {"type": "integer", "description": "factor_summary 使用的历史窗口，默认 260"},
-                        },
-                        "required": ["kind", "symbols"],
-                    },
-                },
-            },
-        ]
+        return [*chat_tool_definitions(self.skills), *_tushare_chat_tool_definitions()]
 
     def execute(self, name: str, arguments: dict[str, Any]) -> str:
         try:
@@ -1822,6 +1376,17 @@ class ChatToolRegistry:
             return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
 
     def _execute(self, name: str, arguments: dict[str, Any]) -> str:
+        if name in _SHARED_CHAT_TOOL_NAMES:
+            return execute_chat_tool(name, arguments, skills=self.skills, settings=self.settings)
+        if name == "list_provider_capabilities":
+            provider = AStockDataProvider(self.settings)
+            capabilities = provider.load_provider_capabilities(
+                provider=str(arguments.get("provider") or "").strip() or None,
+                category=str(arguments.get("category") or "").strip() or None,
+                realtime=arguments.get("realtime") if isinstance(arguments.get("realtime"), bool) else None,
+                compact=bool(arguments.get("compact", False)),
+            )
+            return json.dumps({"status": "ok", "capabilities": capabilities}, ensure_ascii=False)
         if name == "list_skills":
             return json.dumps({"status": "ok", "skills": skill_summaries(self.skills)}, ensure_ascii=False)
         if name == "load_skill":
@@ -1949,73 +1514,7 @@ _ChatSkillToolRegistry = ChatToolRegistry
 
 
 def _run_internal_analysis_tool(settings: Settings, arguments: dict[str, Any]) -> dict[str, Any]:
-    kind = str(arguments.get("kind") or "").strip()
-    if kind not in {"indicators", "analyze_signals", "native_dsa", "factor_summary"}:
-        raise ValueError(f"unsupported internal analysis kind: {kind}")
-    symbols = normalize_symbols(arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else [], required=True)
-    trade_date = str(arguments.get("trade_date") or "").strip() or extract_trade_date(" ".join(symbols))
-    storage = DuckDBStorage(settings.db_path)
-    if kind == "native_dsa":
-        result = run_dsa_analysis(
-            symbols,
-            settings=settings,
-            storage=storage,
-            trade_date=trade_date,
-            reports_dir=Path(getattr(settings, "project_root", ".")) / "reports",
-            report=False,
-            llm_enabled=False,
-        )
-        return {
-            "kind": kind,
-            "trade_date": result.trade_date,
-            "rankings": [asdict(ranking) for ranking in result.rankings],
-            "message": result.message,
-        }
-    if kind == "factor_summary":
-        provider = AStockDataProvider(settings)
-        resolved_trade_date = trade_date or _today_yyyymmdd()
-        inputs = provider.load_screening_inputs(
-            symbols,
-            resolved_trade_date,
-            storage=storage,
-            trade_days=max(1, int(arguments.get("lookback_days") or 260)),
-            rule_name="factor_summary",
-        )
-        snapshot, _panel_result = snapshot_from_screening_inputs(
-            inputs,
-            storage=storage,
-            trade_date=resolved_trade_date,
-            profile=str(arguments.get("profile") or DEFAULT_FACTOR_PROFILE).strip() or DEFAULT_FACTOR_PROFILE,
-            lookback_days=max(1, int(arguments.get("lookback_days") or 260)),
-        )
-        payload = summarize_factor_exposure(snapshot, symbols)
-        payload["kind"] = kind
-        payload["data_policy"] = "Factor exposures are research evidence only, not guaranteed returns or trading instructions."
-        return payload
-    contexts = ensure_stock_analysis_data(
-        symbols,
-        trade_date or _today_yyyymmdd(),
-        settings=settings,
-        storage=storage,
-    )
-    inputs = [_signal_input_from_context(context) for context in contexts.values()]
-    if kind == "indicators":
-        return {
-            "kind": kind,
-            "trade_date": trade_date or _today_yyyymmdd(),
-            "indicators": [context.get("indicator_result", {}) for context in contexts.values()],
-        }
-    run = analyze_signal_inputs(
-        inputs,
-        selected_signals=str(arguments.get("signals") or "short_up"),
-        trade_date=trade_date or _today_yyyymmdd(),
-        report=False,
-    )
-    return {
-        "kind": kind,
-        "trade_date": run.trade_date,
-        "results": [result.to_dict() for result in run.results],
-    }
+    return run_internal_analysis_component(settings, arguments)
 
 
 def _signal_input_from_context(context: dict[str, Any]) -> SignalInput:

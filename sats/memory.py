@@ -411,6 +411,57 @@ class ChatMemoryStore:
             "updated_at": str(row[10] or ""),
         }
 
+    def list_pending_actions(
+        self,
+        *,
+        session_id: str = "",
+        action_type: str = "",
+        status: str | None = None,
+        limit: int = 20,
+    ) -> list[dict[str, Any]]:
+        self.storage.initialize()
+        clauses: list[str] = []
+        params: list[Any] = []
+        if str(session_id or "").strip():
+            clauses.append("session_id = ?")
+            params.append(str(session_id).strip())
+        if str(action_type or "").strip():
+            clauses.append("action_type = ?")
+            params.append(str(action_type).strip())
+        if status is not None:
+            clauses.append("status = ?")
+            params.append(str(status or "").strip())
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        params.append(max(1, int(limit or 20)))
+        with self.storage.connect() as con:
+            rows = con.execute(
+                f"""
+                SELECT action_id, session_id, turn_id, action_type, title, status,
+                       payload_json, result_json, expires_at, created_at, updated_at
+                FROM chat_pending_actions
+                {where}
+                ORDER BY updated_at DESC, created_at DESC, action_id DESC
+                LIMIT ?
+                """,
+                params,
+            ).fetchall()
+        return [
+            {
+                "action_id": str(row[0] or ""),
+                "session_id": str(row[1] or ""),
+                "turn_id": str(row[2] or ""),
+                "action_type": str(row[3] or ""),
+                "title": str(row[4] or ""),
+                "status": str(row[5] or ""),
+                "payload": _loads_json_object(row[6]),
+                "result": _loads_json_object(row[7]),
+                "expires_at": str(row[8] or ""),
+                "created_at": str(row[9] or ""),
+                "updated_at": str(row[10] or ""),
+            }
+            for row in rows
+        ]
+
     def update_pending_action(
         self,
         action_id: str,
@@ -428,6 +479,35 @@ class ChatMemoryStore:
                 WHERE action_id = ?
                 """,
                 [str(status or ""), _json(result or {}), clean_action_id],
+            )
+
+    def update_pending_action_payload(
+        self,
+        action_id: str,
+        *,
+        payload: dict[str, Any] | None = None,
+        title: str | None = None,
+        status: str | None = None,
+    ) -> None:
+        clean_action_id = _clean_required(action_id, "action_id")
+        self.storage.initialize()
+        assignments = ["payload_json = ?", "updated_at = CURRENT_TIMESTAMP"]
+        params: list[Any] = [_json(payload or {})]
+        if title is not None:
+            assignments.append("title = ?")
+            params.append(str(title or ""))
+        if status is not None:
+            assignments.append("status = ?")
+            params.append(str(status or ""))
+        params.append(clean_action_id)
+        with self.storage.connect() as con:
+            con.execute(
+                f"""
+                UPDATE chat_pending_actions
+                SET {", ".join(assignments)}
+                WHERE action_id = ?
+                """,
+                params,
             )
 
     def latest_chat_turn_id(self, session_id: str = "") -> str:

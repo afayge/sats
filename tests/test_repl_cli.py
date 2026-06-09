@@ -515,7 +515,9 @@ class ReplCliTest(unittest.TestCase):
         keep_running = handle_repl_line("帮我解释筛选规则", chat_session=chat_session, printer=output.append)
 
         self.assertTrue(keep_running)
-        self.assertEqual(output, ["使用 skill: sats-market-assistant\n回答: 帮我解释筛选规则"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("`skill: sats-market-assistant`", output[0])
+        self.assertIn("> 回答: 帮我解释筛选规则", output[0])
 
     def test_repl_records_non_slash_chat_history(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -552,7 +554,9 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, [])
         self.assertEqual(chat_calls, ["用缠论分析002436"])
-        self.assertEqual(output, ["使用 skill: chan-theory\n真实数据分析"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("`skill: chan-theory`", output[0])
+        self.assertIn("> 真实数据分析", output[0])
 
     def test_repl_stock_question_with_date_uses_chat_context(self) -> None:
         calls: list[list[str]] = []
@@ -605,7 +609,9 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, [])
         self.assertEqual(chat_calls, ["分析002436 20260515 10:30"])
-        self.assertEqual(output, ["回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("# SATS 自然对话输出", output[0])
+        self.assertIn("> 回答", output[0])
 
     def test_repl_chat_slash_command_calls_llm_chat(self) -> None:
         output: list[str] = []
@@ -618,7 +624,9 @@ class ReplCliTest(unittest.TestCase):
 
         self.assertTrue(keep_running)
         self.assertEqual(calls, ["hello world"])
-        self.assertEqual(output, ["回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("# SATS 自然对话输出", output[0])
+        self.assertIn("> 回答", output[0])
 
     def test_repl_new_command_creates_chat_session_and_title(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -674,7 +682,8 @@ class ReplCliTest(unittest.TestCase):
             self.assertTrue(handle_repl_line("/new", chat_session=current, printer=output.append, state=state))
             self.assertTrue(handle_repl_line("继续分析它", chat_session=current, printer=output.append, state=state))
 
-            self.assertIn("请先提供明确股票代码", output[-1])
+            self.assertNotIn("000001.SZ", output[-1])
+            self.assertIn("#", output[-1])
 
     def test_repl_records_chat_slash_command_history(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -690,7 +699,8 @@ class ReplCliTest(unittest.TestCase):
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0].request, "hello world")
             self.assertEqual(records[0].source, "chat")
-            self.assertEqual(records[0].output, "回答")
+            self.assertIn("# SATS 自然对话输出", records[0].output)
+            self.assertIn("> 回答", records[0].output)
 
     def test_repl_chat_keyboard_interrupt_returns_to_prompt_without_saving_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -733,7 +743,9 @@ class ReplCliTest(unittest.TestCase):
         keep_running = handle_repl_line("hello world", chat_session=chat_session, printer=output.append)
 
         self.assertTrue(keep_running)
-        self.assertEqual(output, ["回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("# SATS 自然对话输出", output[0])
+        self.assertIn("> 回答", output[0])
         self.assertEqual(chat_session.calls[0][0], "hello world")
         self.assertTrue(chat_session.calls[0][1]["defer_memory_updates"])
 
@@ -748,7 +760,9 @@ class ReplCliTest(unittest.TestCase):
 
         self.assertTrue(keep_running)
         self.assertEqual(calls, ["分析002436"])
-        self.assertEqual(output, ["回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("# SATS 自然对话输出", output[0])
+        self.assertIn("> 回答", output[0])
 
     def test_repl_chat_slash_command_can_disable_memory(self) -> None:
         output: list[str] = []
@@ -767,7 +781,9 @@ class ReplCliTest(unittest.TestCase):
 
         self.assertTrue(keep_running)
         self.assertEqual(calls, [("hello world", False)])
-        self.assertEqual(output, ["回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("# SATS 自然对话输出", output[0])
+        self.assertIn("> 回答", output[0])
 
     def test_repl_trace_builtin_prints_latest_turn_trace(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -804,7 +820,9 @@ class ReplCliTest(unittest.TestCase):
 
             self.assertTrue(keep_running)
             confirm.assert_called_once()
-            self.assertEqual(output[-1], "数据: Runtime\n已执行")
+            self.assertIn("# SATS 执行结果", output[-1])
+            self.assertIn("`数据: Runtime`", output[-1])
+            self.assertIn("> 已执行", output[-1])
 
     def test_repl_chat_passes_reference_context_from_last_output(self) -> None:
         state = ReplState()
@@ -842,7 +860,9 @@ class ReplCliTest(unittest.TestCase):
 
         reference_builder.assert_called_once()
         self.assertEqual(calls, [("分析上面列表，选出最高评分的5支", reference_context)])
-        self.assertEqual(output, ["数据: 筛选结果\n回答"])
+        self.assertEqual(len(output), 1)
+        self.assertIn("`数据: 筛选结果`", output[0])
+        self.assertIn("> 回答", output[0])
 
     def test_repl_chat_falls_back_to_recent_stock_output_context(self) -> None:
         state = ReplState()
@@ -913,6 +933,89 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         self.assertIsNotNone(calls[0])
         self.assertEqual(calls[0].symbols, ["000001.SZ", "600519.SH"])
+
+    def test_repl_agent_passes_reference_context_from_last_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            state = ReplState(
+                chat_session=ChatSession(settings=settings, skills=[], llm_factory=ReplFakeLLM, memory_enabled=False),
+                last_output=CapturedOutput(
+                    content="1. 002436.SZ 兴森科技\n2. 300276.SZ 三丰智能",
+                    request="分析兴森科技和三丰智能",
+                    source="agent",
+                ),
+            )
+            reference_context = SimpleNamespace(
+                system_message="上一条输出包含两只股票",
+                symbols=["002436.SZ", "300276.SZ"],
+                trade_date="20260605",
+                source="agent",
+                data_name="上条输出",
+            )
+            fake_result = SimpleNamespace(
+                content="DSA完成",
+                tool_call_count=1,
+                data_names=("Agent",),
+                skill_names=(),
+                artifacts=(),
+                turn_id="turn",
+                session_id="agent",
+            )
+            output: list[str] = []
+
+            with (
+                patch("sats.repl.build_chat_reference_context", return_value=reference_context) as reference_builder,
+                patch("sats.repl.run_agent_once", return_value=fake_result) as run_agent,
+            ):
+                self.assertTrue(handle_repl_line("上面2个股票用DSA进行分析", printer=output.append, state=state))
+
+            reference_builder.assert_called_once()
+            run_agent.assert_called_once()
+            self.assertIs(run_agent.call_args.kwargs.get("reference_context"), reference_context)
+            self.assertIn("DSA完成", output[-1])
+
+    def test_repl_new_clears_agent_reference_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            current = ChatSession(settings=settings, skills=[], llm_factory=ReplFakeLLM, memory_enabled=False)
+            state = ReplState(
+                session_id=current.session_id,
+                chat_session=current,
+                last_output=CapturedOutput(
+                    content="1. 002436.SZ 兴森科技\n2. 300276.SZ 三丰智能",
+                    request="分析兴森科技和三丰智能",
+                    source="agent",
+                ),
+                last_stock_output=CapturedOutput(
+                    content="1. 002436.SZ 兴森科技\n2. 300276.SZ 三丰智能",
+                    request="分析兴森科技和三丰智能",
+                    source="agent",
+                ),
+            )
+            output: list[str] = []
+            fake_result = SimpleNamespace(
+                content="需要明确股票",
+                tool_call_count=0,
+                data_names=("Agent",),
+                skill_names=(),
+                artifacts=(),
+                turn_id="turn",
+                session_id="agent",
+            )
+
+            self.assertTrue(handle_repl_line("/new", chat_session=current, printer=output.append, state=state))
+            self.assertIsNone(state.last_output)
+            self.assertIsNone(state.last_stock_output)
+
+            with (
+                patch("sats.repl.build_chat_reference_context", return_value=None) as reference_builder,
+                patch("sats.repl.run_agent_once", return_value=fake_result) as run_agent,
+            ):
+                self.assertTrue(handle_repl_line("上面2个股票用DSA进行分析", printer=output.append, state=state))
+
+            reference_builder.assert_called_once()
+            self.assertIsNone(reference_builder.call_args.args[1])
+            self.assertIsNone(run_agent.call_args.kwargs.get("reference_context"))
 
     def test_repl_allows_memory_command(self) -> None:
         calls: list[list[str]] = []
@@ -1275,7 +1378,7 @@ class ReplCliTest(unittest.TestCase):
                 )
 
             self.assertTrue(keep_running)
-            self.assertEqual(output[0], "回答: 帮我解释 price_volume_ma")
+            self.assertIn("> 回答: 帮我解释 price_volume_ma", output[0])
             self.assertTrue(output[-1].startswith("已保存: "))
             saved_path = Path(output[-1].split("已保存: ", 1)[1])
             self.assertEqual(saved_path.suffix, ".md")
@@ -1398,7 +1501,7 @@ class ReplCliTest(unittest.TestCase):
                 )
 
             self.assertEqual(calls, ["分析 000938 技术面"])
-            self.assertEqual(output[0], "回答: 分析 000938 技术面")
+            self.assertIn("> 回答: 分析 000938 技术面", output[0])
             self.assertTrue(output[-1].startswith("已保存: "))
             saved_path = Path(output[-1].split("已保存: ", 1)[1])
             self.assertEqual(saved_path.suffix, ".pdf")

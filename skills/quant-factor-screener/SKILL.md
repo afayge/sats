@@ -5,6 +5,11 @@ category: strategy
 source: finskills China-market adapted for SATS; original Apache-2.0
 triggers: 多因子, 因子投资, 因子选股, 量化选股, Smart Beta, 价值因子, 动量因子, 质量因子, 低波动, 因子打分, 因子择时
 requires_tools: tushare_provider, indicators, discover
+applies_to: factor_analysis, opportunity_discovery, stock_analysis
+evidence: factor, factor_summary, factor.pick, factor.analyze, opportunity_discovery
+auto_load: full
+priority: 80
+aliases: 因子选股, 多因子, factor screener
 ---
 
 # quant-factor-screener
@@ -35,3 +40,4 @@ requires_tools: tushare_provider, indicators, discover
 - 因子结果只能基于已取得的真实数据或明确标注为方法论示例。
 - 不把 RAG 方法论当作实时因子数据。
 - 不给确定性买卖建议；结论应表述为研究观察或候选优先级。
+- 价格、成交量、K 线、quote、因子输入和信号必须来自 SATS observations/provenance。

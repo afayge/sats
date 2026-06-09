@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: volume_breakout, 放量突破, 突破, 突破阻力, 量价突破, 平台突破, 放量上攻
 requires_tools: indicators, tickflow_provider
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: full
+priority: 72
+aliases: 放量突破, 突破策略, volume breakout
 ---
 
 # volume-breakout
@@ -20,4 +25,4 @@ requires_tools: indicators, tickflow_provider
 - 失效条件：跌回突破位、放量冲高回落、次日无法站稳。
 
 热点或板块共振可提高权重，但不能替代真实量价确认。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

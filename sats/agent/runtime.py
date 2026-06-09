@@ -30,6 +30,7 @@ def run_agent_once(
     event_sink: ChatEventSink | None = None,
     llm_factory: Callable[..., Any] | None = ChatLLM,
     cli_main: Callable[[list[str]], int] | None = None,
+    reference_context: Any | None = None,
 ) -> AgentResult:
     settings = settings or load_settings()
     storage = DuckDBStorage(settings.db_path)
@@ -53,7 +54,27 @@ def run_agent_once(
             content=", ".join(skill.name for skill in skills[:8]),
             payload={"count": len(skills), "skills": [skill.name for skill in skills]},
         )
-        plan = build_agent_plan(message, settings=settings, policy=policy, llm_factory=llm_factory, tool_registry=tool_registry)
+        if reference_context is not None:
+            recorder.emit(
+                "context_completed",
+                item_type="context",
+                item_name="reference_context",
+                status="done",
+                payload={
+                    "data_name": str(getattr(reference_context, "data_name", "") or ""),
+                    "symbols": list(getattr(reference_context, "symbols", ()) or ()),
+                    "trade_date": str(getattr(reference_context, "trade_date", "") or ""),
+                    "source": str(getattr(reference_context, "source", "") or ""),
+                },
+            )
+        plan = build_agent_plan(
+            message,
+            settings=settings,
+            policy=policy,
+            llm_factory=llm_factory,
+            tool_registry=tool_registry,
+            reference_context=reference_context,
+        )
         recorder.emit("plan_ready", item_type="plan", item_name="agent", status="done", content=plan.objective, payload=plan.to_dict())
         tool_context = AgentToolContext(
             settings=settings,

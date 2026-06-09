@@ -11,6 +11,31 @@ from sats.symbols import normalize_symbols
 def data_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
+            name="data.list_provider_capabilities",
+            description="列出 SATS 已接入的 Tushare/TickFlow 数据能力目录，供计划阶段选择真实数据工具。",
+            category="data_catalog",
+            side_effect="readonly",
+            timeout=20,
+            input_schema=object_schema(
+                {
+                    "provider": {"type": "string"},
+                    "category": {"type": "string"},
+                    "realtime": {"type": "boolean"},
+                    "compact": {"type": "boolean"},
+                }
+            ),
+            executor=_list_provider_capabilities,
+        ),
+        AgentToolSpec(
+            name="data.stock_basic",
+            description="通过 AStockDataProvider 获取 A 股股票基础信息；优先 TickFlow universe/instruments，回退 Tushare，并写回 DuckDB。",
+            category="data",
+            side_effect="write_db",
+            timeout=60,
+            input_schema=object_schema(),
+            executor=_stock_basic,
+        ),
+        AgentToolSpec(
             name="data.stock_daily",
             description="DuckDB-first 获取 A 股日 K；缺口由 AStockDataProvider 补齐并写回 DuckDB。",
             category="data",
@@ -156,6 +181,27 @@ def data_tool_specs() -> list[AgentToolSpec]:
             executor=_get_tushare_stock_data,
         ),
     ]
+
+
+def _list_provider_capabilities(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    capabilities = provider.load_provider_capabilities(
+        provider=str(arguments.get("provider") or "").strip() or None,
+        category=str(arguments.get("category") or "").strip() or None,
+        realtime=arguments.get("realtime") if isinstance(arguments.get("realtime"), bool) else None,
+        compact=bool(arguments.get("compact", False)),
+    )
+    return ok(
+        f"listed {len(capabilities)} provider capabilities",
+        payload={"capabilities": capabilities},
+        data_names=("Provider capabilities",),
+    )
+
+
+def _stock_basic(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    frame = provider.load_stock_basic(storage=context.storage)
+    return _frame_result("stock_basic", frame)
 
 
 def _stock_daily(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:

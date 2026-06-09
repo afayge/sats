@@ -19,6 +19,7 @@ from sats.analysis.stock_picking_agent import (
     format_stock_picking_agent_result,
     resolve_theme_universe,
     run_stock_picking_agent,
+    _extract_theme_from_query,
 )
 from sats.analysis.opportunity_discovery import OpportunityCandidate, OpportunityDiscoveryResult
 from sats.cli import main
@@ -127,15 +128,21 @@ class _ThemeDiscoveryProvider(_FakeHotSectorDiscoveryProvider):
         *,
         sector_basic: pd.DataFrame | None = None,
         sector_members: pd.DataFrame | None = None,
+        sw_sector_basic: pd.DataFrame | None = None,
+        sw_sector_members: pd.DataFrame | None = None,
         bullish_symbols: set[str] | None = None,
     ) -> None:
         super().__init__()
         self.stock_basic_frame = _theme_stock_basic_frame()
         self.sector_basic_frame = sector_basic if sector_basic is not None else pd.DataFrame()
         self.sector_members_frame = sector_members if sector_members is not None else pd.DataFrame()
+        self.sw_sector_basic_frame = sw_sector_basic if sw_sector_basic is not None else pd.DataFrame()
+        self.sw_sector_members_frame = sw_sector_members if sw_sector_members is not None else pd.DataFrame()
         self.bullish_symbols = set(bullish_symbols or self.stock_basic_frame["ts_code"].astype(str).tolist())
         self.ths_basic_calls = 0
         self.ths_member_calls: list[list[str]] = []
+        self.sw_basic_calls = 0
+        self.sw_member_calls: list[list[str]] = []
 
     def load_stock_basic(self, *, storage=None):
         return self.stock_basic_frame
@@ -149,6 +156,16 @@ class _ThemeDiscoveryProvider(_FakeHotSectorDiscoveryProvider):
         if self.sector_members_frame.empty:
             return self.sector_members_frame
         return self.sector_members_frame[self.sector_members_frame["sector_code"].isin(sector_codes)].copy()
+
+    def load_sw_sector_basic(self, *, storage=None):
+        self.sw_basic_calls += 1
+        return self.sw_sector_basic_frame
+
+    def load_sw_sector_members(self, sector_codes, *, storage=None):
+        self.sw_member_calls.append(list(sector_codes))
+        if self.sw_sector_members_frame.empty:
+            return self.sw_sector_members_frame
+        return self.sw_sector_members_frame[self.sw_sector_members_frame["sector_code"].isin(sector_codes)].copy()
 
     def load_screening_inputs(self, symbols, trade_date, *, storage=None, trade_days=80, rule_name=None):
         rows = super().load_screening_inputs(symbols, trade_date, storage=storage, trade_days=trade_days, rule_name=rule_name)
@@ -172,8 +189,9 @@ class _ThemeDiscoveryProvider(_FakeHotSectorDiscoveryProvider):
 
 
 class _ThemeUniverseLLM:
-    def __init__(self, stocks, *, uncertainties=None) -> None:
+    def __init__(self, stocks, *, theme="MLCC", uncertainties=None) -> None:
         self.stocks = stocks
+        self.theme = theme
         self.uncertainties = uncertainties or []
         self.calls: list[list[dict]] = []
 
@@ -183,7 +201,7 @@ class _ThemeUniverseLLM:
         if "主题股票池解析器" in prompt:
             return SimpleNamespace(
                 content=json.dumps(
-                    {"theme": "MLCC", "stocks": self.stocks, "uncertainties": self.uncertainties},
+                    {"theme": self.theme, "stocks": self.stocks, "uncertainties": self.uncertainties},
                     ensure_ascii=False,
                 )
             )
@@ -239,6 +257,21 @@ class StockPickingAgentTest(unittest.TestCase):
         theme = build_stock_picking_plan("MLCC相关股票，未来几天可能上涨", skills=skills)
         self.assertEqual(theme.theme, "MLCC")
 
+    def test_generic_short_up_queries_do_not_extract_theme(self) -> None:
+        cases = (
+            "给出一些有上涨机会的股票",
+            "给出几个股票，预计未来几天有上涨趋势的股票",
+            "推荐十只短线可能上涨的股票",
+            "列出10支明天大概率上涨的股票",
+        )
+
+        for query in cases:
+            with self.subTest(query=query):
+                self.assertEqual(_extract_theme_from_query(query), "")
+
+        self.assertEqual(_extract_theme_from_query("MLCC相关股票，未来几天可能上涨"), "MLCC")
+        self.assertEqual(_extract_theme_from_query("半导体概念股短线机会"), "半导体")
+
     def test_generic_hot_sector_query_uses_full_market_discovery(self) -> None:
         class FailingThemeLLM:
             def __init__(self, *args, **kwargs) -> None:
@@ -277,6 +310,45 @@ class StockPickingAgentTest(unittest.TestCase):
         discover.assert_called_once()
         self.assertIsNone(discover.call_args.kwargs["symbols"])
         self.assertTrue(discover.call_args.kwargs["hot_sector_enabled"])
+
+    def test_generic_short_up_query_uses_full_market_discovery(self) -> None:
+        class FailingThemeLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages):
+                raise AssertionError("generic short-up query should not call theme-universe LLM")
+
+        discovery = OpportunityDiscoveryResult(
+            trade_date="20260520",
+            signals="short_up",
+            candidates=[],
+            candidate_count=0,
+            scanned_count=0,
+            message="无符合中短期上涨信号的候选股票",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb", openai_model="deepseek-v4-pro")
+            with patch("sats.analysis.stock_picking_agent.run_opportunity_discovery", return_value=discovery) as discover:
+                result = run_stock_picking_agent(
+                    query="给出一些有上涨机会的股票",
+                    settings=settings,
+                    storage=DuckDBStorage(root / "sats.duckdb"),
+                    provider=_ThemeDiscoveryProvider(),
+                    skills=[_skill("sats-market-assistant"), _skill("technical-basic")],
+                    trade_date="20260520",
+                    report=False,
+                    factor_enabled=False,
+                    llm_factory=FailingThemeLLM,
+                )
+
+        self.assertEqual(result.plan.theme, "")
+        self.assertEqual(result.theme_universe.source, "none")
+        self.assertNotIn("主题股票池", result.message)
+        discover.assert_called_once()
+        self.assertIsNone(discover.call_args.kwargs["symbols"])
+        self.assertEqual(discover.call_args.kwargs["signals"], "short_up")
 
     def test_run_agent_uses_discovery_candidates_rag_and_agent_llm_ranking(self) -> None:
         calls = []
@@ -900,9 +972,10 @@ class StockPickingAgentTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            provider = _ThemeDiscoveryProvider(sector_basic=sector_basic, sector_members=sector_members)
             universe = resolve_theme_universe(
                 "MLCC相关股票",
-                _ThemeDiscoveryProvider(sector_basic=sector_basic, sector_members=sector_members),
+                provider,
                 DuckDBStorage(root / "sats.duckdb"),
                 fail_llm,
                 settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
@@ -912,6 +985,125 @@ class StockPickingAgentTest(unittest.TestCase):
         self.assertEqual(universe.source, "ths_sector")
         self.assertEqual(universe.matched_sector, "MLCC")
         self.assertEqual(universe.symbols, ("300408.SZ", "000636.SZ"))
+        self.assertEqual(provider.sw_basic_calls, 0)
+
+    def test_ths_without_valid_a_share_members_falls_back_to_sw_sector(self) -> None:
+        def fail_llm():
+            raise AssertionError("LLM should not be called when SW sector has valid A-share members")
+
+        sector_basic = pd.DataFrame(
+            [{"sector_code": "861014.TI", "name": "贸易与经销", "sector_type": "industry", "exchange": "THS"}]
+        )
+        sector_members = pd.DataFrame(
+            [
+                {"sector_code": "861014.TI", "ts_code": "AAPL.O", "name": "苹果"},
+                {"sector_code": "861014.TI", "ts_code": "00700.HK", "name": "腾讯控股"},
+            ]
+        )
+        sw_sector_basic = pd.DataFrame(
+            [{"sector_code": "851911.SI", "name": "贸易与经销", "sector_type": "sw_l3", "exchange": "SW2021"}]
+        )
+        sw_sector_members = pd.DataFrame(
+            [
+                {"sector_code": "851911.SI", "ts_code": "600153.SH", "name": "建发股份"},
+                {"sector_code": "851911.SI", "ts_code": "002091.SZ", "name": "江苏国泰"},
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _ThemeDiscoveryProvider(
+                sector_basic=sector_basic,
+                sector_members=sector_members,
+                sw_sector_basic=sw_sector_basic,
+                sw_sector_members=sw_sector_members,
+            )
+            universe = resolve_theme_universe(
+                "贸易与经销板块",
+                provider,
+                DuckDBStorage(root / "sats.duckdb"),
+                fail_llm,
+                settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                trade_date="20260520",
+            )
+
+        self.assertEqual(universe.source, "sw_sector")
+        self.assertEqual(universe.matched_sector, "贸易与经销")
+        self.assertEqual(universe.symbols, ("600153.SH", "002091.SZ"))
+        self.assertEqual(universe.stocks[0].source, "sw_sector")
+        self.assertEqual(universe.stocks[0].relation_type, "sw_member")
+        self.assertEqual(provider.ths_member_calls, [["861014.TI"]])
+        self.assertEqual(provider.sw_basic_calls, 1)
+        self.assertEqual(provider.sw_member_calls, [["851911.SI"]])
+
+    def test_ths_and_sw_without_valid_a_share_members_fall_back_to_llm(self) -> None:
+        sector_basic = pd.DataFrame(
+            [{"sector_code": "861014.TI", "name": "贸易与经销", "sector_type": "industry", "exchange": "THS"}]
+        )
+        sector_members = pd.DataFrame(
+            [
+                {"sector_code": "861014.TI", "ts_code": "AAPL.O", "name": "苹果"},
+                {"sector_code": "861014.TI", "ts_code": "00700.HK", "name": "腾讯控股"},
+                {"sector_code": "861014.TI", "ts_code": "BABA.N", "name": "阿里巴巴"},
+            ]
+        )
+        sw_sector_basic = pd.DataFrame(
+            [{"sector_code": "851911.SI", "name": "贸易与经销", "sector_type": "sw_l3", "exchange": "SW2021"}]
+        )
+        sw_sector_members = pd.DataFrame(
+            [{"sector_code": "851911.SI", "ts_code": "00700.HK", "name": "腾讯控股"}]
+        )
+        llm = _ThemeUniverseLLM(
+            [
+                {"ts_code": "600153.SH", "name": "建发股份", "reason": "供应链运营和贸易业务", "confidence": 0.86},
+                {"ts_code": "002091.SZ", "name": "江苏国泰", "reason": "外贸和供应链业务", "confidence": 0.78},
+                {"ts_code": "AAPL.O", "name": "苹果", "reason": "非 A 股噪声", "confidence": 0.95},
+            ],
+            theme="贸易与经销",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            provider = _ThemeDiscoveryProvider(
+                sector_basic=sector_basic,
+                sector_members=sector_members,
+                sw_sector_basic=sw_sector_basic,
+                sw_sector_members=sw_sector_members,
+            )
+            provider.stock_basic_frame = pd.concat(
+                [
+                    provider.stock_basic_frame,
+                    pd.DataFrame(
+                        [
+                            {"ts_code": "600153.SH", "symbol": "600153", "name": "建发股份", "industry": "贸易"},
+                            {"ts_code": "002091.SZ", "symbol": "002091", "name": "江苏国泰", "industry": "贸易"},
+                        ]
+                    ),
+                ],
+                ignore_index=True,
+            )
+            universe = resolve_theme_universe(
+                "贸易与经销板块",
+                provider,
+                DuckDBStorage(root / "sats.duckdb"),
+                lambda: llm,
+                settings=SimpleNamespace(project_root=root, db_path=root / "sats.duckdb"),
+                trade_date="20260520",
+            )
+
+        self.assertEqual(universe.source, "llm_theme_universe")
+        self.assertEqual(universe.theme, "贸易与经销")
+        self.assertEqual(universe.matched_sector, "贸易与经销")
+        self.assertEqual(universe.symbols, ("600153.SH", "002091.SZ"))
+        self.assertEqual(provider.sw_basic_calls, 1)
+        self.assertEqual(provider.sw_member_calls, [["851911.SI"]])
+        prompt = llm.calls[0][0]["content"]
+        self.assertIn("贸易与经销板块有哪些 A 股股票", prompt)
+        self.assertIn("板块成分股查询没有得到可校验的中国 A 股代码", prompt)
+        warnings = "\n".join(universe.warnings)
+        self.assertIn("ths_sector_members: no_valid_symbols:贸易与经销", warnings)
+        self.assertIn("sw_sector_members: no_valid_symbols:贸易与经销", warnings)
+        self.assertIn("unrecognized:AAPL.O", warnings)
 
     def test_no_theme_universe_does_not_fall_back_to_unrelated_broad_sector(self) -> None:
         llm = _ThemeUniverseLLM(

@@ -8,16 +8,26 @@ from typing import Any, Callable
 from sats.agent.models import AgentObservation, AgentPlan
 from sats.chat_artifacts import save_markdown_artifact
 from sats.llm import ChatLLM
-from sats.skills import Skill, find_skill, match_skills, skill_summaries
+from sats.natural_output import format_meter, format_sparkline
+from sats.skill_routing import SkillRouteContext, SkillSelection, select_skills
+from sats.skills import Skill, match_skills
+from sats.symbols import normalize_symbols
 
+
+FULL_SKILL_CHAR_LIMIT = 2400
+MAX_FULL_SKILLS = 4
 
 SYNTHESIS_SYSTEM_PROMPT = (
     "你是 SATS Agent 的最终分析器。你只能基于下面提供的 SATS 工具 observations、skills 方法论和真实数据 provenance 作答；"
     "不得编造股票/指数价格、成交量、K线、quote、新闻、公告、题材或资金流。"
     "如果数据缺失或工具失败，必须明确说明限制。"
+    "如果明确请求的股票未出现在摘要中，只能说明摘要未展开/未纳入摘要；只有 missing_fields、空指标 payload 或工具错误才可写成数据缺失/未命中。"
     "对投资相关判断必须说明仅供研究，不构成投资建议。"
     "回答要像排版清晰的研究分析正文，而不是工具执行日志；不要输出 step id、[done]、原始 JSON 大段内容。"
     "优先使用中文 Markdown 标题、表格、引用块和粗体突出结论。"
+    "输出必须尽量遵循统一骨架：H1 标题、引用式核心结论、badge 元信息、"
+    "“结论摘要 / 关键证据 / 文字图表 / 风险与限制 / 下一步”这些一级段落。"
+    "文字图表优先使用 ASCII/Unicode 比例条或 sparkline。"
 )
 
 REPORT_TERMS = ("报告", "保存", "导出", "写成", "生成研究")
@@ -40,7 +50,8 @@ def synthesize_agent_result(
     settings: Any,
     llm_factory: Callable[..., Any] | None = ChatLLM,
 ) -> AgentSynthesisResult:
-    matched_skills = _matched_skills(message, observations, skills)
+    matched_skill_selections = _matched_skill_selections(message, observations, skills)
+    matched_skills = [selection.skill for selection in matched_skill_selections]
     if _is_chat_answer_only(observations):
         return AgentSynthesisResult(
             content=_first_observation_content(observations) or "无响应",
@@ -57,7 +68,7 @@ def synthesize_agent_result(
         message=message,
         plan=plan,
         observations=observations,
-        matched_skills=matched_skills,
+        matched_skill_selections=matched_skill_selections,
     )
     if llm_factory is None:
         return AgentSynthesisResult(
@@ -134,7 +145,7 @@ def _synthesis_messages(
     message: str,
     plan: AgentPlan,
     observations: tuple[AgentObservation, ...],
-    matched_skills: list[Skill],
+    matched_skill_selections: list[SkillSelection],
 ) -> list[dict[str, Any]]:
     analysis_style = _analysis_style(message, observations)
     style_guide = _style_guide(analysis_style)
@@ -144,7 +155,7 @@ def _synthesis_messages(
         "risk_level": plan.risk_level,
         "analysis_style": analysis_style,
         "style_guide": style_guide,
-        "skills": _skill_context(matched_skills),
+        "skills": _skill_context(matched_skill_selections),
         "evidence_digest": _evidence_digest(observations),
         "observations": [_observation_for_llm(item) for item in observations if not _is_deferred_report_observation(item)],
     }
@@ -159,6 +170,7 @@ def _synthesis_messages(
             "content": (
                 f"用户问题：{message}\n"
                 "请严格按 style_guide 输出详细中文 Markdown 分析。必须直接给结论和表格化证据，"
+                "并尽量保持统一骨架：标题、核心结论引用、badge 元信息、结论摘要、关键证据、文字图表、风险与限制、下一步。"
                 "并把缺失数据写成“数据缺失/未命中”。不要输出工具执行日志。"
             ),
         },
@@ -174,6 +186,8 @@ def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) ->
         return "backtest"
     if "research.market_context" in tools or any(term in text for term in ("大盘", "指数", "市场")):
         return "market_analysis"
+    if "research.chan_context" in tools:
+        return "stock_analysis"
     if "research.stock_context" in tools or any(term in text for term in ("个股", "股票", "走势", "技术面")):
         return "stock_analysis"
     return "general_research"
@@ -183,7 +197,7 @@ def _style_guide(style: str) -> dict[str, Any]:
     common = {
         "format": "中文 Markdown；用表格呈现指标和证据；少用长段落；不要输出工具日志。",
         "required_footer": "必须以“以上仅供研究，不构成投资建议。”或同义风险提示收尾。",
-        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；只有 requested_dimensions/missing_fields 或真实空 payload 表明缺失时，才写数据缺失或未命中；不要把摘要字段名差异当成数据缺失。",
+        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；只有 requested_dimensions/missing_fields、真实空 payload 或工具错误表明缺失时，才写数据缺失或未命中；明确请求股票未出现在摘要中只能写摘要未展开/未纳入摘要，不要写成数据缺失；不要把摘要字段名差异当成数据缺失。",
     }
     if style == "stock_analysis":
         return {
@@ -242,9 +256,13 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "stock_context": [],
         "market_context": {},
         "indicators": [],
+        "indicator_coverage": {},
         "analyze_signals": [],
         "factor_summary": {},
         "discovery": {},
+        "chan_context": {},
+        "knowledge_context": {},
+        "rule_generation": {},
         "backtest": {},
         "errors": [],
     }
@@ -258,14 +276,28 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         if tool_name == "data.realtime_quotes":
             digest["quotes"].extend(_compact_rows(payload, ("ts_code", "name", "price", "pct_chg", "change", "volume", "amount", "fetched_at")))
         elif tool_name == "research.stock_context":
-            digest["stock_context"].extend(_stock_context_digest(payload))
+            digest["stock_context"].extend(_stock_context_digest(payload, requested_symbols=_observation_symbols(obs)))
         elif tool_name == "research.market_context":
             digest["market_context"] = _market_context_digest(payload)
+        elif tool_name == "research.chan_context":
+            context = payload.get("chan_context") if isinstance(payload.get("chan_context"), dict) else payload
+            digest["chan_context"] = _trim_payload(context, max_chars=5000)
+        elif tool_name == "research.knowledge_context":
+            context = payload.get("knowledge_context") if isinstance(payload.get("knowledge_context"), dict) else payload
+            digest["knowledge_context"] = _trim_payload(context, max_chars=5000)
+        elif tool_name == "research.rule_generation":
+            context = payload.get("rule_generation") if isinstance(payload.get("rule_generation"), dict) else payload
+            digest["rule_generation"] = _trim_payload(context, max_chars=7000)
         elif tool_name == "research.internal_analysis":
             analysis = payload.get("analysis") if isinstance(payload.get("analysis"), dict) else payload
             kind = str(analysis.get("kind") or "")
             if kind == "indicators":
-                digest["indicators"].extend(_compact_items(analysis.get("indicators"), limit=8))
+                items = analysis.get("indicators") if isinstance(analysis.get("indicators"), list) else analysis.get("results")
+                requested_symbols = _observation_symbols(obs)
+                digest["indicators"].extend(_indicator_items(items, requested_symbols=requested_symbols))
+                coverage = _indicator_coverage(items, requested_symbols=requested_symbols)
+                if coverage:
+                    digest["indicator_coverage"] = coverage
             elif kind == "analyze_signals":
                 digest["analyze_signals"].extend(_signal_digest(analysis))
             elif kind == "factor_summary":
@@ -279,33 +311,57 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
     return digest
 
 
-def _matched_skills(message: str, observations: tuple[AgentObservation, ...], skills: tuple[Skill, ...]) -> list[Skill]:
-    matched = list(match_skills(message, list(skills), limit=5)) if skills else []
-    observed_tools = {str(item.payload.get("tool_name") or "") for item in observations}
-    text = str(message or "")
-    if "research.market_context" in observed_tools or any(term in text for term in ("大盘", "指数", "市场", "下周走势")):
-        matched = _ensure_skill(matched, skills, "sats-market-assistant")
-        matched = _ensure_skill(matched, skills, "sentiment-analysis")
-        matched = _ensure_skill(matched, skills, "sector-rotation")
-    if "research.stock_context" in observed_tools or any(term in text for term in ("个股", "股票", "技术面", "走势")):
-        matched = _ensure_skill(matched, skills, "technical-basic")
-        matched = _ensure_skill(matched, skills, "risk-analysis")
-    if any("factor" in str(item.payload.get("tool_name") or "") for item in observations) or "因子" in text:
-        matched = _ensure_skill(matched, skills, "quant-factor-screener")
-    return matched[:8]
-
-
-def _ensure_skill(matched: list[Skill], skills: tuple[Skill, ...], name: str) -> list[Skill]:
-    if any(skill.id == name or skill.name == name for skill in matched):
-        return matched
-    skill = find_skill(list(skills), name)
-    return [*matched, skill] if skill is not None else matched
-
-
-def _skill_context(skills: list[Skill]) -> str:
+def _matched_skill_selections(message: str, observations: tuple[AgentObservation, ...], skills: tuple[Skill, ...]) -> list[SkillSelection]:
     if not skills:
+        return []
+    observed_tools = {str(item.payload.get("tool_name") or "") for item in observations}
+    internal_kinds = []
+    for item in observations:
+        if str(item.payload.get("tool_name") or "") != "research.internal_analysis":
+            continue
+        payload = _result_payload(item)
+        analysis = payload.get("analysis") if isinstance(payload.get("analysis"), dict) else payload
+        kind = str(analysis.get("kind") or "")
+        if kind:
+            internal_kinds.append(kind)
+    route = select_skills(
+        SkillRouteContext(
+            message=message,
+            intent=_analysis_style(message, observations),
+            observed_tools=tuple(observed_tools),
+            internal_analysis_kinds=tuple(internal_kinds),
+        ),
+        skills,
+        limit=12,
+    )
+    if route.selections:
+        return list(route.selections)
+    return [SkillSelection(skill=skill, load_mode=skill.auto_load, reason="沿用 trigger/description 匹配", score=1) for skill in match_skills(message, list(skills), limit=8)]
+
+
+def _skill_context(selections: list[SkillSelection]) -> str:
+    if not selections:
         return "无匹配 skill。"
-    return skill_summaries(skills)
+    blocks = [
+        "以下 skill 只提供分析方法论；价格、成交量、K线、quote、因子和信号必须来自 observations/provenance。",
+        "自动选择结果：",
+    ]
+    full_used = 0
+    for selection in selections:
+        skill = selection.skill
+        mode = selection.load_mode if selection.load_mode in {"summary", "full", "never"} else "summary"
+        if mode == "full" and full_used >= MAX_FULL_SKILLS:
+            mode = "summary"
+        blocks.append(
+            f"- {skill.name} [{skill.category}] mode={mode} source={skill.source}; reason={selection.reason or 'auto'}; "
+            f"description={skill.description}"
+        )
+        if mode == "full":
+            full_used += 1
+            content = _truncate(skill.content, FULL_SKILL_CHAR_LIMIT)
+            suffix = "\n[skill content truncated]" if len(skill.content) > FULL_SKILL_CHAR_LIMIT else ""
+            blocks.append(f"  full_content:\n{content}{suffix}")
+    return "\n".join(blocks)
 
 
 def _observation_for_llm(observation: AgentObservation) -> dict[str, Any]:
@@ -342,13 +398,24 @@ def _collect_provenance(digest: dict[str, Any], payload: dict[str, Any]) -> None
                     _collect_provenance(digest, item)
 
 
-def _stock_context_digest(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _stock_context_digest(payload: dict[str, Any], *, requested_symbols: list[str] | tuple[str, ...] = ()) -> list[dict[str, Any]]:
     context = payload.get("stock_context") if isinstance(payload.get("stock_context"), dict) else payload
     stocks = context.get("stocks") if isinstance(context.get("stocks"), list) else []
     if not stocks and isinstance(context.get("symbols"), list):
         stocks = [context]
+    return _stock_context_rows(stocks, requested_symbols=requested_symbols)
+
+
+def _stock_context_rows(stocks: Any, *, requested_symbols: list[str] | tuple[str, ...]) -> list[dict[str, Any]]:
+    requested = _normalized_symbol_list(requested_symbols)
+    if requested:
+        stocks = _matching_symbol_rows(stocks, requested)
+    elif isinstance(stocks, list):
+        stocks = stocks[:6]
+    else:
+        stocks = []
     rows: list[dict[str, Any]] = []
-    for item in stocks[:6]:
+    for item in stocks:
         if not isinstance(item, dict):
             continue
         latest_daily = _last_dict(item.get("daily_tail"))
@@ -524,6 +591,54 @@ def _compact_items(value: Any, *, limit: int = 8) -> list[Any]:
     return rows
 
 
+def _indicator_items(value: Any, *, requested_symbols: list[str] | tuple[str, ...]) -> list[Any]:
+    requested = _normalized_symbol_list(requested_symbols)
+    if not requested:
+        return _compact_items(value, limit=8)
+    return [_trim_payload(item, max_chars=2500) for item in _matching_symbol_rows(value, requested)]
+
+
+def _indicator_coverage(value: Any, *, requested_symbols: list[str] | tuple[str, ...]) -> dict[str, Any]:
+    requested = _normalized_symbol_list(requested_symbols)
+    if not requested:
+        return {}
+    rows = value if isinstance(value, list) else []
+    included = _matching_symbol_rows(rows, requested)
+    included_symbols = _normalized_symbol_list(item.get("ts_code") or item.get("symbol") for item in included if isinstance(item, dict))
+    missing_from_summary = [symbol for symbol in requested if symbol not in included_symbols]
+    return _drop_empty(
+        {
+            "requested_count": len(requested),
+            "included_count": len(included_symbols),
+            "omitted_count": max(0, len(rows) - len(included)),
+            "missing_requested_symbols": missing_from_summary,
+            "policy": "明确请求股票的指标摘要应全部保留；未出现在摘要不等于数据缺失，除非 missing_fields 或空指标 payload 明确标记。",
+        }
+    )
+
+
+def _observation_symbols(observation: AgentObservation) -> list[str]:
+    arguments = observation.payload.get("arguments") if isinstance(observation.payload.get("arguments"), dict) else {}
+    return _normalized_symbol_list(arguments.get("symbols") if isinstance(arguments, dict) else [])
+
+
+def _normalized_symbol_list(values: Any) -> list[str]:
+    return normalize_symbols(values or [], required=False)
+
+
+def _matching_symbol_rows(rows: Any, requested_symbols: list[str]) -> list[Any]:
+    if not requested_symbols or not isinstance(rows, list):
+        return []
+    by_symbol: dict[str, Any] = {}
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        symbol = _normalized_symbol_list([item.get("ts_code") or item.get("symbol")])
+        if symbol and symbol[0] not in by_symbol:
+            by_symbol[symbol[0]] = item
+    return [by_symbol[symbol] for symbol in requested_symbols if symbol in by_symbol]
+
+
 def _payload_cutoff(payload: dict[str, Any]) -> str:
     candidates: list[str] = []
     for key in ("trade_date", "fetched_at", "datetime", "date"):
@@ -593,12 +708,13 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
     digest = _evidence_digest(observations)
     lines = [f"# {_fallback_title(style, objective)}", ""]
     cutoff = str(digest.get("data_cutoff") or "以 SATS 已获取数据为准")
-    lines.extend([f"> **数据截止**: {cutoff} | **仅供研究，不构成投资建议**", ""])
-    lines.extend(["## 核心结论", "", f"已围绕“{objective}”完成 SATS 真实数据工具调用；以下结论只基于已返回的 observations/provenance。", ""])
+    lines.extend([f"> 已围绕“{objective}”完成 SATS 真实数据工具调用；数据截止 {cutoff}。", "", "`风格: 研究输出`", ""])
+    lines.extend(["## 结论摘要", "", f"- 已围绕“{objective}”完成 SATS 真实数据工具调用。", "- 以下结论只基于已返回的 observations/provenance。", "- 仅供研究，不构成投资建议。", ""])
     successes = [item for item in observations if item.status == "done" and item.kind != "final" and not _is_deferred_report_observation(item)]
     errors = [item for item in observations if item.status == "error"]
     if matched_skills:
         lines.extend(["## 使用的方法论", "", "、".join(skill.name for skill in matched_skills), ""])
+    lines.extend(["## 文字图表", "", f"- 数据覆盖: {format_meter(min(5, max(1, len(successes))))}", f"- 风险等级: {format_meter(4 if errors else 2)}", f"- 信息密度: {format_sparkline([len(successes), len(errors), len(matched_skills), len(digest.get('provenance') or []), len(digest.get('quotes') or [])])}", ""])
     if style == "stock_analysis":
         _append_stock_fallback(lines, digest)
     elif style == "market_analysis":
@@ -609,12 +725,14 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
         _append_backtest_fallback(lines, digest)
     _append_observation_summary(lines, successes)
     if errors:
-        lines.append("## 数据限制或失败项")
+        lines.append("## 风险与限制")
         lines.append("")
         for obs in errors:
             lines.append(f"- {_observation_label(obs)}: {_observation_detail(obs)}")
         lines.append("")
-    lines.extend(["## 下一步观察", "", "- 继续跟踪已列出的真实数据源；若关键字段缺失，需要先补齐 SATS 数据后再判断。", "- 不将模型表达作为交易指令，交易动作仍需单独授权和风控校验。", "", "以上仅供研究，不构成投资建议。"])
+    else:
+        lines.extend(["## 风险与限制", "", "- 当前结论仅基于已注入 observations/provenance。", "- 若关键字段缺失，需要先补齐 SATS 数据后再判断。", ""])
+    lines.extend(["## 下一步", "", "- 继续跟踪已列出的真实数据源；若关键字段缺失，需要先补齐 SATS 数据后再判断。", "- 不将模型表达作为交易指令，交易动作仍需单独授权和风控校验。", "", "以上仅供研究，不构成投资建议。"])
     return "\n".join(lines).strip()
 
 

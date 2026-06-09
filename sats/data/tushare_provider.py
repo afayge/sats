@@ -63,6 +63,10 @@ PRICE_VOLUME_TURNOVER_RANGE = (5.0, 10.0)
 PRICE_VOLUME_CIRC_MV_RANGE = (500_000.0, 2_000_000.0)
 HOT_SECTOR_TYPES = {"industry": "I", "concept": "N"}
 HOT_SECTOR_DATA_SOURCE = "tushare_ths"
+SW_SECTOR_LEVELS = {"sw_l1": "L1", "sw_l2": "L2", "sw_l3": "L3"}
+SW_SECTOR_SRC = "SW2021"
+SW_SECTOR_BASIC_DATA_SOURCE = "tushare_sw_index_classify"
+SW_SECTOR_MEMBER_DATA_SOURCE = "tushare_sw_index_member_all"
 
 
 class TushareDataProvider(MarketDataProvider):
@@ -784,6 +788,59 @@ class TushareDataProvider(MarketDataProvider):
             storage.upsert_sector_members(data)
         else:
             data = storage.get_sector_members(sector_codes)
+            source = "duckdb_cache_or_unavailable"
+        data.attrs["data_source"] = source
+        return data
+
+    def _load_sw_sector_basic(self, *, storage: DuckDBStorage) -> pd.DataFrame:
+        frames: list[pd.DataFrame] = []
+        if self.pro is not None:
+            for sector_type, level in SW_SECTOR_LEVELS.items():
+                frame = _safe_dataframe_call(
+                    lambda **params: _call_pro(self.pro, "index_classify", **params),
+                    src=SW_SECTOR_SRC,
+                    level=level,
+                )
+                adapted = _adapt_sw_sector_basic(frame, sector_type=sector_type)
+                if not adapted.empty:
+                    frames.append(adapted)
+        data = _combine_sector_basic_frames(frames)
+        source = SW_SECTOR_BASIC_DATA_SOURCE
+        if not data.empty:
+            storage.upsert_sector_basic(data)
+        else:
+            data = storage.get_sector_basic(sector_types=list(SW_SECTOR_LEVELS))
+            source = "duckdb_cache_or_unavailable"
+        data.attrs["data_source"] = source
+        return data
+
+    def _load_sw_sector_members(self, sector_codes: list[str], *, storage: DuckDBStorage) -> pd.DataFrame:
+        codes = [str(code).strip().upper() for code in sector_codes if str(code).strip()]
+        frames: list[pd.DataFrame] = []
+        if self.pro is not None and codes:
+            basic = storage.get_sector_basic(sector_types=list(SW_SECTOR_LEVELS))
+            type_by_code = {
+                str(row.get("sector_code") or "").strip().upper(): str(row.get("sector_type") or "").strip()
+                for _, row in basic.iterrows()
+            } if isinstance(basic, pd.DataFrame) and not basic.empty else {}
+            param_by_type = {"sw_l1": "l1_code", "sw_l2": "l2_code", "sw_l3": "l3_code"}
+            for sector_code in codes:
+                param_name = param_by_type.get(type_by_code.get(sector_code, ""))
+                if not param_name:
+                    continue
+                frame = _safe_dataframe_call(
+                    lambda **params: _call_pro(self.pro, "index_member_all", **params),
+                    **{param_name: sector_code},
+                )
+                adapted = _adapt_sw_sector_members(frame, sector_code=sector_code)
+                if not adapted.empty:
+                    frames.append(adapted)
+        data = _combine_sector_member_frames(frames)
+        source = SW_SECTOR_MEMBER_DATA_SOURCE
+        if not data.empty:
+            storage.upsert_sector_members(data)
+        else:
+            data = storage.get_sector_members(codes)
             source = "duckdb_cache_or_unavailable"
         data.attrs["data_source"] = source
         return data
@@ -1948,6 +2005,29 @@ def _adapt_ths_sector_basic(frame: pd.DataFrame | None, *, sector_type: str) -> 
     return result[result["sector_code"] != ""].drop_duplicates(subset=["sector_code"], keep="last").reset_index(drop=True)
 
 
+def _adapt_sw_sector_basic(frame: pd.DataFrame | None, *, sector_type: str) -> pd.DataFrame:
+    columns = ["sector_code", "name", "sector_type", "exchange", "list_date", "data_source"]
+    if frame is None or frame.empty:
+        return pd.DataFrame(columns=columns)
+    data = frame.copy()
+    code_col = _first_column(data, ["index_code", "industry_code", "code"])
+    name_col = _first_column(data, ["industry_name", "name", "index_name"])
+    if code_col is None:
+        return pd.DataFrame(columns=columns)
+    src_col = _first_column(data, ["src", "source"])
+    result = pd.DataFrame(
+        {
+            "sector_code": data[code_col].astype(str).str.strip().str.upper(),
+            "name": data[name_col].astype(str).str.strip() if name_col else "",
+            "sector_type": sector_type,
+            "exchange": data[src_col].astype(str).str.strip() if src_col else SW_SECTOR_SRC,
+            "list_date": "",
+            "data_source": SW_SECTOR_BASIC_DATA_SOURCE,
+        }
+    )
+    return result[result["sector_code"] != ""].drop_duplicates(subset=["sector_code"], keep="last").reset_index(drop=True)
+
+
 def _combine_sector_basic_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
     columns = ["sector_code", "name", "sector_type", "exchange", "list_date", "data_source"]
     valid = [frame for frame in frames if frame is not None and not frame.empty]
@@ -2029,6 +2109,32 @@ def _adapt_ths_sector_members(frame: pd.DataFrame | None, *, sector_code: str) -
         }
     )
     result["sector_code"] = result["sector_code"].astype(str).str.strip().str.upper()
+    return result[result["ts_code"].astype(str).str.endswith((".SH", ".SZ", ".BJ"))].drop_duplicates(
+        subset=["sector_code", "ts_code"], keep="last"
+    ).sort_values(["sector_code", "ts_code"]).reset_index(drop=True)
+
+
+def _adapt_sw_sector_members(frame: pd.DataFrame | None, *, sector_code: str) -> pd.DataFrame:
+    columns = ["sector_code", "ts_code", "name", "weight", "in_date", "out_date", "is_new", "data_source"]
+    if frame is None or frame.empty:
+        return pd.DataFrame(columns=columns)
+    data = frame.copy()
+    code_col = _first_column(data, ["ts_code", "con_code", "code", "symbol"])
+    if code_col is None:
+        return pd.DataFrame(columns=columns)
+    name_col = _first_column(data, ["name", "con_name"])
+    result = pd.DataFrame(
+        {
+            "sector_code": str(sector_code).strip().upper(),
+            "ts_code": data[code_col].astype(str).map(_normalize_ts_code),
+            "name": data[name_col].astype(str).str.strip() if name_col else "",
+            "weight": None,
+            "in_date": _text_column(data, ["in_date", "start_date"]),
+            "out_date": _text_column(data, ["out_date", "end_date"]),
+            "is_new": _bool_column(data, ["is_new"]),
+            "data_source": SW_SECTOR_MEMBER_DATA_SOURCE,
+        }
+    )
     return result[result["ts_code"].astype(str).str.endswith((".SH", ".SZ", ".BJ"))].drop_duplicates(
         subset=["sector_code", "ts_code"], keep="last"
     ).sort_values(["sector_code", "ts_code"]).reset_index(drop=True)

@@ -19,6 +19,7 @@ EMPTY_BLOCK = "-"
 DEFAULT_WIDTH = 20
 DEFAULT_PANEL_WIDTH = 96
 MAX_VISIBLE_ROWS = 8
+DETAIL_VISIBLE_ROWS = 3
 
 
 class NoOpProgressReporter:
@@ -155,6 +156,7 @@ class ConsoleProgressReporter:
                 rows.append(self._body(_muted(record, self.color), inner_width))
             else:
                 rows.append(self._body(self._table_row(record, inner_width), inner_width))
+        rows.extend(self._detail_section(inner_width))
         rows.append(bottom)
         return rows
 
@@ -206,9 +208,28 @@ class ConsoleProgressReporter:
             records = [f"... {hidden_count} older steps", *self._records[-recent_count:]]
         else:
             records = list(self._records)
-        while len(records) < MAX_VISIBLE_ROWS:
-            records.append("")
         return records
+
+    def _detail_section(self, inner_width: int) -> list[str]:
+        rows = [
+            self._body("  " + "─" * max(0, inner_width - 2), inner_width),
+            self._body(_muted("  Recent details", self.color), inner_width),
+        ]
+        for line in self._recent_detail_lines():
+            rows.append(self._body(line, inner_width))
+        return rows
+
+    def _recent_detail_lines(self) -> list[str]:
+        records: list[_StepRecord] = []
+        for record in reversed(self._records):
+            if str(record.detail or "").strip():
+                records.append(record)
+            if len(records) >= DETAIL_VISIBLE_ROWS:
+                break
+        lines = [self._detail_row(record) for record in reversed(records)]
+        while len(lines) < DETAIL_VISIBLE_ROWS:
+            lines.append("")
+        return lines
 
     def _table_widths(self, inner_width: int) -> tuple[int, int, int, int]:
         state_width = min(8, max(3, inner_width // 5))
@@ -236,6 +257,12 @@ class ConsoleProgressReporter:
         elapsed = _format_elapsed(record.elapsed)
         detail = _truncate_plain(record.detail, detail_width)
         return f"  {state}  {tool}  {_pad_display(elapsed, time_width, align='right')}  {detail}"
+
+    def _detail_row(self, record: _StepRecord) -> str:
+        state = _style(record.state, record.state, self.color)
+        label = _truncate_plain(record.label, 24)
+        detail = _compact_space(record.detail)
+        return f"  {state}  {label}: {detail}"
 
 
 @dataclass
@@ -360,6 +387,10 @@ def _truncate_plain(text: str, width: int) -> str:
     if width <= 3:
         return _slice_display(value, width)
     return _slice_display(value, width - 3) + "..."
+
+
+def _compact_space(text: str) -> str:
+    return " ".join(str(text or "").split())
 
 
 def _truncate_ansi(value: str, width: int) -> str:

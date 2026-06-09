@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: bottom_volume, 底部放量, 地量见底, 放量企稳, 超跌反弹, 底部反转
 requires_tools: indicators, tickflow_provider
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: summary
+priority: 55
+aliases: 底部放量, 超跌反弹
 ---
 
 # bottom-volume
@@ -20,4 +25,4 @@ requires_tools: indicators, tickflow_provider
 - 风控：仓位应轻，止损放在近期低点下方；趋势未扭转前不做确定性表述。
 
 回答必须明确“反转观察”与“趋势确认”不是一回事。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

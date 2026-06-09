@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -16,7 +17,7 @@ from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.date_policy import normalize_agent_date, resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.planner import build_agent_plan
 from sats.agent.python_runtime import RestrictedPythonRuntime
-from sats.agent.synthesis import save_agent_report, synthesize_agent_result
+from sats.agent.synthesis import save_agent_report, synthesize_agent_result, _evidence_digest
 from sats.agent.tools import AgentToolContext, build_default_tool_registry
 from sats.agent.trading import AgentTradingExecutor
 from sats.cli import main
@@ -385,6 +386,109 @@ class AgentTest(unittest.TestCase):
         self.assertIn("002436.SZ", context_text)
         self.assertIn("ma_dragon_sea_kline", context_text)
 
+    def test_agent_digest_keeps_all_explicit_indicator_symbols(self) -> None:
+        symbols = [f"300{i:03d}.SZ" for i in range(12)]
+        rows = [{"ts_code": symbol, "close": 10 + i, "ma5": 9 + i} for i, symbol in enumerate(symbols)]
+        observations = (
+            AgentObservation(
+                step_id="indicators",
+                kind="tool",
+                status="done",
+                content="indicators",
+                payload={
+                    "tool_name": "research.internal_analysis",
+                    "arguments": {"kind": "indicators", "symbols": symbols, "trade_date": "20260609"},
+                    "result": {"payload": {"analysis": {"kind": "indicators", "trade_date": "20260609", "results": rows}}},
+                },
+            ),
+        )
+
+        digest = _evidence_digest(observations)
+
+        self.assertEqual([item["ts_code"] for item in digest["indicators"]], symbols)
+        self.assertEqual(digest["indicator_coverage"]["requested_count"], 12)
+        self.assertEqual(digest["indicator_coverage"]["included_count"], 12)
+        self.assertEqual(digest["indicator_coverage"]["omitted_count"], 0)
+
+    def test_agent_digest_keeps_generic_indicator_limit_without_explicit_symbols(self) -> None:
+        rows = [{"ts_code": f"300{i:03d}.SZ", "close": 10 + i, "ma5": 9 + i} for i in range(12)]
+        observations = (
+            AgentObservation(
+                step_id="indicators",
+                kind="tool",
+                status="done",
+                content="indicators",
+                payload={
+                    "tool_name": "research.internal_analysis",
+                    "result": {"payload": {"analysis": {"kind": "indicators", "trade_date": "20260609", "results": rows}}},
+                },
+            ),
+        )
+
+        digest = _evidence_digest(observations)
+
+        self.assertEqual(len(digest["indicators"]), 8)
+        self.assertEqual([item["ts_code"] for item in digest["indicators"]], [f"300{i:03d}.SZ" for i in range(8)])
+        self.assertEqual(digest["indicator_coverage"], {})
+
+    def test_agent_digest_keeps_all_explicit_stock_context_symbols(self) -> None:
+        symbols = [f"300{i:03d}.SZ" for i in range(12)]
+        stocks = [
+            {
+                "ts_code": symbol,
+                "name": f"股票{i}",
+                "trade_date": "20260609",
+                "daily_tail": [{"trade_date": "20260609", "close": 10 + i, "pct_chg": 1.0}],
+                "indicator_result": {"close": 10 + i, "ma5": 9 + i, "rsi6": 30 + i},
+            }
+            for i, symbol in enumerate(symbols)
+        ]
+        observations = (
+            AgentObservation(
+                step_id="stock_context",
+                kind="tool",
+                status="done",
+                content="stock context",
+                payload={
+                    "tool_name": "research.stock_context",
+                    "arguments": {"symbols": symbols, "trade_date": "20260609"},
+                    "result": {"payload": {"stock_context": {"stocks": stocks}}},
+                },
+            ),
+        )
+
+        digest = _evidence_digest(observations)
+
+        self.assertEqual([item["ts_code"] for item in digest["stock_context"]], symbols)
+
+    def test_synthesis_context_includes_full_auto_loaded_skill_content(self) -> None:
+        skill = Skill(
+            id="custom-stock-skill",
+            name="custom-stock-skill",
+            description="自定义个股分析方法",
+            triggers=(),
+            content="FULL_SKILL_BODY: 只使用 observations/provenance 中的真实行情。",
+            path=Path("skills/custom/SKILL.md"),
+            category="analysis",
+            applies_to=("stock_analysis",),
+            evidence=("stock_context", "analyze_signals"),
+            auto_load="full",
+            priority=99,
+        )
+
+        synthesize_agent_result(
+            message="怎么评价兴森科技，预测未来几天走势",
+            plan=AgentPlan(objective="评价兴森科技"),
+            observations=self._rich_stock_observations(),
+            skills=(skill,),
+            settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10),
+            llm_factory=FakeSynthesisLLM,
+        )
+        context_text = "\n".join(str(item.get("content") or "") for item in FakeSynthesisLLM.last_messages)
+
+        self.assertIn("mode=full", context_text)
+        self.assertIn("FULL_SKILL_BODY", context_text)
+
     def test_market_and_discovery_synthesis_use_matching_style_guides(self) -> None:
         synthesize_agent_result(
             message="分析这周大盘走势，预测下周大盘走势",
@@ -465,7 +569,7 @@ class AgentTest(unittest.TestCase):
         self.assertIn("AI算力", result.content)
         self.assertNotIn("核心指数数据缺失", result.content)
 
-    def test_fallback_planner_stock_analysis_adds_data_signals_and_factor_summary(self) -> None:
+    def test_fallback_planner_stock_analysis_uses_deterministic_stock_components(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
 
@@ -474,30 +578,56 @@ class AgentTest(unittest.TestCase):
         internal_steps = [step for step in plan.steps if step.tool_name == "research.internal_analysis"]
         internal_kinds = [step.arguments.get("kind") for step in internal_steps]
 
-        self.assertEqual(
-            tools,
-            [
-                "data.stock_daily",
-                "data.realtime_quotes",
-                "research.stock_context",
-                "research.internal_analysis",
-                "research.internal_analysis",
-                "research.internal_analysis",
-            ],
-        )
-        self.assertEqual(internal_kinds, ["indicators", "analyze_signals", "factor_summary"])
-        self.assertEqual(internal_steps[1].arguments["signals"], "short_up")
+        self.assertEqual(tools, ["research.stock_context", "research.internal_analysis"])
+        self.assertEqual(internal_kinds, ["indicators"])
         self.assertNotIn("chat.answer", tools)
 
-    def test_llm_stock_plan_is_augmented_with_analyze_signals(self) -> None:
+    def test_llm_stock_plan_is_augmented_with_indicators_only(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
 
         plan = build_agent_plan("分析 002436 下周走势", settings=settings, policy=AgentExecutionPolicy(), llm_factory=FakeStockOnlyLLM, tool_registry=registry)
         internal_steps = [step for step in plan.steps if step.tool_name == "research.internal_analysis"]
 
-        self.assertEqual([step.arguments.get("kind") for step in internal_steps], ["indicators", "analyze_signals", "factor_summary"])
-        self.assertEqual(internal_steps[1].arguments["signals"], "short_up")
+        self.assertEqual([step.arguments.get("kind") for step in internal_steps], ["indicators"])
+
+    def test_dsa_stock_request_adds_native_dsa_analysis(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("用 DSA 分析 002436 买卖点", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        internal_steps = [step for step in plan.steps if step.tool_name == "research.internal_analysis"]
+
+        self.assertIn("native_dsa", [step.arguments.get("kind") for step in internal_steps])
+        self.assertNotIn("trade.submit_intent", [step.tool_name for step in plan.steps if step.kind == "tool"])
+
+    def test_dsa_followup_uses_reference_context_symbols(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+        reference_context = SimpleNamespace(
+            symbols=["002436.SZ", "300276.SZ"],
+            trade_date="20260605",
+            source="agent",
+            data_name="上条输出",
+            system_message="上一条回答分析了 002436.SZ 和 300276.SZ。",
+        )
+
+        plan = build_agent_plan(
+            "上面2个股票用DSA进行分析",
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+            reference_context=reference_context,
+        )
+        native_dsa = next(
+            step
+            for step in plan.steps
+            if step.tool_name == "research.internal_analysis" and step.arguments.get("kind") == "native_dsa"
+        )
+
+        self.assertEqual(native_dsa.arguments["symbols"], ["002436.SZ", "300276.SZ"])
+        self.assertEqual(native_dsa.arguments["trade_date"], "20260605")
 
     def test_planner_preserves_explicit_signal_selection(self) -> None:
         registry = build_default_tool_registry()
@@ -515,13 +645,35 @@ class AgentTest(unittest.TestCase):
         plan = build_agent_plan("分析这周大盘走势，预测下周大盘走势", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
         tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
 
-        self.assertIn("data.index_daily", tools)
-        self.assertIn("research.market_context", tools)
+        self.assertEqual(tools, ["research.market_context"])
         self.assertNotIn("analyze_signals", [step.arguments.get("kind") for step in plan.steps if step.tool_name == "research.internal_analysis"])
         self.assertNotIn("factor.pick", tools)
         self.assertNotIn("chat.answer", tools)
         market_step = next(step for step in plan.steps if step.tool_name == "research.market_context")
         self.assertEqual(market_step.arguments["dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
+
+    def test_fallback_planner_adds_chan_context_for_chan_requests(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("用缠论分析 002436", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
+
+        self.assertEqual(tools, ["research.chan_context", "research.stock_context", "research.internal_analysis"])
+        self.assertEqual(
+            [step.arguments.get("kind") for step in plan.steps if step.tool_name == "research.internal_analysis"],
+            ["indicators"],
+        )
+
+    def test_fallback_planner_routes_rule_generation_to_shared_tool(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("新增一个低位放量突破筛选规则", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tool_step = next(step for step in plan.steps if step.kind == "tool")
+
+        self.assertEqual(tool_step.tool_name, "research.rule_generation")
+        self.assertEqual(tool_step.arguments["action"], "plan")
 
     def test_llm_market_plan_without_dimensions_gets_default_hot_sectors(self) -> None:
         registry = build_default_tool_registry()
@@ -871,6 +1023,101 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(rejected.status, "error")
         self.assertIn("market data guard", rejected.content)
 
+    def test_tool_registry_exposes_provider_capability_catalog(self) -> None:
+        registry = build_default_tool_registry()
+        context = AgentToolContext(
+            settings=SimpleNamespace(),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+        )
+
+        result = registry.execute(
+            "data.list_provider_capabilities",
+            {"provider": "tickflow", "realtime": True, "compact": True},
+            context,
+        )
+
+        self.assertEqual(result.status, "done")
+        capability_ids = {item["capability_id"] for item in result.payload["capabilities"]}
+        self.assertIn("tickflow.realtime_quotes", capability_ids)
+        self.assertIn("tickflow.realtime_minute_klines", capability_ids)
+        self.assertTrue(all(item["provider"] == "tickflow" for item in result.payload["capabilities"]))
+        self.assertTrue(all(item["realtime"] for item in result.payload["capabilities"]))
+
+    def test_planner_context_includes_provider_data_capabilities(self) -> None:
+        registry = build_default_tool_registry()
+        payload = json.loads(registry.planner_context())
+
+        tool_names = {item["name"] for item in payload["tools"]}
+        capability_ids = {item["capability_id"] for item in payload["data_capabilities"]}
+
+        self.assertIn("data.list_provider_capabilities", tool_names)
+        self.assertIn("tushare.index_member_all", capability_ids)
+        self.assertIn("tushare.margin_detail", capability_ids)
+        self.assertIn("tickflow.realtime_quotes", capability_ids)
+        self.assertIn("tickflow.market_depth", capability_ids)
+
+    def test_llm_planner_can_choose_tushare_dataset_from_capability_context(self) -> None:
+        class CapabilityPlannerLLM:
+            last_messages = []
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                CapabilityPlannerLLM.last_messages = list(messages)
+                content = messages[-1]["content"]
+                for expected in ("data_capabilities", "tushare.margin_detail", "tushare.index_member_all"):
+                    if expected not in content:
+                        raise AssertionError(f"missing planner capability context: {expected}")
+                return LLMResponse(
+                    content=(
+                        '{"objective":"query margin","steps":['
+                        '{"step_id":"margin","kind":"tool","title":"融资融券明细","tool_name":"data.get_tushare_stock_data",'
+                        '"arguments":{"dataset":"margin_detail","params":{"trade_date":"20260605"},"limit":20}},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("查融资融券明细和申万成分", settings=settings, policy=AgentExecutionPolicy(), llm_factory=CapabilityPlannerLLM, tool_registry=registry)
+
+        self.assertEqual(plan.steps[0].tool_name, "data.get_tushare_stock_data")
+        self.assertEqual(plan.steps[0].arguments["dataset"], "margin_detail")
+
+    def test_llm_planner_can_choose_tickflow_realtime_tool_from_capability_context(self) -> None:
+        class TickflowPlannerLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                content = messages[-1]["content"]
+                for expected in ("tickflow.realtime_quotes", "tickflow.realtime_minute_klines"):
+                    if expected not in content:
+                        raise AssertionError(f"missing planner capability context: {expected}")
+                return LLMResponse(
+                    content=(
+                        '{"objective":"query realtime","steps":['
+                        '{"step_id":"quote","kind":"tool","title":"实时行情","tool_name":"data.realtime_quotes",'
+                        '"arguments":{"symbols":["002436"]}},'
+                        '{"step_id":"minute","kind":"tool","title":"分钟K","tool_name":"data.stock_minute",'
+                        '"arguments":{"symbols":["002436"],"period":"30m","count":80}},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("用 TickFlow 看 002436 实时行情和30分钟K", settings=settings, policy=AgentExecutionPolicy(), llm_factory=TickflowPlannerLLM, tool_registry=registry)
+
+        self.assertEqual([step.tool_name for step in plan.steps[:2]], ["data.realtime_quotes", "data.stock_minute"])
+
     def test_fallback_planner_routes_plain_chat_to_chat_tool(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
@@ -890,7 +1137,7 @@ class AgentTest(unittest.TestCase):
             command_runner=SimpleNamespace(),
             trader=SimpleNamespace(),
         )
-        with patch("sats.chat.run_chat_once", return_value=SimpleNamespace(content="plain answer", skill_names=(), data_names=("Chat",), artifacts=(), turn_id="t", session_id="s")) as chat:
+        with patch("sats.agent.tools.chat_tools.build_plain_chat_answer", return_value=SimpleNamespace(content="plain answer")) as chat:
             result = registry.execute("chat.answer", {"message": "解释均线金叉"}, context)
 
         chat.assert_called_once()

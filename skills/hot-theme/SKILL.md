@@ -5,6 +5,11 @@ category: analysis
 source: daily_stock_analysis strategies adapted for SATS
 triggers: hot_theme, 热点题材, 热点, 题材, 产业热点, 政策催化, 板块扩散, 题材退潮
 requires_tools: tushare_provider, indicators
+applies_to: opportunity_discovery, market_analysis, stock_analysis
+evidence: hot_sectors, hot_sector_context, market_context, indicators, analyze_signals
+auto_load: summary
+priority: 68
+aliases: 热点题材, 热点板块, 市场主线
 ---
 
 # hot-theme
@@ -20,4 +25,4 @@ requires_tools: tushare_provider, indicators
 - 风险过滤：澄清公告、监管问询、利好兑现和高位放量滞涨优先提示。
 
 热点只能作为加权线索，不能当作上涨保证。
-
+价格、成交量、K 线、quote、板块字段、因子和信号必须来自 SATS observations/provenance。

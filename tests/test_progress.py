@@ -12,6 +12,7 @@ from unittest.mock import patch
 from prompt_toolkit.utils import get_cwidth
 
 from sats.analysis.opportunity_discovery import OpportunityDiscoveryResult
+from sats.agent.progress import agent_progress_event_sink
 from sats.llm import LLMResponse
 from sats.cli import main
 from sats.progress import FILLED_BLOCK, EMPTY_BLOCK, create_progress
@@ -132,6 +133,20 @@ class ProgressReporterTest(unittest.TestCase):
         self.assertEqual(len(widths), 1)
         self.assertLessEqual(max(widths), 53)
 
+    def test_recent_step_details_use_bottom_panel_area(self) -> None:
+        stream = _TtyStringIO()
+        progress = create_progress(stream=stream, force=True, width=8, request="demo")
+
+        progress.step("全市场数据").complete(message="5300 只")
+        progress.step("机会发现").fail(message="Tushare timeout")
+        progress.step("生成分析").complete(message="最终分析完成")
+
+        output = _strip_control("\n".join(progress._panel_lines()))
+        self.assertIn("Recent details", output)
+        self.assertIn("全市场数据: 5300 只", output)
+        self.assertIn("机会发现: Tushare timeout", output)
+        self.assertIn("生成分析: 最终分析完成", output)
+
     def test_many_steps_are_folded_to_fixed_height(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=8)
@@ -145,7 +160,77 @@ class ProgressReporterTest(unittest.TestCase):
         self.assertIn("older steps", output)
         self.assertNotIn("step-0", output)
         self.assertIn("step-9", output)
-        self.assertEqual(len(lines), 17)
+        self.assertIn("Recent details", output)
+        self.assertEqual(len(lines), 22)
+
+    def test_agent_progress_event_sink_summarizes_step_details(self) -> None:
+        stream = _TtyStringIO()
+        with patch("sats.progress.shutil.get_terminal_size", return_value=os.terminal_size((140, 24))):
+            progress = create_progress(stream=stream, force=True, width=8, request="给出一些上涨机会")
+            sink = agent_progress_event_sink(progress)
+            assert sink is not None
+
+            sink(
+                SimpleNamespace(
+                    event_type="runtime_iteration_started",
+                    item_type="agent_step",
+                    item_name="discover",
+                    status="running",
+                    content="",
+                    payload={
+                        "title": "发现具有上涨机会的股票",
+                        "tool_name": "research.discover_opportunities",
+                        "arguments": {"query": "给出一些上涨机会", "limit": 3},
+                    },
+                )
+            )
+            sink(
+                SimpleNamespace(
+                    event_type="tool_completed",
+                    item_type="agent_step",
+                    item_name="discover",
+                    status="error",
+                    content='{"status":"error","error":"Tushare timeout"}',
+                    payload={
+                        "tool_name": "research.discover_opportunities",
+                        "arguments": {"query": "给出一些上涨机会", "limit": 3},
+                        "result": {
+                            "status": "error",
+                            "content": '{"status":"error","error":"Tushare timeout"}',
+                            "payload": {"status": "error", "error": "Tushare timeout"},
+                        },
+                    },
+                )
+            )
+            sink(
+                SimpleNamespace(
+                    event_type="context_started",
+                    item_type="agent_synthesis",
+                    item_name="final_synthesis",
+                    status="running",
+                    content="",
+                    payload={},
+                )
+            )
+            sink(
+                SimpleNamespace(
+                    event_type="context_completed",
+                    item_type="agent_synthesis",
+                    item_name="final_synthesis",
+                    status="done",
+                    content="总结内容",
+                    payload={"used_llm": True, "skills": ["hot-theme", "volume-breakout"]},
+                )
+            )
+
+            output = _strip_control("\n".join(progress._panel_lines()))
+        self.assertIn("Recent details", output)
+        self.assertIn("research.discover_opportunities", output)
+        self.assertIn("query=给出一些上涨机会", output)
+        self.assertIn("Tushare timeout", output)
+        self.assertIn("最终分析完成", output)
+        self.assertIn("skills=2", output)
+
 
     def test_cli_chat_can_show_forced_progress_blocks(self) -> None:
         progress_stream = _TtyStringIO()

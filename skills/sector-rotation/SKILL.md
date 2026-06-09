@@ -5,6 +5,11 @@ category: analysis
 source: Vibe-Trading + finskills China-market adapted for SATS
 triggers: 行业轮动, 板块, 申万行业, 主题, 资金流, 景气度, 产业链, 热点, 经济周期, 超配, 低配, 宏观驱动
 requires_tools: tushare_provider
+applies_to: market_analysis, opportunity_discovery, stock_analysis
+evidence: market_context, hot_sectors, hot_sector_context
+auto_load: full
+priority: 86
+aliases: 板块轮动, 热点板块, 行业强弱
 ---
 
 # sector-rotation
@@ -17,6 +22,7 @@ requires_tools: tushare_provider
 - 催化：政策、产业事件、财报周期。
 
 SATS 若未接入行业全量数据，应提示需要 Tushare/AkShare 补齐。
+价格、成交量、K 线、quote、板块字段、因子和信号必须来自 SATS observations/provenance，不能补造题材归属。
 
 ## 宏观行业轮动增强
 

@@ -5,6 +5,11 @@ category: analysis
 source: daily_stock_analysis strategies adapted for SATS
 triggers: emotion_cycle, 情绪周期, 情绪底, 情绪顶, 恐慌底, 狂热顶, 换手率, 赚钱效应, 退潮
 requires_tools: tushare_provider, indicators
+applies_to: market_analysis, opportunity_discovery, stock_analysis
+evidence: market_context, market_breadth, limit_sentiment, hot_sectors, native_dsa
+auto_load: full
+priority: 78
+aliases: 情绪周期, emotion cycle, 赚钱效应
 ---
 
 # emotion-cycle
@@ -20,4 +25,4 @@ requires_tools: tushare_provider, indicators
 - 逆情绪：大众恐慌时寻找验证后的修复，大众狂热时优先保护收益。
 
 没有真实情绪或市场宽度数据时，应降级为情绪周期解释。
-
+价格、成交量、K 线、quote、情绪字段和信号必须来自 SATS observations/provenance。

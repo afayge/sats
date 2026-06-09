@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSpec, object_schema, ok
+from sats.chat_components import build_plain_chat_answer
 from sats.rag.knowledge import KnowledgeStore
 from sats.skills import default_skills_dir, find_skill, load_skills, skill_summaries
 
@@ -12,7 +13,7 @@ def chat_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
             name="chat.answer",
-            description="普通问答、解释、总结、命令帮助。只读；调用现有 ChatSession，但禁止再次进入 Agent。",
+            description="普通问答、解释、总结、命令帮助。只做最终回答合成，不再递归进入 ChatSession。",
             category="chat",
             side_effect="readonly",
             timeout=60,
@@ -64,25 +65,18 @@ def chat_tool_specs() -> list[AgentToolSpec]:
 
 
 def _answer(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
-    from sats.chat import run_chat_once
-
-    result = run_chat_once(
+    result = build_plain_chat_answer(
         str(arguments.get("message") or context.message or ""),
         settings=context.settings,
         skills=list(context.skills) or None,
         llm_factory=context.llm_factory,
-        memory_enabled=not bool(arguments.get("no_memory", False)),
         knowledge=str(arguments.get("knowledge") or "").strip() or None,
-        tools_enabled=False,
-        preprocess_enabled=False,
     )
     payload = {
-        "skill_names": list(result.skill_names),
-        "data_names": list(result.data_names),
-        "turn_id": result.turn_id or "",
-        "session_id": result.session_id or "",
+        "skill_names": [item.name for item in context.skills],
+        "data_names": ["Chat"],
     }
-    return ok(result.content, payload=payload, data_names=tuple(result.data_names or ("Chat",)), artifacts=tuple(result.artifacts or ()))
+    return ok(result.content, payload=payload, data_names=("Chat",))
 
 
 def _list_skills(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:

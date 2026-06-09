@@ -26,6 +26,7 @@ from sats.chat_reference import ChatReferenceContext, is_reference_question
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.llm import ChatLLM, build_light_fallback_llm, extract_json_object
+from sats.skill_routing import DISCOVERY_SKILLS, MARKET_SKILLS, STOCK_FUNDAMENTAL_SKILLS, STOCK_SHORT_TERM_SKILLS
 from sats.stock_basic_lookup import (
     load_stock_basic_frame,
     names_from_stock_basic,
@@ -491,15 +492,15 @@ def _skill_hints(
 ) -> list[str]:
     hints: list[str] = []
     if has_stock:
-        hints.extend(["tickflow", "technical-basic"])
+        hints.extend(["tickflow", *STOCK_SHORT_TERM_SKILLS])
     if market:
-        hints.extend(["sats-market-assistant", "tickflow", "market-microstructure"])
+        hints.extend(["tickflow", *MARKET_SKILLS])
     if opportunity:
-        hints.extend(["sats-market-assistant", "technical-basic", "risk-analysis"])
+        hints.extend(DISCOVERY_SKILLS)
     if chan:
         hints.append("chan-theory")
     if financial:
-        hints.extend(["tushare-data", "financial-statement", "valuation-model", "risk-analysis"])
+        hints.extend(STOCK_FUNDAMENTAL_SKILLS)
     return _dedupe(hints)
 
 

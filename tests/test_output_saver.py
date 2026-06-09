@@ -4,7 +4,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sats.output_saver import CapturedOutput, SaveRequest, extract_report_path, parse_save_request, save_captured_output
+from pypdf import PdfReader
+
+from sats.natural_output import OutputSemanticLexicon
+from sats.output_saver import (
+    CapturedOutput,
+    SaveRequest,
+    _semantic_pdf_markup,
+    extract_report_path,
+    parse_save_request,
+    save_captured_output,
+)
 
 
 class OutputSaverTest(unittest.TestCase):
@@ -74,6 +84,85 @@ class OutputSaverTest(unittest.TestCase):
             saved_text = result.path.read_text(encoding="utf-8")
             self.assertIn("# 报告", saved_text)
             self.assertNotIn("终端摘要", saved_text)
+
+    def test_save_markdown_preserves_canonical_markdown_without_wrapper(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            captured = CapturedOutput(
+                content="# 标题\n\n> 核心结论\n\n`数据: 个股`\n\n## 结论摘要\n\n- 结论",
+                request="分析 000001",
+                source="chat",
+            )
+
+            result = save_captured_output(
+                captured,
+                SaveRequest(format="md", source="output"),
+                output_dir=root / "saved",
+            )
+
+            saved_text = result.path.read_text(encoding="utf-8")
+            self.assertTrue(saved_text.startswith("# 标题"))
+            self.assertNotIn("# SATS Saved Output", saved_text)
+            self.assertIn("`数据: 个股`", saved_text)
+
+    def test_save_pdf_renders_structured_markdown_text(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            captured = CapturedOutput(
+                content="\n".join(
+                    [
+                        "# 标题",
+                        "",
+                        "> 核心结论",
+                        "",
+                        "`数据: 个股` `风格: 研究输出`",
+                        "",
+                        "## 关键证据",
+                        "",
+                        "| 维度 | 结论 |",
+                        "|---|---|",
+                        "| 趋势 | 均线多头 |",
+                    ]
+                ),
+                request="分析 000001",
+                source="chat",
+            )
+
+            result = save_captured_output(
+                captured,
+                SaveRequest(format="pdf", source="output"),
+                output_dir=root / "saved",
+            )
+
+            reader = PdfReader(str(result.path))
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            self.assertIn("标题", text)
+            self.assertIn("核心结论", text)
+            self.assertIn("关键证据", text)
+            self.assertIn("均线多头", text)
+
+    def test_semantic_pdf_markup_uses_expected_colors_and_skips_dates(self) -> None:
+        lexicon = OutputSemanticLexicon(
+            symbol_codes=("000001.SZ",),
+            symbol_names=("上证指数", "沪深300", "平安银行"),
+        )
+
+        markup = _semantic_pdf_markup(
+            "上证指数 2026-06-08 涨 1.33%，沪深300 跌 -1.70%，000001.SZ 平安银行 12.5",
+            semantic_lexicon=lexicon,
+        )
+
+        self.assertIn("<font color='#1d4ed8'>上证指数</font>", markup)
+        self.assertIn("<font color='#1d4ed8'>沪深300</font>", markup)
+        self.assertIn("<font color='#1d4ed8'>000001.SZ</font>", markup)
+        self.assertIn("<font color='#1d4ed8'>平安银行</font>", markup)
+        self.assertIn("<font color='#ef4444'>1.33%</font>", markup)
+        self.assertIn("<font color='#22c55e'>-1.70%</font>", markup)
+        self.assertNotIn("<font color='#f472b6'>12.5</font>", markup)
+        self.assertNotRegex(markup, r"<font color='#[0-9a-fA-F]{6}'>12\.5</font>")
+        self.assertIn("12.5", markup)
+        self.assertIn("2026-06-08", markup)
+        self.assertNotIn("<font color='#f472b6'>2026-06-08</font>", markup)
 
 
 if __name__ == "__main__":

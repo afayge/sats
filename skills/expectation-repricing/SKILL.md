@@ -5,6 +5,11 @@ category: analysis
 source: daily_stock_analysis strategies adapted for SATS
 triggers: expectation_repricing, 预期重估, 预期差, 预期修复, 预期兑现, 估值重估, 业绩预期
 requires_tools: tushare_provider, indicators
+applies_to: financial_analysis, stock_analysis, opportunity_discovery
+evidence: stock_context, factor_summary, indicators, analyze_signals
+auto_load: summary
+priority: 58
+aliases: 预期重估, 预期差
 ---
 
 # expectation-repricing
@@ -20,4 +25,4 @@ requires_tools: tushare_provider, indicators
 - 观察节点：下一份财报、订单兑现、政策落地、估值回落和技术确认。
 
 回答要区分硬信息和软信息，不能把传闻当作已验证事实。
-
+价格、成交量、K 线、quote、财务字段、因子和信号必须来自 SATS observations/provenance。

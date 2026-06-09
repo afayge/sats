@@ -5,6 +5,11 @@ category: risk-analysis
 source: Vibe-Trading adapted for SATS
 triggers: 风险, 风控, 回撤, 止损, 仓位, 压力测试, 研究报告, 尾部风险, 风险因素
 requires_tools: indicators, monitor
+applies_to: stock_analysis, financial_analysis, opportunity_discovery, market_analysis
+evidence: indicators, analyze_signals, factor_summary, market_context, monitor
+auto_load: full
+priority: 80
+aliases: 风险提示, 风险控制, risk
 ---
 
 # risk-analysis
@@ -19,3 +24,4 @@ requires_tools: indicators, monitor
 - 操作风险：仓位过重、追高、止损不清晰。
 
 所有结论必须保持研究性质，不构成投资建议。
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance，不能由 skill 或 LLM 补造。

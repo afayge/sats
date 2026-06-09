@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: dragon_head, 龙头, 龙头战法, 板块龙头, 领涨股, 相对强度, 板块启动
 requires_tools: tickflow_provider, tushare_provider, indicators
+applies_to: opportunity_discovery, market_analysis, stock_analysis
+evidence: hot_sectors, hot_sector_context, market_context, indicators, analyze_signals, native_dsa
+auto_load: summary
+priority: 62
+aliases: 龙头战法, 板块龙头, 领涨股
 ---
 
 # dragon-head
@@ -20,4 +25,4 @@ requires_tools: tickflow_provider, tushare_provider, indicators
 - 追高过滤：连续加速和高乖离位置只能给观察条件，不能直接建议追买。
 
 SATS 若未注入板块或热点上下文，应说明限制并只给分析框架。
-
+价格、成交量、K 线、quote、板块字段、因子和信号必须来自 SATS observations/provenance。

@@ -5,6 +5,11 @@ category: strategy
 source: daily_stock_analysis strategies adapted for SATS
 triggers: shrink_pullback, 缩量回踩, 回踩, 回踩MA5, 回踩MA10, 缩量调整, 低吸
 requires_tools: indicators, tickflow_provider
+applies_to: stock_analysis, opportunity_discovery
+evidence: indicators, analyze_signals, native_dsa, stock_context
+auto_load: full
+priority: 74
+aliases: 缩量回踩, 回踩低吸, pullback
 ---
 
 # shrink-pullback
@@ -20,4 +25,4 @@ requires_tools: indicators, tickflow_provider
 - 风控：止损放在 MA20、结构低点或回踩失败位置下方。
 
 回答时要说明“回踩成立条件”和“失败条件”，不能把回踩假定成必然反弹。
-
+价格、成交量、K 线、quote、因子和信号必须来自 SATS observations/provenance。

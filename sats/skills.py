@@ -16,6 +16,11 @@ class Skill:
     category: str = "other"
     source: str = "local"
     requires_tools: tuple[str, ...] = ()
+    applies_to: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    auto_load: str = "summary"
+    priority: int = 0
+    aliases: tuple[str, ...] = ()
 
 
 _DEFAULT_MATCH_TERMS = {
@@ -77,6 +82,11 @@ def parse_skill_file(path: Path, *, skill_id: str | None = None) -> Skill:
     category = "other"
     source = "local"
     requires_tools: tuple[str, ...] = ()
+    applies_to: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    auto_load = "summary"
+    priority = 0
+    aliases: tuple[str, ...] = ()
     index = 0
 
     if lines and lines[0].strip() == "---":
@@ -87,10 +97,27 @@ def parse_skill_file(path: Path, *, skill_id: str | None = None) -> Skill:
         category = metadata.get("category", "other") or "other"
         source = metadata.get("source", "local") or "local"
         requires_tools = _parse_triggers(metadata.get("requires_tools", ""))
+        applies_to = _parse_triggers(metadata.get("applies_to", ""))
+        evidence = _parse_triggers(metadata.get("evidence", ""))
+        auto_load = _parse_auto_load(metadata.get("auto_load", "summary"))
+        priority = _parse_int(metadata.get("priority", ""), default=0)
+        aliases = _parse_triggers(metadata.get("aliases", ""))
     elif lines and lines[0].strip().startswith("#"):
         name = lines[0].strip().lstrip("#").strip() or identifier
         index = 1
-        index, description, triggers, category, source, requires_tools = _parse_legacy_metadata(lines, index)
+        (
+            index,
+            description,
+            triggers,
+            category,
+            source,
+            requires_tools,
+            applies_to,
+            evidence,
+            auto_load,
+            priority,
+            aliases,
+        ) = _parse_legacy_metadata(lines, index)
 
     content = "\n".join(lines[index:]).strip() or text.strip()
     return Skill(
@@ -103,6 +130,11 @@ def parse_skill_file(path: Path, *, skill_id: str | None = None) -> Skill:
         category=category,
         source=source,
         requires_tools=requires_tools,
+        applies_to=applies_to,
+        evidence=evidence,
+        auto_load=auto_load,
+        priority=priority,
+        aliases=aliases,
     )
 
 
@@ -121,6 +153,10 @@ def match_skills(message: str, skills: list[Skill], *, limit: int = 3) -> list[S
             len(normalized_id) >= 2 and normalized_id in text
         ):
             score += 50
+        for alias in skill.aliases:
+            normalized_alias = _normalize(alias)
+            if len(normalized_alias) >= 2 and normalized_alias in text:
+                score += 50 + len(normalized_alias)
         for token in _skill_match_terms(skill):
             if token in text or text in token:
                 score += 5
@@ -190,12 +226,31 @@ def _parse_front_matter(lines: list[str]) -> tuple[dict[str, str], int]:
     return metadata, index
 
 
-def _parse_legacy_metadata(lines: list[str], index: int) -> tuple[int, str, tuple[str, ...], str, str, tuple[str, ...]]:
+def _parse_legacy_metadata(
+    lines: list[str], index: int
+) -> tuple[
+    int,
+    str,
+    tuple[str, ...],
+    str,
+    str,
+    tuple[str, ...],
+    tuple[str, ...],
+    tuple[str, ...],
+    str,
+    int,
+    tuple[str, ...],
+]:
     description = ""
     triggers: tuple[str, ...] = ()
     category = "other"
     source = "local"
     requires_tools: tuple[str, ...] = ()
+    applies_to: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    auto_load = "summary"
+    priority = 0
+    aliases: tuple[str, ...] = ()
     content_start = index
     while content_start < len(lines):
         stripped = lines[content_start].strip()
@@ -217,8 +272,18 @@ def _parse_legacy_metadata(lines: list[str], index: int) -> tuple[int, str, tupl
             source = _strip_yaml_scalar(value) or "local"
         elif key == "requires_tools":
             requires_tools = _parse_triggers(value)
+        elif key == "applies_to":
+            applies_to = _parse_triggers(value)
+        elif key == "evidence":
+            evidence = _parse_triggers(value)
+        elif key == "auto_load":
+            auto_load = _parse_auto_load(value)
+        elif key == "priority":
+            priority = _parse_int(value, default=0)
+        elif key == "aliases":
+            aliases = _parse_triggers(value)
         content_start += 1
-    return content_start, description, triggers, category, source, requires_tools
+    return content_start, description, triggers, category, source, requires_tools, applies_to, evidence, auto_load, priority, aliases
 
 
 def _parse_triggers(value: str) -> tuple[str, ...]:
@@ -233,6 +298,18 @@ def _strip_yaml_scalar(value: str) -> str:
     if len(cleaned) >= 2 and cleaned[0] in {"'", '"'} and cleaned[-1] == cleaned[0]:
         return cleaned[1:-1].strip()
     return cleaned
+
+
+def _parse_auto_load(value: str) -> str:
+    mode = _strip_yaml_scalar(value).strip().lower()
+    return mode if mode in {"summary", "full", "never"} else "summary"
+
+
+def _parse_int(value: str, *, default: int) -> int:
+    try:
+        return int(_strip_yaml_scalar(value))
+    except (TypeError, ValueError):
+        return default
 
 
 def _category_order(category: str) -> int:
@@ -252,6 +329,7 @@ def _category_order(category: str) -> int:
 
 def _skill_match_terms(skill: Skill) -> list[str]:
     terms = [*_description_tokens(skill.description)]
+    terms.extend(_normalize(term) for term in skill.aliases)
     terms.extend(_normalize(term) for term in _DEFAULT_MATCH_TERMS.get(skill.id, ()))
     terms.extend(_normalize(term) for term in _DEFAULT_MATCH_TERMS.get(skill.name, ()))
     seen: set[str] = set()

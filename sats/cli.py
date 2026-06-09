@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import shlex
+import shutil
 import signal
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+from prompt_toolkit import print_formatted_text
 from prompt_toolkit.utils import get_cwidth
 
 from sats.agent import AgentExecutionPolicy, run_agent_once
@@ -30,7 +32,7 @@ from sats.analysis.opportunity_discovery import (
 )
 from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_llm_context import ensure_stock_analysis_data
-from sats.chat import ChatResult, format_chat_result, run_chat_once
+from sats.chat import ChatResult, format_chat_result, render_chat_result, run_chat_once
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import init_env_file, load_settings
 from sats.data.astock_provider import AStockDataProvider
@@ -1130,11 +1132,11 @@ def cmd_chat(args: argparse.Namespace) -> int:
         return 0
     if getattr(args, "confirm", None):
         runtime_result = confirm_pending_runtime_action(args.confirm, settings=settings)
-        print(format_chat_result(_chat_result_from_runtime(runtime_result)))
+        _emit_chat_result(_chat_result_from_runtime(runtime_result), db_path=getattr(settings, "db_path", None))
         return 0
     if getattr(args, "reject", None):
         runtime_result = reject_pending_runtime_action(args.reject, settings=settings)
-        print(format_chat_result(_chat_result_from_runtime(runtime_result)))
+        _emit_chat_result(_chat_result_from_runtime(runtime_result), db_path=getattr(settings, "db_path", None))
         return 0
     message = " ".join(args.message).strip()
     if not message:
@@ -1151,7 +1153,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
             )
         finally:
             progress.close()
-        print(format_chat_result(_chat_result_from_agent(result)))
+        _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
         return 0
     progress = _progress_for_args(args)
     try:
@@ -1165,7 +1167,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
         raise SystemExit(str(exc)) from exc
     finally:
         progress.close()
-    print(format_chat_result(result))
+    _emit_chat_result(result, db_path=getattr(settings, "db_path", None))
     return 0
 
 
@@ -1185,7 +1187,7 @@ def cmd_agent(args: argparse.Namespace) -> int:
         )
     finally:
         progress.close()
-    print(format_chat_result(_chat_result_from_agent(result)))
+    _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
     return 0
 
 
@@ -1212,6 +1214,23 @@ def _chat_result_from_agent(agent_result) -> ChatResult:
         turn_id=agent_result.turn_id,
         session_id=agent_result.session_id,
     )
+
+
+def _emit_chat_result(result: ChatResult, *, db_path: Path | str | None = None) -> None:
+    width = _terminal_width()
+    tty = bool(getattr(sys.stdout, "isatty", lambda: False)())
+    rendered = render_chat_result(result, channel="cli", tty=tty, width=width, db_path=db_path)
+    if isinstance(rendered, str):
+        print(rendered)
+        return
+    print_formatted_text(rendered)
+
+
+def _terminal_width(default: int = 100) -> int:
+    try:
+        return max(40, int(shutil.get_terminal_size((default, 20)).columns))
+    except Exception:
+        return default
 
 
 def _agent_policy_from_args(args: argparse.Namespace) -> AgentExecutionPolicy:
