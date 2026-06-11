@@ -13,5 +13,6 @@ sats/data/*
 !sats/data/tushare_provider.py
 !sats/data/tushare_stock_datasets.py
 reports/
+runtime/
 tmp/
 *.duckdb

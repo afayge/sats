@@ -21,9 +21,11 @@ from sats.chat_components import (
     build_chat_request_route,
     resolve_stock_question_from_preprocess,
     _chat_evidence_digest,
+    _build_synthesis_messages,
 )
 from sats.chat_planner import build_chat_plan
 from sats.chat_preprocessor import preprocess_chat_message
+from sats.chat_reference import ChatReferenceContext
 from sats.skills import load_skills
 
 
@@ -110,6 +112,37 @@ class ChatComponentsRouteTest(unittest.TestCase):
         self.assertEqual(digest["indicator_coverage"]["included_count"], 12)
         self.assertEqual(digest["indicator_coverage"]["omitted_count"], 0)
         self.assertEqual(digest["indicators"][-1]["indicator_result"]["close"], 21)
+
+    def test_synthesis_messages_include_reference_symbol_policy(self) -> None:
+        route = ChatRequestRoute(
+            route_kind=CHAT_ROUTE_STOCK,
+            intent="stock_analysis",
+            symbols=("000001.SZ", "600519.SH"),
+            required_components=(COMPONENT_STOCK_CONTEXT, COMPONENT_INDICATORS),
+        )
+        reference_context = ChatReferenceContext(
+            system_message="上一条输出包含【强势追击】和 000001.SZ",
+            symbols=["000001.SZ", "600519.SH"],
+            data_name="上条输出",
+        )
+        evidence = ChatEvidenceBundle(route=route, reference_context=reference_context)
+
+        digest = _chat_evidence_digest(evidence)
+        messages = _build_synthesis_messages(
+            "分析上面10个股票",
+            route=route,
+            evidence=evidence,
+            skills=[],
+            history=[],
+            memories=[],
+            session_summary="",
+        )
+        combined = "\n".join(str(message.get("content") or "") for message in messages)
+
+        self.assertEqual(digest["reference_symbol_policy"]["allowed_symbols"], ["000001.SZ", "600519.SH"])
+        self.assertIn("逐股票条目只能来自 reference_symbol_policy.allowed_symbols", combined)
+        self.assertIn("必须同时有有效股票代码和名称", combined)
+        self.assertIn("【...】、章节标题、策略标签、风险标签、分组名不是股票", combined)
 
 
 if __name__ == "__main__":

@@ -1329,6 +1329,8 @@ def _build_synthesis_messages(
                 f"用户问题：{message}\n"
                 "请直接给出中文 Markdown 研究输出。"
                 "必须包含：标题、核心结论引用、badge 元信息、结论摘要、关键证据、文字图表、风险与限制、下一步。"
+                "逐股票条目只能来自 reference_symbol_policy.allowed_symbols 或真实结构化数据中的有效 ts_code，且必须同时有有效股票代码和名称。"
+                "【...】、章节标题、策略标签、风险标签、分组名不是股票；没有代码的文本标签只能放到分类/风险说明/限制里，不能作为股票条目。"
                 "若缺少真实数据或对应组件未命中，明确写“数据缺失/未命中”。"
             ),
         }
@@ -1343,6 +1345,7 @@ def _chat_evidence_digest(evidence: ChatEvidenceBundle) -> dict[str, Any]:
         "stock_context": _stock_context_digest(evidence.stock_context, requested_symbols=requested_symbols),
         "indicators": _indicator_digest(evidence.indicators, requested_symbols=requested_symbols),
         "indicator_coverage": _indicator_coverage(evidence.indicators, requested_symbols=requested_symbols),
+        "reference_symbol_policy": _reference_symbol_policy(evidence),
         "market_context": _market_context_digest(evidence.market_context),
         "opportunity_context": _opportunity_digest(evidence.opportunity_context),
         "chan_context": _chan_context_digest(evidence.chan_context),
@@ -1351,6 +1354,30 @@ def _chat_evidence_digest(evidence: ChatEvidenceBundle) -> dict[str, Any]:
         "data_names": list(evidence.data_names),
     }
     return digest
+
+
+def _reference_symbol_policy(evidence: ChatEvidenceBundle) -> dict[str, Any]:
+    allowed = _allowed_reference_symbols(evidence)
+    if not allowed:
+        return {}
+    return {
+        "allowed_symbols": allowed,
+        "stock_item_policy": "逐股票条目只能来自 allowed_symbols 或真实结构化数据中的有效 ts_code，且必须同时有有效股票代码和名称。",
+        "non_stock_labels_policy": "【...】、章节标题、策略标签、风险标签、分组名不是股票；没有有效股票代码的标签只能用于分类或风险说明，不得生成股票名称/代码为空的逐股票条目。",
+    }
+
+
+def _allowed_reference_symbols(evidence: ChatEvidenceBundle) -> list[str]:
+    values: list[str] = []
+    values.extend(evidence.route.symbols or ())
+    if evidence.reference_context is not None:
+        values.extend(evidence.reference_context.symbols or [])
+    values.extend(
+        item.get("ts_code")
+        for item in _stock_context_digest(evidence.stock_context, requested_symbols=evidence.route.symbols)
+        if isinstance(item, dict)
+    )
+    return _valid_symbol_list(values)
 
 
 def _stock_context_digest(context: StockLLMContext | None, *, requested_symbols: tuple[str, ...] | list[str] = ()) -> list[dict[str, Any]]:
@@ -1434,6 +1461,15 @@ def _indicator_coverage(payload: dict[str, Any] | None, *, requested_symbols: tu
 
 def _normalized_symbol_list(values: Any) -> list[str]:
     return normalize_symbols(values or [], required=False)
+
+
+def _valid_symbol_list(values: Any) -> list[str]:
+    return [symbol for symbol in _normalized_symbol_list(values) if _is_valid_ts_code(symbol)]
+
+
+def _is_valid_ts_code(value: Any) -> bool:
+    text = str(value or "").strip().upper()
+    return len(text) == 9 and text[:6].isdigit() and text[6] == "." and text[7:] in {"SH", "SZ", "BJ"}
 
 
 def _matching_symbol_rows(rows: Any, requested_symbols: list[str]) -> list[Any]:

@@ -45,6 +45,10 @@ class ScreeningResult:
 
 class ScreeningRule(ABC):
     name: str
+    required_trade_days: int | None = None
+
+    def prepare_inputs(self, inputs: list[ScreeningInput]) -> list[ScreeningInput]:
+        return inputs
 
     @abstractmethod
     def evaluate(self, data: ScreeningInput) -> ScreeningResult:

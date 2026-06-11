@@ -13,6 +13,7 @@ tickflow>=0.1.21
 prompt_toolkit>=3.0
 pypdf>=4.0
 reportlab>=4.0
+ddgs>=9.0.0
 # Optional DSA supplement provider:
 # akshare>=1.16
 

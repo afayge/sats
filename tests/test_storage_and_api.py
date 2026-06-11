@@ -26,11 +26,37 @@ from tests.fixtures import (
     make_monthly_base_breakout,
     make_passing_daily,
     make_price_volume_daily,
+    make_trade_dates,
 )
 
 
 def make_stock_basic(row: dict[str, str]) -> pd.DataFrame:
     return pd.DataFrame([row])
+
+
+def make_rps_daily(ts_code: str, *, gain: float, end: str = "20260430") -> pd.DataFrame:
+    dates = make_trade_dates(121, end=end)
+    start = 10.0
+    finish = start * (1.0 + gain)
+    step = (finish - start) / 120
+    rows = []
+    for index, trade_date in enumerate(dates):
+        close = start + step * index
+        previous = rows[-1]["close"] if rows else close
+        rows.append(
+            {
+                "ts_code": ts_code,
+                "trade_date": trade_date,
+                "open": close - 0.05,
+                "high": close * 1.02,
+                "low": close * 0.98,
+                "close": close,
+                "vol": 1000.0,
+                "amount": close * 1000.0,
+                "pct_chg": (close / previous - 1.0) * 100 if previous > 0 else 0.0,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 class FakeTushareProvider:
@@ -45,6 +71,7 @@ class FakeTushareProvider:
         trade_date: str,
         *,
         storage: DuckDBStorage,
+        trade_days: int = 80,
         rule_name: str | None = None,
     ) -> list[ScreeningInput]:
         return [self.load_screening_input("000001.SZ", trade_date, rule_name=rule_name)]
@@ -301,6 +328,21 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertEqual(response.json()["passed_count"], 1)
             self.assertEqual(query.status_code, 200, query.text)
             self.assertEqual(query.json()["count"], 1)
+
+    def test_api_screen_accepts_sequoia_x_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            app = create_app(storage=storage)
+            client = TestClient(app)
+
+            with patch("sats.api.app.AStockDataProvider", FakeTushareProvider):
+                response = client.post(
+                    "/api/screen",
+                    json={"trade_date": "20260430", "rule": "TurtleTrade"},
+                )
+
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(response.json()["rule"], "turtle_trade")
 
     def test_api_screen_accepts_chan_third_buy_alias(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -640,6 +682,63 @@ class StorageAndApiTest(unittest.TestCase):
             )
             self.assertEqual(exit_code, 0)
             self.assertEqual(stdout.getvalue().strip(), "1. 000001.SZ 平安银行")
+            self.assertEqual(len(rows), 1)
+
+    def test_cli_screen_accepts_rps_breakout_and_requests_required_trade_days(self) -> None:
+        class FakeRpsProvider:
+            calls: list[dict[str, object]] = []
+
+            def __init__(self, settings) -> None:
+                self.settings = settings
+
+            def load_all_screening_inputs(
+                self,
+                trade_date: str,
+                *,
+                storage: DuckDBStorage,
+                trade_days: int = 80,
+                rule_name: str | None = None,
+            ) -> list[ScreeningInput]:
+                self.calls.append({"trade_days": trade_days, "rule_name": rule_name})
+                return [
+                    ScreeningInput(
+                        ts_code="000001.SZ",
+                        trade_date=trade_date,
+                        daily=make_rps_daily("000001.SZ", gain=0.10, end=trade_date),
+                        daily_basic=make_daily_basic(end=trade_date),
+                        stock_basic={"name": "普通股份"},
+                    ),
+                    ScreeningInput(
+                        ts_code="000002.SZ",
+                        trade_date=trade_date,
+                        daily=make_rps_daily("000002.SZ", gain=1.00, end=trade_date),
+                        daily_basic=make_daily_basic(end=trade_date),
+                        stock_basic={"name": "强势股份"},
+                    ),
+                ]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            args = SimpleNamespace(
+                trade_date="20260430",
+                rule="rps-breakout",
+                db=db_path,
+                select_watchlist=False,
+                no_select_watchlist=True,
+            )
+            stdout = io.StringIO()
+
+            with patch("sats.cli.AStockDataProvider", FakeRpsProvider), redirect_stdout(stdout):
+                exit_code = cmd_screen(args)
+
+            rows = DuckDBStorage(db_path).list_screening_results(
+                trade_date="20260430",
+                rule_name="rps_breakout",
+                passed=True,
+            )
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(FakeRpsProvider.calls[0], {"trade_days": 121, "rule_name": "rps_breakout"})
+            self.assertEqual(stdout.getvalue().strip(), "1. 000002.SZ 强势股份")
             self.assertEqual(len(rows), 1)
 
     def test_cli_screen_accepts_chan_third_buy_alias(self) -> None:

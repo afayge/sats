@@ -262,6 +262,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "discovery": {},
         "chan_context": {},
         "knowledge_context": {},
+        "web_evidence": [],
         "rule_generation": {},
         "backtest": {},
         "errors": [],
@@ -285,6 +286,12 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         elif tool_name == "research.knowledge_context":
             context = payload.get("knowledge_context") if isinstance(payload.get("knowledge_context"), dict) else payload
             digest["knowledge_context"] = _trim_payload(context, max_chars=5000)
+        elif tool_name == "web.search":
+            digest["web_evidence"].extend(_web_search_digest(payload))
+        elif tool_name == "web.social_hot":
+            digest["web_evidence"].extend(_social_hot_digest(payload))
+        elif tool_name == "web.hot_mentions":
+            digest["web_evidence"].extend(_hot_mentions_digest(payload))
         elif tool_name == "research.rule_generation":
             context = payload.get("rule_generation") if isinstance(payload.get("rule_generation"), dict) else payload
             digest["rule_generation"] = _trim_payload(context, max_chars=7000)
@@ -308,6 +315,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
             digest["backtest"] = _trim_payload(payload, max_chars=7000)
         digest["data_cutoff"] = _latest_cutoff(digest["data_cutoff"], _payload_cutoff(payload))
     digest["provenance"] = _dedupe_dicts(digest["provenance"])[:12]
+    digest["web_evidence"] = _dedupe_dicts(digest["web_evidence"])[:24]
     return digest
 
 
@@ -545,6 +553,122 @@ def _legacy_hot_sector_rows(value: Any) -> list[dict[str, Any]]:
     return rows[:10]
 
 
+def _web_search_digest(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    data = payload.get("web_search") if isinstance(payload.get("web_search"), dict) else payload
+    if str(data.get("status") or "") == "error":
+        return [
+            _drop_empty(
+                {
+                    "kind": "web_search",
+                    "status": "error",
+                    "query": data.get("query"),
+                    "error": data.get("error"),
+                    "fetched_at": data.get("fetched_at"),
+                }
+            )
+        ]
+    rows = []
+    for item in data.get("results") if isinstance(data.get("results"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            _drop_empty(
+                {
+                    "kind": "web_search",
+                    "query": data.get("query"),
+                    "title": item.get("title"),
+                    "url": item.get("url"),
+                    "snippet": item.get("snippet"),
+                    "source": item.get("source"),
+                    "fetched_at": item.get("fetched_at") or data.get("fetched_at"),
+                    "from_cache": data.get("from_cache"),
+                }
+            )
+        )
+    return rows[:10]
+
+
+def _social_hot_digest(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    data = payload.get("social_hot") if isinstance(payload.get("social_hot"), dict) else payload
+    rows = []
+    for platform in data.get("platforms") if isinstance(data.get("platforms"), list) else []:
+        if not isinstance(platform, dict):
+            continue
+        if str(platform.get("status") or "") == "error":
+            rows.append(
+                _drop_empty(
+                    {
+                        "kind": "social_hot",
+                        "platform": platform.get("platform"),
+                        "platform_cn": platform.get("platform_cn"),
+                        "status": "error",
+                        "error": platform.get("error"),
+                        "fetched_at": platform.get("fetched_at"),
+                    }
+                )
+            )
+            continue
+        for item in platform.get("items") if isinstance(platform.get("items"), list) else []:
+            if not isinstance(item, dict):
+                continue
+            rows.append(
+                _drop_empty(
+                    {
+                        "kind": "social_hot",
+                        "platform": platform.get("platform"),
+                        "platform_cn": platform.get("platform_cn"),
+                        "rank": item.get("rank"),
+                        "title": item.get("title"),
+                        "url": item.get("url"),
+                        "hot_score": item.get("hot_score"),
+                        "fetched_at": platform.get("fetched_at") or data.get("fetched_at"),
+                        "from_cache": platform.get("from_cache"),
+                    }
+                )
+            )
+    return rows[:18]
+
+
+def _hot_mentions_digest(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    data = payload.get("hot_mentions") if isinstance(payload.get("hot_mentions"), dict) else payload
+    rows = []
+    mentions = data.get("mentions") if isinstance(data.get("mentions"), dict) else {}
+    for platform, items in mentions.items():
+        for item in items if isinstance(items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            rows.append(
+                _drop_empty(
+                    {
+                        "kind": "hot_mentions",
+                        "keyword": data.get("keyword"),
+                        "platform": platform,
+                        "platform_cn": item.get("platform_cn"),
+                        "rank": item.get("rank"),
+                        "title": item.get("title"),
+                        "url": item.get("url"),
+                        "hot_score": item.get("hot_score"),
+                        "fetched_at": data.get("fetched_at"),
+                    }
+                )
+            )
+    if rows:
+        return rows[:18]
+    return [
+        _drop_empty(
+            {
+                "kind": "hot_mentions",
+                "keyword": data.get("keyword"),
+                "total_hits": data.get("total_hits"),
+                "platforms_ok": data.get("platforms_ok"),
+                "platforms_checked": data.get("platforms_checked"),
+                "fetched_at": data.get("fetched_at"),
+                "error": data.get("error"),
+            }
+        )
+    ]
+
+
 def _signal_digest(analysis: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
     for item in analysis.get("results") if isinstance(analysis.get("results"), list) else []:
@@ -723,6 +847,7 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
         _append_discovery_fallback(lines, digest)
     elif style == "backtest":
         _append_backtest_fallback(lines, digest)
+    _append_web_fallback(lines, digest)
     _append_observation_summary(lines, successes)
     if errors:
         lines.append("## 风险与限制")
@@ -807,6 +932,15 @@ def _append_backtest_fallback(lines: list[str], digest: dict[str, Any]) -> None:
     lines.extend(["## 回测指标", "", _compact_json_line(backtest) if backtest else "回测指标数据缺失。", ""])
 
 
+def _append_web_fallback(lines: list[str], digest: dict[str, Any]) -> None:
+    rows = digest.get("web_evidence") if isinstance(digest.get("web_evidence"), list) else []
+    if not rows:
+        return
+    lines.extend(["## 公开网络证据", ""])
+    lines.extend(_markdown_table(rows[:8], ("kind", "platform_cn", "rank", "title", "url", "snippet", "error")) or [_compact_json_line(rows[:8])])
+    lines.append("")
+
+
 def _append_observation_summary(lines: list[str], successes: list[AgentObservation]) -> None:
     if not successes:
         return
@@ -879,7 +1013,7 @@ def _make_llm(llm_factory: Callable[..., Any], settings: Any) -> Any:
 def _needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:
     for obs in observations:
         tool = str(obs.payload.get("tool_name") or "")
-        if tool.startswith(("research.", "data.", "factor.", "trade.")) or obs.kind in {"python", "trade"}:
+        if tool.startswith(("research.", "data.", "factor.", "trade.", "web.")) or obs.kind in {"python", "trade"}:
             return True
     return False
 

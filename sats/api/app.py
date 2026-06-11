@@ -18,6 +18,13 @@ from sats.symbols import parse_symbol_csv
 DEFAULT_RULE = "ma_volume_relative_strength"
 
 
+def _rule_required_trade_days(rule) -> int | None:
+    value = getattr(rule, "required_trade_days", None)
+    if value is None:
+        return None
+    return max(1, int(value))
+
+
 class ScreenRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -65,9 +72,14 @@ def create_app(settings: Settings | None = None, storage: DuckDBStorage | None =
     @app.post("/api/screen")
     def run_screen(request: ScreenRequest) -> dict[str, Any]:
         try:
-            rule_name = get_rule(request.rule).name
+            rule = get_rule(request.rule)
+            rule_name = rule.name
             provider = AStockDataProvider(resolved_settings)
-            inputs = provider.load_all_screening_inputs(request.trade_date, storage=resolved_storage, rule_name=rule_name)
+            load_kwargs = {"storage": resolved_storage, "rule_name": rule_name}
+            required_trade_days = _rule_required_trade_days(rule)
+            if required_trade_days is not None:
+                load_kwargs["trade_days"] = required_trade_days
+            inputs = provider.load_all_screening_inputs(request.trade_date, **load_kwargs)
             if not inputs:
                 raise ValueError("No active A-share symbols returned by AStock provider")
             results = evaluate_and_store(inputs, rule_name=rule_name, storage=resolved_storage)

@@ -10,29 +10,67 @@ from sats.screening.rules.chan_third_buy import ChanThirdBuyRule
 from sats.screening.rules.ma_volume_relative_strength import MaVolumeRelativeStrengthRule
 from sats.screening.rules.monthly_base_breakout import MonthlyBaseBreakoutRule
 from sats.screening.rules.price_volume_ma import PriceVolumeMaRule
+from sats.screening.rules.sequoia_x import (
+    HighTightFlagRule,
+    LimitUpShakeoutRule,
+    MaVolumeRule,
+    RpsBreakoutRule,
+    TurtleTradeRule,
+    UptrendLimitDownRule,
+)
 from sats.screening.rules.signal_composite import SignalCompositeRule
 
 _RULES: dict[str, type[ScreeningRule]] = {
     ChanCompositeRule.name: ChanCompositeRule,
     ChanSignalsRule.name: ChanSignalsRule,
     ChanThirdBuyRule.name: ChanThirdBuyRule,
+    HighTightFlagRule.name: HighTightFlagRule,
+    LimitUpShakeoutRule.name: LimitUpShakeoutRule,
+    MaVolumeRule.name: MaVolumeRule,
     MaVolumeRelativeStrengthRule.name: MaVolumeRelativeStrengthRule,
     MonthlyBaseBreakoutRule.name: MonthlyBaseBreakoutRule,
     PriceVolumeMaRule.name: PriceVolumeMaRule,
+    RpsBreakoutRule.name: RpsBreakoutRule,
     SignalCompositeRule.name: SignalCompositeRule,
+    TurtleTradeRule.name: TurtleTradeRule,
+    UptrendLimitDownRule.name: UptrendLimitDownRule,
 }
 
 _ALIASES = {
+    "HighTightFlag": HighTightFlagRule.name,
+    "HighTightFlagStrategy": HighTightFlagRule.name,
+    "LimitUpShakeout": LimitUpShakeoutRule.name,
+    "LimitUpShakeoutStrategy": LimitUpShakeoutRule.name,
+    "MaVolume": MaVolumeRule.name,
+    "MaVolumeStrategy": MaVolumeRule.name,
+    "RpsBreakout": RpsBreakoutRule.name,
+    "RpsBreakoutStrategy": RpsBreakoutRule.name,
+    "TurtleTrade": TurtleTradeRule.name,
+    "TurtleTradeStrategy": TurtleTradeRule.name,
+    "UptrendLimitDown": UptrendLimitDownRule.name,
+    "UptrendLimitDownStrategy": UptrendLimitDownRule.name,
     "chan-composite": ChanCompositeRule.name,
     "chan-ai-select": ChanSignalsRule.name,
     "chan-signals": ChanSignalsRule.name,
     "chan-stock-select": ChanCompositeRule.name,
     "chan-third-buy": ChanThirdBuyRule.name,
+    "high-tight-flag": HighTightFlagRule.name,
+    "hightightflag": HighTightFlagRule.name,
+    "limit-up-shakeout": LimitUpShakeoutRule.name,
+    "limitupshakeout": LimitUpShakeoutRule.name,
+    "ma-volume": MaVolumeRule.name,
+    "mavolume": MaVolumeRule.name,
     "ma-volume-relative-strength": MaVolumeRelativeStrengthRule.name,
     "monthly-base-breakout": MonthlyBaseBreakoutRule.name,
     "price-volume-ma": PriceVolumeMaRule.name,
+    "rps-breakout": RpsBreakoutRule.name,
+    "rpsbreakout": RpsBreakoutRule.name,
     "signal-composite": SignalCompositeRule.name,
     "abu-signals": SignalCompositeRule.name,
+    "turtle-trade": TurtleTradeRule.name,
+    "turtletrade": TurtleTradeRule.name,
+    "uptrend-limit-down": UptrendLimitDownRule.name,
+    "uptrendlimitdown": UptrendLimitDownRule.name,
 }
 
 

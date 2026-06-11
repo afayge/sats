@@ -7,6 +7,7 @@ from sats.agent.tools.data_tools import data_tool_specs
 from sats.agent.tools.factor_tools import factor_tool_specs
 from sats.agent.tools.research_tools import research_tool_specs
 from sats.agent.tools.trade_tools import trade_tool_specs
+from sats.agent.tools.web_tools import web_tool_specs
 
 
 def build_default_tool_registry() -> AgentToolRegistry:
@@ -16,6 +17,7 @@ def build_default_tool_registry() -> AgentToolRegistry:
         *data_tool_specs(),
         *research_tool_specs(),
         *factor_tool_specs(),
+        *web_tool_specs(),
         *command_tool_specs(),
         *trade_tool_specs(),
     ):

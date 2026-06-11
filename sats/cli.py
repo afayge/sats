@@ -85,6 +85,9 @@ from sats.trading import OrderRequest, broker_from_settings
 from sats.trading.monitor_provider import AutoTradeConfig, QmtTradingProvider
 from sats.trading.qmt_bridge import QmtBridgeConfig, run_bridge
 from sats.trading.sync import sync_positions_to_monitor
+from sats.web import hot_mentions as web_hot_mentions
+from sats.web import search as web_search
+from sats.web import social_hot as web_social_hot
 from sats.watchlist_editor import (
     clear_watchlist,
     delete_watchlist_symbols,
@@ -98,6 +101,13 @@ from sats.watchlist_editor import (
 
 DEFAULT_RULE = "ma_volume_relative_strength"
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
+
+
+def _rule_required_trade_days(rule) -> int | None:
+    value = getattr(rule, "required_trade_days", None)
+    if value is None:
+        return None
+    return max(1, int(value))
 
 
 def _progress_for_args(args: argparse.Namespace, *, json_mode: bool | None = None):
@@ -123,6 +133,7 @@ def _progress_request(args: argparse.Namespace) -> str:
         "qmt_command",
         "qmt_bridge_command",
         "qmt_sync_command",
+        "web_command",
     ):
         value = str(getattr(args, name, "") or "").strip()
         if value:
@@ -141,6 +152,9 @@ def _progress_request(args: argparse.Namespace) -> str:
         "top",
         "limit",
         "candidate_limit",
+        "platforms",
+        "keyword",
+        "freshness",
     ):
         value = getattr(args, option, None)
         if value not in (None, "", False):
@@ -278,6 +292,24 @@ def build_parser() -> argparse.ArgumentParser:
     agent = sub.add_parser("agent", help="Run SATS autonomous agent")
     _add_agent_args(agent)
     agent.add_argument("message", nargs=argparse.REMAINDER, help="Natural-language agent goal")
+
+    web = sub.add_parser("web", help="Search public web and social hot lists")
+    web_sub = web.add_subparsers(dest="web_command")
+    web_search_parser = web_sub.add_parser("search", help="Search public web snippets")
+    web_search_parser.add_argument("--limit", type=int, default=5, help="Maximum results")
+    web_search_parser.add_argument("--trusted-domains", default="", help="Comma-separated domain allow hints, e.g. sse.com.cn,szse.cn")
+    web_search_parser.add_argument("--freshness", default="", choices=["", "d", "w", "m", "y"], help="Optional freshness: d/w/m/y")
+    web_search_parser.add_argument("--json", action="store_true", help="Print JSON output")
+    web_search_parser.add_argument("query", nargs="+", help="Search query")
+    web_hot_parser = web_sub.add_parser("hot", help="Fetch social hot lists")
+    web_hot_parser.add_argument("--platforms", default="all", help="Comma-separated platforms or all")
+    web_hot_parser.add_argument("--limit", type=int, default=20, help="Items per platform")
+    web_hot_parser.add_argument("--json", action="store_true", help="Print JSON output")
+    web_mentions_parser = web_sub.add_parser("mentions", help="Find keyword mentions in social hot lists")
+    web_mentions_parser.add_argument("--keyword", required=True, help="Stock name, company name or topic keyword")
+    web_mentions_parser.add_argument("--platforms", default="all", help="Comma-separated platforms or all")
+    web_mentions_parser.add_argument("--limit", type=int, default=50, help="Items per platform before matching")
+    web_mentions_parser.add_argument("--json", action="store_true", help="Print JSON output")
 
     model = sub.add_parser("model", help="Manage LLM model profiles")
     model_sub = model.add_subparsers(dest="model_command")
@@ -611,6 +643,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_chat(args)
     if args.command == "agent":
         return cmd_agent(args)
+    if args.command == "web":
+        return cmd_web(args)
     if args.command == "model":
         return cmd_model(args)
     if args.command == "memory":
@@ -709,9 +743,14 @@ def cmd_screen(args: argparse.Namespace) -> int:
     progress = _progress_for_args(args)
     try:
         provider = AStockDataProvider(settings)
-        rule_name = get_rule(args.rule).name
+        rule = get_rule(args.rule)
+        rule_name = rule.name
+        required_trade_days = _rule_required_trade_days(rule)
         with progress.step("AStock 股票数据") as step:
-            inputs = provider.load_all_screening_inputs(args.trade_date, storage=storage, rule_name=rule_name)
+            load_kwargs = {"storage": storage, "rule_name": rule_name}
+            if required_trade_days is not None:
+                load_kwargs["trade_days"] = required_trade_days
+            inputs = provider.load_all_screening_inputs(args.trade_date, **load_kwargs)
             step.complete(message=f"{len(inputs)} 只")
         if not inputs:
             raise ValueError("No active A-share symbols returned by AStock provider")
@@ -1189,6 +1228,84 @@ def cmd_agent(args: argparse.Namespace) -> int:
         progress.close()
     _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
     return 0
+
+
+def cmd_web(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    command = str(getattr(args, "web_command", "") or "")
+    if not command:
+        raise SystemExit("web requires subcommand: search, hot or mentions")
+    if command == "search":
+        query = " ".join(getattr(args, "query", ()) or ()).strip()
+        if not query:
+            raise SystemExit("web search query is required")
+        payload = web_search(
+            query,
+            limit=int(getattr(args, "limit", 5) or 5),
+            trusted_domains=_parse_optional_csv(getattr(args, "trusted_domains", "")),
+            freshness=str(getattr(args, "freshness", "") or ""),
+            settings=settings,
+        )
+    elif command == "hot":
+        payload = web_social_hot(
+            platforms=_parse_optional_csv(getattr(args, "platforms", "")) or None,
+            limit=int(getattr(args, "limit", 20) or 20),
+            settings=settings,
+        )
+    elif command == "mentions":
+        payload = web_hot_mentions(
+            str(getattr(args, "keyword", "") or ""),
+            platforms=_parse_optional_csv(getattr(args, "platforms", "")) or None,
+            limit=int(getattr(args, "limit", 50) or 50),
+            settings=settings,
+        )
+    else:
+        raise SystemExit(f"unknown web command: {command}")
+    if bool(getattr(args, "json", False)):
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        print(format_web_result(payload, command=command))
+    return 0
+
+
+def format_web_result(payload: dict, *, command: str) -> str:
+    if command == "search":
+        lines = [f"Web Search: {payload.get('query') or ''}"]
+        if payload.get("status") == "error":
+            lines.append(f"错误: {payload.get('error') or 'search failed'}")
+            return "\n".join(lines)
+        for index, item in enumerate(payload.get("results") or [], start=1):
+            lines.append(f"{index}. {item.get('title') or '(no title)'}")
+            if item.get("snippet"):
+                lines.append(f"   {item.get('snippet')}")
+            if item.get("url"):
+                lines.append(f"   {item.get('url')}")
+        if not payload.get("results"):
+            lines.append("无搜索结果。")
+        return "\n".join(lines)
+    if command == "hot":
+        lines = [f"社交热榜: {payload.get('platforms_ok', 0)}/{payload.get('platforms_checked', 0)} 平台可用"]
+        for platform in payload.get("platforms") or []:
+            lines.append(f"\n[{platform.get('platform_cn') or platform.get('platform')}]")
+            if platform.get("status") == "error":
+                lines.append(f"错误: {platform.get('error') or 'fetch failed'}")
+                continue
+            for item in (platform.get("items") or [])[:10]:
+                score = f" hot={item.get('hot_score')}" if item.get("hot_score") else ""
+                lines.append(f"{item.get('rank')}. {item.get('title')}{score}")
+        return "\n".join(lines)
+    lines = [f"社交热榜命中: {payload.get('keyword') or ''} total={payload.get('total_hits', 0)}"]
+    mentions = payload.get("mentions") if isinstance(payload.get("mentions"), dict) else {}
+    for platform, items in mentions.items():
+        if not items:
+            continue
+        lines.append(f"\n[{platform}]")
+        for item in items[:10]:
+            score = f" hot={item.get('hot_score')}" if item.get("hot_score") else ""
+            lines.append(f"{item.get('rank')}. {item.get('title')}{score}")
+    if len(lines) == 1:
+        lines.append("无命中。")
+    return "\n".join(lines)
 
 
 def _chat_result_from_runtime(runtime_result) -> ChatResult:

@@ -35,6 +35,27 @@ class ChatReferenceContextTest(unittest.TestCase):
         self.assertEqual(context.data_name, "上条输出")
         self.assertIn("上一条可见输出", context.system_message)
 
+    def test_plain_output_reference_marks_group_labels_as_non_stock(self) -> None:
+        captured = CapturedOutput(
+            content="\n".join(
+                [
+                    "### 【强势追击】",
+                    "1. 000001.SZ 平安银行",
+                    "### 【高位预警】",
+                    "2. 600519.SH 贵州茅台",
+                ]
+            ),
+            request="帮我找10个股票",
+            source="chat",
+        )
+
+        context = build_chat_reference_context("分析上面10个股票", captured, SimpleNamespace(db_path=Path("test.duckdb")))
+
+        self.assertIsNotNone(context)
+        self.assertEqual(context.symbols, ["000001.SZ", "600519.SH"])
+        self.assertIn("【...】、章节标题、策略标签、风险标签、分组名不是股票", context.system_message)
+        self.assertIn("不得为没有有效股票代码的标签生成", context.system_message)
+
     def test_reference_question_accepts_screen_followup_phrase(self) -> None:
         self.assertTrue(is_reference_question("分析上面的股票，预测短期走势"))
 

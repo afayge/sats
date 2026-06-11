@@ -134,6 +134,8 @@ def _build_plain_output_reference(message: str, last_output: CapturedOutput) -> 
         f"- request: {last_output.request or 'unknown'}",
         f"- referenced_by_user: {message}",
         "- policy: 用户正在引用上一条可见输出；只能基于下方内容和已注入的真实数据分析，不得编造缺失字段。",
+        "- policy: 逐股票分析只能使用 symbols 中的有效股票代码；【...】、章节标题、策略标签、风险标签、分组名不是股票。",
+        "- policy: 不得为没有有效股票代码的标签生成“股票名称/代码为空”的逐股票条目；这些标签只能作为分类或风险说明引用。",
     ]
     if symbols:
         lines.append(f"- symbols: {', '.join(symbols)}")

@@ -23,6 +23,10 @@ TICKFLOW_API_KEY=
 TICKFLOW_BASE_URL=https://api.tickflow.org
 TICKFLOW_TIMEOUT_SECONDS=30
 TICKFLOW_MAX_RETRIES=3
+WEB_SEARCH_TIMEOUT_SECONDS=10
+WEB_SEARCH_CACHE_TTL_SECONDS=43200
+SOCIAL_HOT_CACHE_TTL_SECONDS=300
+WEB_SEARCH_MAX_RESULTS=10
 
 # LLM model profiles
 DEEPSEEK_PROVIDER=deepseek
@@ -71,6 +75,10 @@ class Settings:
     tickflow_base_url: str
     tickflow_timeout_seconds: int
     tickflow_max_retries: int
+    web_search_timeout_seconds: int
+    web_search_cache_ttl_seconds: int
+    social_hot_cache_ttl_seconds: int
+    web_search_max_results: int
     llm_provider: str
     llm_profile: str
     light_llm_provider: str
@@ -134,6 +142,10 @@ def load_settings(project_root: Path | None = None, env_path: Path | None = None
         tickflow_base_url=os.getenv("TICKFLOW_BASE_URL", "https://api.tickflow.org").strip(),
         tickflow_timeout_seconds=_env_int("TICKFLOW_TIMEOUT_SECONDS", 30),
         tickflow_max_retries=_env_int("TICKFLOW_MAX_RETRIES", 3),
+        web_search_timeout_seconds=_env_int("WEB_SEARCH_TIMEOUT_SECONDS", 10),
+        web_search_cache_ttl_seconds=_env_int("WEB_SEARCH_CACHE_TTL_SECONDS", 43200),
+        social_hot_cache_ttl_seconds=_env_int("SOCIAL_HOT_CACHE_TTL_SECONDS", 300),
+        web_search_max_results=_env_int("WEB_SEARCH_MAX_RESULTS", 10),
         llm_provider=main_model.provider,
         llm_profile=main_model.profile_name,
         light_llm_provider=light_model.provider,

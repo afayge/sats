@@ -551,6 +551,44 @@ class AgentTest(unittest.TestCase):
         self.assertNotIn("[done]", result.content)
         self.assertNotIn("Agent objective", result.content)
 
+    def test_evidence_digest_keeps_web_evidence_separate_from_market_data(self) -> None:
+        digest = _evidence_digest(
+            (
+                AgentObservation(
+                    step_id="web",
+                    kind="tool",
+                    status="done",
+                    content="web",
+                    payload={
+                        "tool_name": "web.search",
+                        "data_names": ["Web Search"],
+                        "result": {
+                            "payload": {
+                                "web_search": {
+                                    "status": "ok",
+                                    "query": "贵州茅台 最新公告",
+                                    "results": [
+                                        {
+                                            "title": "贵州茅台公告",
+                                            "url": "https://example.com/a",
+                                            "snippet": "公开公告摘要",
+                                            "source": "ddgs",
+                                            "fetched_at": "2026-06-09T00:00:00Z",
+                                        }
+                                    ],
+                                }
+                            }
+                        },
+                    },
+                ),
+            )
+        )
+
+        self.assertEqual(digest["web_evidence"][0]["kind"], "web_search")
+        self.assertEqual(digest["web_evidence"][0]["url"], "https://example.com/a")
+        self.assertEqual(digest["quotes"], [])
+        self.assertEqual(digest["market_context"], {})
+
     def test_market_synthesis_fallback_uses_real_indices_and_hot_sectors(self) -> None:
         result = synthesize_agent_result(
             message="分析这周大盘走势，预测下周大盘走势",
@@ -581,6 +619,39 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(tools, ["research.stock_context", "research.internal_analysis"])
         self.assertEqual(internal_kinds, ["indicators"])
         self.assertNotIn("chat.answer", tools)
+
+    def test_fallback_planner_adds_web_search_for_latest_public_info(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("002436 最新公告和新闻", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
+
+        self.assertIn("web.search", tools)
+        self.assertIn("research.stock_context", tools)
+        web_step = next(step for step in plan.steps if step.tool_name == "web.search")
+        self.assertEqual(web_step.arguments["freshness"], "d")
+
+    def test_fallback_planner_routes_social_sentiment_to_hot_mentions(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("贵州茅台 社媒舆情是否发酵", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
+
+        self.assertEqual(tools, ["web.hot_mentions"])
+        self.assertEqual(plan.steps[0].arguments["keyword"], "贵州茅台")
+
+    def test_fallback_planner_routes_xueqiu_hotspot_to_xueqiu_mentions(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("雪球热点 贵州茅台 是否发酵", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
+
+        self.assertEqual(tools, ["web.hot_mentions"])
+        self.assertEqual(plan.steps[0].arguments["keyword"], "贵州茅台")
+        self.assertEqual(plan.steps[0].arguments["platforms"], ["xueqiu_spot"])
 
     def test_llm_stock_plan_is_augmented_with_indicators_only(self) -> None:
         registry = build_default_tool_registry()
@@ -1014,6 +1085,7 @@ class AgentTest(unittest.TestCase):
         )
 
         self.assertTrue({"chat.answer", "data.stock_daily", "research.backtest", "factor.pick", "sats_command.run", "trade.submit_intent"}.issubset(names))
+        self.assertTrue({"web.search", "web.social_hot", "web.hot_mentions"}.issubset(names))
         rejected = registry.execute(
             "data.stock_daily",
             {"symbols": ["000001"], "start_date": "20260518", "end_date": "20260520", "close": 10.5},
@@ -1022,6 +1094,25 @@ class AgentTest(unittest.TestCase):
 
         self.assertEqual(rejected.status, "error")
         self.assertIn("market data guard", rejected.content)
+
+    def test_web_tool_keeps_external_failure_as_structured_evidence_gap(self) -> None:
+        registry = build_default_tool_registry()
+        context = AgentToolContext(
+            settings=SimpleNamespace(),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+        )
+        payload = {"status": "error", "query": "贵州茅台 最新公告", "results": [], "error": "timeout", "from_cache": False}
+
+        with patch("sats.agent.tools.web_tools.search", return_value=payload):
+            result = registry.execute("web.search", {"query": "贵州茅台 最新公告"}, context)
+
+        self.assertEqual(result.status, "done")
+        self.assertEqual(result.payload["web_search"]["status"], "error")
+        self.assertIn("timeout", result.content)
 
     def test_tool_registry_exposes_provider_capability_catalog(self) -> None:
         registry = build_default_tool_registry()

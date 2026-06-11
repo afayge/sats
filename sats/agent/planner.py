@@ -93,6 +93,8 @@ def _planner_messages(
                 "市场数据必须由 DuckDB cache 或 AStockDataProvider 经 SATS resolver 获取，不能让 LLM 填价格、成交量、K线或报价。"
                 "需要真实行情、财务、资金流、板块、指数、宏观、新闻公告或 TickFlow 盘口/分钟K时，先查看可用工具里的 data_capabilities，再选择对应工具；"
                 "如果目录没有对应能力，只能说明缺口，不能编造 provider 接口。"
+                "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.social_hot / web.hot_mentions；"
+                "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
                 "用户说“明天/后天/下周/未来几天/未来一周”时，这是 forecast horizon，不是历史 trade_date；"
                 "只有用户明确写出 YYYYMMDD 或 YYYY-MM-DD 日期时，才把它作为 trade_date。"
@@ -321,6 +323,8 @@ def _fallback_plan(
         steps.append(_tool_step("trade_positions", "trade.positions", "查询 QMT 持仓", {}, side_effect="readonly"))
     elif any(term in text for term in ("资金", "资产", "asset")) and ("qmt" in lowered or "账户" in text):
         steps.append(_tool_step("trade_asset", "trade.asset", "查询 QMT 资产", {}, side_effect="readonly"))
+    elif _needs_web_evidence(text):
+        steps.extend(_web_steps(text))
     elif _looks_like_sats_command(text):
         steps.append(_tool_step("sats_command", "sats_command.run", "执行 SATS 命令", {"argv": _command_from_text(text)}, side_effect="command"))
     else:
@@ -428,6 +432,16 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
         if knowledge_args.get("collections") and not _has_tool(steps, "research.knowledge_context"):
             insert_at = _final_index(steps)
             steps.insert(insert_at, _tool_step("knowledge_context", "research.knowledge_context", "补充知识库上下文", knowledge_args, side_effect="readonly"))
+    if symbols and _needs_web_evidence(text) and not _has_tool(steps, "research.stock_context") and not _is_market_analysis_request(text):
+        insert_at = _final_index(steps)
+        trade_date = _analysis_trade_date(text, reference_context)
+        steps.insert(insert_at, _tool_step("stock_context", "research.stock_context", "获取个股上下文", {"symbols": symbols, "trade_date": trade_date}, side_effect="readonly"))
+    if _needs_web_evidence(text):
+        insert_at = _final_index(steps)
+        for step in _web_steps(text):
+            if not _has_tool(steps, step.tool_name):
+                steps.insert(insert_at, step)
+                insert_at += 1
     return AgentPlan(
         objective=plan.objective,
         success_criteria=plan.success_criteria,
@@ -463,6 +477,38 @@ def _analyze_signals_step(symbols: list[str], trade_date: str, text: str) -> Age
         },
         side_effect="readonly",
     )
+
+
+def _web_steps(text: str) -> list[AgentStep]:
+    if _needs_social_mentions(text):
+        return [
+            _tool_step(
+                "web_hot_mentions",
+                "web.hot_mentions",
+                "检索社交热榜命中",
+                {"keyword": _web_keyword(text), "platforms": _web_platforms(text), "limit": _web_limit(text, default=50)},
+                side_effect="readonly",
+            )
+        ]
+    if _needs_social_hot(text):
+        return [
+            _tool_step(
+                "web_social_hot",
+                "web.social_hot",
+                "获取社交热榜",
+                {"platforms": _web_platforms(text), "limit": _web_limit(text, default=20)},
+                side_effect="readonly",
+            )
+        ]
+    return [
+        _tool_step(
+            "web_search",
+            "web.search",
+            "搜索公开网络证据",
+            {"query": text, "limit": _web_limit(text, default=5), "freshness": _web_freshness(text)},
+            side_effect="readonly",
+        )
+    ]
 
 
 def _clean_command(value: Any) -> list[str]:
@@ -633,6 +679,114 @@ def _market_horizons(text: str) -> list[str]:
 
 def _market_context_args(text: str) -> dict[str, Any]:
     return {"horizons": _market_horizons(text), "dimensions": list(DEFAULT_MARKET_DIMENSIONS)}
+
+
+def _needs_web_evidence(text: str) -> bool:
+    return _needs_web_search(text) or _needs_social_hot(text)
+
+
+def _needs_web_search(text: str) -> bool:
+    lowered = text.lower()
+    explicit = ("web", "网页", "网络搜索", "网上", "网络上", "搜索", "查一下", "搜一下")
+    public_info = ("最新", "新闻", "公告", "报道", "消息", "公开信息", "监管", "政策", "事件")
+    today_with_info = ("今天", "今日")
+    if any(term in lowered or term in text for term in explicit):
+        return True
+    if any(term in text for term in public_info):
+        return True
+    return any(term in text for term in today_with_info) and any(term in text for term in ("新闻", "公告", "消息", "热搜", "热榜"))
+
+
+def _needs_social_hot(text: str) -> bool:
+    lowered = text.lower()
+    social_terms = (
+        "热搜",
+        "热榜",
+        "社交",
+        "社媒",
+        "舆情",
+        "发酵",
+        "微博",
+        "知乎",
+        "抖音",
+        "头条",
+        "b站",
+        "b 站",
+        "bilibili",
+        "小红书",
+        "雪球",
+        "xueqiu",
+    )
+    return any(term in lowered or term in text for term in social_terms)
+
+
+def _needs_social_mentions(text: str) -> bool:
+    if not _needs_social_hot(text):
+        return False
+    return bool(_web_keyword(text))
+
+
+def _web_platforms(text: str) -> list[str]:
+    lowered = text.lower()
+    platforms = []
+    xueqiu_specific = False
+    if "雪球热股" in text or "xueqiu_stock" in lowered or "xueqiustock" in lowered:
+        platforms.append("xueqiu_stock")
+        xueqiu_specific = True
+    if "雪球热点" in text or "xueqiu_spot" in lowered or "xueqiuspot" in lowered:
+        platforms.append("xueqiu_spot")
+        xueqiu_specific = True
+    if not xueqiu_specific and ("雪球" in text or "xueqiu" in lowered):
+        platforms.extend(["xueqiu_stock", "xueqiu_spot"])
+    mapping = (
+        ("微博", "weibo"),
+        ("weibo", "weibo"),
+        ("知乎", "zhihu"),
+        ("zhihu", "zhihu"),
+        ("百度", "baidu"),
+        ("baidu", "baidu"),
+        ("抖音", "douyin"),
+        ("douyin", "douyin"),
+        ("头条", "toutiao"),
+        ("toutiao", "toutiao"),
+        ("b站", "bilibili"),
+        ("b 站", "bilibili"),
+        ("bilibili", "bilibili"),
+    )
+    for token, platform in mapping:
+        if (token in lowered or token in text) and platform not in platforms:
+            platforms.append(platform)
+    return platforms
+
+
+def _web_keyword(text: str) -> str:
+    import re
+
+    value = str(text or "")
+    value = re.sub(r"\b(web|search|hot|mentions)\b", " ", value, flags=re.IGNORECASE)
+    for token in ("最新", "新闻", "公告", "报道", "消息", "公开信息", "网络搜索", "网上", "网络上", "搜索", "查一下", "搜一下", "社交", "社媒", "热搜", "热榜", "热点", "舆情", "发酵", "雪球热股", "雪球热点", "雪球", "xueqiu_stock", "xueqiu_spot", "xueqiu", "怎么看", "如何看", "看看", "今天", "今日", "是否", "有没有", "吗"):
+        value = value.replace(token, " ")
+    value = re.sub(r"\s+", " ", value).strip(" ，,。？?：:")
+    return value[:40]
+
+
+def _web_freshness(text: str) -> str:
+    if any(term in text for term in ("今天", "今日", "最新", "刚刚")):
+        return "d"
+    if any(term in text for term in ("本周", "这周", "最近一周")):
+        return "w"
+    if any(term in text for term in ("本月", "最近一个月")):
+        return "m"
+    return ""
+
+
+def _web_limit(text: str, *, default: int) -> int:
+    import re
+
+    match = re.search(r"(?:top|前|limit|返回)\s*(\d{1,3})", text, flags=re.IGNORECASE)
+    if not match:
+        return default
+    return max(1, min(50, int(match.group(1))))
 
 
 def _with_default_market_dimensions(step: AgentStep) -> AgentStep:

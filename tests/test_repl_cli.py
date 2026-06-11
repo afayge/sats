@@ -22,6 +22,10 @@ from sats.memory import ChatMemoryStore
 from sats.output_saver import CapturedOutput
 from sats.repl import (
     CLI_COMMANDS,
+    BANNER_LOGO_CELL,
+    BANNER_LOGO_PREFIX_STYLE,
+    BANNER_LOGO_WORD_STYLE,
+    BANNER_VERSION_STYLE,
     COMPLETION_DESCRIPTIONS,
     COMPLETION_LIST_MIN_WIDTH,
     COMPLETION_MENU_SELECTED_STYLE,
@@ -103,14 +107,28 @@ class ReplCliTest(unittest.TestCase):
 
         text = "\n".join(output)
         self.assertTrue(all(get_cwidth(line) == 80 for line in output))
-        self.assertTrue(output[0].startswith("┌"))
+        self.assertEqual(output[0].strip(), "")
+        self.assertFalse(any(line.startswith(("┌", "└", "│")) for line in output[1:7]))
+        self.assertTrue(output[7].startswith("┌"))
         self.assertTrue(output[-1].startswith("└"))
-        self.assertEqual(sum(1 for line in output if line.startswith("┌")), 2)
-        self.assertEqual(sum(1 for line in output if line.startswith("└")), 2)
-        self.assertTrue(output[2].startswith("└"))
-        self.assertTrue(output[3].startswith("┌"))
-        self.assertIn("SATS", text)
-        self.assertIn(f"v{__version__}", text)
+        self.assertTrue(any(line.startswith("│ 输入 /commands 开始") for line in output))
+        self.assertTrue(output[1].startswith(BANNER_LOGO_CELL))
+        self.assertNotIn(">_", text)
+        self.assertIn("██████████", text)
+        self.assertNotIn("▅", text)
+        self.assertIn(f"v{__version__}", output[1])
+        logo_rows = formatted[1:6]
+        self.assertTrue(any(style == BANNER_VERSION_STYLE and f"v{__version__}" in value for style, value in formatted[1]))
+        self.assertTrue(any(style == BANNER_LOGO_PREFIX_STYLE and BANNER_LOGO_CELL in value for row in logo_rows for style, value in row))
+        self.assertTrue(
+            all(
+                style in {BANNER_LOGO_PREFIX_STYLE, BANNER_LOGO_WORD_STYLE}
+                for row in logo_rows
+                for style, value in row
+                if BANNER_LOGO_CELL in value
+            )
+        )
+        self.assertTrue(any(style == BANNER_LOGO_WORD_STYLE and BANNER_LOGO_CELL in value for row in logo_rows for style, value in row))
         self.assertIn("输入 /commands 开始", text)
         self.assertIn("/help", text)
         self.assertIn("查看命令", text)
@@ -122,26 +140,16 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("保存上一条输出", text)
         self.assertIn("Ctrl+C", text)
         self.assertIn("中断当前执行", text)
-        self.assertIn("/screen --trade-date YYYYMMDD", text)
-        self.assertIn("全 A 股筛选", text)
-        self.assertIn("/results --passed", text)
-        self.assertIn("查询筛选结果", text)
-        self.assertIn("/analyze-dsa", text)
-        self.assertIn("/dsa --stocks 000001,600519", text)
-        self.assertIn("分析股票", text)
+        self.assertNotIn("常用:", text)
+        self.assertNotIn("/screen --trade-date YYYYMMDD", text)
+        self.assertNotIn("/results --passed", text)
+        self.assertNotIn("/analyze-dsa", text)
+        self.assertNotIn("/dsa --stocks 000001,600519", text)
         self.assertIn("DB: data/sats.duckdb", text)
         self.assertTrue(any(style == MUTED_STYLE and "输入 /commands 开始" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == COMMAND_STYLE and "/help" in value for row in formatted for style, value in row))
-        self.assertTrue(any(style == COMMAND_STYLE and "/screen" in value for row in formatted for style, value in row))
-        self.assertTrue(any(style == DESC_STYLE and "查询筛选结果" in value for row in formatted for style, value in row))
+        self.assertTrue(any(style == DESC_STYLE and "DB:" in value for row in formatted for style, value in row))
         self.assertEqual(COMMAND_STYLE, DESC_STYLE)
-        screen_line = next(line for line in output if "/screen --trade-date YYYYMMDD" in line)
-        results_line = next(line for line in output if "/results --passed" in line)
-        analyze_line = next(line for line in output if "/analyze-dsa" in line)
-        self.assertEqual(screen_line.index("/screen"), results_line.index("/results"))
-        self.assertEqual(screen_line.index("/screen"), analyze_line.index("/analyze-dsa"))
-        self.assertEqual(screen_line.index("全 A 股筛选"), results_line.index("查询筛选结果"))
-        self.assertEqual(screen_line.index("全 A 股筛选"), analyze_line.index("分析股票"))
 
     def test_startup_banner_truncates_long_db_path_to_terminal_width(self) -> None:
         output: list[str] = []
@@ -379,6 +387,12 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("--format", COMPLETION_WORDS)
         self.assertIn("--no-hot-sector", COMPLETION_WORDS)
         self.assertIn("--knowledge", COMPLETION_WORDS)
+        self.assertIn("/web", COMPLETION_WORDS)
+        self.assertIn("--platforms", COMPLETION_WORDS)
+        self.assertIn("mentions", COMPLETION_WORDS)
+        self.assertIn("xueqiu", COMPLETION_WORDS)
+        self.assertIn("xueqiu_stock", COMPLETION_WORDS)
+        self.assertIn("xueqiu_spot", COMPLETION_WORDS)
         self.assertIn("watchlist", COMPLETION_WORDS)
         self.assertIn("ingest", COMPLETION_WORDS)
         self.assertIn("sync-stock-basic", COMPLETION_WORDS)
@@ -387,6 +401,18 @@ class ReplCliTest(unittest.TestCase):
         argv = repl_command_to_argv("/results --trade-date 20260514 --passed")
 
         self.assertEqual(argv, ["results", "--trade-date", "20260514", "--passed"])
+        self.assertEqual(
+            repl_command_to_argv("/screen --trade-date 20260514 --rule rps-breakout"),
+            ["screen", "--trade-date", "20260514", "--rule", "rps-breakout"],
+        )
+        self.assertEqual(
+            repl_command_to_argv("/web search 贵州茅台 最新公告 --limit 5"),
+            ["web", "search", "贵州茅台", "最新公告", "--limit", "5"],
+        )
+        self.assertEqual(
+            repl_command_to_argv("/web hot --platforms xueqiu --limit 5"),
+            ["web", "hot", "--platforms", "xueqiu", "--limit", "5"],
+        )
 
     def test_repl_line_runs_existing_command(self) -> None:
         calls: list[list[str]] = []

@@ -15,7 +15,7 @@ def evaluate_inputs(
     progress: Any | None = None,
 ) -> list[ScreeningResult]:
     rule = get_rule(rule_name)
-    items = list(inputs)
+    items = rule.prepare_inputs(list(inputs))
     if progress is None:
         return [rule.evaluate(item) for item in items]
     results = []

@@ -48,6 +48,7 @@ CLI_COMMANDS = [
     "chan-kb",
     "discover",
     "chat",
+    "web",
     "model",
     "memory",
     "history",
@@ -88,6 +89,7 @@ HELP_COMMANDS = [
     ("/chan-kb", "搜索缠论知识库"),
     ("/discover", "短线机会发现"),
     ("/chat", "LLM 聊天"),
+    ("/web", "网络搜索/社交热榜"),
     ("/goal", "设置/查看 Agent 目标"),
     ("/model", "模型配置切换"),
     ("/memory", "管理聊天记忆"),
@@ -108,6 +110,7 @@ HELP_EXAMPLES = [
     ("用缠论分析002436", "自然语言触发真实缠论分析"),
     ("分析002436 2026-05-15", "自然语言触发真实股票分析"),
     ("/screen --trade-date 20260514 --rule price_volume_ma", "全 A 股筛选"),
+    ("/screen --trade-date 20260514 --rule rps-breakout", "RPS 强势突破筛选"),
     ("/screen --trade-date 20260514 --rule monthly_base_breakout", "月K箱体突破筛选"),
     ("/results --trade-date 20260514 --passed", "查询通过股票"),
     ("/quote --stocks 000001,600519", "查看实时价格"),
@@ -129,6 +132,10 @@ HELP_EXAMPLES = [
     ("/chat 分析000001的因子暴露", "自然语言因子暴露分析"),
     ("/new 茅台估值复盘", "开启新的多轮对话"),
     ("/chat 写一个5日/20日均线策略并回测000001", "生成待确认 runtime 动作"),
+    ("/web search 贵州茅台 最新公告 --limit 5", "公开网络搜索"),
+    ("/web hot --platforms weibo,zhihu --limit 20", "社交热榜"),
+    ("/web hot --platforms xueqiu --limit 20", "雪球热股/热点"),
+    ("/web mentions --keyword 贵州茅台", "热榜关键词命中"),
     ("筛选短线机会并保存报告", "自然语言自主执行 Agent"),
     ("/goal 明天按信号自动买入不超过2万", "设置并运行 Agent 目标"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
@@ -164,32 +171,68 @@ BANNER_CONTROL_COMMANDS = [
     ("Ctrl+C", "中断当前执行"),
 ]
 
-BANNER_COMMON_COMMANDS = [
-    ("用缠论分析002436", "自然语言缠论分析"),
-    ("/screen --trade-date YYYYMMDD", "全 A 股筛选"),
-    ("/results --passed", "查询筛选结果"),
-    ("/quote --stocks 000001,600519", "查看实时价格"),
-    ("/analyze --stocks 000938 --signals ma_kline,chan", "统一信号分析"),
-    ("/dsa --stocks 000001,600519", "原生 DSA 分析"),
-    ("/dsa --from-screened --trade-date YYYYMMDD", "分析筛选结果"),
-    ("/analyze-dsa --stocks 000001,600519", "分析股票"),
-    ("/analyze-chan --stocks 000001", "缠论指定股票分析"),
-    ("/discover --limit 5", "短线机会发现"),
-    ("/factor list --zoo barra_style", "股票因子"),
-    ("/factor pick --profile balanced", "画像选股"),
-    ("/factor ml status", "ML 依赖"),
-    ("/save --format md", "保存上一条输出"),
-    ("/watchlist", "编辑关注列表"),
-    ("/monitor start", "启动实时监控"),
-    ("/monitor-display start", "当前终端打开监控显示"),
-    ("/schedule list", "查看定时任务"),
-    ("/qmt positions", "查看 QMT 持仓"),
-    ("/model status", "查看模型配置"),
-]
-
 HELP_SHORTCUTS = [
     ("Ctrl+C", "中断当前执行"),
 ]
+
+BANNER_LOGO_PREFIX_STYLE = "fg:#6b7280 bold"
+BANNER_LOGO_WORD_STYLE = "fg:#f8fafc bold"
+BANNER_VERSION_STYLE = "fg:#9ca3af"
+BANNER_LOGO_CELL = "██"
+BANNER_LOGO_GAP_CELLS = 1
+BANNER_LOGO_GLYPHS = {
+    ">": (
+        "█    ",
+        "  █  ",
+        "    █",
+        "  █  ",
+        "█    ",
+    ),
+    "_": (
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "█████",
+    ),
+    "S": (
+        "█████",
+        "█    ",
+        "█████",
+        "    █",
+        "█████",
+    ),
+    "A": (
+        " ███ ",
+        "█   █",
+        "█████",
+        "█   █",
+        "█   █",
+    ),
+    "T": (
+        "█████",
+        "  █  ",
+        "  █  ",
+        "  █  ",
+        "  █  ",
+    ),
+    " ": (
+        "",
+        "",
+        "",
+        "",
+        "",
+    ),
+}
+BANNER_LOGO_SEQUENCE = (
+    (">", BANNER_LOGO_PREFIX_STYLE),
+    ("_", BANNER_LOGO_PREFIX_STYLE),
+    (" ", ""),
+    ("S", BANNER_LOGO_WORD_STYLE),
+    ("A", BANNER_LOGO_WORD_STYLE),
+    ("T", BANNER_LOGO_WORD_STYLE),
+    ("S", BANNER_LOGO_WORD_STYLE),
+)
 
 _HELP_DESCRIPTIONS = dict(HELP_COMMANDS)
 
@@ -231,6 +274,10 @@ COMPLETION_DESCRIPTIONS = {
     "--top": "最大候选数",
     "--limit": "返回数量",
     "--candidate-limit": "候选池数量",
+    "--trusted-domains": "限定搜索域名",
+    "--freshness": "搜索新鲜度",
+    "--platforms": "社交平台列表，支持 xueqiu/xueqiu_stock/xueqiu_spot",
+    "--keyword": "关键词",
     "--hot-sector-days": "热点板块天数",
     "--no-hot-sector": "禁用热点板块",
     "--host": "服务监听地址",
@@ -315,6 +362,11 @@ COMPLETION_DESCRIPTIONS = {
     "show": "查看详情",
     "clear": "清空记录",
     "search": "搜索记录",
+    "hot": "社交热榜",
+    "mentions": "热榜命中",
+    "xueqiu": "雪球热股/热点",
+    "xueqiu_stock": "雪球热股",
+    "xueqiu_spot": "雪球热点",
     "ingest": "导入知识库",
     "sync-stock-basic": "同步股票列表",
 }
@@ -423,14 +475,13 @@ def render_startup_banner(
 ) -> None:
     plain_printer = printer or print
     rich_printer = formatted_printer or print_formatted_text
-    title = f">_ SATS v{__version__}"
     help_lines = _banner_help_lines(db_path)
     width = _banner_width(terminal_width)
     content_width = max(1, width - 4)
 
-    plain_printer(_top_border(width))
-    _print_banner_title(content_width, rich_printer)
-    plain_printer(_bottom_border(width))
+    _print_plain_fragments(FormattedText([("", "")]), width, rich_printer)
+    _print_banner_title(width, rich_printer)
+    _print_plain_fragments(FormattedText([("", "")]), width, rich_printer)
     plain_printer(_top_border(width))
     for line in help_lines:
         _print_box_fragments(line, content_width, rich_printer)
@@ -473,13 +524,20 @@ def _help_command_width(content_width: int | None = None) -> int:
     return min(width, max(8, content_width - 18))
 
 
-def _help_row_fragments(command: str, description: str, command_width: int) -> FormattedText:
+def _help_row_fragments(
+    command: str,
+    description: str,
+    command_width: int,
+    *,
+    command_style: str = COMMAND_STYLE,
+    desc_style: str = DESC_STYLE,
+) -> FormattedText:
     command_text = _truncate_to_width(command, command_width)
     return FormattedText(
         [
-            (COMMAND_STYLE, command_text),
+            (command_style, command_text),
             ("", " " * (max(0, command_width - _display_width(command_text)) + 2)),
-            (DESC_STYLE, description),
+            (desc_style, description),
         ]
     )
 
@@ -489,15 +547,12 @@ def _banner_help_lines(db_path: Path | str) -> list[FormattedText]:
     return [
         FormattedText([(MUTED_STYLE, "输入 /commands 开始")]),
         *[_help_row_fragments(command, description, command_width) for command, description in BANNER_CONTROL_COMMANDS],
-        FormattedText([(MUTED_STYLE, "常用:")]),
-        *[_help_row_fragments(command, description, command_width) for command, description in BANNER_COMMON_COMMANDS],
         FormattedText([(DESC_STYLE, f"DB: {db_path}")]),
     ]
 
 
 def _banner_command_width() -> int:
     commands = [command for command, _ in BANNER_CONTROL_COMMANDS]
-    commands.extend(command for command, _ in BANNER_COMMON_COMMANDS)
     return max((_display_width(command) for command in commands), default=0)
 
 
@@ -529,25 +584,49 @@ def _print_box_fragments(
     formatted_printer(FormattedText([("", "│ "), *truncated, ("", f"{padding} │")]))
 
 
+def _print_plain_fragments(
+    fragments: FormattedText,
+    width: int,
+    formatted_printer: Callable[[FormattedText], None],
+) -> None:
+    truncated = _truncate_fragments_to_width(fragments, width)
+    text_width = _display_width(fragment_list_to_text(truncated))
+    padding = " " * max(0, width - text_width)
+    formatted_printer(FormattedText([*truncated, ("", padding)]))
+
+
 def _print_banner_title(width: int, formatted_printer: Callable[[FormattedText], None]) -> None:
-    title = f">_ SATS v{__version__}"
-    if _display_width(title) > width:
-        plain_title = _truncate_to_width(title, width)
-        padding = " " * max(0, width - _display_width(plain_title))
-        formatted_printer(FormattedText([("", f"│ {plain_title}{padding} │")]))
-        return
-    padding = " " * max(0, width - _display_width(title))
-    formatted_printer(
-        FormattedText(
-            [
-                ("", "│ "),
-                ("fg:#2563eb bold", ">_ SATS"),
-                ("", " "),
-                ("fg:#9ca3af", f"v{__version__}"),
-                ("", f"{padding} │"),
-            ]
-        )
-    )
+    for fragments in _banner_logo_rows():
+        _print_plain_fragments(fragments, width, formatted_printer)
+
+
+def _banner_logo_rows() -> list[FormattedText]:
+    cells: dict[tuple[int, int], str] = {}
+    x = 0
+    height = max((len(BANNER_LOGO_GLYPHS[glyph]) for glyph, _ in BANNER_LOGO_SEQUENCE), default=0)
+
+    for glyph, style in BANNER_LOGO_SEQUENCE:
+        rows = BANNER_LOGO_GLYPHS[glyph]
+        glyph_width = max((len(row) for row in rows), default=0)
+        if style:
+            for y, row in enumerate(rows):
+                for dx, mark in enumerate(row):
+                    if mark == "█":
+                        cell = (y, x + dx)
+                        cells[cell] = style
+        x += glyph_width + BANNER_LOGO_GAP_CELLS
+
+    width = max((col + 1 for _, col in cells), default=0)
+    rows: list[FormattedText] = []
+    for y in range(height):
+        fragments: list[tuple[str, str]] = []
+        for col in range(width):
+            style = cells.get((y, col))
+            fragments.append((style or "", BANNER_LOGO_CELL if style else "  "))
+        if y == 0:
+            fragments.extend([("", "  "), (BANNER_VERSION_STYLE, f"v{__version__}")])
+        rows.append(FormattedText(fragments))
+    return rows
 
 
 def _pad_to_width(text: str, width: int) -> str:
