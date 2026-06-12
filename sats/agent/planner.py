@@ -11,7 +11,7 @@ from sats.agent.models import AgentExecutionPolicy, AgentPlan, AgentStep
 from sats.agent.tools import AgentToolRegistry
 from sats.chat_reference import is_reference_question
 from sats.config import Settings
-from sats.llm import ChatLLM, extract_json_object
+from sats.llm import ChatLLM, build_light_fallback_llm, build_standard_llm, extract_json_object
 from sats.screening.rule_composer import is_rule_generation_request, parse_rule_generation_confirmation
 from sats.stock_question import extract_stock_symbols, extract_trade_date
 
@@ -29,23 +29,35 @@ def build_agent_plan(
     policy_message: str | None = None,
     reference_context: Any | None = None,
 ) -> AgentPlan:
+    local_plan = _with_planner_model_meta(
+        _augment_plan(
+            _fallback_plan(policy_message or message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
+            message=policy_message or message,
+            reference_context=reference_context,
+        ),
+        model_policy="local",
+        model_profile="local",
+        model_name="local",
+    )
     if llm_factory is not None:
-        payload = _llm_plan_payload(
+        model_policy = "standard" if _requires_standard_planner(local_plan) else "light"
+        payload, model_meta = _llm_plan_payload(
             message,
             settings=settings,
             policy=policy,
             llm_factory=llm_factory,
             tool_registry=tool_registry,
             reference_context=reference_context,
+            model_policy=model_policy,
         )
         plan = _plan_from_payload(payload, message=policy_message or message, tool_registry=tool_registry)
         if plan.steps:
-            return _augment_plan(plan, message=policy_message or message, reference_context=reference_context)
-    return _augment_plan(
-        _fallback_plan(policy_message or message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
-        message=policy_message or message,
-        reference_context=reference_context,
-    )
+            return _with_planner_model_meta(
+                _augment_plan(plan, message=policy_message or message, reference_context=reference_context),
+                **model_meta,
+            )
+        return _with_planner_model_meta(local_plan, **model_meta)
+    return local_plan
 
 
 def _llm_plan_payload(
@@ -56,22 +68,47 @@ def _llm_plan_payload(
     llm_factory: Callable[..., Any],
     tool_registry: AgentToolRegistry | None,
     reference_context: Any | None,
-) -> dict[str, Any]:
+    model_policy: str,
+) -> tuple[dict[str, Any], dict[str, str]]:
+    model_profile = "default" if model_policy == "standard" else "light"
+    model_name = _main_model_name(settings) if model_policy == "standard" else _light_model_name(settings)
     try:
-        llm = llm_factory(model_name=getattr(settings, "openai_model", None), profile="default", timeout_seconds=getattr(settings, "llm_timeout_seconds", None))
+        if model_policy == "standard":
+            llm = build_standard_llm(
+                llm_factory,
+                model_name=_main_model_name(settings),
+                timeout_seconds=_llm_timeout_seconds(settings),
+            )
+        else:
+            llm = build_light_fallback_llm(
+                llm_factory,
+                light_model_name=_light_model_name(settings),
+                default_model_name=_main_model_name(settings),
+                timeout_seconds=_llm_timeout_seconds(settings),
+            )
     except TypeError:
         llm = llm_factory()
+    model_meta = {
+        "model_policy": model_policy,
+        "model_profile": model_profile,
+        "model_name": model_name,
+    }
     try:
         response = llm.chat(
             _planner_messages(message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
-            timeout=getattr(settings, "llm_timeout_seconds", None),
+            timeout=_llm_timeout_seconds(settings),
         )
     except TypeError:
         response = llm.chat(_planner_messages(message, policy=policy, tool_registry=tool_registry, reference_context=reference_context))
     except Exception:
-        return {}
+        return {}, model_meta
+    model_meta = {
+        "model_policy": model_policy,
+        "model_profile": str(getattr(llm, "last_profile", "") or getattr(llm, "profile", "") or model_profile),
+        "model_name": str(getattr(llm, "last_model_name", "") or getattr(llm, "model_name", "") or model_name),
+    }
     payload = extract_json_object(str(getattr(response, "content", "") or ""))
-    return payload if isinstance(payload, dict) else {}
+    return (payload if isinstance(payload, dict) else {}), model_meta
 
 
 def _planner_messages(
@@ -93,6 +130,9 @@ def _planner_messages(
                 "市场数据必须由 DuckDB cache 或 AStockDataProvider 经 SATS resolver 获取，不能让 LLM 填价格、成交量、K线或报价。"
                 "需要真实行情、财务、资金流、板块、指数、宏观、新闻公告或 TickFlow 盘口/分钟K时，先查看可用工具里的 data_capabilities，再选择对应工具；"
                 "如果目录没有对应能力，只能说明缺口，不能编造 provider 接口。"
+                "TickFlow 已覆盖的 A 股主行情优先使用 TickFlow/SATS resolver；Tushare 白名单数据优先用 Tushare 工具；"
+                "只有需要 TickFlow/Tushare 未覆盖的数据，或用户明确要求 AkShare/数据字典接口时，才用 AkShare catalog 工具。"
+                "AkShare 必须先通过 data.list_akshare_datasets 或 data.describe_akshare_dataset 确认 dataset，再用 data.get_akshare_data 取数；不要编造 AkShare 函数名。"
                 "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.social_hot / web.hot_mentions；"
                 "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
@@ -319,6 +359,21 @@ def _fallback_plan(
         steps.append(_tool_step("indicator_inputs", "data.indicator_inputs", "获取指标输入", {"symbols": clean_symbols, "trade_date": _today()}, side_effect="write_db"))
     elif any(term in text for term in ("k线", "K线", "日线", "daily")) and clean_symbols:
         steps.append(_tool_step("stock_daily", "data.stock_daily", "获取日 K", {"symbols": clean_symbols, "start_date": _date_days_before(_today(), 180), "end_date": _today()}, side_effect="write_db"))
+    elif _is_akshare_data_request(text):
+        dataset = _akshare_dataset_id(text)
+        if dataset:
+            steps.append(_tool_step("akshare_describe", "data.describe_akshare_dataset", "确认 AkShare 数据集", {"dataset": dataset}, side_effect="readonly"))
+            steps.append(_tool_step("akshare_data", "data.get_akshare_data", "获取 AkShare 数据", {"dataset": dataset, "params": {}, "limit": _top_n(text)}, side_effect="readonly"))
+        else:
+            steps.append(
+                _tool_step(
+                    "akshare_catalog",
+                    "data.list_akshare_datasets",
+                    "查询 AkShare 数据字典",
+                    {"query": _akshare_query(text), "compact": True},
+                    side_effect="readonly",
+                )
+            )
     elif any(term in text for term in ("持仓", "positions")) and ("qmt" in lowered or "账户" in text):
         steps.append(_tool_step("trade_positions", "trade.positions", "查询 QMT 持仓", {}, side_effect="readonly"))
     elif any(term in text for term in ("资金", "资产", "asset")) and ("qmt" in lowered or "账户" in text):
@@ -338,6 +393,46 @@ def _fallback_plan(
         risk_level="high" if policy.auto_trade else "medium",
         requires_live_trading=bool(policy.live_trading),
     )
+
+
+def _requires_standard_planner(plan: AgentPlan) -> bool:
+    meaningful = [step for step in plan.steps if step.kind != "final"]
+    if not meaningful:
+        return False
+    return not all(step.kind == "tool" and str(step.tool_name).startswith("chat.") for step in meaningful)
+
+
+def _with_planner_model_meta(
+    plan: AgentPlan,
+    *,
+    model_policy: str,
+    model_profile: str,
+    model_name: str,
+) -> AgentPlan:
+    return replace(
+        plan,
+        phase="planner",
+        model_policy=model_policy,
+        model_profile=model_profile,
+        model_name=model_name,
+    )
+
+
+def _main_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "openai_model", "") or "LLM")
+
+
+def _light_model_name(settings: Settings) -> str:
+    return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "LLM")
+
+
+def _llm_timeout_seconds(settings: Settings) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value)
+    except (TypeError, ValueError):
+        return None
+    return timeout if timeout > 0 else None
 
 
 def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | None = None) -> AgentPlan:
@@ -683,6 +778,28 @@ def _market_context_args(text: str) -> dict[str, Any]:
 
 def _needs_web_evidence(text: str) -> bool:
     return _needs_web_search(text) or _needs_social_hot(text)
+
+
+def _is_akshare_data_request(text: str) -> bool:
+    lowered = text.lower()
+    return any(term in lowered for term in ("akshare", "ak share")) or any(term in text for term in ("数据字典", "AkShare接口", "akshare接口"))
+
+
+def _akshare_dataset_id(text: str) -> str:
+    import re
+
+    for token in re.findall(r"\b([a-z][a-z0-9]+(?:_[a-z0-9]+){2,})\b", str(text or ""), flags=re.IGNORECASE):
+        lowered = token.lower()
+        if lowered.startswith(("stock_", "fund_", "bond_", "futures_", "option_", "macro_", "index_", "news_", "spot_", "fx_", "forex_", "crypto_")):
+            return lowered
+    return ""
+
+
+def _akshare_query(text: str) -> str:
+    value = str(text or "")
+    for token in ("AkShare", "akshare", "ak share", "接口", "数据字典", "查一下", "查询", "看看", "有哪些", "列出", "获取"):
+        value = value.replace(token, " ")
+    return " ".join(value.split())[:60]
 
 
 def _needs_web_search(text: str) -> bool:

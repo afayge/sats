@@ -7,7 +7,9 @@ sats.egg-info/
 data/
 !sats/data/
 sats/data/*
+!sats/data/akshare_datasets.py
 !sats/data/astock_provider.py
+!sats/data/akshare_provider.py
 !sats/data/provider_capabilities.py
 !sats/data/resolver.py
 !sats/data/tushare_provider.py

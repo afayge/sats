@@ -331,7 +331,10 @@ class ChatResearchRuntime:
                 item_type="llm",
                 item_name=f"iteration_{iteration}",
                 status="done",
-                payload={"tool_calls": [str(getattr(call, "name", "")) for call in tool_calls]},
+                payload={
+                    "tool_calls": [str(getattr(call, "name", "")) for call in tool_calls],
+                    **_runtime_model_meta(self.llm, settings=self.settings),
+                },
             )
             if not tool_calls:
                 return str(getattr(response, "content", "") or "").strip(), tool_call_count
@@ -724,6 +727,15 @@ def _tool_event_arguments(arguments: Any) -> Any:
 def _is_blocked_runtime_request(text: str) -> bool:
     blocked_terms = ("shell", "bash", "subprocess", "系统命令", "自动交易", "自动下单", "直接买入", "直接卖出")
     return any(term in text for term in blocked_terms)
+
+
+def _runtime_model_meta(llm: Any, *, settings: Settings) -> dict[str, str]:
+    return {
+        "phase": "runtime",
+        "model_policy": "standard",
+        "model_profile": str(getattr(llm, "profile", "") or "default"),
+        "model_name": str(getattr(llm, "model_name", "") or getattr(settings, "openai_model", "") or "LLM"),
+    }
 
 
 def _elapsed(started: float) -> float:

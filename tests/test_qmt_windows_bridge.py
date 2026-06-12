@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import tempfile
 import threading
 import unittest
 import urllib.error
@@ -23,6 +24,82 @@ _SPEC.loader.exec_module(qmt_windows_bridge)
 
 
 class QmtWindowsBridgeTest(unittest.TestCase):
+    def test_load_launch_config_reads_scripts_config_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = Path(tmp) / "qmt_windows_bridge.config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "host": "0.0.0.0",
+                        "port": 9001,
+                        "qmt_path": "C:/qmt/userdata_mini",
+                        "account_id": "acct-from-file",
+                        "account_type": "stock",
+                        "session_id": 7,
+                        "token": "file-token",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            launch = qmt_windows_bridge.load_launch_config(qmt_windows_bridge.parse_args([]), config_path=config_path)
+
+        self.assertEqual(launch.host, "0.0.0.0")
+        self.assertEqual(launch.port, 9001)
+        self.assertEqual(launch.token, "file-token")
+        self.assertEqual(launch.bridge.qmt_path, "C:/qmt/userdata_mini")
+        self.assertEqual(launch.bridge.account_id, "acct-from-file")
+        self.assertEqual(launch.bridge.account_type, "STOCK")
+        self.assertEqual(launch.bridge.session_id, 7)
+
+    def test_cli_values_override_config_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config_path = Path(tmp) / "qmt_windows_bridge.config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "host": "0.0.0.0",
+                        "port": 9001,
+                        "qmt_path": "C:/qmt/from-file",
+                        "account_id": "acct-from-file",
+                        "account_type": "STOCK",
+                        "session_id": 7,
+                        "token": "file-token",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            launch = qmt_windows_bridge.load_launch_config(
+                qmt_windows_bridge.parse_args(
+                    [
+                        "--host",
+                        "127.0.0.1",
+                        "--port",
+                        "8765",
+                        "--qmt-path",
+                        "C:/qmt/from-cli",
+                        "--account-id",
+                        "acct-from-cli",
+                        "--account-type",
+                        "CREDIT",
+                        "--session-id",
+                        "8",
+                        "--token",
+                        "cli-token",
+                    ]
+                ),
+                config_path=config_path,
+            )
+
+        self.assertEqual(launch.host, "127.0.0.1")
+        self.assertEqual(launch.port, 8765)
+        self.assertEqual(launch.token, "cli-token")
+        self.assertEqual(launch.bridge.qmt_path, "C:/qmt/from-cli")
+        self.assertEqual(launch.bridge.account_id, "acct-from-cli")
+        self.assertEqual(launch.bridge.account_type, "CREDIT")
+        self.assertEqual(launch.bridge.session_id, 8)
+
     def test_health_does_not_require_token(self) -> None:
         with _RunningBridge(token="secret") as bridge:
             payload = _request("GET", f"{bridge.base_url}/health")

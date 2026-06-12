@@ -8,6 +8,8 @@ from types import SimpleNamespace
 import pandas as pd
 
 from sats.data.astock_provider import AStockDataProvider
+from sats.data.akshare_datasets import AKSHARE_DATASETS, list_akshare_datasets
+from sats.data.akshare_provider import AkShareDataProvider
 from sats.data.limit_sentiment import classify_limit_sentiment_stage
 from sats.indicators import IndicatorInput
 from sats.storage.duckdb import DuckDBStorage
@@ -643,9 +645,66 @@ class AStockDataProviderTest(unittest.TestCase):
 
         tickflow = provider.load_provider_capabilities(provider="tickflow", realtime=True, compact=True)
         tushare = provider.load_provider_capabilities(provider="tushare", category="指数专题", compact=True)
+        akshare = provider.load_provider_capabilities(provider="akshare", category="数据字典", compact=True)
 
         self.assertIn("tickflow.realtime_quotes", {item["capability_id"] for item in tickflow})
         self.assertIn("tushare.index_member_all", {item["capability_id"] for item in tushare})
+        self.assertIn("akshare.dataset_catalog", {item["capability_id"] for item in akshare})
+
+    def test_akshare_dataset_catalog_lists_public_data_functions(self) -> None:
+        datasets = list_akshare_datasets(query="stock_zh_a_spot_em", compact=True)
+
+        self.assertIn("stock_zh_a_spot_em", AKSHARE_DATASETS)
+        self.assertNotIn("APIError", AKSHARE_DATASETS)
+        self.assertEqual(datasets[0]["dataset"], "stock_zh_a_spot_em")
+        self.assertIn("stock", datasets[0]["tags"])
+
+    def test_akshare_fetcher_normalizes_dataframe_and_limits_fields(self) -> None:
+        class FakeAkShare:
+            def stock_zh_a_spot_em(self):
+                return pd.DataFrame(
+                    [
+                        {"代码": "000001", "名称": "平安银行", "最新价": 10.5},
+                        {"代码": "600000", "名称": "浦发银行", "最新价": 9.5},
+                    ]
+                )
+
+        provider = AkShareDataProvider(ak_module=FakeAkShare())
+
+        payload = provider.fetch_akshare_dataset(
+            "stock_zh_a_spot_em",
+            fields=["代码", "最新价"],
+            limit=1,
+        )
+
+        self.assertEqual(payload["dataset"], "stock_zh_a_spot_em")
+        self.assertEqual(payload["columns"], ["代码", "最新价"])
+        self.assertEqual(payload["returned_row_count"], 1)
+        self.assertEqual(payload["row_count"], 2)
+        self.assertEqual(payload["rows"][0]["代码"], "000001")
+        self.assertEqual(payload["market_data_provenance"][0]["source"], "akshare")
+
+    def test_akshare_fetcher_rejects_unknown_and_unsafe_params(self) -> None:
+        provider = AkShareDataProvider(ak_module=SimpleNamespace(bond_cb_jsl=lambda cookie="": pd.DataFrame()))
+
+        with self.assertRaises(KeyError):
+            provider.fetch_akshare_dataset("not_a_dataset")
+        with self.assertRaises(ValueError):
+            provider.fetch_akshare_dataset("bond_cb_jsl", {"cookie": "secret"})
+
+    def test_astock_akshare_facade_returns_structured_unavailable(self) -> None:
+        provider = AStockDataProvider(
+            _settings(Path("sats.duckdb")),
+            tickflow_provider=_TickFlowBackend(),
+            tushare_provider=_TushareBackend(),
+        )
+        provider._akshare_failed = True
+
+        payload = provider.fetch_akshare_dataset("stock_zh_a_spot_em")
+
+        self.assertEqual(payload["data_source"], "unavailable")
+        self.assertEqual(payload["rows"], [])
+        self.assertIn("akshare:unavailable", payload["missing_fields"])
 
     def test_tushare_stock_dataset_facade_returns_structured_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

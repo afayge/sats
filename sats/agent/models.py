@@ -53,6 +53,10 @@ class AgentPlan:
     steps: tuple[AgentStep, ...] = ()
     risk_level: str = "medium"
     requires_live_trading: bool = False
+    phase: str = "planner"
+    model_policy: str = ""
+    model_profile: str = ""
+    model_name: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)

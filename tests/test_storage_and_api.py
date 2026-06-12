@@ -601,7 +601,11 @@ class StorageAndApiTest(unittest.TestCase):
             db = Path(tmp) / "sats.duckdb"
             stdout = io.StringIO()
 
-            with patch("sats.cli.AStockDataProvider", FakeQuoteProvider), redirect_stdout(stdout):
+            with (
+                patch("sats.cli.AStockDataProvider", FakeQuoteProvider),
+                patch("sats.cli.load_stock_basic_frame", return_value=pd.DataFrame()),
+                redirect_stdout(stdout),
+            ):
                 exit_code = main(["quote", "--stocks", "000001,600519", "--db", str(db)])
 
             self.assertEqual(exit_code, 0)
@@ -1316,6 +1320,12 @@ class StorageAndApiTest(unittest.TestCase):
 
         with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
             parser.parse_args(["screen", "--trade-date", "20260430", "--symbols", "000001.SZ"])
+
+        with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
+            parser.parse_args(["indicators", "--symbols", "000001.SZ"])
+
+        with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
+            parser.parse_args(["factor", "analyze", "--factor", "barra_style_value", "--symbols", "000001.SZ"])
 
 
 if __name__ == "__main__":

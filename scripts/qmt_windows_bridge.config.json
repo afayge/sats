@@ -1,0 +1,9 @@
+{
+  "host": "127.0.0.1",
+  "port": 8765,
+  "qmt_path": "C:\\国金QMT\\userdata_mini",
+  "account_id": "",
+  "account_type": "STOCK",
+  "session_id": 0,
+  "token": ""
+}

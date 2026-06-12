@@ -21,7 +21,7 @@ from sats.chat_components import (
     synthesize_chat_response,
 )
 from sats.config import Settings, load_settings
-from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm
+from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm, build_standard_llm
 from sats.memory import ChatMemoryStore, MemoryExtractor, MemoryRecord, MemoryRetriever
 from sats.natural_output import build_output_semantic_lexicon, normalize_natural_markdown, render_natural_output
 from sats.skills import Skill, default_skills_dir, find_skill, load_skills, match_skills, skill_summaries
@@ -139,6 +139,7 @@ class ChatSession:
         self.history: list[dict[str, str]] = []
         self._history_loaded = False
         self._llm: Any | None = None
+        self._standard_llm: Any | None = None
         self._light_llm: Any | None = None
         self._memory_lock = threading.Lock()
         self._last_stock_question: StockQuestion | None = None
@@ -284,7 +285,7 @@ class ChatSession:
                     settings=self.settings,
                     store=store,
                     recorder=recorder,
-                    llm=self._light_llm_client(),
+                    llm=self._llm_client(),
                     tool_registry=ChatToolRegistry(self.skills, self.settings),
                     max_iterations=self.max_tool_iterations,
                 )
@@ -330,12 +331,18 @@ class ChatSession:
                     trade_date=plan_trade_date,
                     data_names=result.data_names,
                     skill_names=result.skill_names,
-                    model_name=_light_model_name(self.settings),
+                    model_name=_main_model_name(self.settings),
                     tool_call_count=result.tool_call_count,
                     user_message_id=user_message_id,
                     assistant_message_id=assistant_message_id,
                     duration_seconds=max(0.0, time.monotonic() - started_at),
-                    meta={"runtime_plan": runtime_result.plan.to_dict()},
+                    meta={
+                        "runtime_plan": runtime_result.plan.to_dict(),
+                        "phase": "runtime",
+                        "model_policy": "standard",
+                        "model_profile": "default",
+                        "model_name": _main_model_name(self.settings),
+                    },
                 )
                 return result
             evidence = collect_chat_evidence(
@@ -417,12 +424,19 @@ class ChatSession:
                 trade_date=evidence.completion_trade_date or plan_trade_date,
                 data_names=result.data_names,
                 skill_names=result.skill_names,
-                model_name=_light_model_name(self.settings),
+                model_name=synthesis.model_name or _main_model_name(self.settings),
                 tool_call_count=tool_call_count,
                 user_message_id=user_message_id,
                 assistant_message_id=assistant_message_id,
                 duration_seconds=max(0.0, time.monotonic() - started_at),
-                meta={"route": route.to_dict(), "evidence": evidence.to_dict()},
+                meta={
+                    "route": route.to_dict(),
+                    "evidence": evidence.to_dict(),
+                    "phase": synthesis.phase,
+                    "model_policy": synthesis.model_policy,
+                    "model_profile": synthesis.model_profile,
+                    "model_name": synthesis.model_name,
+                },
             )
             return result
         except KeyboardInterrupt as exc:
@@ -438,13 +452,14 @@ class ChatSession:
         return ChatResult(content=content, skill_names=(), data_names=data_names)
 
     def _llm_client(self) -> Any:
-        if self._llm is None:
-            self._llm = _create_llm(
+        if self._standard_llm is None:
+            self._standard_llm = build_standard_llm(
                 self.llm_factory,
-                _main_model_name(self.settings),
-                profile="default",
+                model_name=_main_model_name(self.settings),
+                timeout_seconds=_llm_timeout_seconds(self.settings),
             )
-        return self._llm
+        self._llm = self._standard_llm
+        return self._standard_llm
 
     def _light_llm_client(self) -> Any:
         if self._light_llm is None:
@@ -462,21 +477,26 @@ class ChatSession:
         *,
         progress: Any | None = None,
         event_recorder: ChatTurnRecorder | None = None,
-    ) -> tuple[Any, int]:
+    ) -> tuple[Any, int, dict[str, str]]:
         llm = self._light_llm_client()
         self._llm = llm
         model_name = _light_model_name(self.settings)
         if not self.tools_enabled:
             try:
                 if progress is None:
-                    return llm.chat(messages), 0
+                    response = llm.chat(messages)
+                    return response, 0, _chat_model_meta(llm, settings=self.settings, policy="light")
                 with progress.step(f"{model_name} LLM") as step:
                     response = llm.chat(messages)
                     step.complete()
-                return response, 0
+                return response, 0, _chat_model_meta(llm, settings=self.settings, policy="light")
             except Exception as exc:
                 if _is_timeout_exception(exc):
-                    return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), 0
+                    return (
+                        LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))),
+                        0,
+                        _chat_model_meta(llm, settings=self.settings, policy="light"),
+                    )
                 raise
         registry = ChatToolRegistry(self.skills, self.settings)
         definitions = registry.definitions()
@@ -489,20 +509,25 @@ class ChatSession:
                     step.complete()
         except TypeError:
             if progress is None:
-                return llm.chat(messages), 0
+                response = llm.chat(messages)
+                return response, 0, _chat_model_meta(llm, settings=self.settings, policy="light")
             with progress.step(f"{model_name} LLM") as step:
                 response = llm.chat(messages)
                 step.complete()
-            return response, 0
+            return response, 0, _chat_model_meta(llm, settings=self.settings, policy="light")
         except Exception as exc:
             if _is_timeout_exception(exc):
-                return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), 0
+                return (
+                    LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))),
+                    0,
+                    _chat_model_meta(llm, settings=self.settings, policy="light"),
+                )
             raise
         tool_call_count = 0
         for _ in range(self.max_tool_iterations):
             tool_calls = getattr(response, "tool_calls", None) or []
             if not tool_calls:
-                return response, tool_call_count
+                return response, tool_call_count, _chat_model_meta(llm, settings=self.settings, policy="light")
             messages.append(_assistant_tool_call_message(response))
             for call in tool_calls:
                 tool_call_count += 1
@@ -543,7 +568,11 @@ class ChatSession:
                     response = llm.chat(messages, tools=definitions)
                 except Exception as exc:
                     if _is_timeout_exception(exc):
-                        return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), tool_call_count
+                        return (
+                            LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))),
+                            tool_call_count,
+                            _chat_model_meta(llm, settings=self.settings, policy="light"),
+                        )
                     raise
             else:
                 with progress.step(f"{model_name} LLM") as step:
@@ -552,12 +581,16 @@ class ChatSession:
                     except Exception as exc:
                         if _is_timeout_exception(exc):
                             step.complete(message="Request timed out.")
-                            return LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))), tool_call_count
+                            return (
+                                LLMResponse(content=_timeout_message(_timeout_model_name(self.settings))),
+                                tool_call_count,
+                                _chat_model_meta(llm, settings=self.settings, policy="light"),
+                            )
                         raise
                     step.complete()
         if not str(getattr(response, "content", "") or "").strip():
             response.content = "工具调用已达到上限，请缩小问题范围后重试。"
-        return response, tool_call_count
+        return response, tool_call_count, _chat_model_meta(llm, settings=self.settings, policy="light")
 
     def _append_history(self, role: str, content: str) -> None:
         if self.max_history_messages <= 0:
@@ -1147,6 +1180,17 @@ def _light_model_name(settings: Settings) -> str:
     return str(getattr(settings, "light_model_name", "") or getattr(settings, "openai_model", "") or "LLM")
 
 
+def _chat_model_meta(llm: Any, *, settings: Settings, policy: str) -> dict[str, str]:
+    fallback_profile = "default" if policy == "standard" else "light"
+    fallback_model = _main_model_name(settings) if policy == "standard" else _light_model_name(settings)
+    return {
+        "phase": "synthesis",
+        "model_policy": policy,
+        "model_profile": str(getattr(llm, "last_profile", "") or getattr(llm, "profile", "") or fallback_profile),
+        "model_name": str(getattr(llm, "last_model_name", "") or getattr(llm, "model_name", "") or fallback_model),
+    }
+
+
 def _timeout_model_name(settings: Settings) -> str:
     light = _light_model_name(settings)
     main = _main_model_name(settings)
@@ -1195,16 +1239,66 @@ def _tushare_chat_tool_definitions() -> list[dict[str, Any]]:
             "type": "function",
             "function": {
                 "name": "list_provider_capabilities",
-                "description": "列出 SATS 已接入的 Tushare/TickFlow 数据能力目录，说明可用场景、入参、输出字段和推荐工具。只读，不写库、不交易。",
+                "description": "列出 SATS 已接入的 TickFlow/Tushare/AkShare 数据能力目录，说明可用场景、入参、输出字段和推荐工具。只读，不写库、不交易。",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "provider": {"type": "string", "description": "可选 provider：tushare 或 tickflow"},
+                        "provider": {"type": "string", "description": "可选 provider：tickflow、tushare 或 akshare"},
                         "category": {"type": "string", "description": "可选能力分类关键词，如 行情、财务、资金流、分钟K、实时"},
                         "realtime": {"type": "boolean", "description": "可选：true 仅实时能力，false 仅非实时能力"},
                         "compact": {"type": "boolean", "description": "是否返回压缩字段摘要，默认 false"},
                     },
                     "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "list_akshare_datasets",
+                "description": "列出 SATS 白名单 AkShare 全量数据字典接口；用于先发现 dataset，再描述或取数。只读，不写库、不交易。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "domain": {"type": "string", "description": "可选领域，如 股票数据、期货数据、宏观经济、基金数据"},
+                        "category": {"type": "string", "description": "可选分类关键词，如 A股、期货、指数、债券"},
+                        "tags": {"type": "array", "items": {"type": "string"}, "description": "可选标签过滤，如 stock、futures、macro、realtime"},
+                        "query": {"type": "string", "description": "按 dataset、分类、标签、入参关键词搜索"},
+                        "realtime": {"type": "boolean", "description": "可选：true 仅实时接口，false 仅非实时接口"},
+                        "compact": {"type": "boolean", "description": "是否返回压缩字段摘要，默认 true"},
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "describe_akshare_dataset",
+                "description": "查看一个 AkShare 白名单 dataset 的分类、标签、入参和文档来源。只读，不写库、不交易。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "dataset": {"type": "string", "description": "AkShare dataset id，例如 stock_zh_a_spot_em"},
+                    },
+                    "required": ["dataset"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_akshare_data",
+                "description": "按 AkShare 白名单 dataset 获取结构化数据。只读，不写库、不交易；参数必须为 JSON 安全值。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "dataset": {"type": "string", "description": "AkShare dataset id，例如 stock_zh_a_spot_em"},
+                        "params": {"type": "object", "description": "AkShare 入参，仅允许该 dataset 声明的参数"},
+                        "fields": {"type": "array", "items": {"type": "string"}, "description": "可选字段列表，最多保留 30 个"},
+                        "limit": {"type": "integer", "description": "最多返回行数，默认 200，最大 1000"},
+                    },
+                    "required": ["dataset"],
                 },
             },
         },
@@ -1333,6 +1427,10 @@ class ChatToolRegistry:
             metadata.update({"repeatable": True, "category": "skill", "max_result_chars": 12000})
         elif tool_name.startswith("get_tushare"):
             metadata.update({"repeatable": True, "category": "market_data", "max_result_chars": 8000})
+        elif tool_name.startswith("get_akshare"):
+            metadata.update({"repeatable": True, "category": "market_data", "max_result_chars": 8000})
+        elif tool_name.startswith("describe_akshare"):
+            metadata.update({"repeatable": True, "category": "catalog", "max_result_chars": 5000})
         elif tool_name == "get_a_share_market_context":
             metadata.update({"repeatable": True, "category": "market_context", "max_result_chars": 8000})
         elif tool_name == "get_stock_research_context":
@@ -1387,6 +1485,36 @@ class ChatToolRegistry:
                 compact=bool(arguments.get("compact", False)),
             )
             return json.dumps({"status": "ok", "capabilities": capabilities}, ensure_ascii=False)
+        if name == "list_akshare_datasets":
+            provider = AStockDataProvider(self.settings)
+            datasets = provider.list_akshare_datasets(
+                domain=str(arguments.get("domain") or "").strip() or None,
+                category=str(arguments.get("category") or "").strip() or None,
+                tags=arguments.get("tags") if isinstance(arguments.get("tags"), list) else None,
+                query=str(arguments.get("query") or "").strip() or None,
+                realtime=arguments.get("realtime") if isinstance(arguments.get("realtime"), bool) else None,
+                compact=bool(arguments.get("compact", True)),
+            )
+            return json.dumps({"status": "ok", "datasets": datasets}, ensure_ascii=False)
+        if name == "describe_akshare_dataset":
+            try:
+                provider = AStockDataProvider(self.settings)
+                payload = provider.describe_akshare_dataset(str(arguments.get("dataset") or "").strip())
+            except Exception as exc:
+                return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
+            return json.dumps({"status": "ok", "dataset": payload}, ensure_ascii=False)
+        if name == "get_akshare_data":
+            try:
+                provider = AStockDataProvider(self.settings)
+                payload = provider.fetch_akshare_dataset(
+                    str(arguments.get("dataset") or "").strip(),
+                    arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+                    fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+                    limit=int(arguments.get("limit") or 200),
+                )
+            except Exception as exc:
+                return json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False)
+            return json.dumps({"status": "ok", "akshare_data": payload}, ensure_ascii=False)
         if name == "list_skills":
             return json.dumps({"status": "ok", "skills": skill_summaries(self.skills)}, ensure_ascii=False)
         if name == "load_skill":

@@ -5,7 +5,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from sats.llm.chat import ChatLLM, build_light_fallback_llm
+from sats.llm.chat import ChatLLM, build_light_fallback_llm, build_standard_llm
 from sats.llm.provider import _sync_provider_env, build_llm, extract_json_object
 import sats.llm.provider as provider_mod
 
@@ -276,6 +276,8 @@ class LLMFactoryTest(unittest.TestCase):
         self.assertEqual([call["profile"] for call in factory_calls], ["light", "default"])
         self.assertEqual([call["profile"] for call in chat_calls], ["light", "default"])
         self.assertEqual(chat_calls[-1]["timeout"], 3)
+        self.assertEqual(llm.last_profile, "default")
+        self.assertEqual(llm.last_model_name, "main-model")
 
     def test_light_fallback_llm_does_not_build_default_when_light_succeeds(self) -> None:
         factory_calls = []
@@ -293,6 +295,19 @@ class LLMFactoryTest(unittest.TestCase):
 
         self.assertEqual(response.content, "light")
         self.assertEqual(factory_calls, ["light"])
+        self.assertEqual(llm.last_profile, "light")
+        self.assertEqual(llm.last_model_name, "light-model")
+
+    def test_build_standard_llm_uses_default_profile(self) -> None:
+        factory_calls = []
+
+        class FakeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None) -> None:
+                factory_calls.append({"model_name": model_name, "profile": profile, "timeout_seconds": timeout_seconds})
+
+        build_standard_llm(FakeLLM, model_name="main-model", timeout_seconds=9)
+
+        self.assertEqual(factory_calls, [{"model_name": "main-model", "profile": "default", "timeout_seconds": 9}])
 
     def test_light_fallback_llm_reraises_default_error(self) -> None:
         class FakeLLM:

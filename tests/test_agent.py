@@ -653,6 +653,17 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(plan.steps[0].arguments["keyword"], "贵州茅台")
         self.assertEqual(plan.steps[0].arguments["platforms"], ["xueqiu_spot"])
 
+    def test_fallback_planner_routes_explicit_akshare_dataset(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("用 AkShare 查询 stock_zh_a_spot_em 数据", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        tools = [step.tool_name for step in plan.steps if step.kind == "tool"]
+
+        self.assertEqual(tools, ["data.describe_akshare_dataset", "data.get_akshare_data"])
+        self.assertEqual(plan.steps[0].arguments["dataset"], "stock_zh_a_spot_em")
+        self.assertEqual(plan.steps[1].arguments["dataset"], "stock_zh_a_spot_em")
+
     def test_llm_stock_plan_is_augmented_with_indicators_only(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
@@ -1072,6 +1083,62 @@ class AgentTest(unittest.TestCase):
             self.assertIn("sats skills", result.content)
             self.assertNotIn("[done]", result.content)
 
+    def test_agent_runtime_replans_after_akshare_catalog_lookup(self) -> None:
+        class CatalogReplanLLM:
+            calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                CatalogReplanLLM.calls += 1
+                if CatalogReplanLLM.calls == 1:
+                    return LLMResponse(
+                        content=(
+                            '{"objective":"akshare catalog","steps":['
+                            '{"step_id":"catalog","kind":"tool","title":"catalog","tool_name":"data.list_akshare_datasets",'
+                            '"arguments":{"query":"cpi","compact":true}},'
+                            '{"step_id":"final","kind":"final","title":"summary"}]}'
+                        )
+                    )
+                if CatalogReplanLLM.calls == 2:
+                    return LLMResponse(
+                        content=(
+                            '{"objective":"akshare fetch","steps":['
+                            '{"step_id":"fetch","kind":"tool","title":"fetch","tool_name":"data.get_akshare_data",'
+                            '"arguments":{"dataset":"macro_china_cpi","params":{},"limit":1}},'
+                            '{"step_id":"final","kind":"final","title":"summary"}]}'
+                        )
+                    )
+                return LLMResponse(content="已获取 AkShare 数据")
+
+        class DatasetProvider:
+            def list_akshare_datasets(self, **kwargs):
+                return [{"dataset": "macro_china_cpi", "domain": "宏观经济", "query": kwargs.get("query")}]
+
+            def fetch_akshare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "params": params or {},
+                    "columns": ["date", "value"],
+                    "rows": [{"date": "2026-05", "value": 1.2}],
+                    "row_count": 1,
+                    "returned_row_count": 1,
+                    "data_source": f"akshare_{dataset}",
+                    "missing_fields": [],
+                    "market_data_provenance": [{"dataset": dataset, "source": "akshare"}],
+                }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            CatalogReplanLLM.calls = 0
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp), openai_model="m", llm_timeout_seconds=10)
+            with patch("sats.agent.tools.data_tools.AStockDataProvider", return_value=DatasetProvider()):
+                result = run_agent_once("用 AkShare 获取 CPI 数据", settings=settings, llm_factory=CatalogReplanLLM)
+
+        self.assertEqual(CatalogReplanLLM.calls, 3)
+        self.assertEqual(result.tool_call_count, 2)
+        self.assertIn("已获取 AkShare 数据", result.content)
+
     def test_tool_registry_lists_core_capabilities_and_guards_market_literals(self) -> None:
         registry = build_default_tool_registry()
         names = set(registry.names())
@@ -1094,6 +1161,32 @@ class AgentTest(unittest.TestCase):
 
         self.assertEqual(rejected.status, "error")
         self.assertIn("market data guard", rejected.content)
+
+    def test_factor_tool_uses_stocks_cli_flag(self) -> None:
+        registry = build_default_tool_registry()
+        calls: list[list[str]] = []
+
+        def run(argv):
+            calls.append(list(argv))
+            return SimpleNamespace(returncode=0, output="ok", argv=list(argv), status="done")
+
+        context = AgentToolContext(
+            settings=SimpleNamespace(),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(run=run),
+            trader=SimpleNamespace(),
+        )
+
+        result = registry.execute(
+            "factor.analyze",
+            {"factor": "barra_style_value", "symbols": "000001,600519", "noreport": True},
+            context,
+        )
+
+        self.assertEqual(result.status, "done")
+        self.assertEqual(calls[0], ["factor", "analyze", "--factor", "barra_style_value", "--stocks", "000001,600519", "--noreport"])
 
     def test_web_tool_keeps_external_failure_as_structured_evidence_gap(self) -> None:
         registry = build_default_tool_registry()
@@ -1146,10 +1239,55 @@ class AgentTest(unittest.TestCase):
         capability_ids = {item["capability_id"] for item in payload["data_capabilities"]}
 
         self.assertIn("data.list_provider_capabilities", tool_names)
+        self.assertIn("data.list_akshare_datasets", tool_names)
+        self.assertIn("data.describe_akshare_dataset", tool_names)
+        self.assertIn("data.get_akshare_data", tool_names)
         self.assertIn("tushare.index_member_all", capability_ids)
         self.assertIn("tushare.margin_detail", capability_ids)
         self.assertIn("tickflow.realtime_quotes", capability_ids)
         self.assertIn("tickflow.market_depth", capability_ids)
+        self.assertIn("akshare.dataset_catalog", capability_ids)
+
+    def test_tool_registry_can_call_akshare_catalog_tools(self) -> None:
+        class DatasetProvider:
+            def list_akshare_datasets(self, **kwargs):
+                return [{"dataset": "stock_zh_a_spot_em", "query": kwargs.get("query")}]
+
+            def describe_akshare_dataset(self, dataset):
+                return {"dataset": dataset, "input_fields": []}
+
+            def fetch_akshare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "params": params or {},
+                    "columns": fields or ["代码"],
+                    "rows": [{"代码": "000001"}],
+                    "row_count": 1,
+                    "returned_row_count": 1,
+                    "data_source": f"akshare_{dataset}",
+                    "missing_fields": [],
+                    "market_data_provenance": [{"dataset": dataset, "source": "akshare"}],
+                }
+
+        registry = build_default_tool_registry()
+        context = AgentToolContext(
+            settings=SimpleNamespace(),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+        )
+
+        with patch("sats.agent.tools.data_tools.AStockDataProvider", return_value=DatasetProvider()):
+            listed = registry.execute("data.list_akshare_datasets", {"query": "spot", "compact": True}, context)
+            described = registry.execute("data.describe_akshare_dataset", {"dataset": "stock_zh_a_spot_em"}, context)
+            fetched = registry.execute("data.get_akshare_data", {"dataset": "stock_zh_a_spot_em", "fields": ["代码"], "limit": 1}, context)
+
+        self.assertEqual(listed.status, "done")
+        self.assertEqual(listed.payload["datasets"][0]["dataset"], "stock_zh_a_spot_em")
+        self.assertEqual(described.payload["dataset"]["dataset"], "stock_zh_a_spot_em")
+        self.assertEqual(fetched.payload["akshare_data"]["data_source"], "akshare_stock_zh_a_spot_em")
 
     def test_llm_planner_can_choose_tushare_dataset_from_capability_context(self) -> None:
         class CapabilityPlannerLLM:

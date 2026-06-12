@@ -180,6 +180,55 @@ def data_tool_specs() -> list[AgentToolSpec]:
             ),
             executor=_get_tushare_stock_data,
         ),
+        AgentToolSpec(
+            name="data.list_akshare_datasets",
+            description="列出 SATS 白名单 AkShare 全量数据字典接口；只读，不写 DuckDB。",
+            category="data_catalog",
+            side_effect="readonly",
+            timeout=20,
+            input_schema=object_schema(
+                {
+                    "domain": {"type": "string"},
+                    "category": {"type": "string"},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "query": {"type": "string"},
+                    "realtime": {"type": "boolean"},
+                    "compact": {"type": "boolean"},
+                }
+            ),
+            executor=_list_akshare_datasets,
+        ),
+        AgentToolSpec(
+            name="data.describe_akshare_dataset",
+            description="查看一个 AkShare 白名单 dataset 的入参、分类和取数元信息；只读。",
+            category="data_catalog",
+            side_effect="readonly",
+            timeout=20,
+            input_schema=object_schema(
+                {
+                    "dataset": {"type": "string"},
+                },
+                ["dataset"],
+            ),
+            executor=_describe_akshare_dataset,
+        ),
+        AgentToolSpec(
+            name="data.get_akshare_data",
+            description="按 AkShare 白名单 dataset 取数；只读、不写库，参数必须为 JSON 安全值。",
+            category="data",
+            side_effect="readonly",
+            timeout=60,
+            input_schema=object_schema(
+                {
+                    "dataset": {"type": "string"},
+                    "params": {"type": "object"},
+                    "fields": {"type": "array", "items": {"type": "string"}},
+                    "limit": {"type": "integer"},
+                },
+                ["dataset"],
+            ),
+            executor=_get_akshare_data,
+        ),
     ]
 
 
@@ -302,6 +351,36 @@ def _get_tushare_stock_data(context: AgentToolContext, arguments: dict[str, Any]
         limit=int(arguments.get("limit") or 200),
     )
     return ok("loaded Tushare stock dataset", payload={"tushare_stock_data": payload}, data_names=("Tushare 股票数据",))
+
+
+def _list_akshare_datasets(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    datasets = provider.list_akshare_datasets(
+        domain=str(arguments.get("domain") or "").strip() or None,
+        category=str(arguments.get("category") or "").strip() or None,
+        tags=arguments.get("tags") if isinstance(arguments.get("tags"), list) else None,
+        query=str(arguments.get("query") or "").strip() or None,
+        realtime=arguments.get("realtime") if isinstance(arguments.get("realtime"), bool) else None,
+        compact=bool(arguments.get("compact", True)),
+    )
+    return ok(f"listed {len(datasets)} AkShare datasets", payload={"datasets": datasets}, data_names=("AkShare 数据字典",))
+
+
+def _describe_akshare_dataset(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    payload = provider.describe_akshare_dataset(str(arguments.get("dataset") or "").strip())
+    return ok("described AkShare dataset", payload={"dataset": payload}, data_names=("AkShare 数据字典",))
+
+
+def _get_akshare_data(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    payload = provider.fetch_akshare_dataset(
+        str(arguments.get("dataset") or "").strip(),
+        arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+        limit=int(arguments.get("limit") or 200),
+    )
+    return ok("loaded AkShare dataset", payload={"akshare_data": payload}, data_names=("AkShare 数据",))
 
 
 def _frame_result(name: str, frame: Any, *, include_rows: bool = False) -> AgentToolResult:

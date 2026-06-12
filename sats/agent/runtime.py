@@ -95,6 +95,7 @@ def run_agent_once(
         index = 0
         iteration = 0
         replanned = False
+        catalog_replanned = False
         while index < len(steps) and iteration < max(1, policy.max_iterations):
             step = steps[index]
             index += 1
@@ -162,6 +163,32 @@ def run_agent_once(
                         payload=replan.to_dict(),
                     )
                     steps = steps[:index] + replacement + [AgentStep(step_id="final", kind="final", title="总结结果")]
+            if (
+                observation.status == "done"
+                and not catalog_replanned
+                and llm_factory is not None
+                and _should_replan_after_catalog(message, step, steps[index:])
+            ):
+                catalog_replanned = True
+                replan = build_agent_plan(
+                    _catalog_replan_request(message, observations),
+                    settings=settings,
+                    policy=policy,
+                    llm_factory=llm_factory,
+                    tool_registry=tool_registry,
+                    policy_message=message,
+                )
+                replacement = [item for item in replan.steps if item.kind != "final"]
+                if replacement:
+                    recorder.emit(
+                        "replan_ready",
+                        item_type="plan",
+                        item_name="agent_catalog_replan",
+                        status="done",
+                        content=replan.objective,
+                        payload=replan.to_dict(),
+                    )
+                    steps = steps[:index] + replacement + [AgentStep(step_id="final", kind="final", title="总结结果")]
         if iteration >= policy.max_iterations and (
             not observations or observations[-1].step_id not in {"max_iterations", "repeated_error"} and observations[-1].kind != "final"
         ):
@@ -190,7 +217,14 @@ def run_agent_once(
             item_name="final_synthesis",
             status="done",
             content=content,
-            payload={"used_llm": synthesis.used_llm, "skills": list(synthesis.skill_names)},
+            payload={
+                "used_llm": synthesis.used_llm,
+                "skills": list(synthesis.skill_names),
+                "phase": synthesis.phase,
+                "model_policy": synthesis.model_policy,
+                "model_profile": synthesis.model_profile,
+                "model_name": synthesis.model_name,
+            },
             duration_seconds=max(0.0, time.monotonic() - synthesis_started),
         )
         artifacts = list(_artifacts(observations))
@@ -232,13 +266,21 @@ def run_agent_once(
             content=content,
             intent="agent",
             data_names=result.data_names,
-            model_name=getattr(settings, "openai_model", ""),
+            model_name=synthesis.model_name or getattr(settings, "openai_model", ""),
             tool_call_count=result.tool_call_count,
             duration_seconds=max(0.0, time.monotonic() - started),
             meta={
                 "agent_plan": plan.to_dict(),
                 "observations": [item.to_dict() for item in observations],
-                "synthesis": {"used_llm": synthesis.used_llm, "skills": list(synthesis.skill_names), "messages": list(synthesis.messages)},
+                "synthesis": {
+                    "used_llm": synthesis.used_llm,
+                    "skills": list(synthesis.skill_names),
+                    "messages": list(synthesis.messages),
+                    "phase": synthesis.phase,
+                    "model_policy": synthesis.model_policy,
+                    "model_profile": synthesis.model_profile,
+                    "model_name": synthesis.model_name,
+                },
             },
         )
         return result
@@ -364,6 +406,27 @@ def _replan_request(message: str, observations: list[AgentObservation]) -> str:
         "输出新的严格 JSON plan，只包含后续替代步骤或 final。不要重复已经成功的步骤。"
         f"\n原目标：{message}\nobservations={json.dumps([item.to_dict() for item in observations], ensure_ascii=False, default=str)}"
     )
+
+
+def _catalog_replan_request(message: str, observations: list[AgentObservation]) -> str:
+    return (
+        "这是一次 SATS Agent catalog replan。你刚刚拿到了 AkShare 数据字典 observation。"
+        "如果原目标需要真实数据，请从 observation 中选择最匹配的 dataset，规划 data.describe_akshare_dataset 或 data.get_akshare_data；"
+        "如果只是询问接口清单，则直接 final。不要编造未出现在 catalog 的 dataset。"
+        f"\n原目标：{message}\nobservations={json.dumps([item.to_dict() for item in observations], ensure_ascii=False, default=str)}"
+    )
+
+
+def _should_replan_after_catalog(message: str, step: AgentStep, remaining_steps: list[AgentStep]) -> bool:
+    if step.kind != "tool" or step.tool_name not in {"data.list_akshare_datasets", "data.describe_akshare_dataset"}:
+        return False
+    if any(item.kind == "tool" and item.tool_name == "data.get_akshare_data" for item in remaining_steps):
+        return False
+    text = str(message or "")
+    if any(term in text for term in ("有哪些", "列出", "清单", "目录")) and not any(term in text for term in ("获取", "取数", "查询数据", "分析")):
+        return False
+    lowered = text.lower()
+    return any(term in lowered for term in ("akshare", "ak share")) or any(term in text for term in ("数据", "行情", "指标", "分析", "查询", "获取", "取数"))
 
 
 def _is_repeated_error(observations: list[AgentObservation]) -> bool:

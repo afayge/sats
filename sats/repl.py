@@ -33,6 +33,7 @@ from sats.history import InteractionHistoryStore
 from sats.memory import ChatMemoryStore
 from sats.output_saver import CapturedOutput, SaveRequest, extract_report_path, parse_save_request, save_captured_output
 from sats.progress import create_progress
+from sats.storage import DuckDBStorage
 from sats.stock_question import extract_stock_symbols
 
 CLI_COMMANDS = [
@@ -122,7 +123,7 @@ HELP_EXAMPLES = [
     ("/analyze-dsa --stocks 000001,600519", "分析股票"),
     ("/analyze-chan --stocks 000001 --chan-rule chan-signals", "缠论指定股票分析"),
     ("/discover --limit 5", "短线机会发现"),
-    ("/indicators --symbols 000001.SZ --trade-date 20260514", "计算技术指标"),
+    ("/indicators --stocks 000001.SZ --trade-date 20260514", "计算技术指标"),
     ("/factor list --zoo barra_style", "查看 Barra 风格近似因子"),
     ("/factor pick --profile balanced --trade-date 20260514 --top 20", "默认画像多因子选股"),
     ("/factor pick --factors barra_style_value,barra_style_quality --trade-date 20260514 --top 20", "多因子选股"),
@@ -244,7 +245,7 @@ COMPLETION_DESCRIPTIONS = {
     "--chan-rule": "缠论规则名",
     "--passed": "只显示通过结果",
     "--db": "DuckDB 路径",
-    "--symbols": "股票代码或名称列表",
+    "--symbol": "单只股票代码或名称",
     "--stocks": "指定股票代码或名称列表",
     "--from-screened": "使用筛选结果",
     "--signals": "信号策略列表",
@@ -400,6 +401,8 @@ class ReplState:
     last_stock_output: CapturedOutput | None = None
     started_at: float = field(default_factory=lambda: time.monotonic())
     last_duration_seconds: float | None = None
+    status_bar_cache: str = ""
+    status_bar_cache_at: float = 0.0
     session_id: str = "repl"
     history_store: InteractionHistoryStore | None = None
     chat_session: ChatSession | None = None
@@ -695,10 +698,43 @@ def _status_toolbar(settings, state: ReplState) -> Callable[[], FormattedText]:
         model = str(getattr(settings, "openai_model", "") or "LLM")
         elapsed = _format_duration(time.monotonic() - state.started_at)
         last = _format_duration(state.last_duration_seconds) if state.last_duration_seconds is not None else "--"
-        text = f" {provider}:{model}  ｜  {elapsed}  ｜  Last：{last}"
+        left = f"  {provider}:{model}  ｜  {elapsed}  ｜  Last：{last}"
+        right = f"{_runtime_status_bar(settings, state)}  "
+        text = _align_status_toolbar(left, right, terminal_width=shutil.get_terminal_size().columns)
         return FormattedText([("class:bottom-toolbar.text", text)])
 
     return toolbar
+
+
+def _align_status_toolbar(left: str, right: str, *, terminal_width: int) -> str:
+    gap = terminal_width - get_cwidth(left) - get_cwidth(right)
+    if gap >= 1:
+        return f"{left}{' ' * gap}{right}"
+    return f"{left}  ｜  {right}"
+
+
+def _runtime_status_bar(settings, state: ReplState) -> str:
+    now = time.monotonic()
+    if state.status_bar_cache and now - state.status_bar_cache_at < 5.0:
+        return state.status_bar_cache
+    try:
+        storage = DuckDBStorage(getattr(settings, "db_path"))
+        monitor_runtime = storage.get_monitor_runtime("monitor")
+        monitor_status = "run" if str(monitor_runtime.get("status") or "").lower() == "running" else "stop"
+        tasks = storage.list_scheduled_tasks()
+        enabled_count = sum(1 for task in tasks if task.get("enabled"))
+        status = f"monitor:{monitor_status} ｜ schedule:{enabled_count}/{len(tasks)}"
+    except Exception:
+        status = "monitor:stop ｜ schedule:0/0"
+    state.status_bar_cache = status
+    state.status_bar_cache_at = now
+    return status
+
+
+def _refresh_runtime_status_bar(state: ReplState, command: str) -> None:
+    if command in {"monitor", "schedule"}:
+        state.status_bar_cache = ""
+        state.status_bar_cache_at = 0.0
 
 
 def _provider_label(provider: str) -> str:
@@ -1050,6 +1086,7 @@ def handle_repl_line(
             tee.flush()
             output = buffer.getvalue().rstrip()
             _remember_output(state, output, request=text, source=f"/{command}")
+        _refresh_runtime_status_bar(state, command)
         if record_command:
             report_path = extract_report_path(output)
             _record_interaction_history(

@@ -114,7 +114,7 @@ def _factor_analyze(context: AgentToolContext, arguments: dict[str, Any]) -> Age
     _add(argv, "--lookback-days", arguments.get("lookback_days"))
     _add(argv, "--horizon", arguments.get("horizon"))
     _add(argv, "--groups", arguments.get("groups"))
-    _add(argv, "--symbols", arguments.get("symbols"))
+    _add(argv, "--stocks", arguments.get("symbols"))
     _flag(argv, "--json", arguments.get("json"))
     _flag(argv, "--noreport", arguments.get("noreport"))
     return _run(context, argv, "因子分析")

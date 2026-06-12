@@ -115,6 +115,70 @@ class AStockDataProvider(MarketDataProvider):
             compact=compact,
         )
 
+    def list_akshare_datasets(
+        self,
+        *,
+        domain: str | None = None,
+        category: str | None = None,
+        tags: list[str] | tuple[str, ...] | str | None = None,
+        query: str | None = None,
+        realtime: bool | None = None,
+        compact: bool = False,
+    ) -> list[dict[str, Any]]:
+        ak = self.akshare
+        if ak is not None and hasattr(ak, "list_akshare_datasets"):
+            return ak.list_akshare_datasets(
+                domain=domain,
+                category=category,
+                tags=tags,
+                query=query,
+                realtime=realtime,
+                compact=compact,
+            )
+        return []
+
+    def describe_akshare_dataset(self, dataset: str) -> dict[str, Any]:
+        ak = self.akshare
+        if ak is not None and hasattr(ak, "describe_akshare_dataset"):
+            return ak.describe_akshare_dataset(dataset)
+        from sats.data.akshare_datasets import get_akshare_dataset
+
+        return get_akshare_dataset(dataset).to_dict(compact=False)
+
+    def fetch_akshare_dataset(
+        self,
+        dataset: str,
+        params: dict[str, Any] | None = None,
+        *,
+        fields: list[str] | str | None = None,
+        limit: int = 200,
+    ) -> dict[str, Any]:
+        spec = self.describe_akshare_dataset(dataset)
+        ak = self.akshare
+        if ak is None or not hasattr(ak, "fetch_akshare_dataset"):
+            return {
+                "dataset": spec.get("dataset", dataset),
+                "function_name": spec.get("function_name", dataset),
+                "title": spec.get("title", dataset),
+                "domain": spec.get("domain", "AkShare"),
+                "category": spec.get("category", ""),
+                "tags": list(spec.get("tags") or []),
+                "params": dict(params or {}),
+                "doc_url": spec.get("doc_url", ""),
+                "realtime": bool(spec.get("realtime", False)),
+                "columns": [],
+                "rows": [],
+                "head": [],
+                "tail": [],
+                "latest": {},
+                "row_count": 0,
+                "returned_row_count": 0,
+                "data_source": "unavailable",
+                "missing_fields": ["akshare:unavailable"],
+                "market_data_provenance": [],
+            }
+        return ak.fetch_akshare_dataset(dataset, params or {}, fields=fields, limit=limit)
+
     def load_stock_basic(self, *, storage: DuckDBStorage | None = None) -> pd.DataFrame:
         tick = self.tickflow
         if tick is not None and hasattr(tick, "load_stock_basic"):

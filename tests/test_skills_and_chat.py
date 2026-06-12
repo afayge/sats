@@ -756,16 +756,15 @@ class ChatSessionTest(unittest.TestCase):
             result = session.ask("帮我总结今天的大盘")
 
         self.assertIn("请求超时", result.content)
-        self.assertIn("mimo-light / mimo-v2.5-pro", result.content)
+        self.assertIn("mimo-v2.5-pro", result.content)
+        self.assertNotIn("mimo-light / mimo-v2.5-pro", result.content)
         self.assertIn("切换更快的模型", result.content)
-        self.assertEqual(TimeoutLLM.instances[0].kwargs["model_name"], "mimo-light")
-        self.assertEqual(TimeoutLLM.instances[0].kwargs["profile"], "light")
+        self.assertEqual(len(TimeoutLLM.instances), 1)
+        self.assertEqual(TimeoutLLM.instances[0].kwargs["model_name"], "mimo-v2.5-pro")
+        self.assertEqual(TimeoutLLM.instances[0].kwargs["profile"], "default")
         self.assertEqual(TimeoutLLM.instances[0].kwargs["timeout_seconds"], 180)
-        self.assertEqual(TimeoutLLM.instances[1].kwargs["model_name"], "mimo-v2.5-pro")
-        self.assertEqual(TimeoutLLM.instances[1].kwargs["profile"], "default")
-        self.assertEqual(TimeoutLLM.instances[1].kwargs["timeout_seconds"], 180)
 
-    def test_chat_session_falls_back_to_default_model_when_light_times_out(self) -> None:
+    def test_chat_session_uses_default_model_for_market_analysis(self) -> None:
         LightTimeoutDefaultLLM.instances = []
         settings = SimpleNamespace(
             project_root=Path("."),
@@ -779,9 +778,9 @@ class ChatSessionTest(unittest.TestCase):
             result = session.ask("帮我总结今天的大盘")
 
         self.assertEqual(result.content, "默认模型回答")
-        self.assertEqual([item.kwargs["profile"] for item in LightTimeoutDefaultLLM.instances], ["light", "default"])
-        self.assertEqual([item.kwargs["timeout_seconds"] for item in LightTimeoutDefaultLLM.instances], [180, 180])
-        self.assertEqual(LightTimeoutDefaultLLM.instances[1].kwargs["model_name"], "deepseek-v4-pro")
+        self.assertEqual([item.kwargs["profile"] for item in LightTimeoutDefaultLLM.instances], ["default"])
+        self.assertEqual([item.kwargs["timeout_seconds"] for item in LightTimeoutDefaultLLM.instances], [180])
+        self.assertEqual(LightTimeoutDefaultLLM.instances[0].kwargs["model_name"], "deepseek-v4-pro")
 
     def test_chat_session_uses_light_model_for_memory_tasks(self) -> None:
         FakeLLM.instances = []
@@ -1947,6 +1946,89 @@ class ChatSessionTest(unittest.TestCase):
         self.assertIn("tickflow.realtime_minute_klines", capability_ids)
         tool_names = [item["function"]["name"] for item in registry.definitions()]
         self.assertIn("list_provider_capabilities", tool_names)
+
+    def test_chat_tool_registry_lists_akshare_datasets(self) -> None:
+        class DatasetProvider:
+            def list_akshare_datasets(self, **kwargs):
+                return [{"dataset": "stock_zh_a_spot_em", "query": kwargs.get("query")}]
+
+        registry = _ChatSkillToolRegistry([], SimpleNamespace())
+
+        with patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()):
+            payload = json.loads(
+                registry.execute(
+                    "list_akshare_datasets",
+                    {"query": "spot", "compact": True},
+                )
+            )
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["datasets"][0]["dataset"], "stock_zh_a_spot_em")
+        tool_names = [item["function"]["name"] for item in registry.definitions()]
+        self.assertIn("list_akshare_datasets", tool_names)
+        self.assertIn("describe_akshare_dataset", tool_names)
+        self.assertIn("get_akshare_data", tool_names)
+
+    def test_chat_session_can_fetch_akshare_data_with_readonly_tool(self) -> None:
+        class AkShareDataToolLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                self.calls = 0
+                self.messages = []
+                self.tools = []
+
+            def chat(self, messages, tools=None):
+                self.calls += 1
+                self.messages = messages
+                self.tools = tools or []
+                if self.calls == 1:
+                    return LLMResponse(
+                        content="",
+                        tool_calls=[
+                            ToolCallRequest(
+                                id="call-1",
+                                name="get_akshare_data",
+                                arguments={
+                                    "dataset": "stock_zh_a_spot_em",
+                                    "params": {},
+                                    "fields": ["代码", "最新价"],
+                                    "limit": 1,
+                                },
+                            )
+                        ],
+                        finish_reason="tool_calls",
+                    )
+                return LLMResponse(content="已获取 AkShare 数据")
+
+        class DatasetProvider:
+            def fetch_akshare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "params": params or {},
+                    "columns": fields or [],
+                    "rows": [{"代码": "000001", "最新价": 10.5}],
+                    "row_count": 1,
+                    "returned_row_count": 1,
+                    "data_source": f"akshare_{dataset}",
+                    "missing_fields": [],
+                    "market_data_provenance": [{"dataset": dataset, "source": "akshare"}],
+                }
+
+        settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
+        session = ChatSession(settings=settings, skills=[], llm_factory=AkShareDataToolLLM, memory_enabled=False)
+
+        with (
+            patch("sats.chat.AStockDataProvider", return_value=DatasetProvider()),
+            patch("sats.chat.build_stock_llm_context", return_value=None),
+            patch("sats.chat.build_market_llm_context", return_value=None),
+        ):
+            result = session.ask("需要时获取 AkShare stock_zh_a_spot_em")
+
+        self.assertEqual(result.content, "已获取 AkShare 数据")
+        self.assertEqual(result.tool_call_count, 1)
+        tool_names = [item["function"]["name"] for item in session._llm.tools]
+        self.assertIn("get_akshare_data", tool_names)
+        tool_messages = [item for item in session._llm.messages if item.get("role") == "tool"]
+        self.assertIn("akshare_stock_zh_a_spot_em", tool_messages[0]["content"])
 
     def test_chat_session_can_fetch_tushare_stock_data_with_readonly_tool(self) -> None:
         class TushareDataToolLLM:

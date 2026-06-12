@@ -143,6 +143,16 @@ class LightFallbackChatLLM:
         self._light_llm: Any | None = None
         self._default_llm: Any | None = None
         self._last_llm: Any | None = None
+        self._last_profile = ""
+        self._last_model_name = ""
+
+    @property
+    def last_profile(self) -> str:
+        return self._last_profile
+
+    @property
+    def last_model_name(self) -> str:
+        return self._last_model_name
 
     def chat(
         self,
@@ -164,11 +174,13 @@ class LightFallbackChatLLM:
 
     def _with_fallback(self, call: Callable[[Any], Any]) -> Any:
         try:
-            self._last_llm = self._light_client()
-            return call(self._last_llm)
+            llm = self._light_client()
+            self._mark_last(llm, profile="light", model_name=self.light_model_name)
+            return call(llm)
         except Exception:
-            self._last_llm = self._default_client()
-            return call(self._last_llm)
+            llm = self._default_client()
+            self._mark_last(llm, profile="default", model_name=self.default_model_name)
+            return call(llm)
 
     def _light_client(self) -> Any:
         if self._light_llm is None:
@@ -190,6 +202,11 @@ class LightFallbackChatLLM:
             )
         return self._default_llm
 
+    def _mark_last(self, llm: Any, *, profile: str, model_name: str) -> None:
+        self._last_llm = llm
+        self._last_profile = profile
+        self._last_model_name = model_name
+
     def __getattr__(self, name: str) -> Any:
         target = self._last_llm if self._last_llm is not None else self._light_client()
         return getattr(target, name)
@@ -206,6 +223,20 @@ def build_light_fallback_llm(
         factory,
         light_model_name=light_model_name,
         default_model_name=default_model_name,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+def build_standard_llm(
+    factory: Callable[..., Any],
+    *,
+    model_name: str,
+    timeout_seconds: int | None = None,
+) -> Any:
+    return _create_llm_client(
+        factory,
+        model_name,
+        profile="default",
         timeout_seconds=timeout_seconds,
     )
 

@@ -9,6 +9,7 @@ import threading
 import urllib.parse
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
 
@@ -18,6 +19,18 @@ class BridgeConfig:
     account_id: str
     account_type: str = "STOCK"
     session_id: int = 0
+
+
+@dataclass
+class LaunchConfig:
+    host: str
+    port: int
+    token: str
+    bridge: BridgeConfig
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_CONFIG_PATH = SCRIPT_DIR / "qmt_windows_bridge.config.json"
 
 
 class XtQuantGateway:
@@ -235,30 +248,60 @@ def run_bridge(*, host: str, port: int, config: BridgeConfig, token: str = "") -
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Standalone Windows bridge for SATS QMT/MiniQMT access")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--qmt-path", default=os.getenv("SATS_QMT_USERDATA_PATH", ""))
-    parser.add_argument("--account-id", default=os.getenv("SATS_QMT_ACCOUNT_ID", ""))
-    parser.add_argument("--account-type", default=os.getenv("SATS_QMT_ACCOUNT_TYPE", "STOCK"))
-    parser.add_argument("--session-id", type=int, default=int(os.getenv("SATS_QMT_SESSION_ID", "0") or 0))
-    parser.add_argument("--token", default=os.getenv("SATS_QMT_TOKEN", ""))
+    parser.add_argument("--host")
+    parser.add_argument("--port", type=int)
+    parser.add_argument("--qmt-path")
+    parser.add_argument("--account-id")
+    parser.add_argument("--account-type")
+    parser.add_argument("--session-id", type=int)
+    parser.add_argument("--token")
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv)
-    if not args.qmt_path:
+def load_launch_config(args: argparse.Namespace, *, config_path: Path = DEFAULT_CONFIG_PATH) -> LaunchConfig:
+    file_config = _load_config_file(config_path)
+    qmt_path = _resolve_str(args.qmt_path, file_config.get("qmt_path"), os.getenv("SATS_QMT_USERDATA_PATH", ""))
+    account_id = _resolve_str(args.account_id, file_config.get("account_id"), os.getenv("SATS_QMT_ACCOUNT_ID", ""))
+    if not qmt_path:
         raise SystemExit("--qmt-path or SATS_QMT_USERDATA_PATH is required")
-    if not args.account_id:
+    if not account_id:
         raise SystemExit("--account-id or SATS_QMT_ACCOUNT_ID is required")
-    config = BridgeConfig(
-        qmt_path=args.qmt_path,
-        account_id=args.account_id,
-        account_type=args.account_type,
-        session_id=args.session_id,
+    return LaunchConfig(
+        host=_resolve_str(args.host, file_config.get("host"), "127.0.0.1"),
+        port=_resolve_int(args.port, file_config.get("port"), 8765),
+        token=_resolve_str(
+            args.token,
+            file_config.get("token"),
+            os.getenv("SATS_QMT_TOKEN", ""),
+            os.getenv("MINIQMT_GATEWAY_TOKEN", ""),
+        ),
+        bridge=BridgeConfig(
+            qmt_path=qmt_path,
+            account_id=account_id,
+            account_type=_resolve_str(args.account_type, file_config.get("account_type"), os.getenv("SATS_QMT_ACCOUNT_TYPE", "STOCK")).upper(),
+            session_id=_resolve_int(args.session_id, file_config.get("session_id"), os.getenv("SATS_QMT_SESSION_ID", ""), 0),
+        ),
     )
-    run_bridge(host=args.host, port=args.port, config=config, token=args.token)
+
+
+def main(argv: list[str] | None = None) -> int:
+    launch = load_launch_config(parse_args(argv))
+    run_bridge(host=launch.host, port=launch.port, config=launch.bridge, token=launch.token)
     return 0
+
+
+def _load_config_file(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise SystemExit(f"failed to read config file {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"invalid config file {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise SystemExit(f"config file {path} must contain a JSON object")
+    return data
 
 
 def _obj_to_dict(obj: Any) -> dict[str, Any]:
@@ -308,6 +351,27 @@ def _int_query(query: dict[str, list[str]], name: str, default: int) -> int:
 
 def _is_loopback_host(host: str) -> bool:
     return host.strip().lower() in {"127.0.0.1", "localhost", "::1"}
+
+
+def _resolve_str(*values: Any) -> str:
+    for value in values:
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return ""
+
+
+def _resolve_int(*values: Any) -> int:
+    for value in values:
+        if value is None or value == "":
+            continue
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    raise SystemExit("integer configuration value is invalid")
 
 
 if __name__ == "__main__":

@@ -25,7 +25,7 @@ from sats.chat_planner import ChatPlan, build_chat_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
 from sats.chat_reference import ChatReferenceContext
 from sats.config import Settings
-from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm
+from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm, build_standard_llm
 from sats.memory import ChatMemoryStore, MemoryRecord
 from sats.screening.registry import list_rules
 from sats.screening.rule_composer import (
@@ -201,6 +201,10 @@ class ChatEvidenceBundle:
 class ChatSynthesisResult:
     content: str
     tool_call_count: int = 0
+    phase: str = "synthesis"
+    model_policy: str = ""
+    model_profile: str = ""
+    model_name: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -574,11 +578,11 @@ def synthesize_chat_response(
     history: list[dict[str, str]] | None = None,
     memories: list[MemoryRecord] | None = None,
     session_summary: str = "",
-    tool_chat: Callable[[list[dict[str, Any]]], tuple[Any, int]] | None = None,
+    tool_chat: Callable[[list[dict[str, Any]]], tuple[Any, int] | tuple[Any, int, dict[str, str]]] | None = None,
 ) -> ChatSynthesisResult:
     if route.route_kind == CHAT_ROUTE_RULE and evidence.rule_generation is not None:
         content = str(evidence.rule_generation.get("content") or "").strip()
-        return ChatSynthesisResult(content=content or "无响应")
+        return ChatSynthesisResult(content=content or "无响应", model_policy="none")
 
     matched_skills = _matched_skills_for_route(route, skills or [])
     messages = _build_synthesis_messages(
@@ -592,36 +596,87 @@ def synthesize_chat_response(
     )
     if tool_chat is not None and route.route_kind == CHAT_ROUTE_GENERAL:
         try:
-            response, tool_count = tool_chat(messages)
+            chat_result = tool_chat(messages)
         except Exception as exc:
             if _is_timeout_exception(exc):
-                return ChatSynthesisResult(content=_timeout_message(_timeout_model_name(settings)))
+                return ChatSynthesisResult(
+                    content=_timeout_message(_timeout_model_name(settings)),
+                    model_policy="light",
+                    model_profile="light",
+                    model_name=_light_model_name(settings),
+                )
             raise
+        response, tool_count, model_meta = _normalize_tool_chat_result(chat_result, settings=settings)
         content = str(getattr(response, "content", "") or "").strip() or "无响应"
-        return ChatSynthesisResult(content=content, tool_call_count=tool_count)
+        return ChatSynthesisResult(content=content, tool_call_count=tool_count, **model_meta)
     if llm_factory is None:
-        return ChatSynthesisResult(content=_fallback_chat_summary(route, evidence))
+        return ChatSynthesisResult(content=_fallback_chat_summary(route, evidence), model_policy="none")
+    model_policy = _synthesis_model_policy(route)
+    model_profile = "default" if model_policy == "standard" else "light"
+    model_name = _main_model_name(settings) if model_policy == "standard" else _light_model_name(settings)
     try:
-        llm = build_light_fallback_llm(
-            llm_factory,
-            light_model_name=_light_model_name(settings),
-            default_model_name=_main_model_name(settings),
-            timeout_seconds=_llm_timeout_seconds(settings),
-        )
+        if model_policy == "standard":
+            llm = build_standard_llm(
+                llm_factory,
+                model_name=_main_model_name(settings),
+                timeout_seconds=_llm_timeout_seconds(settings),
+            )
+        else:
+            llm = build_light_fallback_llm(
+                llm_factory,
+                light_model_name=_light_model_name(settings),
+                default_model_name=_main_model_name(settings),
+                timeout_seconds=_llm_timeout_seconds(settings),
+            )
         try:
             response = llm.chat(messages, timeout=_llm_timeout_seconds(settings))
         except TypeError:
             response = llm.chat(messages)
+        model_profile = str(getattr(llm, "last_profile", "") or getattr(llm, "profile", "") or model_profile)
+        model_name = str(getattr(llm, "last_model_name", "") or getattr(llm, "model_name", "") or model_name)
         content = str(getattr(response, "content", "") or "").strip()
     except Exception as exc:
         if _is_timeout_exception(exc):
-            return ChatSynthesisResult(content=_timeout_message(_timeout_model_name(settings)))
+            timeout_name = _main_model_name(settings) if model_policy == "standard" else _timeout_model_name(settings)
+            return ChatSynthesisResult(
+                content=_timeout_message(timeout_name),
+                model_policy=model_policy,
+                model_profile=model_profile,
+                model_name=model_name,
+            )
         content = ""
     if not content:
         content = _fallback_chat_summary(route, evidence)
     if route.route_kind == CHAT_ROUTE_OPPORTUNITY and evidence.opportunity_context is not None:
         content = _opportunity_discovery_content_or_fallback(content, evidence.opportunity_context)
-    return ChatSynthesisResult(content=content or "无响应")
+    return ChatSynthesisResult(
+        content=content or "无响应",
+        model_policy=model_policy,
+        model_profile=model_profile,
+        model_name=model_name,
+    )
+
+
+def _synthesis_model_policy(route: ChatRequestRoute) -> str:
+    if route.route_kind in {CHAT_ROUTE_GENERAL, CHAT_ROUTE_QUOTE}:
+        return "light"
+    return "standard"
+
+
+def _normalize_tool_chat_result(
+    result: tuple[Any, int] | tuple[Any, int, dict[str, str]],
+    *,
+    settings: Settings,
+) -> tuple[Any, int, dict[str, str]]:
+    response = result[0]
+    tool_count = int(result[1] if len(result) > 1 else 0)
+    raw_meta = result[2] if len(result) > 2 and isinstance(result[2], dict) else {}
+    meta = {
+        "model_policy": str(raw_meta.get("model_policy") or "light"),
+        "model_profile": str(raw_meta.get("model_profile") or "light"),
+        "model_name": str(raw_meta.get("model_name") or _light_model_name(settings)),
+    }
+    return response, tool_count, meta
 
 
 def build_stock_context_component(message: str, *, settings: Settings, question: StockQuestion) -> StockLLMContext | None:

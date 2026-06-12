@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from sats.agent.models import AgentObservation, AgentPlan
 from sats.chat_artifacts import save_markdown_artifact
-from sats.llm import ChatLLM
+from sats.llm import ChatLLM, build_standard_llm
 from sats.natural_output import format_meter, format_sparkline
 from sats.skill_routing import SkillRouteContext, SkillSelection, select_skills
 from sats.skills import Skill, match_skills
@@ -39,6 +39,10 @@ class AgentSynthesisResult:
     skill_names: tuple[str, ...] = ()
     messages: tuple[dict[str, Any], ...] = ()
     used_llm: bool = False
+    phase: str = "synthesis"
+    model_policy: str = ""
+    model_profile: str = ""
+    model_name: str = ""
 
 
 def synthesize_agent_result(
@@ -57,12 +61,14 @@ def synthesize_agent_result(
             content=_first_observation_content(observations) or "无响应",
             skill_names=tuple(skill.name for skill in matched_skills),
             used_llm=False,
+            model_policy="none",
         )
     if not _needs_synthesis(observations):
         return AgentSynthesisResult(
             content=_fallback_summary(plan.objective, observations, []),
             skill_names=tuple(skill.name for skill in matched_skills),
             used_llm=False,
+            model_policy="none",
         )
     messages = _synthesis_messages(
         message=message,
@@ -76,20 +82,35 @@ def synthesize_agent_result(
             skill_names=tuple(skill.name for skill in matched_skills),
             messages=tuple(messages),
             used_llm=False,
+            model_policy="none",
         )
+    model_meta = _synthesis_model_meta(settings)
     try:
         llm = _make_llm(llm_factory, settings)
         try:
             response = llm.chat(messages, timeout=getattr(settings, "llm_timeout_seconds", None))
         except TypeError:
             response = llm.chat(messages)
+        model_meta = _synthesis_model_meta(settings, llm=llm)
         content = str(getattr(response, "content", "") or "").strip()
     except Exception:
         content = ""
     if not content:
         content = _fallback_summary(plan.objective, observations, matched_skills)
-        return AgentSynthesisResult(content=content, skill_names=tuple(skill.name for skill in matched_skills), messages=tuple(messages), used_llm=False)
-    return AgentSynthesisResult(content=content, skill_names=tuple(skill.name for skill in matched_skills), messages=tuple(messages), used_llm=True)
+        return AgentSynthesisResult(
+            content=content,
+            skill_names=tuple(skill.name for skill in matched_skills),
+            messages=tuple(messages),
+            used_llm=False,
+            **model_meta,
+        )
+    return AgentSynthesisResult(
+        content=content,
+        skill_names=tuple(skill.name for skill in matched_skills),
+        messages=tuple(messages),
+        used_llm=True,
+        **model_meta,
+    )
 
 
 def should_write_agent_report(message: str, plan: AgentPlan, observations: tuple[AgentObservation, ...]) -> bool:
@@ -1000,14 +1021,23 @@ def _observation_detail(observation: AgentObservation) -> str:
 
 
 def _make_llm(llm_factory: Callable[..., Any], settings: Any) -> Any:
-    try:
-        return llm_factory(
-            model_name=getattr(settings, "openai_model", None),
-            profile="default",
-            timeout_seconds=getattr(settings, "llm_timeout_seconds", None),
-        )
-    except TypeError:
-        return llm_factory()
+    return build_standard_llm(
+        llm_factory,
+        model_name=_main_model_name(settings),
+        timeout_seconds=getattr(settings, "llm_timeout_seconds", None),
+    )
+
+
+def _synthesis_model_meta(settings: Any, llm: Any | None = None) -> dict[str, str]:
+    return {
+        "model_policy": "standard",
+        "model_profile": str(getattr(llm, "profile", "") if llm is not None else "") or "default",
+        "model_name": str(getattr(llm, "model_name", "") if llm is not None else "") or _main_model_name(settings),
+    }
+
+
+def _main_model_name(settings: Any) -> str:
+    return str(getattr(settings, "openai_model", "") or "LLM")
 
 
 def _needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:

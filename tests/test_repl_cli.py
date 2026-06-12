@@ -50,6 +50,7 @@ from sats.repl import (
     _status_toolbar,
     _TeeStdout,
 )
+from sats.storage import DuckDBStorage
 
 
 class RecordingChatSession(ChatSession):
@@ -191,7 +192,7 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("快捷键", text)
         self.assertIn("Ctrl+C", text)
         self.assertIn("中断当前执行", text)
-        self.assertIn("/indicators --symbols 000001.SZ --trade-date 20260514", text)
+        self.assertIn("/indicators --stocks 000001.SZ --trade-date 20260514", text)
         self.assertTrue(any(style == MUTED_STYLE and "可用命令" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == MUTED_STYLE and "示例" in value for row in formatted for style, value in row))
         self.assertTrue(any(style == MUTED_STYLE and "快捷键" in value for row in formatted for style, value in row))
@@ -226,7 +227,8 @@ class ReplCliTest(unittest.TestCase):
             patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]),
             patch("sats.repl.PromptSession") as prompt_session,
             patch("sats.repl.print_formatted_text", side_effect=lambda fragments: formatted.append(list(fragments))),
-            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=40)),
+            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
+            patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ schedule:0/0"),
             patch("builtins.print") as printer,
         ):
             prompt_session.return_value.prompt.return_value = "/exit"
@@ -244,12 +246,11 @@ class ReplCliTest(unittest.TestCase):
             if len(row) == 1 and row[0][0] == SEPARATOR_STYLE and set(row[0][1]) == {"─"}
         ]
         self.assertEqual(len(separators), 2)
-        self.assertTrue(all(get_cwidth(row[0][1]) == 40 for row in separators))
+        self.assertTrue(all(get_cwidth(row[0][1]) == 90 for row in separators))
         self.assertTrue(callable(bottom_toolbar))
-        self.assertEqual(
-            bottom_toolbar_text,
-            " OpenAI:GPT-5.5  ｜  0.0s  ｜  Last：--",
-        )
+        self.assertTrue(bottom_toolbar_text.startswith("  OpenAI:GPT-5.5  ｜  0.0s  ｜  Last：--"))
+        self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+        self.assertEqual(get_cwidth(bottom_toolbar_text), 90)
         completer = prompt_session.call_args.kwargs["completer"]
         self.assertEqual(completer.meta_dict["/discover"], "短线机会发现")
         self.assertNotIn("input_processors", prompt_session.call_args.kwargs)
@@ -280,13 +281,16 @@ class ReplCliTest(unittest.TestCase):
         output: list[str] = []
         clock = [0.0]
 
-        with patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]):
+        with (
+            patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]),
+            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
+        ):
             state = ReplState()
             toolbar = _status_toolbar(settings, state)
-            self.assertEqual(
-                fragment_list_to_text(toolbar()),
-                " DeepSeek:deepseek-v4-pro  ｜  0.0s  ｜  Last：--",
-            )
+            toolbar_text = fragment_list_to_text(toolbar())
+            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  0.0s  ｜  Last：--"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+            self.assertEqual(get_cwidth(toolbar_text), 90)
 
             clock[0] = 10.0
 
@@ -298,10 +302,64 @@ class ReplCliTest(unittest.TestCase):
             self.assertTrue(handle_repl_line("/results", runner=runner, printer=output.append, state=state))
 
             self.assertEqual(output, ["results"])
-            self.assertEqual(
-                fragment_list_to_text(toolbar()),
-                " DeepSeek:deepseek-v4-pro  ｜  53.2s  ｜  Last：43.2s",
+            toolbar_text = fragment_list_to_text(toolbar())
+            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  53.2s  ｜  Last：43.2s"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+            self.assertEqual(get_cwidth(toolbar_text), 90)
+
+    def test_repl_status_toolbar_shows_monitor_and_schedule_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.upsert_monitor_runtime(service_name="monitor", status="running", pid=1234, heartbeat=True)
+            storage.insert_scheduled_task(
+                {
+                    "name": "enabled-task",
+                    "task_type": "chat",
+                    "text": "复盘",
+                    "schedule_kind": "daily",
+                    "time_of_day": "08:45",
+                    "enabled": True,
+                    "next_run_at": "2026-06-12 08:45:00",
+                }
             )
+            storage.insert_scheduled_task(
+                {
+                    "name": "disabled-task",
+                    "task_type": "cli",
+                    "text": "results",
+                    "schedule_kind": "daily",
+                    "time_of_day": "16:00",
+                    "enabled": False,
+                    "next_run_at": "2026-06-12 16:00:00",
+                }
+            )
+            settings = SimpleNamespace(db_path=db, llm_provider="openai", openai_model="gpt-4o-mini")
+
+            with (
+                patch("sats.repl.time.monotonic", return_value=0.0),
+                patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=100)),
+            ):
+                toolbar = _status_toolbar(settings, ReplState())
+
+                toolbar_text = fragment_list_to_text(toolbar())
+                self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  0.0s  ｜  Last：--"))
+                self.assertTrue(toolbar_text.endswith("monitor:run ｜ schedule:1/2  "))
+                self.assertEqual(get_cwidth(toolbar_text), 100)
+
+    def test_repl_monitor_and_schedule_commands_refresh_status_cache(self) -> None:
+        state = ReplState(status_bar_cache="monitor:stop ｜ schedule:0/0", status_bar_cache_at=100.0)
+        output: list[str] = []
+
+        self.assertTrue(handle_repl_line("/monitor status", runner=lambda argv: 0, printer=output.append, state=state))
+        self.assertEqual(state.status_bar_cache, "")
+        self.assertEqual(state.status_bar_cache_at, 0.0)
+
+        state.status_bar_cache = "monitor:run ｜ schedule:1/1"
+        state.status_bar_cache_at = 100.0
+        self.assertTrue(handle_repl_line("/schedule status", runner=lambda argv: 0, printer=output.append, state=state))
+        self.assertEqual(state.status_bar_cache, "")
+        self.assertEqual(state.status_bar_cache_at, 0.0)
 
     def test_repl_command_keyboard_interrupt_returns_to_prompt_without_saving_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -336,7 +394,10 @@ class ReplCliTest(unittest.TestCase):
         output: list[str] = []
         clock = [0.0]
 
-        with patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]):
+        with (
+            patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]),
+            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
+        ):
             state = ReplState()
             toolbar = _status_toolbar(settings, state)
             state.last_duration_seconds = 5.0
@@ -346,10 +407,10 @@ class ReplCliTest(unittest.TestCase):
             self.assertFalse(handle_repl_line("/exit", printer=output.append, state=state))
 
             self.assertEqual(output, ["bye"])
-            self.assertEqual(
-                fragment_list_to_text(toolbar()),
-                " OpenAI:gpt-4o-mini  ｜  20.0s  ｜  Last：5.0s",
-            )
+            toolbar_text = fragment_list_to_text(toolbar())
+            self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  20.0s  ｜  Last：5.0s"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+            self.assertEqual(get_cwidth(toolbar_text), 90)
 
     def test_repl_completer_shows_command_descriptions(self) -> None:
         completions = _completion_map("/d")
@@ -1152,15 +1213,15 @@ class ReplCliTest(unittest.TestCase):
         output: list[str] = []
 
         keep_running = handle_repl_line(
-            "/indicators --symbols 000001.SZ --trade-date 20260514",
+            "/indicators --stocks 000001.SZ --trade-date 20260514",
             runner=lambda argv: calls.append(argv) or 0,
             printer=output.append,
         )
 
         self.assertTrue(keep_running)
         self.assertIn("indicators", CLI_COMMANDS)
-        self.assertIn("/indicators --symbols 000001.SZ --trade-date 20260514", help_text())
-        self.assertEqual(calls, [["indicators", "--symbols", "000001.SZ", "--trade-date", "20260514"]])
+        self.assertIn("/indicators --stocks 000001.SZ --trade-date 20260514", help_text())
+        self.assertEqual(calls, [["indicators", "--stocks", "000001.SZ", "--trade-date", "20260514"]])
         self.assertEqual(output, [])
 
     def test_repl_allows_factor_command(self) -> None:
@@ -1354,7 +1415,7 @@ class ReplCliTest(unittest.TestCase):
         )
         self.assertTrue(
             handle_repl_line(
-                "/minute-k --symbols 000001.SZ",
+                "/minute-k --stocks 000001.SZ",
                 runner=lambda argv: calls.append(argv) or 0,
                 printer=output.append,
             )

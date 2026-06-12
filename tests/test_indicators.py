@@ -176,7 +176,7 @@ class IndicatorCliTest(unittest.TestCase):
             stdout = StringIO()
             with redirect_stdout(stdout):
                 self.assertEqual(
-                    main(["indicators", "--symbols", "000001", "--trade-date", "20260514"]),
+                    main(["indicators", "--stocks", "000001", "--trade-date", "20260514"]),
                     0,
                 )
             self.assertIn("000001.SZ 平安银行", stdout.getvalue())
@@ -185,12 +185,43 @@ class IndicatorCliTest(unittest.TestCase):
             stdout = StringIO()
             with redirect_stdout(stdout):
                 self.assertEqual(
-                    main(["indicators", "--symbols", "000001.SZ", "--trade-date", "20260514", "--json"]),
+                    main(["indicators", "--stocks", "000001.SZ", "--trade-date", "20260514", "--json"]),
                     0,
                 )
             parsed = json.loads(stdout.getvalue())
             self.assertEqual(parsed[0]["ts_code"], "000001.SZ")
             self.assertIn("technical", parsed[0])
+
+    def test_cli_indicators_accepts_stock_name_with_stocks_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db_path)
+            storage.upsert_stock_basic(pd.DataFrame([{"ts_code": "000938.SZ", "symbol": "000938", "name": "紫光股份"}]))
+            settings = SimpleNamespace(db_path=db_path)
+            fake_inputs = [
+                IndicatorInput(
+                    ts_code="000938.SZ",
+                    trade_date="20260514",
+                    daily=_daily_frame(rows=130),
+                    daily_basic=_daily_basic_frame(),
+                    stock_basic={"name": "紫光股份"},
+                )
+            ]
+
+            with (
+                patch("sats.cli.load_settings", return_value=settings),
+                patch("sats.cli.AStockDataProvider") as provider_cls,
+            ):
+                provider_cls.return_value.load_indicator_inputs.return_value = fake_inputs
+                stdout = StringIO()
+                with redirect_stdout(stdout):
+                    self.assertEqual(
+                        main(["indicators", "--stocks", "紫光股份", "--trade-date", "20260514"]),
+                        0,
+                    )
+
+            self.assertEqual(provider_cls.return_value.load_indicator_inputs.call_args_list[0].args[0], ["000938.SZ"])
+            self.assertIn("000938.SZ 紫光股份", stdout.getvalue())
 
 
 class _FakeIndicatorPro:

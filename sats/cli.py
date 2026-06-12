@@ -365,7 +365,7 @@ def build_parser() -> argparse.ArgumentParser:
     knowledge_sub.add_parser("sync-stock-basic", help="Sync cached stock_basic into the stock-basic knowledge base")
 
     indicators = sub.add_parser("indicators", help="Calculate daily technical indicators")
-    indicators.add_argument("--symbols", required=True, help="Comma-separated symbols or stock names, e.g. 000001.SZ,600519.SH,紫光股份")
+    indicators.add_argument("--stocks", required=True, help="Comma-separated symbols or stock names, e.g. 000001.SZ,600519.SH,紫光股份")
     indicators.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
     indicators.add_argument("--lookback-days", type=int, default=180, help="Historical calendar/trading lookback window")
     indicators.add_argument("--json", action="store_true", help="Print full JSON output")
@@ -388,7 +388,7 @@ def build_parser() -> argparse.ArgumentParser:
     factor_analyze.add_argument("--lookback-days", type=int, default=260, help="Historical lookback trading days")
     factor_analyze.add_argument("--horizon", type=int, default=1, help="Forward return horizon")
     factor_analyze.add_argument("--groups", type=int, default=5, help="Quantile groups")
-    factor_analyze.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_analyze.add_argument("--stocks", help="Optional comma-separated symbols or stock names")
     factor_analyze.add_argument("--json", action="store_true", help="Print full JSON output")
     factor_analyze.add_argument("--noreport", action="store_true", help="Do not generate Markdown report")
     factor_analyze.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
@@ -401,7 +401,7 @@ def build_parser() -> argparse.ArgumentParser:
     factor_pick.add_argument("--neutralize", choices=["none", "industry"], default="none", help="Neutralization mode")
     factor_pick.add_argument("--weight", choices=["equal", "ic"], default="equal", help="Factor weighting")
     factor_pick.add_argument("--groups", type=int, default=5, help="Quantile groups for IC diagnostics")
-    factor_pick.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_pick.add_argument("--stocks", help="Optional comma-separated symbols or stock names")
     factor_pick.add_argument("--profile", choices=FACTOR_PROFILE_CHOICES, default=DEFAULT_FACTOR_PROFILE, help="Factor profile")
     factor_pick.add_argument("--screening-profile", default="multi_factor", help="Screening rule suffix for --write-screening")
     factor_pick.add_argument("--write-screening", action="store_true", help="Write TopN to screening_results")
@@ -423,7 +423,7 @@ def build_parser() -> argparse.ArgumentParser:
     factor_ml_train.add_argument("--valid-end", help="Validation end date YYYYMMDD")
     factor_ml_train.add_argument("--horizon", type=int, default=1, help="Forward return label horizon")
     factor_ml_train.add_argument("--lookback-days", type=int, default=520, help="Historical lookback trading days")
-    factor_ml_train.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_ml_train.add_argument("--stocks", help="Optional comma-separated symbols or stock names")
     factor_ml_train.add_argument("--json", action="store_true", help="Print full JSON output")
     factor_ml_train.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     factor_ml_evaluate = factor_ml_sub.add_parser("evaluate", help="Show a SATS-native factor ML model run")
@@ -438,7 +438,7 @@ def build_parser() -> argparse.ArgumentParser:
     factor_ml_predict.add_argument("--factors", help="Comma-separated factor ids to validate against the model run")
     factor_ml_predict.add_argument("--top", type=int, default=20, help="Top candidates")
     factor_ml_predict.add_argument("--lookback-days", type=int, default=260, help="Historical lookback trading days")
-    factor_ml_predict.add_argument("--symbols", help="Optional comma-separated symbols or stock names")
+    factor_ml_predict.add_argument("--stocks", help="Optional comma-separated symbols or stock names")
     factor_ml_predict.add_argument("--write-screening", action="store_true", help="Write TopN to screening_results")
     factor_ml_predict.add_argument("--json", action="store_true", help="Print full JSON output")
     factor_ml_predict.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
@@ -1490,7 +1490,7 @@ def cmd_indicators(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
     settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
-    symbols = _parse_symbols_or_names(args.symbols, settings)
+    symbols = _parse_symbols_or_names(args.stocks, settings)
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
     progress = _progress_for_args(args)
@@ -1590,7 +1590,7 @@ def _cmd_factor_ml(args: argparse.Namespace) -> int:
     settings = _settings_with_db_path(settings, _storage_db_path(storage, getattr(args, "db", None) or settings.db_path))
     provider = AStockDataProvider(settings)
     if command == "train":
-        symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+        symbols = _parse_symbols_or_names(args.stocks, settings) if getattr(args, "stocks", None) else None
         try:
             result = train_factor_ml_model(
                 settings=settings,
@@ -1626,7 +1626,7 @@ def _cmd_factor_ml(args: argparse.Namespace) -> int:
             print(_format_factor_ml_evaluate(payload))
         return 0
     if command == "predict":
-        symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+        symbols = _parse_symbols_or_names(args.stocks, settings) if getattr(args, "stocks", None) else None
         try:
             result = predict_factor_ml_model(
                 settings=settings,
@@ -1664,7 +1664,7 @@ def _cmd_factor_analyze(args: argparse.Namespace, registry: Registry) -> int:
     settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
-    symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+    symbols = _parse_symbols_or_names(args.stocks, settings) if getattr(args, "stocks", None) else None
     progress = _progress_for_args(args)
     _announce_analyzing(progress, json_mode=bool(args.json))
     if not getattr(args, "trade_date", None) and not args.json:
@@ -1735,7 +1735,7 @@ def _cmd_factor_pick(args: argparse.Namespace, registry: Registry) -> int:
     settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
     provider = AStockDataProvider(settings)
     trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
-    symbols = _parse_symbols_or_names(args.symbols, settings) if getattr(args, "symbols", None) else None
+    symbols = _parse_symbols_or_names(args.stocks, settings) if getattr(args, "stocks", None) else None
     progress = _progress_for_args(args)
     _announce_analyzing(progress, json_mode=bool(args.json))
     if not getattr(args, "trade_date", None) and not args.json:

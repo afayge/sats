@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from sats.data.akshare_datasets import list_akshare_datasets
 from sats.data.tushare_stock_datasets import TUSHARE_STOCK_DATASETS, list_tushare_datasets
 
 
@@ -45,7 +46,7 @@ def list_provider_capabilities(
     realtime: bool | None = None,
     compact: bool = False,
 ) -> list[dict[str, Any]]:
-    capabilities = [*_tushare_capabilities(), *_tickflow_capabilities()]
+    capabilities = [*_tushare_capabilities(), *_tickflow_capabilities(), *_akshare_capabilities()]
     provider_key = str(provider or "").strip().lower()
     category_key = str(category or "").strip().lower()
     rows: list[ProviderCapability] = []
@@ -232,6 +233,68 @@ def _tickflow_capabilities() -> list[ProviderCapability]:
             chat_tool="get_stock_research_context",
         ),
     ]
+
+
+def _akshare_capabilities() -> list[ProviderCapability]:
+    datasets = list_akshare_datasets(compact=True)
+    domains = sorted({str(item.get("domain") or "AkShare") for item in datasets})
+    rows = [
+        ProviderCapability(
+            capability_id="akshare.dataset_catalog",
+            name="AkShare 全量数据字典",
+            provider="akshare",
+            category="数据字典",
+            use_cases=("按领域、分类、标签或关键词发现 AkShare 数据接口", "先查目录/描述，再按白名单 dataset 取数"),
+            input_fields=("domain", "category", "tags", "query", "realtime", "compact"),
+            output_fields=("dataset", "function_name", "domain", "category", "tags", "input_fields", "realtime"),
+            realtime=False,
+            writes_db=False,
+            recommended_tool="data.list_akshare_datasets",
+            chat_tool="list_akshare_datasets",
+        ),
+        ProviderCapability(
+            capability_id="akshare.dataset_fetch",
+            name="AkShare 白名单数据取数",
+            provider="akshare",
+            category="数据接口",
+            use_cases=("补充 TickFlow/Tushare 未覆盖的宏观、行业、期货、期权、债券、基金等数据", "用户明确要求 AkShare 数据时按 dataset 取数"),
+            input_fields=("dataset", "params", "fields", "limit"),
+            output_fields=("rows", "columns", "head", "tail", "latest", "market_data_provenance", "missing_fields"),
+            realtime=True,
+            writes_db=False,
+            recommended_tool="data.get_akshare_data",
+            chat_tool="get_akshare_data",
+        ),
+    ]
+    for domain in domains:
+        domain_rows = [item for item in datasets if item.get("domain") == domain]
+        rows.append(
+            ProviderCapability(
+                capability_id=f"akshare.domain.{_capability_key(domain)}",
+                name=f"AkShare {domain} 数据接口",
+                provider="akshare",
+                category=domain,
+                use_cases=(f"发现 {domain} 相关 AkShare 接口", f"当前目录约 {len(domain_rows)} 个接口"),
+                input_fields=("query", "category", "tags", "realtime"),
+                output_fields=("dataset", "title", "input_fields", "realtime"),
+                realtime=any(bool(item.get("realtime")) for item in domain_rows),
+                writes_db=False,
+                recommended_tool="data.list_akshare_datasets",
+                chat_tool="list_akshare_datasets",
+            )
+        )
+    return rows
+
+
+def _capability_key(value: str) -> str:
+    result = []
+    for char in str(value or "").lower():
+        if char.isalnum():
+            result.append(char)
+        elif char in {" ", "-", "_", "/"}:
+            result.append("_")
+    key = "".join(result).strip("_")
+    return key or "general"
 
 
 def _is_realtime_tushare_dataset(dataset: str) -> bool:

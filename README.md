@@ -247,6 +247,13 @@ sats model use DEEPSEEK --target main
 sats model use XIAOMIMIMO --target light
 ```
 
+默认自然对话会按任务重量分流：
+
+- `DEFAULT_LIGHT_MODEL`：意图预处理、普通问答、命令帮助、记忆抽取/摘要、`chat.answer` 等轻量阶段。
+- `DEFAULT_MODEL`：个股/大盘/缠论/选股分析的最终总结、复杂 runtime 工具循环、Agent heavy planner/replanner、Agent 最终研究总结等重型阶段。
+
+重型分析不会先降到轻量模型；如果标准模型超时或失败，会使用 SATS 的本地 fallback/超时提示，而不是让轻量模型生成关键研究结论。
+
 ### QMT 兼容说明
 
 当前配置层对 bridge URL 和 token 同时接受两套变量：
@@ -456,11 +463,11 @@ sats quote --stocks 000001,600519.SH,紫光股份
 
 - 用途：计算指定股票的日线技术指标。
 - 入口：CLI、REPL `/indicators`
-- 核心参数：`--symbols`、`--trade-date`、`--lookback-days`、`--json`
+- 核心参数：`--stocks`、`--trade-date`、`--lookback-days`、`--json`
 
 ```bash
-sats indicators --symbols 000001.SZ --trade-date 20260514
-sats indicators --symbols 紫光股份 --json
+sats indicators --stocks 000001.SZ --trade-date 20260514
+sats indicators --stocks 紫光股份 --json
 ```
 
 #### `analyze`
@@ -759,6 +766,8 @@ sats monitor start --rules chan_signals --lists positions,watchlist --interval 6
 sats monitor run --rules chan_signals --interval 60 --once
 ```
 
+REPL 底部状态栏最右侧会显示 `monitor:run|stop` 和 `schedule:启用数/总数`。
+
 监控相关的交易限制参数包括：
 
 - `--auto-trade`
@@ -821,16 +830,34 @@ sats qmt sell --symbol 000001 --quantity 100 --price-type limit --price 12.34 --
 sats qmt cancel --order-id order_xxxxxxxx
 ```
 
-Windows 端推荐使用独立 bridge 脚本。把 [scripts/qmt_windows_bridge.py](/Users/elliotge/python/SATS/scripts/qmt_windows_bridge.py) 复制到已安装并登录国金证券 QMT/MiniQMT 的 Windows 机器，然后在能 `import xtquant` 的 Python 环境中运行：
+Windows 端推荐使用独立 bridge 脚本。把 [scripts/qmt_windows_bridge.py](/Users/elliotge/python/SATS/scripts/qmt_windows_bridge.py) 和同目录的 [qmt_windows_bridge.config.json](/Users/elliotge/python/SATS/scripts/qmt_windows_bridge.config.json) 一起复制到已安装并登录国金证券 QMT/MiniQMT 的 Windows 机器。
+
+先编辑配置文件：
+
+```json
+{
+  "host": "0.0.0.0",
+  "port": 8765,
+  "qmt_path": "C:\\国金QMT\\userdata_mini",
+  "account_id": "<ACCOUNT_ID>",
+  "account_type": "STOCK",
+  "session_id": 0,
+  "token": "<RANDOM_TOKEN>"
+}
+```
+
+然后在能 `import xtquant` 的 Python 环境中直接运行：
+
+```powershell
+python qmt_windows_bridge.py
+```
+
+命令行参数会覆盖配置文件；例如临时改端口或 host 时可以这样运行：
 
 ```powershell
 python qmt_windows_bridge.py ^
-  --host 0.0.0.0 ^
-  --port 8765 ^
-  --qmt-path "C:\国金QMT\userdata_mini" ^
-  --account-id <ACCOUNT_ID> ^
-  --account-type STOCK ^
-  --token "<RANDOM_TOKEN>"
+  --host 127.0.0.1 ^
+  --port 9000
 ```
 
 跨机器访问时必须配置 token，并在 Windows 防火墙中允许 `8765` 端口入站。Mac 端 `.env` 配置示例：
@@ -885,8 +912,10 @@ sats serve --host 127.0.0.1 --port 8000
 | `daily_basic` | Tushare | 换手率、流通市值、估值等 |
 | 财务、资金流、股票列表 | Tushare | 基本面与股票基础资料 |
 | 板块热点、涨跌停情绪 | Tushare | 市场情绪与热点上下文 |
-| 市场宽度 / 部分补充数据 | AkShare 可选 | 补充性数据，不作为主行情来源 |
+| 市场宽度 / AkShare 数据字典 | AkShare 可选 | TickFlow/Tushare 未覆盖时的补充目录与只读取数，不作为主行情优先来源 |
 | 公开网页与热榜 | `ddgs` / 公开平台接口 | 只读证据，不替代结构化市场数据 |
+
+AkShare 以“数据字典 + 白名单取数”的方式接入自然语言能力：Agent 会先查看 `data.list_provider_capabilities`，普通 A 股 quote/K 线/分钟 K 仍优先使用 TickFlow，Tushare 白名单继续走 Tushare；只有用户明确要求 AkShare，或需要宏观、行业、期货、期权、债券、基金等补充数据时，才会通过 `data.list_akshare_datasets` / `data.describe_akshare_dataset` / `data.get_akshare_data` 按需调用。AkShare 未安装时返回 `akshare:unavailable`，不会影响 SATS 主流程。
 
 ### 数据真实性原则
 
