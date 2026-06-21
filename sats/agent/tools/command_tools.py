@@ -14,6 +14,8 @@ SATS_COMMANDS = (
     "analyze",
     "analyze-dsa",
     "dsa",
+    "deep-analysis",
+    "serenity-screen",
     "analyze-chan",
     "chan-kb",
     "discover",

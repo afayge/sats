@@ -21,7 +21,15 @@ class ChatCliTest(unittest.TestCase):
     def test_cli_chat_prints_llm_response(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
-        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+        fake = SimpleNamespace(
+            content="回答 [S1]",
+            tool_call_count=1,
+            data_names=("Agent",),
+            artifacts=(),
+            sources=({"id": "S1", "title": "来源", "url": "https://example.com/a"},),
+            turn_id="turn",
+            session_id="chat_agent",
+        )
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
@@ -33,6 +41,8 @@ class ChatCliTest(unittest.TestCase):
         agent.assert_called_once()
         output = stdout.getvalue()
         self.assertIn("# SATS 自然对话输出", output)
+        self.assertIn("## 来源", output)
+        self.assertIn("https://example.com/a", output)
         self.assertIn("`数据: Agent`", output)
         self.assertIn("> 回答", output)
 
@@ -53,6 +63,23 @@ class ChatCliTest(unittest.TestCase):
         self.assertIn("# SATS 自然对话输出", output)
         self.assertIn("`数据: Agent`", output)
         self.assertIn("> 回答", output)
+
+    def test_cli_chat_plan_only_prints_agent_plan_without_execution(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro", llm_timeout_seconds=10)
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_agent_once") as agent,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--plan-only", "用", "price_volume_ma", "筛选，并对筛选股票制定明天交易计划"]), 0)
+
+        agent.assert_not_called()
+        output = stdout.getvalue()
+        self.assertIn("SATS Agent Plan", output)
+        self.assertIn("工作流: screened_stock_analysis_plan", output)
+        self.assertIn("分析模式: batch", output)
 
     def test_cli_chat_no_agent_can_disable_memory(self) -> None:
         stdout = StringIO()

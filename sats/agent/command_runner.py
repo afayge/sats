@@ -92,7 +92,7 @@ class AgentCommandRunner:
         if action in {"buy", "sell"}:
             if not self.policy.allows_trade(action):
                 return CommandRunResult(tuple(argv), 2, stderr=f"agent auto-trade does not allow {action}", status="error")
-            if self.policy.broker != "qmt" or not self.policy.live_trading:
+            if bool(getattr(self.policy, "dry_run", False)) or self.policy.broker != "qmt" or not self.policy.live_trading:
                 return argv if "--dry-run" in argv else [*argv, "--dry-run"]
             return argv
         if action == "cancel" and not self.policy.live_trading:

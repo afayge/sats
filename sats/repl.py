@@ -13,11 +13,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-from prompt_toolkit import PromptSession, print_formatted_text
+from prompt_toolkit import PromptSession as ToolkitPromptSession
+from prompt_toolkit import print_formatted_text
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.formatted_text.utils import fragment_list_to_text
 from prompt_toolkit.history import FileHistory, InMemoryHistory
+from prompt_toolkit.layout.containers import HSplit, Window
+from prompt_toolkit.layout.processors import Processor, Transformation, TransformationInput
 from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 
@@ -42,9 +45,13 @@ CLI_COMMANDS = [
     "results",
     "result-rules",
     "quote",
+    "period-change",
     "analyze",
     "analyze-dsa",
     "dsa",
+    "deep-analysis",
+    "serenity-screen",
+    "trading-committee",
     "analyze-chan",
     "chan-kb",
     "discover",
@@ -65,7 +72,7 @@ CLI_COMMANDS = [
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace", "goal"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace", "goal", "plan"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 
 HELP_COMMANDS = [
@@ -74,6 +81,7 @@ HELP_COMMANDS = [
     ("/confirm", "确认运行待执行动作"),
     ("/reject", "取消待执行动作"),
     ("/trace", "查看对话 turn trace"),
+    ("/plan", "只生成 Agent 计划"),
     ("/clear", "清屏"),
     ("/save", "保存上一条输出"),
     ("/exit", "退出"),
@@ -83,9 +91,13 @@ HELP_COMMANDS = [
     ("/results", "查询筛选结果"),
     ("/result-rules", "查看结果规则名"),
     ("/quote", "实时价格"),
+    ("/period-change", "区间涨跌幅"),
     ("/analyze", "统一信号分析"),
     ("/analyze-dsa", "分析 DSA 股票"),
     ("/dsa", "原生 DSA 分析"),
+    ("/deep-analysis", "原生个股深研"),
+    ("/serenity-screen", "Serenity AI 卡位筛选"),
+    ("/trading-committee", "投资委员会多团队分析"),
     ("/analyze-chan", "分析缠论股票"),
     ("/chan-kb", "搜索缠论知识库"),
     ("/discover", "短线机会发现"),
@@ -115,11 +127,16 @@ HELP_EXAMPLES = [
     ("/screen --trade-date 20260514 --rule monthly_base_breakout", "月K箱体突破筛选"),
     ("/results --trade-date 20260514 --passed", "查询通过股票"),
     ("/quote --stocks 000001,600519", "查看实时价格"),
+    ("/period-change --stocks 000001,600519 --days 60", "查看近 60 个自然日涨跌幅"),
+    ("/period-change --indices 上证指数,沪深300 --days 180", "查看指数近 180 个自然日涨跌幅"),
     ("/analyze --stocks 000938 --signals ma_kline,chan", "统一信号分析"),
     ("/analyze --from-screened --trade-date 20260514 --rule price_volume_ma --signals all", "分析筛选结果"),
     ("/analyze signals --category kline", "查看信号策略"),
     ("/dsa --stocks 000001,600519 --trade-date 20260514", "原生 DSA 分析"),
     ("/dsa --from-screened --trade-date 20260514 --explain-rating", "分析筛选结果"),
+    ("/deep-analysis --stocks 000001,600519 --trade-date 20260514", "原生个股深研"),
+    ("/serenity-screen --theme AI半导体 --trade-date 20260514 --top 10", "Serenity AI 卡位筛选"),
+    ("/trading-committee --stocks 000001,600519 --trade-date 20260514", "投资委员会多团队分析"),
     ("/analyze-dsa --stocks 000001,600519", "分析股票"),
     ("/analyze-chan --stocks 000001 --chan-rule chan-signals", "缠论指定股票分析"),
     ("/discover --limit 5", "短线机会发现"),
@@ -134,10 +151,13 @@ HELP_EXAMPLES = [
     ("/new 茅台估值复盘", "开启新的多轮对话"),
     ("/chat 写一个5日/20日均线策略并回测000001", "生成待确认 runtime 动作"),
     ("/web search 贵州茅台 最新公告 --limit 5", "公开网络搜索"),
+    ("/web open https://example.com --query 关键事实", "抓取并检索指定网页"),
+    ("/web cache clear --expired-only", "清理过期网页索引"),
     ("/web hot --platforms weibo,zhihu --limit 20", "社交热榜"),
     ("/web hot --platforms xueqiu --limit 20", "雪球热股/热点"),
     ("/web mentions --keyword 贵州茅台", "热榜关键词命中"),
     ("筛选短线机会并保存报告", "自然语言自主执行 Agent"),
+    ("/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划", "只生成自然任务计划"),
     ("/goal 明天按信号自动买入不超过2万", "设置并运行 Agent 目标"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
     ("/trace", "查看最近一次对话 trace"),
@@ -145,12 +165,17 @@ HELP_EXAMPLES = [
     ("/watchlist add --stocks 000001.SZ,600519.SH", "批量关注股票"),
     ("/watchlist clear", "清空关注列表"),
     ("/monitor start --rules chan_signals", "启动实时监控"),
+    ("/monitor plans list", "查看可执行监控计划"),
+    ("/monitor plans validate --file plan.json", "校验监控计划 JSON"),
+    ("/monitor plans import --file plan.json", "导入监控计划草稿"),
     ("/monitor-display start", "当前终端打开监控显示"),
     ("/schedule list", "查看定时任务"),
     ("/schedule add --name daily-discover --type chat --text \"预测未来几天大概率上涨的股票\" --daily --time 08:45", "添加定时聊天任务"),
     ("/qmt positions", "查看 QMT 持仓"),
+    ("/monitor positions list", "同步并查看监控持仓"),
     ("/qmt buy --symbol 000001 --quantity 100 --price-type latest", "QMT 实盘买入"),
     ("/model status", "查看当前模型"),
+    ("/model ping --timeout 20", "检查主模型连通性"),
     ("/model use XIAOMIMIMO --target light", "切换轻量模型"),
     ("/chat 帮我解释 price_volume_ma", "LLM 问答"),
     ("/save --format pdf", "保存上一条输出"),
@@ -247,6 +272,8 @@ COMPLETION_DESCRIPTIONS = {
     "--db": "DuckDB 路径",
     "--symbol": "单只股票代码或名称",
     "--stocks": "指定股票代码或名称列表",
+    "--indices": "指定指数代码或名称列表",
+    "--days": "从今天向前计算的自然日数",
     "--from-screened": "使用筛选结果",
     "--signals": "信号策略列表",
     "--factor": "因子 ID",
@@ -268,6 +295,9 @@ COMPLETION_DESCRIPTIONS = {
     "--llm-timeout": "LLM 超时时间",
     "--no-llm": "跳过 LLM",
     "--period": "K 线周期",
+    "--phase": "深研阶段",
+    "--debate-rounds": "研究员辩论轮数",
+    "--risk-rounds": "风控辩论轮数",
     "--mode": "数据模式",
     "--count": "数量限制",
     "--start-date": "开始日期",
@@ -277,6 +307,8 @@ COMPLETION_DESCRIPTIONS = {
     "--candidate-limit": "候选池数量",
     "--trusted-domains": "限定搜索域名",
     "--freshness": "搜索新鲜度",
+    "--context-size": "原生 RAG 搜索上下文深度",
+    "--providers": "搜索提供方列表",
     "--platforms": "社交平台列表，支持 xueqiu/xueqiu_stock/xueqiu_spot",
     "--keyword": "关键词",
     "--hot-sector-days": "热点板块天数",
@@ -291,9 +323,7 @@ COMPLETION_DESCRIPTIONS = {
     "--source": "保存来源",
     "--target": "切换目标",
     "--yes": "确认执行",
-    "--buy-price": "买入价格",
     "--quantity": "持仓数量",
-    "--buy-date": "买入日期",
     "--interval": "执行间隔",
     "--daily": "每天执行",
     "--weekly": "每周执行",
@@ -317,15 +347,27 @@ COMPLETION_DESCRIPTIONS = {
     "--max-iterations": "Agent 最大步骤数",
     "--command-timeout": "Agent 命令超时秒数",
     "--python-timeout": "Agent Python 超时秒数",
+    "--plan-only": "只生成 Agent 计划",
+    "--dry-run": "跳过高风险副作用",
     "--lists": "列表名称",
     "--llm-review": "启用 LLM 复核",
     "--once": "只运行一次",
     "--refresh": "刷新间隔",
     "--plain": "纯文本输出",
     "--new-terminal": "新终端窗口",
+    "--file": "JSON 文件路径",
+    "--plan-id": "监控计划 ID",
+    "--item-id": "监控计划项目 ID",
+    "--group-id": "监控触发组 ID",
     "--select-watchlist": "选择导入关注列表",
     "--no-select-watchlist": "跳过关注列表选择",
-    "positions": "持仓管理",
+    "positions": "QMT 持仓",
+    "plans": "可执行监控计划",
+    "validate": "校验 JSON",
+    "import": "导入草稿",
+    "activate": "启用计划",
+    "disable-item": "停用计划项目",
+    "disable-group": "停用触发组",
     "signals": "信号策略",
     "factor": "因子分析",
     "pick": "因子选股",
@@ -342,11 +384,14 @@ COMPLETION_DESCRIPTIONS = {
     "stop": "停止服务",
     "status": "查看状态",
     "run": "前台运行",
+    "collect": "采集阶段",
+    "score": "评分阶段",
+    "panel": "评委面板阶段",
+    "report": "报告阶段",
     "run-loop": "前台调度循环",
     "runs": "执行记录",
     "qmt": "QMT 交易",
     "bridge": "QMT Bridge",
-    "sync": "同步数据",
     "asset": "账户资产",
     "orders": "委托记录",
     "trades": "成交记录",
@@ -363,6 +408,8 @@ COMPLETION_DESCRIPTIONS = {
     "show": "查看详情",
     "clear": "清空记录",
     "search": "搜索记录",
+    "open": "打开公开网页",
+    "cache": "网页索引缓存",
     "hot": "社交热榜",
     "mentions": "热榜命中",
     "xueqiu": "雪球热股/热点",
@@ -374,7 +421,8 @@ COMPLETION_DESCRIPTIONS = {
 
 COMPLETION_WORDS = list(COMPLETION_DESCRIPTIONS)
 
-PROMPT_MESSAGE = FormattedText([("", "sats> ")])
+PROMPT_STYLE = "fg:#7dd3fc"
+PROMPT_MESSAGE = FormattedText([(PROMPT_STYLE, "sats> ")])
 MUTED_STYLE = "fg:#9ca3af"
 COMMAND_STYLE = "fg:#f5f5f5"
 DESC_STYLE = COMMAND_STYLE
@@ -393,6 +441,41 @@ REPL_STYLE = Style.from_dict(
         "completion-menu.meta.completion.current": COMPLETION_MENU_SELECTED_STYLE,
     }
 )
+
+
+class InputSeparatorProcessor(Processor):
+    def __init__(self, prompt_width: int) -> None:
+        self.prompt_width = prompt_width
+
+    def apply_transformation(self, ti: TransformationInput) -> Transformation:
+        if ti.lineno != ti.document.line_count - 1 or ti.width <= 0:
+            return Transformation(ti.fragments)
+
+        prefix_width = self.prompt_width if ti.lineno == 0 else 0
+        input_width = get_cwidth(fragment_list_to_text(ti.fragments))
+        current_column = (prefix_width + input_width) % ti.width
+        padding = (ti.width - current_column) % ti.width
+        return Transformation(
+            [
+                *ti.fragments,
+                ("", " " * padding),
+                (SEPARATOR_STYLE, "─" * ti.width),
+            ]
+        )
+
+
+class ReplPromptSession(ToolkitPromptSession):
+    def _create_layout(self):
+        layout = super()._create_layout()
+        main_input = layout.container.children[0].alternative_content
+        for completion_float in main_input.floats[:2]:
+            completion_float.content = HSplit(
+                [
+                    Window(height=1),
+                    completion_float.content,
+                ]
+            )
+        return layout
 
 
 @dataclass(slots=True)
@@ -429,10 +512,11 @@ def run_repl() -> int:
         history_store=InteractionHistoryStore(settings.db_path),
         chat_session=chat_session,
     )
-    session = PromptSession(
+    session = ReplPromptSession(
         history=_history(),
         completer=build_repl_completer(),
         complete_while_typing=True,
+        input_processors=[InputSeparatorProcessor(_display_width(fragment_list_to_text(PROMPT_MESSAGE)))],
         bottom_toolbar=_status_toolbar(settings, state),
         style=REPL_STYLE,
     )
@@ -446,7 +530,6 @@ def run_repl() -> int:
         except EOFError:
             print("bye")
             return 0
-        _print_input_separator()
         if not handle_repl_line(line, printer=print, chat_session=chat_session, state=state):
             return 0
 
@@ -941,6 +1024,9 @@ def handle_repl_line(
             state.agent_goal = " ".join(argv[1:]).strip()
             argv = ["agent", *argv[1:]]
             command = "agent"
+        if command == "plan":
+            argv = ["agent", "--plan-only", *argv[1:]]
+            command = "agent"
         if command == "clear":
             printer("\033[2J\033[H")
             return True
@@ -1263,6 +1349,7 @@ def _chat_result_from_agent(result: object) -> ChatResult:
         tool_call_count=int(getattr(result, "tool_call_count", 0) or 0),
         data_names=tuple(getattr(result, "data_names", ()) or ()),
         artifacts=tuple(getattr(result, "artifacts", ()) or ()),
+        sources=tuple(getattr(result, "sources", ()) or ()),
         turn_id=getattr(result, "turn_id", None),
         session_id=str(getattr(result, "session_id", "") or ""),
     )

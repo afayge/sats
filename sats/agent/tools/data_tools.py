@@ -267,7 +267,14 @@ def _index_daily(context: AgentToolContext, arguments: dict[str, Any]) -> AgentT
         end_date=str(arguments.get("end_date") or ""),
     )
     require_market_data_provenance(frame, dataset="index_daily")
-    return _frame_result("index_daily", frame)
+    return _frame_result(
+        "index_daily",
+        frame,
+        include_rows=True,
+        sample_limit=80,
+        group_tail_by="index_code",
+        group_tail=10,
+    )
 
 
 def _stock_minute(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
@@ -383,9 +390,20 @@ def _get_akshare_data(context: AgentToolContext, arguments: dict[str, Any]) -> A
     return ok("loaded AkShare dataset", payload={"akshare_data": payload}, data_names=("AkShare 数据",))
 
 
-def _frame_result(name: str, frame: Any, *, include_rows: bool = False) -> AgentToolResult:
+def _frame_result(
+    name: str,
+    frame: Any,
+    *,
+    include_rows: bool = False,
+    sample_limit: int = 20,
+    group_tail_by: str = "",
+    group_tail: int = 0,
+) -> AgentToolResult:
     provenance = frame.attrs.get("market_data_provenance") or []
     payload: dict[str, Any] = {"rows": int(len(frame)), "columns": list(frame.columns), "provenance": provenance}
     if include_rows:
-        payload["sample"] = frame.head(20).to_dict(orient="records")
+        sample = frame
+        if group_tail_by and group_tail_by in frame.columns and group_tail > 0:
+            sample = frame.groupby(group_tail_by, group_keys=False).tail(group_tail)
+        payload["sample"] = sample.head(max(1, int(sample_limit))).to_dict(orient="records")
     return ok(f"{name}: {len(frame)} rows\n{json_content(provenance)}", payload=payload, data_names=(name,))

@@ -505,6 +505,49 @@ CREATE TABLE IF NOT EXISTS knowledge_chunks (
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_collection ON knowledge_chunks(collection_name);
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_knowledge ON knowledge_chunks(knowledge_id);
 
+CREATE TABLE IF NOT EXISTS web_documents (
+    document_id TEXT NOT NULL,
+    url TEXT NOT NULL,
+    canonical_url TEXT NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    content TEXT NOT NULL,
+    content_hash TEXT NOT NULL,
+    content_type TEXT NOT NULL DEFAULT '',
+    extraction_method TEXT NOT NULL DEFAULT '',
+    published_at TIMESTAMP,
+    fetched_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    PRIMARY KEY (document_id),
+    UNIQUE (canonical_url)
+);
+
+CREATE TABLE IF NOT EXISTS web_chunks (
+    chunk_id TEXT NOT NULL,
+    document_id TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    content TEXT NOT NULL,
+    content_hash TEXT NOT NULL,
+    token_estimate INTEGER NOT NULL DEFAULT 0,
+    meta_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (chunk_id),
+    UNIQUE (document_id, chunk_index, content_hash)
+);
+
+CREATE TABLE IF NOT EXISTS web_chunk_embeddings (
+    chunk_id TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    model TEXT NOT NULL,
+    vector DOUBLE[] NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (chunk_id, provider, model)
+);
+
+CREATE INDEX IF NOT EXISTS idx_web_documents_expires ON web_documents(expires_at);
+CREATE INDEX IF NOT EXISTS idx_web_chunks_document ON web_chunks(document_id);
+
 CREATE TABLE IF NOT EXISTS monitor_positions (
     ts_code TEXT NOT NULL,
     name TEXT,
@@ -593,6 +636,62 @@ CREATE TABLE IF NOT EXISTS monitor_runtime (
     last_error TEXT,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (service_name)
+);
+
+CREATE TABLE IF NOT EXISTS monitor_plans (
+    plan_id TEXT NOT NULL,
+    schema_version INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    start_date TEXT NOT NULL,
+    end_date TEXT NOT NULL,
+    active_windows_json TEXT NOT NULL DEFAULT '[]',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (plan_id)
+);
+
+CREATE TABLE IF NOT EXISTS monitor_plan_items (
+    item_id TEXT NOT NULL,
+    plan_id TEXT NOT NULL,
+    ts_code TEXT NOT NULL,
+    name TEXT,
+    summary TEXT,
+    risk_note TEXT,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (item_id)
+);
+
+CREATE TABLE IF NOT EXISTS monitor_plan_trigger_groups (
+    group_id TEXT NOT NULL,
+    plan_id TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    message TEXT,
+    conditions_json TEXT NOT NULL DEFAULT '[]',
+    sizing_json TEXT NOT NULL DEFAULT '{}',
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (group_id)
+);
+
+CREATE TABLE IF NOT EXISTS monitor_plan_trigger_state (
+    group_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    last_result TEXT NOT NULL DEFAULT 'unknown',
+    crossing_count INTEGER NOT NULL DEFAULT 0,
+    notification_count INTEGER NOT NULL DEFAULT 0,
+    trade_count INTEGER NOT NULL DEFAULT 0,
+    last_values_json TEXT NOT NULL DEFAULT '[]',
+    last_evaluated_at TIMESTAMP,
+    last_triggered_at TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (group_id, trade_date)
 );
 
 CREATE TABLE IF NOT EXISTS broker_accounts (

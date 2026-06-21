@@ -72,12 +72,14 @@ class _TickFlowBackend:
                     {"ts_code": "000002.SZ", "close": 9.0, "pct_chg": -0.5, "amount": 80.0},
                 ]
             )
-        return pd.DataFrame(
+        frame = pd.DataFrame(
             [
                 {"ts_code": symbol, "close": 10.0, "pct_chg": 1.0, "amount": 100.0}
                 for symbol in symbols
             ]
         )
+        frame.attrs["data_source"] = "tickflow_realtime_minute_quote"
+        return frame
 
     def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
         self.daily_calls += 1
@@ -381,7 +383,7 @@ class AStockDataProviderTest(unittest.TestCase):
 
             frame = provider.load_realtime_quotes(symbols=["000001"])
 
-            self.assertEqual(frame.attrs["data_source"], "tickflow_quote")
+            self.assertEqual(frame.attrs["data_source"], "tickflow_realtime_minute_quote")
             self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
             self.assertEqual(tickflow.quote_calls, 1)
             self.assertEqual(akshare.quote_calls, 0)

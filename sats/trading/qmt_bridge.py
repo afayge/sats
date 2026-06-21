@@ -50,7 +50,10 @@ class XtQuantQmtGateway:
 
     def positions(self) -> dict[str, Any]:
         self._ensure_connected()
-        return {"positions": [_obj_to_dict(item) for item in self._trader.query_stock_positions(self._account) or []]}
+        rows = self._trader.query_stock_positions(self._account)
+        if rows is None:
+            raise RuntimeError("QMT position query failed: query_stock_positions returned None")
+        return {"positions": [_obj_to_dict(item) for item in rows]}
 
     def orders(self, *, open_only: bool = False) -> dict[str, Any]:
         self._ensure_connected()
@@ -160,6 +163,9 @@ def _obj_to_dict(obj: Any) -> dict[str, Any]:
         "volume",
         "can_use_volume",
         "open_price",
+        "buy_date",
+        "open_date",
+        "position_date",
         "market_value",
         "order_id",
         "order_status",

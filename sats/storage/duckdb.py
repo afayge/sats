@@ -272,6 +272,46 @@ class DuckDBStorage:
             symbol_column="ts_code",
         )
 
+    def get_latest_stock_daily_snapshot(self, *, end_date: str, min_count: int = 3000) -> pd.DataFrame:
+        columns = [
+            "ts_code",
+            "trade_date",
+            "open",
+            "high",
+            "low",
+            "close",
+            "vol",
+            "amount",
+            "pct_chg",
+            "data_source",
+            "fetched_at",
+        ]
+        self.initialize()
+        with self.connect() as con:
+            row = con.execute(
+                """
+                SELECT trade_date
+                FROM stock_daily
+                WHERE trade_date <= ?
+                GROUP BY trade_date
+                HAVING COUNT(*) >= ?
+                ORDER BY trade_date DESC
+                LIMIT 1
+                """,
+                [str(end_date), max(1, int(min_count))],
+            ).fetchone()
+            if not row:
+                return pd.DataFrame(columns=columns)
+            return con.execute(
+                f"""
+                SELECT {", ".join(columns)}
+                FROM stock_daily
+                WHERE trade_date = ?
+                ORDER BY ts_code ASC
+                """,
+                [str(row[0])],
+            ).fetchdf()
+
     def get_stock_daily_basic(self, trade_dates: list[str]) -> pd.DataFrame:
         return self._get_by_trade_dates(
             "stock_daily_basic",
@@ -782,6 +822,378 @@ class DuckDBStorage:
             for row in rows
         ]
 
+    def insert_monitor_plan_bundle(self, plan: dict) -> None:
+        self.initialize()
+        with self.connect() as con:
+            con.execute("BEGIN TRANSACTION")
+            try:
+                con.execute(
+                    """
+                    INSERT INTO monitor_plans
+                        (plan_id, schema_version, name, status, start_date, end_date, active_windows_json)
+                    VALUES (?, ?, ?, 'draft', ?, ?, ?)
+                    """,
+                    [
+                        str(plan["plan_id"]),
+                        int(plan["schema_version"]),
+                        str(plan["name"]),
+                        str(plan["start_date"]),
+                        str(plan["end_date"]),
+                        json.dumps(plan.get("active_windows") or [], ensure_ascii=False),
+                    ],
+                )
+                for item in plan.get("items") or []:
+                    con.execute(
+                        """
+                        INSERT INTO monitor_plan_items
+                            (item_id, plan_id, ts_code, name, summary, risk_note, enabled, sort_order)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        [
+                            str(item["item_id"]),
+                            str(plan["plan_id"]),
+                            str(item["symbol"]),
+                            str(item.get("name") or ""),
+                            str(item.get("summary") or ""),
+                            str(item.get("risk_note") or ""),
+                            bool(item.get("enabled", True)),
+                            int(item.get("sort_order") or 0),
+                        ],
+                    )
+                    for group in item.get("trigger_groups") or []:
+                        con.execute(
+                            """
+                            INSERT INTO monitor_plan_trigger_groups
+                                (group_id, plan_id, item_id, action, message, conditions_json,
+                                 sizing_json, enabled, sort_order)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            [
+                                str(group["group_id"]),
+                                str(plan["plan_id"]),
+                                str(item["item_id"]),
+                                str(group["action"]),
+                                str(group.get("message") or ""),
+                                json.dumps(group.get("conditions") or [], ensure_ascii=False),
+                                json.dumps(group.get("sizing") or {"mode": "default"}, ensure_ascii=False),
+                                bool(group.get("enabled", True)),
+                                int(group.get("sort_order") or 0),
+                            ],
+                        )
+                con.execute("COMMIT")
+            except Exception:
+                con.execute("ROLLBACK")
+                raise
+
+    def list_monitor_plans(self, *, status: str | None = None) -> list[dict]:
+        self.initialize()
+        clause = "WHERE p.status = ?" if status else ""
+        params = [status] if status else []
+        with self.connect() as con:
+            rows = con.execute(
+                f"""
+                SELECT p.plan_id, p.schema_version, p.name, p.status, p.start_date, p.end_date,
+                       p.active_windows_json, p.created_at, p.updated_at,
+                       (SELECT COUNT(*) FROM monitor_plan_items i WHERE i.plan_id = p.plan_id),
+                       (SELECT COUNT(*) FROM monitor_plan_trigger_groups g WHERE g.plan_id = p.plan_id)
+                FROM monitor_plans p
+                {clause}
+                ORDER BY p.created_at DESC
+                """,
+                params,
+            ).fetchall()
+        return [
+            {
+                "plan_id": row[0],
+                "schema_version": int(row[1]),
+                "name": row[2],
+                "status": row[3],
+                "start_date": row[4],
+                "end_date": row[5],
+                "active_windows": json.loads(row[6] or "[]"),
+                "created_at": str(row[7]),
+                "updated_at": str(row[8]),
+                "item_count": int(row[9]),
+                "group_count": int(row[10]),
+            }
+            for row in rows
+        ]
+
+    def get_monitor_plan(self, plan_id: str) -> dict:
+        self.initialize()
+        with self.connect() as con:
+            plan_row = con.execute(
+                """
+                SELECT plan_id, schema_version, name, status, start_date, end_date,
+                       active_windows_json, created_at, updated_at
+                FROM monitor_plans
+                WHERE plan_id = ?
+                """,
+                [plan_id],
+            ).fetchone()
+            if plan_row is None:
+                return {}
+            item_rows = con.execute(
+                """
+                SELECT item_id, ts_code, name, summary, risk_note, enabled, sort_order,
+                       created_at, updated_at
+                FROM monitor_plan_items
+                WHERE plan_id = ?
+                ORDER BY sort_order ASC, item_id ASC
+                """,
+                [plan_id],
+            ).fetchall()
+            group_rows = con.execute(
+                """
+                SELECT group_id, item_id, action, message, conditions_json, sizing_json,
+                       enabled, sort_order, created_at, updated_at
+                FROM monitor_plan_trigger_groups
+                WHERE plan_id = ?
+                ORDER BY sort_order ASC, group_id ASC
+                """,
+                [plan_id],
+            ).fetchall()
+        groups_by_item: dict[str, list[dict]] = {}
+        for row in group_rows:
+            groups_by_item.setdefault(str(row[1]), []).append(
+                {
+                    "group_id": row[0],
+                    "item_id": row[1],
+                    "action": row[2],
+                    "message": row[3] or "",
+                    "conditions": json.loads(row[4] or "[]"),
+                    "sizing": json.loads(row[5] or "{}"),
+                    "enabled": bool(row[6]),
+                    "sort_order": int(row[7]),
+                    "created_at": str(row[8]),
+                    "updated_at": str(row[9]),
+                }
+            )
+        items = [
+            {
+                "item_id": row[0],
+                "symbol": row[1],
+                "name": row[2] or "",
+                "summary": row[3] or "",
+                "risk_note": row[4] or "",
+                "enabled": bool(row[5]),
+                "sort_order": int(row[6]),
+                "created_at": str(row[7]),
+                "updated_at": str(row[8]),
+                "trigger_groups": groups_by_item.get(str(row[0]), []),
+            }
+            for row in item_rows
+        ]
+        return {
+            "plan_id": plan_row[0],
+            "schema_version": int(plan_row[1]),
+            "name": plan_row[2],
+            "status": plan_row[3],
+            "start_date": plan_row[4],
+            "end_date": plan_row[5],
+            "active_windows": json.loads(plan_row[6] or "[]"),
+            "created_at": str(plan_row[7]),
+            "updated_at": str(plan_row[8]),
+            "items": items,
+        }
+
+    def list_active_monitor_plan_groups(self, *, trade_date: str) -> list[dict]:
+        self.initialize()
+        with self.connect() as con:
+            rows = con.execute(
+                """
+                SELECT p.plan_id, p.name, p.start_date, p.end_date, p.active_windows_json,
+                       i.item_id, i.ts_code, i.name, i.summary, i.risk_note,
+                       g.group_id, g.action, g.message, g.conditions_json, g.sizing_json
+                FROM monitor_plans p
+                JOIN monitor_plan_items i ON i.plan_id = p.plan_id
+                JOIN monitor_plan_trigger_groups g ON g.item_id = i.item_id
+                WHERE p.status = 'active'
+                  AND i.enabled = TRUE
+                  AND g.enabled = TRUE
+                  AND p.start_date <= ?
+                  AND p.end_date >= ?
+                ORDER BY p.created_at ASC, i.sort_order ASC, g.sort_order ASC
+                """,
+                [trade_date, trade_date],
+            ).fetchall()
+        return [
+            {
+                "plan_id": row[0],
+                "plan_name": row[1],
+                "start_date": row[2],
+                "end_date": row[3],
+                "active_windows": json.loads(row[4] or "[]"),
+                "item_id": row[5],
+                "ts_code": row[6],
+                "name": row[7] or "",
+                "summary": row[8] or "",
+                "risk_note": row[9] or "",
+                "group_id": row[10],
+                "action": row[11],
+                "message": row[12] or "",
+                "conditions": json.loads(row[13] or "[]"),
+                "sizing": json.loads(row[14] or "{}"),
+            }
+            for row in rows
+        ]
+
+    def set_monitor_plan_status(self, plan_id: str, status: str) -> bool:
+        if status not in {"draft", "active", "disabled", "expired"}:
+            raise ValueError(f"unsupported monitor plan status: {status}")
+        self.initialize()
+        with self.connect() as con:
+            count = int(con.execute("SELECT COUNT(*) FROM monitor_plans WHERE plan_id = ?", [plan_id]).fetchone()[0])
+            if count:
+                con.execute(
+                    "UPDATE monitor_plans SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE plan_id = ?",
+                    [status, plan_id],
+                )
+        return bool(count)
+
+    def disable_monitor_plan_item(self, item_id: str) -> bool:
+        return self._disable_monitor_plan_row("monitor_plan_items", "item_id", item_id)
+
+    def disable_monitor_plan_group(self, group_id: str) -> bool:
+        return self._disable_monitor_plan_row("monitor_plan_trigger_groups", "group_id", group_id)
+
+    def delete_monitor_plan(self, plan_id: str) -> bool:
+        self.initialize()
+        with self.connect() as con:
+            con.execute("BEGIN TRANSACTION")
+            try:
+                group_rows = con.execute(
+                    "SELECT group_id FROM monitor_plan_trigger_groups WHERE plan_id = ?",
+                    [plan_id],
+                ).fetchall()
+                count = int(con.execute("SELECT COUNT(*) FROM monitor_plans WHERE plan_id = ?", [plan_id]).fetchone()[0])
+                if count:
+                    group_ids = [str(row[0]) for row in group_rows]
+                    if group_ids:
+                        placeholders = ", ".join("?" for _ in group_ids)
+                        con.execute(
+                            f"DELETE FROM monitor_plan_trigger_state WHERE group_id IN ({placeholders})",
+                            group_ids,
+                        )
+                    con.execute("DELETE FROM monitor_plan_trigger_groups WHERE plan_id = ?", [plan_id])
+                    con.execute("DELETE FROM monitor_plan_items WHERE plan_id = ?", [plan_id])
+                    con.execute("DELETE FROM monitor_plans WHERE plan_id = ?", [plan_id])
+                con.execute("COMMIT")
+            except Exception:
+                con.execute("ROLLBACK")
+                raise
+        return bool(count)
+
+    def expire_monitor_plans(self, trade_date: str) -> int:
+        self.initialize()
+        with self.connect() as con:
+            count = int(
+                con.execute(
+                    "SELECT COUNT(*) FROM monitor_plans WHERE status = 'active' AND end_date < ?",
+                    [trade_date],
+                ).fetchone()[0]
+            )
+            if count:
+                con.execute(
+                    """
+                    UPDATE monitor_plans
+                    SET status = 'expired', updated_at = CURRENT_TIMESTAMP
+                    WHERE status = 'active' AND end_date < ?
+                    """,
+                    [trade_date],
+                )
+        return count
+
+    def get_monitor_plan_trigger_state(self, group_id: str, trade_date: str) -> dict:
+        self.initialize()
+        with self.connect() as con:
+            row = con.execute(
+                """
+                SELECT group_id, trade_date, last_result, crossing_count, notification_count,
+                       trade_count, last_values_json, last_evaluated_at, last_triggered_at, updated_at
+                FROM monitor_plan_trigger_state
+                WHERE group_id = ? AND trade_date = ?
+                """,
+                [group_id, trade_date],
+            ).fetchone()
+        if row is None:
+            return {}
+        return {
+            "group_id": row[0],
+            "trade_date": row[1],
+            "last_result": row[2],
+            "crossing_count": int(row[3]),
+            "notification_count": int(row[4]),
+            "trade_count": int(row[5]),
+            "last_values": json.loads(row[6] or "[]"),
+            "last_evaluated_at": str(row[7]) if row[7] is not None else "",
+            "last_triggered_at": str(row[8]) if row[8] is not None else "",
+            "updated_at": str(row[9]) if row[9] is not None else "",
+        }
+
+    def upsert_monitor_plan_trigger_state(
+        self,
+        *,
+        group_id: str,
+        trade_date: str,
+        last_result: str,
+        crossing_count: int,
+        notification_count: int,
+        trade_count: int,
+        last_values: list[dict],
+        triggered: bool = False,
+    ) -> None:
+        self.initialize()
+        with self.connect() as con:
+            con.execute(
+                """
+                INSERT OR REPLACE INTO monitor_plan_trigger_state
+                    (group_id, trade_date, last_result, crossing_count, notification_count,
+                     trade_count, last_values_json, last_evaluated_at, last_triggered_at, updated_at)
+                VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP,
+                    CASE
+                        WHEN ? THEN CURRENT_TIMESTAMP
+                        ELSE (SELECT last_triggered_at FROM monitor_plan_trigger_state WHERE group_id = ? AND trade_date = ?)
+                    END,
+                    CURRENT_TIMESTAMP
+                )
+                """,
+                [
+                    group_id,
+                    trade_date,
+                    last_result,
+                    int(crossing_count),
+                    int(notification_count),
+                    int(trade_count),
+                    json.dumps(last_values or [], ensure_ascii=False, default=str),
+                    bool(triggered),
+                    group_id,
+                    trade_date,
+                ],
+            )
+
+    def monitor_plan_counts(self) -> dict[str, int]:
+        self.initialize()
+        with self.connect() as con:
+            rows = con.execute(
+                "SELECT status, COUNT(*) FROM monitor_plans GROUP BY status"
+            ).fetchall()
+        counts = {str(row[0]): int(row[1]) for row in rows}
+        counts["total"] = sum(counts.values())
+        return counts
+
+    def _disable_monitor_plan_row(self, table: str, key: str, value: str) -> bool:
+        self.initialize()
+        with self.connect() as con:
+            count = int(con.execute(f"SELECT COUNT(*) FROM {table} WHERE {key} = ?", [value]).fetchone()[0])
+            if count:
+                con.execute(
+                    f"UPDATE {table} SET enabled = FALSE, updated_at = CURRENT_TIMESTAMP WHERE {key} = ?",
+                    [value],
+                )
+        return bool(count)
+
     def upsert_broker_account(self, account: dict) -> None:
         self.initialize()
         with self.connect() as con:
@@ -830,6 +1242,84 @@ class DuckDBStorage:
                         json.dumps(position.get("raw") or position, ensure_ascii=False, default=str),
                     ],
                 )
+
+    def replace_qmt_position_snapshot(self, positions: list[dict], *, provider: str = "qmt", account_id: str = "") -> None:
+        self.initialize()
+        sync_params = json.dumps(
+            {
+                "provider": provider,
+                "account_id": account_id,
+                "position_count": len(positions),
+            },
+            ensure_ascii=False,
+        )
+        with self.connect() as con:
+            con.execute("BEGIN TRANSACTION")
+            try:
+                con.execute(
+                    "DELETE FROM broker_positions WHERE provider = ? AND account_id = ?",
+                    [provider, account_id],
+                )
+                con.execute("DELETE FROM monitor_positions")
+                for position in positions:
+                    con.execute(
+                        """
+                        INSERT INTO broker_positions
+                            (provider, account_id, ts_code, name, quantity, available_quantity, cost_price,
+                             price, market_value, pnl, pnl_pct, source, raw_json, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """,
+                        [
+                            provider,
+                            account_id,
+                            str(position.get("ts_code") or ""),
+                            str(position.get("name") or ""),
+                            _optional_float(position.get("quantity")),
+                            _optional_float(position.get("available_quantity")),
+                            _optional_float(position.get("cost_price")),
+                            _optional_float(position.get("price")),
+                            _optional_float(position.get("market_value")),
+                            _optional_float(position.get("pnl")),
+                            _optional_float(position.get("pnl_pct")),
+                            str(position.get("source") or provider),
+                            json.dumps(position.get("raw") or position, ensure_ascii=False, default=str),
+                        ],
+                    )
+                    con.execute(
+                        """
+                        INSERT INTO monitor_positions
+                            (ts_code, name, quantity, buy_price, buy_date, enabled, note, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, TRUE, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """,
+                        [
+                            str(position.get("ts_code") or ""),
+                            str(position.get("name") or ""),
+                            _optional_float(position.get("quantity")),
+                            _optional_float(position.get("cost_price")),
+                            str(position.get("buy_date") or ""),
+                            f"{provider}_sync:{account_id}",
+                        ],
+                    )
+                con.execute(
+                    """
+                    INSERT OR REPLACE INTO monitor_runtime
+                        (service_name, status, pid, heartbeat_at, started_at, stopped_at,
+                         params_json, last_error, updated_at)
+                    VALUES (
+                        'qmt-position-sync', 'ready', NULL, CURRENT_TIMESTAMP,
+                        COALESCE(
+                            (SELECT started_at FROM monitor_runtime WHERE service_name = 'qmt-position-sync'),
+                            CURRENT_TIMESTAMP
+                        ),
+                        NULL, ?, '', CURRENT_TIMESTAMP
+                    )
+                    """,
+                    [sync_params],
+                )
+                con.execute("COMMIT")
+            except Exception:
+                con.execute("ROLLBACK")
+                raise
 
     def list_broker_positions(self, *, provider: str | None = None, account_id: str | None = None) -> list[dict]:
         self.initialize()

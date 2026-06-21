@@ -248,6 +248,8 @@ class TickFlowProviderTest(unittest.TestCase):
             self.assertEqual(frame.iloc[0]["vol"], 12.0)
             self.assertEqual(frame.iloc[0]["amount"], 121.2)
             self.assertEqual(frame.iloc[0]["data_source"], "tickflow")
+            self.assertEqual(client.klines.intraday_batch_calls[0]["period"], period)
+            self.assertEqual(client.klines.intraday_batch_calls[0]["count"], 20)
 
     def test_rejects_invalid_period(self) -> None:
         provider = self._provider(FakeClient())
@@ -388,26 +390,34 @@ class TickFlowProviderTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported K-line period"):
             provider.load_klines(["000001.SZ"], period="10m")
 
-    def test_realtime_quotes_adapt_to_daily_frame(self) -> None:
+    def test_realtime_daily_quotes_use_1m_minute_kline(self) -> None:
         provider = self._provider(FakeClient())
 
         frame = provider.load_realtime_daily_quotes(["000001.SZ"], trade_date="20260514")
 
         self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
-        self.assertAlmostEqual(float(frame.iloc[0]["pct_chg"]), 5.0)
-        self.assertAlmostEqual(float(frame.iloc[0]["vol"]), 1500.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["close"]), 10.1)
+        self.assertAlmostEqual(float(frame.iloc[0]["pct_chg"]), 0.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["vol"]), 12.0)
 
     def test_realtime_quotes_can_load_by_symbols_or_universe(self) -> None:
         client = FakeClient()
         provider = self._provider(client)
 
         by_symbols = provider.load_realtime_quotes(symbols=["000001"])
+
+        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_realtime_minute_quote")
+        self.assertEqual(by_symbols.iloc[0]["close"], 10.1)
+        self.assertIn("pre_close", by_symbols.columns)
+        self.assertEqual(client.klines.intraday_batch_calls[0]["symbols"], ["000001.SZ"])
+        self.assertEqual(client.klines.intraday_batch_calls[0]["period"], "1m")
+        self.assertEqual(client.klines.intraday_batch_calls[0]["count"], 1)
+        self.assertEqual(client.quotes.get_by_symbols_calls, [])
+
         by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
 
-        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_quote")
         self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
-        self.assertIn("pre_close", by_symbols.columns)
-        self.assertEqual(client.quotes.get_by_symbols_calls[0], ["000001.SZ"])
+        self.assertEqual(client.quotes.get_by_symbols_calls[0], ["000001.SZ", "600519.SH"])
 
     def test_realtime_quotes_support_sdk_get_shape(self) -> None:
         client = FakeSdkQuoteClient()
@@ -417,9 +427,22 @@ class TickFlowProviderTest(unittest.TestCase):
         by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
 
         self.assertEqual(by_symbols.iloc[0]["ts_code"], "000001.SZ")
+        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_realtime_minute_quote")
         self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
-        self.assertEqual(client.quotes.calls[0]["symbols"], ["000001.SZ"])
-        self.assertEqual(client.quotes.calls[1]["universes"], ["CN_Equity_A"])
+        self.assertEqual(client.quotes.calls[0]["universes"], ["CN_Equity_A"])
+
+    def test_realtime_quotes_fall_back_to_quote_endpoint_when_1m_minute_fails(self) -> None:
+        client = FakeClient(
+            fail_batch=FakeTickFlowPermissionError("当前套餐不支持日内批量查询"),
+            fail_intraday=[FakeTickFlowPermissionError("当前套餐不支持日内分时")],
+        )
+        provider = self._provider(client)
+
+        frame = provider.load_realtime_quotes(symbols=["000001.SZ"])
+
+        self.assertEqual(frame.iloc[0]["data_source"], "tickflow_quote")
+        self.assertAlmostEqual(float(frame.iloc[0]["close"]), 10.5)
+        self.assertEqual(client.quotes.get_by_symbols_calls[0], ["000001.SZ"])
 
     def test_intraday_timeshare_uses_200_symbol_batches_and_alias_source(self) -> None:
         client = FakeClient()
@@ -444,14 +467,14 @@ class TickFlowProviderTest(unittest.TestCase):
         self.assertEqual(factors.iloc[0]["ts_code"], "000001.SZ")
         self.assertEqual(factors.iloc[0]["data_source"], "tickflow_ex_factor")
 
-    def test_realtime_daily_basic_like_uses_quote_and_share_data(self) -> None:
+    def test_realtime_daily_basic_like_uses_1m_minute_quote_and_share_data(self) -> None:
         provider = self._provider(FakeClient())
 
         frame = provider.load_realtime_daily_basic_like(["000001.SZ"], trade_date="20260514")
 
         self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
-        self.assertAlmostEqual(float(frame.iloc[0]["turnover_rate"]), 1500.0 / 15000.0)
-        self.assertAlmostEqual(float(frame.iloc[0]["circ_mv"]), 10.5 * 15000.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["turnover_rate"]), 12.0 / 15000.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["circ_mv"]), 10.1 * 15000.0)
         self.assertEqual(frame.attrs["daily_basic_source"], "tickflow_realtime_basic_like")
 
 

@@ -12,7 +12,7 @@ from unittest.mock import patch
 from prompt_toolkit.utils import get_cwidth
 
 from sats.analysis.opportunity_discovery import OpportunityDiscoveryResult
-from sats.agent.progress import agent_progress_event_sink
+from sats.agent.progress import _event_detail, _event_label, agent_progress_event_sink
 from sats.llm import LLMResponse
 from sats.cli import main
 from sats.progress import FILLED_BLOCK, EMPTY_BLOCK, create_progress
@@ -39,6 +39,31 @@ class _TtyStringIO(io.StringIO):
 
 
 class ProgressReporterTest(unittest.TestCase):
+    def test_agent_progress_labels_distinguish_chat_skill_and_knowledge(self) -> None:
+        def event(tool_name: str) -> SimpleNamespace:
+            return SimpleNamespace(
+                event_type="runtime_iteration_started",
+                item_type="agent_step",
+                item_name="step",
+                payload={"tool_name": tool_name},
+            )
+
+        self.assertEqual(_event_label(event("chat.answer")), "生成普通回答")
+        self.assertEqual(_event_label(event("chat.load_skill")), "调用 skill")
+        self.assertEqual(_event_label(event("chat.list_skills")), "调用 skill")
+        self.assertEqual(_event_label(event("chat.knowledge_search")), "检索知识库")
+        self.assertEqual(_event_label(event("research.knowledge_context")), "检索知识库")
+
+        failed = event("chat.knowledge_search")
+        failed.status = "error"
+        failed.content = "unknown knowledge base: missing"
+        failed.payload["result"] = {
+            "status": "error",
+            "content": "unknown knowledge base: missing",
+            "payload": {},
+        }
+        self.assertIn("unknown knowledge base: missing", _event_detail(failed))
+
     def test_tty_progress_renders_vibe_style_panel_with_ascii_bar(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=10, request="sats screen --trade-date 20260520")

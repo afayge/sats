@@ -11,6 +11,7 @@ import pandas as pd
 
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.data.resolver import MARKET_BREADTH_MIN_COUNT, MarketDataResolver
 from sats.storage.duckdb import DuckDBStorage
 from sats.stock_question import extract_trade_date
 from sats.symbols import normalize_ts_code
@@ -40,6 +41,14 @@ SUPPORTED_MARKET_DIMENSIONS: tuple[str, ...] = (
     "limit_sentiment",
     "hot_sectors",
 )
+MARKET_DIMENSION_ALIASES = {
+    "indices": "core_indices",
+    "index": "core_indices",
+    "breadth": "market_breadth",
+    "sentiment": "limit_sentiment",
+    "sectors": "hot_sectors",
+    "sector": "hot_sectors",
+}
 SUPPORTED_MARKET_HORIZONS: tuple[str, ...] = ("today", "tomorrow", "day_after_tomorrow", "next_week")
 _INDEX_ALIASES = {
     "上证": "000001.SH",
@@ -106,6 +115,7 @@ def build_market_llm_context(
         indices=indices,
         dimensions=dimensions,
         market_plan_source=market_plan_source,
+        require_complete_market=is_market_question(message),
         tickflow_provider=tickflow_provider,
         tushare_provider=tushare_provider,
         akshare_provider=akshare_provider,
@@ -138,14 +148,19 @@ def get_a_share_market_context(
     indices: Sequence[str] | None = None,
     dimensions: Sequence[str] | None = None,
     market_plan_source: str | None = None,
+    require_complete_market: bool = False,
     lookback_days: int = MARKET_LOOKBACK_DAYS,
     astock_provider: Any | None = None,
+    market_data_resolver: Any | None = None,
     tickflow_provider: Any | None = None,
     tushare_provider: Any | None = None,
     akshare_provider: Any | None = None,
 ) -> dict[str, Any]:
     trade_date = trade_date or _today()
-    requested_dimensions = list(resolve_market_dimensions(dimensions))
+    resolved_dimensions, unsupported_dimensions = resolve_market_dimensions_with_warnings(dimensions)
+    requested_dimensions = list(resolved_dimensions)
+    if require_complete_market:
+        requested_dimensions = _dedupe([*DEFAULT_MARKET_DIMENSIONS, *requested_dimensions])
     requested_horizons = resolve_market_horizons(horizons or ([horizon] if horizon else None))
     requested_indices = list(resolve_market_indices(indices))
     index_map = _resolve_indices(requested_indices) if "core_indices" in requested_dimensions else {}
@@ -158,6 +173,8 @@ def get_a_share_market_context(
         tushare_provider=tushare_provider,
         akshare_provider=akshare_provider,
     )
+    storage = DuckDBStorage(Path(getattr(settings, "db_path")))
+    resolver = market_data_resolver or MarketDataResolver(settings, storage=storage, provider=provider)
 
     daily = pd.DataFrame()
     quotes = pd.DataFrame()
@@ -166,17 +183,22 @@ def get_a_share_market_context(
     effective_trade_date = trade_date
     if "core_indices" in requested_dimensions:
         start_date = _days_before(trade_date, max(lookback_days * 2, 180))
-        daily = provider.load_index_daily(symbols, start_date=start_date, end_date=trade_date)
+        daily = _market_index_daily_frame(
+            resolver.load_index_daily(symbols, start_date=start_date, end_date=trade_date)
+        )
         daily_source = str(daily.attrs.get("data_source") or "unavailable") if not daily.empty else "unavailable"
         if daily.empty:
             raise ValueError(f"{trade_date} 无法获取 A 股核心指数真实日线数据，已停止调用 LLM。")
         effective_trade_date = str(daily["trade_date"].astype(str).max() or trade_date)
-        quotes = provider.load_realtime_quotes(symbols=symbols)
+        quotes = resolver.load_realtime_quotes(symbols)
         quote_source = str(quotes.attrs.get("data_source") or "unavailable") if not quotes.empty else "unavailable"
     breadth: dict[str, Any] = {}
     breadth_source = "not_requested"
     if "market_breadth" in requested_dimensions:
-        breadth, breadth_source = provider.load_market_breadth()
+        breadth, breadth_source = resolver.load_market_breadth(
+            as_of_date=effective_trade_date,
+            min_count=int(getattr(settings, "market_breadth_min_count", MARKET_BREADTH_MIN_COUNT)),
+        )
     limit_sentiment: dict[str, Any] = {}
     limit_sentiment_source = "not_requested"
     if "limit_sentiment" in requested_dimensions:
@@ -189,11 +211,14 @@ def get_a_share_market_context(
         hot_sector_source = _hot_sector_source(hot_sector_context)
     payload = {
         "user_intent": "a_share_market_analysis",
+        "requested_as_of_date": trade_date,
         "trade_date": effective_trade_date,
+        "periods": _market_periods(trade_date, effective_trade_date),
         "requested_indices": requested_indices,
         "requested_dimensions": requested_dimensions,
         "requested_horizons": requested_horizons,
         "market_plan_source": market_plan_source or ("default" if not indices else "explicit"),
+        "warnings": [f"unsupported_market_dimension:{item}" for item in unsupported_dimensions],
         "indices": _index_payloads(symbols, index_map, daily, quotes, lookback_days=lookback_days),
         "market_breadth": breadth,
         "limit_sentiment": limit_sentiment,
@@ -214,7 +239,7 @@ def get_a_share_market_context(
             hot_sector_context,
             requested_dimensions=requested_dimensions,
         ),
-        "data_policy": "SATS has fetched real A-share index and breadth data before calling the LLM.",
+        "data_policy": "SATS uses DuckDB-first resolvers for real A-share index and breadth data before calling the LLM.",
     }
     return _jsonable(payload)
 
@@ -266,9 +291,23 @@ def resolve_market_indices(indices: Sequence[str] | None) -> tuple[str, ...]:
 
 
 def resolve_market_dimensions(dimensions: Sequence[str] | None) -> tuple[str, ...]:
+    resolved, _ = resolve_market_dimensions_with_warnings(dimensions)
+    return resolved
+
+
+def resolve_market_dimensions_with_warnings(
+    dimensions: Sequence[str] | None,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     values = [str(item or "").strip() for item in dimensions or ()]
-    result = [item for item in values if item in SUPPORTED_MARKET_DIMENSIONS]
-    return tuple(_dedupe(result)) or DEFAULT_MARKET_DIMENSIONS
+    result: list[str] = []
+    unsupported: list[str] = []
+    for item in values:
+        canonical = MARKET_DIMENSION_ALIASES.get(item, item)
+        if canonical in SUPPORTED_MARKET_DIMENSIONS:
+            result.append(canonical)
+        elif item:
+            unsupported.append(item)
+    return tuple(_dedupe(result)) or DEFAULT_MARKET_DIMENSIONS, tuple(_dedupe(unsupported))
 
 
 def resolve_market_horizons(horizons: Sequence[str] | None) -> list[str]:
@@ -319,6 +358,7 @@ def _index_payloads(
                     "vol": _safe_float(quote.get("vol")) or _safe_float(latest.get("vol")),
                 },
                 "technical": _technical_metrics(data),
+                "weekly": _weekly_metrics(data),
                 "daily_tail": _records_tail(
                     data,
                     limit=lookback_days,
@@ -329,6 +369,42 @@ def _index_payloads(
             }
         )
     return payloads
+
+
+def _weekly_metrics(data: pd.DataFrame) -> dict[str, Any]:
+    if data is None or data.empty or "trade_date" not in data.columns:
+        return {}
+    ordered = data.sort_values("trade_date").copy()
+    latest_date = str(ordered["trade_date"].astype(str).max())
+    try:
+        latest = datetime.strptime(latest_date, "%Y%m%d")
+    except ValueError:
+        return {}
+    week_start = (latest - timedelta(days=latest.weekday())).strftime("%Y%m%d")
+    week_end = (latest + timedelta(days=4 - latest.weekday())).strftime("%Y%m%d")
+    dates = ordered["trade_date"].astype(str)
+    week = ordered[(dates >= week_start) & (dates <= latest_date)]
+    if week.empty:
+        return {}
+    first = week.iloc[0]
+    last = week.iloc[-1]
+    previous = ordered[dates < week_start].tail(1)
+    base_close = _safe_float(previous.iloc[-1].get("close")) if not previous.empty else _safe_float(first.get("open"))
+    last_close = _safe_float(last.get("close"))
+    return {
+        "calendar_start": week_start,
+        "calendar_end": week_end,
+        "data_start": str(first.get("trade_date") or ""),
+        "data_end": str(last.get("trade_date") or ""),
+        "trading_days": int(len(week)),
+        "open": _safe_float(first.get("open")),
+        "close": last_close,
+        "high": _safe_float(pd.to_numeric(week.get("high"), errors="coerce").max()) if "high" in week.columns else None,
+        "low": _safe_float(pd.to_numeric(week.get("low"), errors="coerce").min()) if "low" in week.columns else None,
+        "pct_chg": ((last_close / base_close - 1.0) * 100.0) if last_close is not None and base_close not in (None, 0) else None,
+        "vol": _safe_float(pd.to_numeric(week.get("vol"), errors="coerce").sum()) if "vol" in week.columns else None,
+        "amount": _safe_float(pd.to_numeric(week.get("amount"), errors="coerce").sum()) if "amount" in week.columns else None,
+    }
 
 
 def _technical_metrics(data: pd.DataFrame) -> dict[str, Any]:
@@ -449,6 +525,41 @@ def _combine_daily_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
     return data[columns].drop_duplicates(subset=["ts_code", "trade_date"], keep="last").sort_values(
         ["ts_code", "trade_date"]
     ).reset_index(drop=True)
+
+
+def _market_index_daily_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    if frame is None or frame.empty:
+        return pd.DataFrame()
+    source = str(frame.attrs.get("data_source") or "unavailable")
+    provenance = frame.attrs.get("market_data_provenance") or []
+    data = frame.copy()
+    if "ts_code" not in data.columns and "index_code" in data.columns:
+        data["ts_code"] = data["index_code"]
+    data.attrs["data_source"] = source
+    data.attrs["market_data_provenance"] = provenance
+    return data
+
+
+def _market_periods(requested_date: str, effective_trade_date: str) -> dict[str, Any]:
+    try:
+        requested = datetime.strptime(str(requested_date), "%Y%m%d")
+    except ValueError:
+        requested = datetime.strptime(str(effective_trade_date), "%Y%m%d")
+    current_start = requested - timedelta(days=requested.weekday())
+    current_end = current_start + timedelta(days=4)
+    next_start = current_start + timedelta(days=7)
+    next_end = next_start + timedelta(days=4)
+    return {
+        "current_week": {
+            "start": current_start.strftime("%Y%m%d"),
+            "end": current_end.strftime("%Y%m%d"),
+            "data_through": str(effective_trade_date),
+        },
+        "next_week": {
+            "start": next_start.strftime("%Y%m%d"),
+            "end": next_end.strftime("%Y%m%d"),
+        },
+    }
 
 
 def _records_by_symbol(frame: pd.DataFrame) -> dict[str, dict[str, Any]]:

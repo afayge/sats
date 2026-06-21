@@ -9,7 +9,7 @@ import signal
 import subprocess
 import sys
 import uuid
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from zoneinfo import ZoneInfo
@@ -19,6 +19,8 @@ from prompt_toolkit import print_formatted_text
 from prompt_toolkit.utils import get_cwidth
 
 from sats.agent import AgentExecutionPolicy, run_agent_once
+from sats.agent.planner import build_agent_plan
+from sats.agent.tools import build_default_tool_registry
 from sats.agent.progress import agent_progress_event_sink
 from sats.analysis.chan_llm_review import DEFAULT_CHAN_RULE_NAME, run_chan_llm_review
 from sats.analysis.daily_stock_analysis import run_daily_stock_analysis_for_symbols, run_screened_stock_analysis
@@ -32,10 +34,12 @@ from sats.analysis.opportunity_discovery import (
 )
 from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_llm_context import ensure_stock_analysis_data
+from sats.analysis.trading_committee import run_trading_committee
 from sats.chat import ChatResult, format_chat_result, render_chat_result, run_chat_once
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import init_env_file, load_settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.deep_analysis import run_deep_analysis
 from sats.dependencies import (
     OptionalDependencyError,
     check_optional_dependencies,
@@ -56,15 +60,27 @@ from sats.factors.reporting import write_factor_analysis_report, write_factor_pi
 from sats.factors.service import pick_with_factor_profile
 from sats.history import InteractionHistoryStore, format_history_detail, format_history_list
 from sats.indicators import IndicatorCalculator, format_indicator_results
+from sats.llm import ChatLLM
 from sats.llm.model_config import current_model_status, discover_model_profiles, update_default_model_selection
 from sats.memory import ChatMemoryStore, format_memory_list
-from sats.monitoring import MonitorConfig, MonitorDisplay, MonitorService, format_monitor_dashboard
+from sats.monitoring import (
+    MonitorConfig,
+    MonitorDisplay,
+    MonitorPlanValidationError,
+    MonitorService,
+    format_monitor_dashboard,
+    import_monitor_plan,
+    load_monitor_plan_file,
+    validate_monitor_plan,
+)
+from sats.output_names import SecurityNameOutput, SecurityNameResolver
 from sats.progress import create_progress
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.rag.knowledge import KnowledgeStore, format_knowledge_list, format_search_results
 from sats.screening.base import ScreeningResult
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.service import evaluate_inputs
+from sats.serenity import SERENITY_RULE_NAME, run_serenity_screen
 from sats.scheduler import (
     SCHEDULER_SERVICE_NAME,
     SchedulerConfig,
@@ -84,8 +100,10 @@ from sats.symbols import parse_symbol_csv
 from sats.trading import OrderRequest, broker_from_settings
 from sats.trading.monitor_provider import AutoTradeConfig, QmtTradingProvider
 from sats.trading.qmt_bridge import QmtBridgeConfig, run_bridge
-from sats.trading.sync import sync_positions_to_monitor
+from sats.trading.sync import QmtPositionSyncError, QmtPositionSyncService
 from sats.web import hot_mentions as web_hot_mentions
+from sats.web import clear_web_cache
+from sats.web import open_page as web_open_page
 from sats.web import search as web_search
 from sats.web import social_hot as web_social_hot
 from sats.watchlist_editor import (
@@ -101,6 +119,21 @@ from sats.watchlist_editor import (
 
 DEFAULT_RULE = "ma_volume_relative_strength"
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
+PERIOD_CHANGE_INDEX_ALIASES = {
+    "上证": "000001.SH",
+    "上证指数": "000001.SH",
+    "沪指": "000001.SH",
+    "深成指": "399001.SZ",
+    "深证成指": "399001.SZ",
+    "创业板": "399006.SZ",
+    "创业板指": "399006.SZ",
+    "深证100": "399330.SZ",
+    "深100": "399330.SZ",
+    "沪深300": "000300.SH",
+    "中证500": "000905.SH",
+    "科创50": "000688.SH",
+    "北证50": "899050.BJ",
+}
 
 
 def _rule_required_trade_days(rule) -> int | None:
@@ -132,7 +165,6 @@ def _progress_request(args: argparse.Namespace) -> str:
         "schedule_command",
         "qmt_command",
         "qmt_bridge_command",
-        "qmt_sync_command",
         "web_command",
     ):
         value = str(getattr(args, name, "") or "").strip()
@@ -147,14 +179,21 @@ def _progress_request(args: argparse.Namespace) -> str:
         "factor",
         "factors",
         "period",
+        "days",
+        "phase",
         "mode",
         "lookback_days",
+        "debate_rounds",
+        "risk_rounds",
         "top",
         "limit",
         "candidate_limit",
         "platforms",
         "keyword",
         "freshness",
+        "context_size",
+        "plan_only",
+        "dry_run",
     ):
         value = getattr(args, option, None)
         if value not in (None, "", False):
@@ -189,6 +228,8 @@ def _add_agent_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-iterations", type=int, default=6, help="Maximum agent steps")
     parser.add_argument("--command-timeout", type=int, default=120, help="Per SATS command timeout seconds")
     parser.add_argument("--python-timeout", type=int, default=30, help="Restricted Python timeout seconds")
+    parser.add_argument("--plan-only", action="store_true", help="Only build and print the SATS agent plan")
+    parser.add_argument("--dry-run", action="store_true", help="Skip high-risk side effects while keeping read-only planning/execution")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -218,6 +259,13 @@ def build_parser() -> argparse.ArgumentParser:
     quote = sub.add_parser("quote", help="Show realtime stock quotes with moving averages")
     quote.add_argument("--stocks", required=True, help="Comma-separated symbols or stock names, e.g. 000001,600519.SH,紫光股份")
     quote.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    period_change = sub.add_parser("period-change", help="Calculate stock or index change over recent calendar days")
+    period_change_source = period_change.add_mutually_exclusive_group(required=True)
+    period_change_source.add_argument("--stocks", help="Comma-separated A-share symbols or stock names")
+    period_change_source.add_argument("--indices", help="Comma-separated index codes or names, e.g. 上证指数,沪深300")
+    period_change.add_argument("--days", type=int, required=True, help="Calendar days counted backward from today")
+    period_change.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     analyze = sub.add_parser("analyze", help="Unified stock signal analysis")
     analyze.add_argument("analyze_action", nargs="?", choices=["signals"], help="Use 'signals' to list signal strategies")
@@ -251,6 +299,40 @@ def build_parser() -> argparse.ArgumentParser:
     dsa.add_argument("--llm-timeout", type=int, default=20, help="LLM timeout seconds for native DSA review")
     dsa.add_argument("--no-llm", action="store_true", help="Skip native DSA LLM review and use local rules only")
     dsa.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    deep_analysis = sub.add_parser("deep-analysis", help="Run native SATS deep stock analysis")
+    deep_analysis.add_argument("--stocks", required=True, help="Comma-separated A-share symbols or stock names")
+    deep_analysis.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
+    deep_analysis.add_argument("--phase", choices=["run", "collect", "score", "panel", "report"], default="run", help="Pipeline phase")
+    deep_analysis.add_argument("--lookback-days", type=int, default=180, help="Historical lookback window")
+    deep_analysis.add_argument("--json", action="store_true", help="Print full JSON output")
+    deep_analysis.add_argument("--noreport", action="store_true", help="Do not generate Markdown/JSON report files")
+    deep_analysis.add_argument("--no-llm", action="store_true", help="Skip optional LLM review")
+    deep_analysis.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    serenity_screen = sub.add_parser("serenity-screen", help="Run native SATS Serenity AI bottleneck screen")
+    serenity_screen.add_argument("--theme", default="", help="AI/technology theme, defaults to AI supply chain")
+    serenity_screen.add_argument("--stocks", help="Comma-separated A-share symbols or stock names")
+    serenity_screen.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
+    serenity_screen.add_argument("--top", type=int, default=10, help="Maximum ranked candidates")
+    serenity_screen.add_argument("--candidate-limit", type=int, default=30, help="Maximum enhanced candidates")
+    serenity_screen.add_argument("--lookback-days", type=int, default=180, help="Historical lookback window")
+    serenity_screen.add_argument("--json", action="store_true", help="Print full JSON output")
+    serenity_screen.add_argument("--noreport", action="store_true", help="Do not generate Markdown/JSON report files")
+    serenity_screen.add_argument("--no-llm", action="store_true", help="Skip optional LLM review and theme fallback")
+    serenity_screen.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    trading_committee = sub.add_parser("trading-committee", help="Run SATS native trading committee")
+    trading_committee.add_argument("--stocks", required=True, help="Comma-separated A-share symbols or stock names")
+    trading_committee.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
+    trading_committee.add_argument("--lookback-days", type=int, default=180, help="Historical lookback window")
+    trading_committee.add_argument("--debate-rounds", type=int, default=1, help="Bull/bear research debate rounds")
+    trading_committee.add_argument("--risk-rounds", type=int, default=1, help="Risk team debate rounds")
+    trading_committee.add_argument("--llm-timeout", type=int, help="LLM timeout seconds; defaults to LLM_TIMEOUT_SECONDS")
+    trading_committee.add_argument("--json", action="store_true", help="Print full JSON output")
+    trading_committee.add_argument("--noreport", action="store_true", help="Do not generate Markdown/JSON report files")
+    trading_committee.add_argument("--no-llm", action="store_true", help="Skip LLM team calls and use deterministic summaries")
+    trading_committee.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     analyze_chan = sub.add_parser("analyze-chan", help="Review chan screening results with LLM")
     analyze_chan.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to latest trading day")
@@ -299,8 +381,25 @@ def build_parser() -> argparse.ArgumentParser:
     web_search_parser.add_argument("--limit", type=int, default=5, help="Maximum results")
     web_search_parser.add_argument("--trusted-domains", default="", help="Comma-separated domain allow hints, e.g. sse.com.cn,szse.cn")
     web_search_parser.add_argument("--freshness", default="", choices=["", "d", "w", "m", "y"], help="Optional freshness: d/w/m/y")
+    web_search_parser.add_argument(
+        "--context-size",
+        default="auto",
+        choices=["auto", "medium", "high"],
+        help="Native RAG search context depth",
+    )
+    web_search_parser.add_argument("--providers", default="", help="Comma-separated search providers, e.g. ddgs,bing,tavily")
     web_search_parser.add_argument("--json", action="store_true", help="Print JSON output")
     web_search_parser.add_argument("query", nargs="+", help="Search query")
+    web_open_parser = web_sub.add_parser("open", help="Safely fetch and parse a public URL")
+    web_open_parser.add_argument("url", help="Public HTTP/HTTPS URL")
+    web_open_parser.add_argument("--query", default="", help="Optional query for in-page RAG retrieval")
+    web_open_parser.add_argument("--trusted-domains", default="", help="Comma-separated allowed domains")
+    web_open_parser.add_argument("--json", action="store_true", help="Print JSON output")
+    web_cache_parser = web_sub.add_parser("cache", help="Manage the local web document index")
+    web_cache_sub = web_cache_parser.add_subparsers(dest="web_cache_command")
+    web_cache_clear = web_cache_sub.add_parser("clear", help="Clear cached web documents and embeddings")
+    web_cache_clear.add_argument("--expired-only", action="store_true", help="Only clear expired web documents")
+    web_cache_clear.add_argument("--json", action="store_true", help="Print JSON output")
     web_hot_parser = web_sub.add_parser("hot", help="Fetch social hot lists")
     web_hot_parser.add_argument("--platforms", default="all", help="Comma-separated platforms or all")
     web_hot_parser.add_argument("--limit", type=int, default=20, help="Items per platform")
@@ -315,6 +414,9 @@ def build_parser() -> argparse.ArgumentParser:
     model_sub = model.add_subparsers(dest="model_command")
     model_sub.add_parser("status", help="Show active model profiles")
     model_sub.add_parser("list", help="List configured model profiles")
+    model_ping = model_sub.add_parser("ping", help="Ping active LLM provider")
+    model_ping.add_argument("--timeout", type=int, help="Ping timeout seconds; defaults to LLM_TIMEOUT_SECONDS")
+    model_ping.add_argument("--json", action="store_true", help="Print JSON output")
     model_use = model_sub.add_parser("use", help="Switch default model profile")
     model_use.add_argument("profile", help="Model profile name, e.g. DEEPSEEK")
     model_use.add_argument("--target", choices=["main", "light", "both"], default="main")
@@ -467,20 +569,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     monitor = sub.add_parser("monitor", help="Manage realtime monitoring")
     monitor_sub = monitor.add_subparsers(dest="monitor_command")
-    monitor_positions = monitor_sub.add_parser("positions", help="Manage monitor positions")
+    monitor_positions = monitor_sub.add_parser("positions", help="Query QMT-synchronized monitor positions")
     monitor_positions_sub = monitor_positions.add_subparsers(dest="monitor_positions_command")
-    monitor_positions_add = monitor_positions_sub.add_parser("add", help="Add or update a position")
-    monitor_positions_add.add_argument("--symbol", required=True, help="A-share symbol or stock name")
-    monitor_positions_add.add_argument("--name", default="")
-    monitor_positions_add.add_argument("--buy-price", type=float, required=True)
-    monitor_positions_add.add_argument("--quantity", type=float, required=True)
-    monitor_positions_add.add_argument("--buy-date", default="")
-    monitor_positions_add.add_argument("--note", default="")
-    monitor_positions_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     monitor_positions_sub.add_parser("list", help="List positions").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
-    monitor_positions_remove = monitor_positions_sub.add_parser("remove", help="Remove a position")
-    monitor_positions_remove.add_argument("--symbol", required=True, help="A-share symbol or stock name")
-    monitor_positions_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     monitor_watchlist = monitor_sub.add_parser("watchlist", help="Manage monitor watchlist")
     monitor_watchlist_sub = monitor_watchlist.add_subparsers(dest="monitor_watchlist_command")
@@ -500,6 +591,28 @@ def build_parser() -> argparse.ArgumentParser:
     monitor_candidates_remove = monitor_candidates_sub.add_parser("remove", help="Remove a buy candidate")
     monitor_candidates_remove.add_argument("--symbol", required=True, help="A-share symbol or stock name")
     monitor_candidates_remove.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    monitor_plans = monitor_sub.add_parser("plans", help="Manage executable monitor plans")
+    monitor_plans_sub = monitor_plans.add_subparsers(dest="monitor_plans_command")
+    monitor_plans_validate = monitor_plans_sub.add_parser("validate", help="Validate a monitor plan JSON file")
+    monitor_plans_validate.add_argument("--file", type=Path, required=True)
+    monitor_plans_import = monitor_plans_sub.add_parser("import", help="Import a validated monitor plan as draft")
+    monitor_plans_import.add_argument("--file", type=Path, required=True)
+    monitor_plans_import.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    monitor_plans_sub.add_parser("list", help="List monitor plans").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    monitor_plans_show = monitor_plans_sub.add_parser("show", help="Show a monitor plan")
+    monitor_plans_show.add_argument("--plan-id", required=True)
+    monitor_plans_show.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    for plans_command in ("activate", "disable", "remove"):
+        monitor_plan_action = monitor_plans_sub.add_parser(plans_command, help=f"{plans_command} monitor plan")
+        monitor_plan_action.add_argument("--plan-id", required=True)
+        monitor_plan_action.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    monitor_plan_disable_item = monitor_plans_sub.add_parser("disable-item", help="Disable one monitor plan item")
+    monitor_plan_disable_item.add_argument("--item-id", required=True)
+    monitor_plan_disable_item.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    monitor_plan_disable_group = monitor_plans_sub.add_parser("disable-group", help="Disable one monitor plan trigger group")
+    monitor_plan_disable_group.add_argument("--group-id", required=True)
+    monitor_plan_disable_group.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     monitor_start = monitor_sub.add_parser("start", help="Start realtime monitor in background")
     monitor_start.add_argument("--rules", default="chan_signals")
@@ -579,11 +692,6 @@ def build_parser() -> argparse.ArgumentParser:
     qmt_sub.add_parser("status", help="Show QMT bridge status").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     qmt_sub.add_parser("asset", help="Query QMT account asset").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     qmt_sub.add_parser("positions", help="Query QMT positions").add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
-    qmt_sync = qmt_sub.add_parser("sync", help="Sync QMT data to SATS")
-    qmt_sync_sub = qmt_sync.add_subparsers(dest="qmt_sync_command")
-    qmt_sync_positions = qmt_sync_sub.add_parser("positions", help="Sync QMT positions to monitor positions")
-    qmt_sync_positions.add_argument("--prune-missing", action="store_true")
-    qmt_sync_positions.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
     qmt_orders = qmt_sub.add_parser("orders", help="Query QMT orders")
     qmt_orders.add_argument("--open", action="store_true", help="Only open orders")
     qmt_orders.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
@@ -617,6 +725,24 @@ def main(argv: list[str] | None = None) -> int:
         return run_repl()
     parser = build_parser()
     args = parser.parse_args(argv)
+    settings = load_settings()
+    db_path = Path(getattr(args, "db", None) or getattr(settings, "db_path", "data/sats.duckdb"))
+    resolver = SecurityNameResolver(
+        _settings_with_db_path(settings, db_path),
+        db_path=db_path,
+        provider_factory=AStockDataProvider,
+    )
+    original_stdout = sys.stdout
+    named_stdout = SecurityNameOutput(original_stdout, resolver)
+    sys.stdout = named_stdout
+    try:
+        return _dispatch_command(args, parser)
+    finally:
+        named_stdout.flush()
+        sys.stdout = original_stdout
+
+
+def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
     if args.command == "init":
         return cmd_init(overwrite=args.overwrite)
     if args.command == "screen":
@@ -627,12 +753,20 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_result_rules(args)
     if args.command == "quote":
         return cmd_quote(args)
+    if args.command == "period-change":
+        return cmd_period_change(args)
     if args.command == "analyze":
         return cmd_analyze(args)
     if args.command == "analyze-dsa":
         return cmd_analyze_dsa(args)
     if args.command == "dsa":
         return cmd_dsa(args)
+    if args.command == "deep-analysis":
+        return cmd_deep_analysis(args)
+    if args.command == "serenity-screen":
+        return cmd_serenity_screen(args)
+    if args.command == "trading-committee":
+        return cmd_trading_committee(args)
     if args.command == "analyze-chan":
         return cmd_analyze_chan(args)
     if args.command == "chan-kb":
@@ -773,7 +907,9 @@ def cmd_screen(args: argparse.Namespace) -> int:
 def cmd_results(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
-    rule_name = get_rule(args.rule).name if args.rule else None
+    rule_name = None
+    if args.rule:
+        rule_name = SERENITY_RULE_NAME if args.rule == SERENITY_RULE_NAME else get_rule(args.rule).name
     rows = storage.list_screening_stocks(
         trade_date=args.trade_date,
         rule_name=rule_name,
@@ -826,6 +962,55 @@ def cmd_quote(args: argparse.Namespace) -> int:
         stock_basic = load_stock_basic_frame(settings)
     ma_lookup = _quote_moving_average_lookup(daily, realtime_daily)
     print(_format_quote_table(symbols, quotes, ma_lookup, stock_basic))
+    return 0
+
+
+def cmd_period_change(args: argparse.Namespace) -> int:
+    days = int(args.days)
+    if days <= 0:
+        raise SystemExit("--days must be positive")
+
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    is_index = bool(getattr(args, "indices", None))
+    symbols = _parse_indices(args.indices) if is_index else _parse_symbols_or_names(args.stocks, settings)
+    target_end = datetime.now(SHANGHAI_TZ).date()
+    target_start = target_end - timedelta(days=days)
+    fetch_start = target_start - timedelta(days=31)
+    progress = _progress_for_args(args)
+    try:
+        with progress.step("AStock 指数日线" if is_index else "AStock 股票日线") as step:
+            if is_index:
+                daily = provider.load_index_daily(
+                    symbols,
+                    start_date=fetch_start.strftime("%Y%m%d"),
+                    end_date=target_end.strftime("%Y%m%d"),
+                )
+            else:
+                daily = provider.load_historical_daily_klines(
+                    symbols,
+                    start_date=fetch_start.strftime("%Y%m%d"),
+                    end_date=target_end.strftime("%Y%m%d"),
+                    storage=storage,
+                )
+            step.complete(message=f"{len(daily)} 条")
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+
+    rows, missing = _period_change_rows(symbols, daily, target_start=target_start, target_end=target_end)
+    if not rows:
+        raise SystemExit("未获取到可计算涨跌幅的日线数据")
+    print(
+        f"目标区间: {target_start:%Y-%m-%d} 至 {target_end:%Y-%m-%d}"
+        f"（{days} 个自然日；使用最接近交易日的收盘价）"
+    )
+    print(_format_period_change_table(rows))
+    if missing:
+        print(f"未获取到足够日线: {', '.join(missing)}")
     return 0
 
 
@@ -1018,6 +1203,150 @@ def cmd_dsa(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_deep_analysis(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
+    symbols = _parse_symbols_or_names(args.stocks, settings)
+    progress = _progress_for_args(args)
+    _announce_analyzing(progress, json_mode=bool(getattr(args, "json", False)))
+    try:
+        try:
+            result = run_deep_analysis(
+                symbols,
+                trade_date=trade_date,
+                phase=args.phase,
+                settings=settings,
+                storage=storage,
+                astock_provider=provider,
+                lookback_days=args.lookback_days,
+                llm_review=not getattr(args, "no_llm", False),
+                report=not getattr(args, "noreport", False),
+                reports_dir=settings.project_root / "reports" / "deep_analysis",
+                progress=progress,
+            )
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    if getattr(args, "json", False):
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str))
+        return 0
+    if result.message:
+        print(result.message)
+        return 0
+    if not getattr(args, "trade_date", None):
+        print(f"trade_date: {trade_date}")
+    print(result.to_markdown().rstrip())
+    if result.markdown_report_path is not None:
+        print()
+        print(f"报告: {result.markdown_report_path}")
+    if result.json_artifact_path is not None:
+        print(f"JSON: {result.json_artifact_path}")
+    return 0
+
+
+def cmd_serenity_screen(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    trade_date = _resolve_analysis_trade_date(
+        getattr(args, "trade_date", None),
+        storage=storage,
+        provider=provider,
+    )
+    symbols = _parse_symbols_or_names(args.stocks, settings) if getattr(args, "stocks", None) else []
+    progress = _progress_for_args(args)
+    _announce_analyzing(progress, json_mode=bool(getattr(args, "json", False)))
+    try:
+        try:
+            result = run_serenity_screen(
+                query=str(getattr(args, "theme", "") or ""),
+                theme=str(getattr(args, "theme", "") or ""),
+                symbols=symbols,
+                trade_date=trade_date,
+                limit=args.top,
+                candidate_limit=args.candidate_limit,
+                lookback_days=args.lookback_days,
+                llm_review=not getattr(args, "no_llm", False),
+                report=not getattr(args, "noreport", False),
+                settings=settings,
+                storage=storage,
+                astock_provider=provider,
+                reports_dir=settings.project_root / "reports" / "serenity",
+                progress=progress,
+            )
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    if getattr(args, "json", False):
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str))
+        return 0
+    if result.message:
+        print(result.message)
+        return 0
+    if not getattr(args, "trade_date", None):
+        print(f"trade_date: {trade_date}")
+    print(result.to_markdown().rstrip())
+    if result.markdown_report_path is not None:
+        print()
+        print(f"报告: {result.markdown_report_path}")
+    if result.json_artifact_path is not None:
+        print(f"JSON: {result.json_artifact_path}")
+    return 0
+
+
+def cmd_trading_committee(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    storage = DuckDBStorage(args.db or settings.db_path)
+    settings = _settings_with_db_path(settings, _storage_db_path(storage, args.db or settings.db_path))
+    provider = AStockDataProvider(settings)
+    trade_date = _resolve_analysis_trade_date(getattr(args, "trade_date", None), storage=storage, provider=provider)
+    symbols = _parse_symbols_or_names(args.stocks, settings)
+    progress = _progress_for_args(args)
+    _announce_analyzing(progress, json_mode=bool(getattr(args, "json", False)))
+    try:
+        try:
+            result = run_trading_committee(
+                symbols,
+                trade_date=trade_date,
+                settings=settings,
+                storage=storage,
+                astock_provider=provider,
+                lookback_days=args.lookback_days,
+                debate_rounds=args.debate_rounds,
+                risk_rounds=args.risk_rounds,
+                llm_enabled=not getattr(args, "no_llm", False),
+                llm_timeout_seconds=args.llm_timeout,
+                report=not getattr(args, "noreport", False),
+                reports_dir=settings.project_root / "reports" / "trading_committee",
+                progress=progress,
+            )
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+    finally:
+        progress.close()
+    if getattr(args, "json", False):
+        print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str))
+        return 0
+    if result.message:
+        print(result.message)
+        return 0
+    if not getattr(args, "trade_date", None):
+        print(f"trade_date: {trade_date}")
+    print(result.to_markdown().rstrip())
+    if result.markdown_report_path is not None:
+        print()
+        print(f"报告: {result.markdown_report_path}")
+    if result.json_artifact_path is not None:
+        print(f"JSON: {result.json_artifact_path}")
+    return 0
+
+
 def cmd_analyze_chan(args: argparse.Namespace) -> int:
     settings = load_settings()
     storage = DuckDBStorage(args.db or settings.db_path)
@@ -1180,6 +1509,11 @@ def cmd_chat(args: argparse.Namespace) -> int:
     message = " ".join(args.message).strip()
     if not message:
         raise SystemExit("chat message is required")
+    if getattr(args, "plan_only", False):
+        if getattr(args, "no_agent", False):
+            raise SystemExit("--plan-only requires Agent routing; remove --no-agent")
+        print(_format_agent_plan_only(message, settings=settings, args=args))
+        return 0
     if not getattr(args, "no_agent", False):
         progress = _progress_for_args(args)
         try:
@@ -1215,6 +1549,9 @@ def cmd_agent(args: argparse.Namespace) -> int:
     message = " ".join(args.message).strip()
     if not message:
         raise SystemExit("agent message is required")
+    if getattr(args, "plan_only", False):
+        print(_format_agent_plan_only(message, settings=settings, args=args))
+        return 0
     progress = _progress_for_args(args)
     try:
         result = run_agent_once(
@@ -1234,7 +1571,7 @@ def cmd_web(args: argparse.Namespace) -> int:
     settings = load_settings()
     command = str(getattr(args, "web_command", "") or "")
     if not command:
-        raise SystemExit("web requires subcommand: search, hot or mentions")
+        raise SystemExit("web requires subcommand: search, open, cache, hot or mentions")
     if command == "search":
         query = " ".join(getattr(args, "query", ()) or ()).strip()
         if not query:
@@ -1244,7 +1581,23 @@ def cmd_web(args: argparse.Namespace) -> int:
             limit=int(getattr(args, "limit", 5) or 5),
             trusted_domains=_parse_optional_csv(getattr(args, "trusted_domains", "")),
             freshness=str(getattr(args, "freshness", "") or ""),
+            context_size=str(getattr(args, "context_size", "auto") or "auto"),
+            providers=_parse_optional_csv(getattr(args, "providers", "")) or None,
             settings=settings,
+        )
+    elif command == "open":
+        payload = web_open_page(
+            str(getattr(args, "url", "") or ""),
+            query=str(getattr(args, "query", "") or ""),
+            trusted_domains=tuple(_parse_optional_csv(getattr(args, "trusted_domains", ""))),
+            settings=settings,
+        )
+    elif command == "cache":
+        if str(getattr(args, "web_cache_command", "") or "") != "clear":
+            raise SystemExit("web cache requires subcommand: clear")
+        payload = clear_web_cache(
+            settings=settings,
+            expired_only=bool(getattr(args, "expired_only", False)),
         )
     elif command == "hot":
         payload = web_social_hot(
@@ -1270,9 +1623,44 @@ def cmd_web(args: argparse.Namespace) -> int:
 
 def format_web_result(payload: dict, *, command: str) -> str:
     if command == "search":
-        lines = [f"Web Search: {payload.get('query') or ''}"]
+        lines = [
+            f"Web Search: {payload.get('query') or ''}",
+            f"Backend: {payload.get('backend') or 'unknown'} · context={payload.get('context_size') or 'auto'}",
+        ]
         if payload.get("status") == "error":
             lines.append(f"错误: {payload.get('error') or 'search failed'}")
+            for warning in payload.get("warnings") or []:
+                lines.append(f"警告: {warning}")
+            return "\n".join(lines)
+        if payload.get("queries"):
+            lines.append(f"Queries: {', '.join(str(item) for item in payload.get('queries') or [])}")
+        if payload.get("providers"):
+            provider_text = ", ".join(
+                f"{item.get('provider')}={item.get('status')}({item.get('result_count', 0)})"
+                for item in payload.get("providers") or []
+            )
+            lines.append(f"Providers: {provider_text}")
+        for warning in payload.get("warnings") or []:
+            lines.append(f"警告: {warning}")
+        if payload.get("answer"):
+            lines.extend(["", str(payload.get("answer") or "").strip()])
+        if payload.get("evidence"):
+            lines.append("\n证据:")
+            for item in (payload.get("evidence") or [])[:10]:
+                content = " ".join(str(item.get("content") or "").split())
+                lines.append(
+                    f"- [{item.get('source_id') or ''}] {item.get('title') or item.get('url') or '(no title)'}"
+                    f" score={item.get('score', '-')}"
+                )
+                if content:
+                    lines.append(f"  {content[:240]}")
+        if payload.get("sources"):
+            lines.append("\n来源:")
+            for item in payload.get("sources") or []:
+                source_id = item.get("id") or ""
+                lines.append(f"- [{source_id}] {item.get('title') or item.get('url') or '(no title)'}")
+                if item.get("url"):
+                    lines.append(f"  {item.get('url')}")
             return "\n".join(lines)
         for index, item in enumerate(payload.get("results") or [], start=1):
             lines.append(f"{index}. {item.get('title') or '(no title)'}")
@@ -1283,6 +1671,26 @@ def format_web_result(payload: dict, *, command: str) -> str:
         if not payload.get("results"):
             lines.append("无搜索结果。")
         return "\n".join(lines)
+    if command == "open":
+        lines = [
+            f"Web Page: {payload.get('title') or payload.get('url') or ''}",
+            f"URL: {payload.get('url') or ''}",
+        ]
+        if payload.get("status") == "error":
+            lines.append(f"错误: {payload.get('error') or 'fetch failed'}")
+            return "\n".join(lines)
+        for warning in payload.get("warnings") or []:
+            lines.append(f"警告: {warning}")
+        if payload.get("content"):
+            lines.extend(["", str(payload.get("content") or "").strip()])
+        return "\n".join(lines)
+    if command == "cache":
+        return (
+            f"Web cache cleared: documents={payload.get('documents', 0)}, "
+            f"chunks={payload.get('chunks', 0)}, embeddings={payload.get('embeddings', 0)}, "
+            f"query_entries={payload.get('query_entries', 0)}, "
+            f"expired_only={bool(payload.get('expired_only'))}"
+        )
     if command == "hot":
         lines = [f"社交热榜: {payload.get('platforms_ok', 0)}/{payload.get('platforms_checked', 0)} 平台可用"]
         for platform in payload.get("platforms") or []:
@@ -1328,6 +1736,7 @@ def _chat_result_from_agent(agent_result) -> ChatResult:
         tool_call_count=agent_result.tool_call_count,
         data_names=agent_result.data_names,
         artifacts=agent_result.artifacts,
+        sources=tuple(getattr(agent_result, "sources", ()) or ()),
         turn_id=agent_result.turn_id,
         session_id=agent_result.session_id,
     )
@@ -1355,6 +1764,7 @@ def _agent_policy_from_args(args: argparse.Namespace) -> AgentExecutionPolicy:
         auto_trade=tuple(_parse_optional_csv(getattr(args, "auto_trade", ""))),
         broker=str(getattr(args, "broker", "noop") or "noop"),
         live_trading=bool(getattr(args, "live_trading", False)),
+        dry_run=bool(getattr(args, "dry_run", False) or getattr(args, "plan_only", False)),
         max_order_value=float(getattr(args, "max_order_value", 20000.0) or 0.0),
         max_position_pct=float(getattr(args, "max_position_pct", 0.2) or 0.0),
         sell_ratio=float(getattr(args, "sell_ratio", 1.0) or 1.0),
@@ -1364,9 +1774,61 @@ def _agent_policy_from_args(args: argparse.Namespace) -> AgentExecutionPolicy:
     )
 
 
+def _format_agent_plan_only(message: str, *, settings, args: argparse.Namespace) -> str:
+    plan = build_agent_plan(
+        message,
+        settings=settings,
+        policy=_agent_policy_from_args(args),
+        llm_factory=None,
+        tool_registry=build_default_tool_registry(),
+    )
+    return _format_agent_plan(plan)
+
+
+def _format_agent_plan(plan) -> str:
+    payload = plan.to_dict()
+    natural_task = payload.get("natural_task") if isinstance(payload.get("natural_task"), dict) else {}
+    lines = [
+        "SATS Agent Plan",
+        f"目标: {payload.get('objective') or '-'}",
+        f"风险级别: {payload.get('risk_level') or '-'}",
+    ]
+    if natural_task:
+        lines.extend(
+            [
+                f"工作流: {natural_task.get('workflow_kind') or '-'}",
+                f"对话模式: {natural_task.get('dialogue_mode') or '-'}",
+                f"分析模式: {natural_task.get('analysis_mode') or payload.get('analysis_mode') or '-'}",
+                f"分析模式原因: {natural_task.get('analysis_mode_reason') or '-'}",
+                f"候选上限: {natural_task.get('candidate_limit') or '-'}",
+            ]
+        )
+    if payload.get("assumptions"):
+        lines.append("假设:")
+        lines.extend(f"- {item}" for item in payload["assumptions"])
+    if natural_task.get("boundaries"):
+        lines.append("边界:")
+        lines.extend(f"- {item}" for item in natural_task["boundaries"])
+    if payload.get("success_criteria"):
+        lines.append("成功标准:")
+        lines.extend(f"- {item}" for item in payload["success_criteria"])
+    if payload.get("steps"):
+        lines.append("步骤:")
+        for index, step in enumerate(payload["steps"], start=1):
+            if step.get("kind") == "final":
+                continue
+            target = step.get("tool_name") or " ".join(step.get("command") or ()) or step.get("kind")
+            lines.append(f"{index}. {step.get('title') or step.get('step_id')} -> {target} [{step.get('side_effect') or 'readonly'}]")
+    checks = natural_task.get("verification_checks") or payload.get("verification_checks") or []
+    if checks:
+        lines.append("验证项:")
+        lines.extend(f"- {item.get('name')}: {item.get('status')}" for item in checks if isinstance(item, dict))
+    return "\n".join(lines)
+
+
 def cmd_model(args: argparse.Namespace) -> int:
     if args.model_command is None:
-        raise SystemExit("model requires subcommand: status, list or use")
+        raise SystemExit("model requires subcommand: status, list, ping or use")
     if args.model_command == "status":
         load_settings()
         print(_format_model_status())
@@ -1375,6 +1837,13 @@ def cmd_model(args: argparse.Namespace) -> int:
         load_settings()
         print(_format_model_profiles())
         return 0
+    if args.model_command == "ping":
+        payload = _model_ping(timeout_seconds=getattr(args, "timeout", None))
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        else:
+            print(_format_model_ping(payload))
+        return 0 if payload.get("available") else 1
     if args.model_command == "use":
         update_default_model_selection(_default_env_path(), args.profile, target=args.target)
         print(f"已切换 {args.target}: {str(args.profile).strip().upper()}")
@@ -1988,6 +2457,8 @@ def cmd_monitor(args: argparse.Namespace) -> int:
         return _cmd_monitor_watchlist(args, storage, settings)
     if command == "buy-candidates":
         return _cmd_monitor_buy_candidates(args, storage, settings)
+    if command == "plans":
+        return _cmd_monitor_plans(args, storage)
     if command == "start":
         return _cmd_monitor_start(args, settings, storage)
     if command == "run":
@@ -2002,24 +2473,14 @@ def cmd_monitor(args: argparse.Namespace) -> int:
 
 def _cmd_monitor_positions(args: argparse.Namespace, storage: DuckDBStorage, settings) -> int:
     command = args.monitor_positions_command
-    if command == "add":
-        storage.upsert_monitor_position(
-            ts_code=_parse_symbol_or_name(args.symbol, settings),
-            name=args.name,
-            quantity=args.quantity,
-            buy_price=args.buy_price,
-            buy_date=args.buy_date,
-            note=args.note,
-        )
-        print("已保存持仓")
-        return 0
     if command == "list":
+        try:
+            QmtPositionSyncService.from_settings(storage=storage, settings=settings).sync()
+        except QmtPositionSyncError as exc:
+            raise SystemExit(str(exc)) from exc
         print(_format_monitor_table(storage.list_monitor_positions()))
         return 0
-    if command == "remove":
-        print("已删除持仓" if storage.delete_monitor_position(_parse_symbol_or_name(args.symbol, settings)) else "未找到持仓")
-        return 0
-    raise SystemExit("monitor positions requires add, list or remove")
+    raise SystemExit("monitor positions requires list")
 
 
 def _cmd_monitor_watchlist(args: argparse.Namespace, storage: DuckDBStorage, settings) -> int:
@@ -2050,6 +2511,74 @@ def _cmd_monitor_buy_candidates(args: argparse.Namespace, storage: DuckDBStorage
         print("已删除待买入股票" if storage.delete_monitor_buy_candidate(_parse_symbol_or_name(args.symbol, settings)) else "未找到待买入股票")
         return 0
     raise SystemExit("monitor buy-candidates requires list or remove")
+
+
+def _cmd_monitor_plans(args: argparse.Namespace, storage: DuckDBStorage) -> int:
+    command = args.monitor_plans_command
+    if command == "validate":
+        try:
+            plan = validate_monitor_plan(load_monitor_plan_file(args.file))
+        except MonitorPlanValidationError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(
+            f"计划有效 schema_version={plan['schema_version']} "
+            f"items={len(plan['items'])} start={plan['start_date']} end={plan['end_date']}"
+        )
+        return 0
+    if command == "import":
+        try:
+            plan = import_monitor_plan(storage, load_monitor_plan_file(args.file))
+        except MonitorPlanValidationError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(
+            f"计划已导入为草稿 plan_id={plan['plan_id']} "
+            f"items={len(plan.get('items') or [])}"
+        )
+        return 0
+    if command == "list":
+        print(_format_monitor_table(storage.list_monitor_plans()))
+        return 0
+    if command == "show":
+        plan = storage.get_monitor_plan(args.plan_id)
+        if not plan:
+            raise SystemExit(f"未找到监控计划: {args.plan_id}")
+        print(json.dumps(plan, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "activate":
+        plan = storage.get_monitor_plan(args.plan_id)
+        if not plan:
+            raise SystemExit(f"未找到监控计划: {args.plan_id}")
+        today = datetime.now(SHANGHAI_TZ).strftime("%Y%m%d")
+        if str(plan.get("end_date") or "") < today:
+            storage.set_monitor_plan_status(args.plan_id, "expired")
+            raise SystemExit("计划已超过 end_date，不能激活")
+        storage.set_monitor_plan_status(args.plan_id, "active")
+        print(f"监控计划已启用: {args.plan_id}")
+        return 0
+    if command == "disable":
+        if not storage.set_monitor_plan_status(args.plan_id, "disabled"):
+            raise SystemExit(f"未找到监控计划: {args.plan_id}")
+        print(f"监控计划已停用: {args.plan_id}")
+        return 0
+    if command == "disable-item":
+        if not storage.disable_monitor_plan_item(args.item_id):
+            raise SystemExit(f"未找到监控计划项目: {args.item_id}")
+        print(f"监控计划项目已停用: {args.item_id}")
+        return 0
+    if command == "disable-group":
+        if not storage.disable_monitor_plan_group(args.group_id):
+            raise SystemExit(f"未找到监控触发组: {args.group_id}")
+        print(f"监控触发组已停用: {args.group_id}")
+        return 0
+    if command == "remove":
+        if not storage.delete_monitor_plan(args.plan_id):
+            raise SystemExit(f"未找到监控计划: {args.plan_id}")
+        print(f"监控计划已删除: {args.plan_id}")
+        return 0
+    raise SystemExit(
+        "monitor plans requires validate, import, list, show, activate, disable, "
+        "disable-item, disable-group or remove"
+    )
 
 
 def _cmd_monitor_start(args: argparse.Namespace, settings, storage: DuckDBStorage) -> int:
@@ -2204,19 +2733,11 @@ def cmd_qmt(args: argparse.Namespace) -> int:
         print(_format_qmt_asset(asset.to_dict()))
         return 0
     if command == "positions":
-        client = broker_from_settings(settings)
-        positions = client.positions()
-        storage.upsert_broker_positions([item.to_dict() for item in positions], provider=client.provider, account_id=client.account_id)
+        try:
+            positions = QmtPositionSyncService.from_settings(storage=storage, settings=settings).sync()
+        except QmtPositionSyncError as exc:
+            raise SystemExit(str(exc)) from exc
         print(_format_qmt_positions([item.to_dict() for item in positions]))
-        return 0
-    if command == "sync":
-        client = broker_from_settings(settings)
-        if args.qmt_sync_command != "positions":
-            raise SystemExit("qmt sync requires positions")
-        positions = client.positions()
-        storage.upsert_broker_positions([item.to_dict() for item in positions], provider=client.provider, account_id=client.account_id)
-        count = sync_positions_to_monitor(storage, positions, provider=client.provider, account_id=client.account_id, prune_missing=args.prune_missing)
-        print(f"已同步 QMT 持仓 {count} 只到 monitor positions")
         return 0
     if command == "orders":
         client = broker_from_settings(settings)
@@ -2612,6 +3133,94 @@ def _format_quote_table(
     return "\n".join(lines)
 
 
+def _period_change_rows(
+    symbols: list[str],
+    daily: pd.DataFrame,
+    *,
+    target_start: date,
+    target_end: date,
+) -> tuple[list[dict[str, object]], list[str]]:
+    if daily.empty or "trade_date" not in daily.columns or "close" not in daily.columns:
+        return [], list(symbols)
+    data = daily.copy()
+    if "ts_code" not in data.columns:
+        if len(symbols) != 1:
+            return [], list(symbols)
+        data["ts_code"] = symbols[0]
+    date_text = data["trade_date"].astype(str).str.replace(r"\D", "", regex=True).str[:8]
+    data["_trade_day"] = pd.to_datetime(date_text, format="%Y%m%d", errors="coerce").dt.date
+    data["close"] = pd.to_numeric(data["close"], errors="coerce")
+    data["ts_code"] = data["ts_code"].astype(str).str.strip().str.upper()
+    data = data.dropna(subset=["_trade_day", "close"])
+    data = data[data["_trade_day"] <= target_end]
+
+    rows: list[dict[str, object]] = []
+    missing: list[str] = []
+    for symbol in symbols:
+        symbol_rows = data[data["ts_code"] == symbol].sort_values("_trade_day")
+        if symbol_rows.empty:
+            missing.append(symbol)
+            continue
+        start_row = _nearest_trade_row(symbol_rows, target_start)
+        end_row = _nearest_trade_row(symbol_rows, target_end)
+        start_price = float(start_row["close"])
+        end_price = float(end_row["close"])
+        if start_price == 0:
+            missing.append(symbol)
+            continue
+        rows.append(
+            {
+                "index": f"{len(rows) + 1}.",
+                "ts_code": symbol,
+                "start_date": start_row["_trade_day"].strftime("%Y-%m-%d"),
+                "start_price": start_price,
+                "end_date": end_row["_trade_day"].strftime("%Y-%m-%d"),
+                "end_price": end_price,
+                "change": end_price - start_price,
+                "pct_change": (end_price / start_price - 1.0) * 100.0,
+            }
+        )
+    return rows, missing
+
+
+def _nearest_trade_row(rows: pd.DataFrame, target: date) -> pd.Series:
+    distances = rows["_trade_day"].map(lambda value: abs((value - target).days))
+    nearest = rows.loc[distances == distances.min()]
+    return nearest.sort_values("_trade_day").iloc[0]
+
+
+def _format_period_change_table(rows: list[dict[str, object]]) -> str:
+    headers = {
+        "index": "序号",
+        "ts_code": "代码",
+        "start_date": "开始交易日",
+        "start_price": "开始价",
+        "end_date": "结束交易日",
+        "end_price": "结束价",
+        "change": "涨跌额",
+        "pct_change": "涨跌幅",
+    }
+    display_rows = [
+        {
+            **row,
+            "start_price": f"{float(row['start_price']):.2f}",
+            "end_price": f"{float(row['end_price']):.2f}",
+            "change": f"{float(row['change']):+.2f}",
+            "pct_change": f"{float(row['pct_change']):+.2f}%",
+        }
+        for row in rows
+    ]
+    keys = list(headers)
+    widths = {
+        key: max(get_cwidth(headers[key]), *(get_cwidth(str(row[key])) for row in display_rows))
+        for key in keys
+    }
+    lines = [" ".join(_display_ljust(headers[key], widths[key]) for key in keys).rstrip()]
+    for row in display_rows:
+        lines.append(" ".join(_display_ljust(str(row[key]), widths[key]) for key in keys).rstrip())
+    return "\n".join(lines)
+
+
 def _display_ljust(text: str, width: int) -> str:
     return text + " " * max(0, width - get_cwidth(text))
 
@@ -2902,6 +3511,23 @@ def _parse_symbols_or_names(value: str, settings=None) -> list[str]:
         return resolve_symbol_or_name_values(raw_values, stock_basic)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
+
+
+def _parse_indices(value: str) -> list[str]:
+    result: list[str] = []
+    for raw in _parse_csv(value):
+        text = raw.upper()
+        code = PERIOD_CHANGE_INDEX_ALIASES.get(raw) or PERIOD_CHANGE_INDEX_ALIASES.get(text)
+        if code is None and len(text) == 6 and text.isdigit():
+            suffix = "SZ" if text.startswith("399") else "BJ" if text.startswith("899") else "SH"
+            code = f"{text}.{suffix}"
+        if code is None and len(text) == 9 and text[:6].isdigit() and text[6] == "." and text[7:] in {"SH", "SZ", "BJ"}:
+            code = text
+        if code is None:
+            raise SystemExit(f"无法识别指数“{raw}”，请使用指数名称或完整代码，例如 000001.SH")
+        if code not in result:
+            result.append(code)
+    return result
 
 
 def _looks_symbol_value(value: str) -> bool:
@@ -3233,6 +3859,66 @@ def _format_model_profiles() -> str:
             f"api_key={'yes' if profile.api_key else 'no'}"
         )
     return "\n".join(rows)
+
+
+def _model_ping(*, timeout_seconds: int | None = None) -> dict[str, object]:
+    settings = load_settings()
+    timeout = max(1, int(timeout_seconds if timeout_seconds is not None else getattr(settings, "llm_timeout_seconds", 120) or 120))
+    payload: dict[str, object] = {
+        "provider": str(getattr(settings, "llm_provider", "") or ""),
+        "profile": str(getattr(settings, "llm_profile", "") or ""),
+        "model": str(getattr(settings, "openai_model", "") or ""),
+        "base_url": str(getattr(settings, "openai_base_url", "") or ""),
+        "timeout": timeout,
+        "available": False,
+        "error_type": "",
+        "error_message": "",
+        "response": "",
+        "finish_reason": "",
+    }
+    try:
+        llm = ChatLLM(timeout_seconds=timeout)
+        response = llm.chat([{"role": "user", "content": "Return exactly OK."}], timeout=timeout)
+    except Exception as exc:
+        payload["error_type"] = exc.__class__.__name__
+        payload["error_message"] = _format_exception_message(exc)
+        return payload
+    payload["available"] = True
+    payload["response"] = str(getattr(response, "content", "") or "").strip()
+    payload["finish_reason"] = str(getattr(response, "finish_reason", "") or "")
+    return payload
+
+
+def _format_model_ping(payload: dict[str, object]) -> str:
+    lines = [
+        "模型连通性:",
+        f"- provider: {payload.get('provider') or '-'}",
+        f"- profile: {payload.get('profile') or '-'}",
+        f"- model: {payload.get('model') or '-'}",
+        f"- base_url: {payload.get('base_url') or '-'}",
+        f"- timeout: {payload.get('timeout')}",
+        f"- available: {'yes' if payload.get('available') else 'no'}",
+    ]
+    if payload.get("available"):
+        response = str(payload.get("response") or "").strip()
+        if response:
+            lines.append(f"- response: {response}")
+        finish_reason = str(payload.get("finish_reason") or "").strip()
+        if finish_reason:
+            lines.append(f"- finish_reason: {finish_reason}")
+    else:
+        lines.append(f"- error_type: {payload.get('error_type') or '-'}")
+        lines.append(f"- error_message: {payload.get('error_message') or '-'}")
+        lines.append("- hint: 检查网络访问、provider base_url、API key 和模型名。")
+    return "\n".join(lines)
+
+
+def _format_exception_message(exc: Exception, *, limit: int = 500) -> str:
+    text = str(exc or "").strip() or exc.__class__.__name__
+    text = " ".join(text.split())
+    if len(text) > limit:
+        return text[:limit].rstrip() + "..."
+    return text
 
 
 def _scheduled_run_summary(row: dict) -> str:

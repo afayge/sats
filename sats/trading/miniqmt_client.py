@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -43,8 +45,24 @@ class MiniQmtBrokerClient:
 
     def positions(self) -> list[BrokerPosition]:
         payload = self._request("GET", "/positions")
-        rows = payload.get("positions", payload if isinstance(payload, list) else [])
-        return [_position_from_payload(row) for row in rows]
+        if not isinstance(payload, dict) or "positions" not in payload:
+            raise BrokerError("QMT bridge positions response is missing the positions array")
+        rows = payload["positions"]
+        if rows is None:
+            raise BrokerError("QMT bridge positions query returned null")
+        if not isinstance(rows, list):
+            raise BrokerError("QMT bridge positions field must be an array")
+        positions: list[BrokerPosition] = []
+        seen: set[str] = set()
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                raise BrokerError(f"QMT bridge position item {index + 1} must be an object")
+            position = _position_from_payload(row, index=index)
+            if position.ts_code in seen:
+                raise BrokerError(f"QMT bridge positions contain duplicate symbol: {position.ts_code}")
+            seen.add(position.ts_code)
+            positions.append(position)
+        return positions
 
     def orders(self, *, open_only: bool = False) -> list[BrokerOrder]:
         query = urllib.parse.urlencode({"open_only": "1" if open_only else "0"})
@@ -98,9 +116,14 @@ class MiniQmtBrokerClient:
             raise BrokerError(f"QMT bridge HTTP {exc.code}: {detail}") from exc
         except urllib.error.URLError as exc:
             raise BrokerError(f"QMT bridge unavailable: {exc.reason}") from exc
+        except TimeoutError as exc:
+            raise BrokerError(f"QMT bridge request timed out: {exc}") from exc
         if not text:
-            return {}
-        data = json.loads(text)
+            raise BrokerError("QMT bridge returned an empty response")
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise BrokerError(f"QMT bridge returned invalid JSON: {exc}") from exc
         if isinstance(data, dict) and data.get("ok") is False:
             raise BrokerError(str(data.get("error") or "QMT bridge error"))
         return data
@@ -118,15 +141,52 @@ def broker_from_settings(settings: Settings) -> MiniQmtBrokerClient:
     )
 
 
-def _position_from_payload(row: dict[str, Any]) -> BrokerPosition:
+def _position_from_payload(row: dict[str, Any], *, index: int = 0) -> BrokerPosition:
     ts_code = _normalize_ts_code(str(_pick(row, "ts_code", "stock_code", "stockCode", "symbol") or ""))
-    quantity = _num(_pick(row, "quantity", "volume", "total_volume", "totalVolume"))
-    available = _num(_pick(row, "available_quantity", "can_use_volume", "availableVolume", default=quantity))
-    cost = _num(_pick(row, "cost_price", "open_price", "avg_price", "costPrice"))
-    price = _num(_pick(row, "price", "last_price", "market_price", "lastPrice"))
-    market_value = _num(_pick(row, "market_value", "marketValue", default=price * quantity))
-    pnl = _num(_pick(row, "pnl", "profit", "float_profit", default=(price - cost) * quantity if price and cost else 0.0))
-    pnl_pct = _num(_pick(row, "pnl_pct", "profit_ratio", default=(pnl / (cost * quantity) * 100.0 if cost and quantity else 0.0)))
+    if not re.fullmatch(r"\d{6}\.(?:SH|SZ|BJ)", ts_code):
+        raise BrokerError(f"QMT bridge position item {index + 1} has invalid symbol: {ts_code or '-'}")
+    quantity = _position_num(
+        _pick(row, "quantity", "volume", "total_volume", "totalVolume"),
+        label=f"{ts_code} quantity",
+        required=True,
+        nonnegative=True,
+    )
+    available = _position_num(
+        _pick(row, "available_quantity", "can_use_volume", "availableVolume", default=quantity),
+        label=f"{ts_code} available_quantity",
+        required=True,
+        nonnegative=True,
+    )
+    if available > quantity:
+        raise BrokerError(f"QMT bridge position {ts_code} available quantity exceeds total quantity")
+    cost = _position_num(
+        _pick(row, "cost_price", "open_price", "avg_price", "costPrice"),
+        label=f"{ts_code} cost_price",
+        required=True,
+        nonnegative=True,
+    )
+    price = _position_num(
+        _pick(row, "price", "last_price", "market_price", "lastPrice"),
+        label=f"{ts_code} price",
+        default=0.0,
+        nonnegative=True,
+    )
+    market_value = _position_num(
+        _pick(row, "market_value", "marketValue"),
+        label=f"{ts_code} market_value",
+        default=price * quantity,
+        nonnegative=True,
+    )
+    pnl = _position_num(
+        _pick(row, "pnl", "profit", "float_profit"),
+        label=f"{ts_code} pnl",
+        default=(price - cost) * quantity if price and cost else 0.0,
+    )
+    pnl_pct = _position_num(
+        _pick(row, "pnl_pct", "profit_ratio"),
+        label=f"{ts_code} pnl_pct",
+        default=(pnl / (cost * quantity) * 100.0 if cost and quantity else 0.0),
+    )
     return BrokerPosition(
         ts_code=ts_code,
         name=str(_pick(row, "name", "stock_name", "stockName", default="") or ""),
@@ -181,6 +241,29 @@ def _num(value: Any) -> float:
         return float(value)
     except (TypeError, ValueError):
         return 0.0
+
+
+def _position_num(
+    value: Any,
+    *,
+    label: str,
+    required: bool = False,
+    default: float = 0.0,
+    nonnegative: bool = False,
+) -> float:
+    if value in (None, ""):
+        if required:
+            raise BrokerError(f"QMT bridge position field is missing: {label}")
+        return float(default)
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise BrokerError(f"QMT bridge position field is not numeric: {label}") from exc
+    if not math.isfinite(number):
+        raise BrokerError(f"QMT bridge position field is not finite: {label}")
+    if nonnegative and number < 0:
+        raise BrokerError(f"QMT bridge position field cannot be negative: {label}")
+    return number
 
 
 def _normalize_ts_code(symbol: str) -> str:

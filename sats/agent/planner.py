@@ -1,19 +1,24 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import re
 import shlex
 from datetime import datetime, timedelta
 from typing import Any, Callable
 
-from sats.analysis.market_llm_context import DEFAULT_MARKET_DIMENSIONS
+from sats.analysis.market_llm_context import DEFAULT_MARKET_DIMENSIONS, resolve_market_dimensions_with_warnings
 from sats.agent.date_policy import agent_today, sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy, AgentPlan, AgentStep
 from sats.agent.tools import AgentToolRegistry
 from sats.chat_reference import is_reference_question
 from sats.config import Settings
 from sats.llm import ChatLLM, build_light_fallback_llm, build_standard_llm, extract_json_object
+from sats.natural_task import build_screened_natural_task_spec, extract_candidate_limit, requested_screened_analysis_mode
+from sats.rag.knowledge import infer_stock_collections
+from sats.screening.registry import list_rules
 from sats.screening.rule_composer import is_rule_generation_request, parse_rule_generation_confirmation
 from sats.stock_question import extract_stock_symbols, extract_trade_date
+from sats.agent.tools.workflow_tools import infer_screening_rule, is_screened_stock_analysis_request
 
 
 SHELL_TOKENS = {";", "&&", "||", "|", ">", ">>", "<", "$(", "`"}
@@ -30,10 +35,12 @@ def build_agent_plan(
     reference_context: Any | None = None,
 ) -> AgentPlan:
     local_plan = _with_planner_model_meta(
-        _augment_plan(
-            _fallback_plan(policy_message or message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
-            message=policy_message or message,
-            reference_context=reference_context,
+        _normalize_chat_answer_steps(
+            _augment_plan(
+                _fallback_plan(policy_message or message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
+                message=policy_message or message,
+                reference_context=reference_context,
+            )
         ),
         model_policy="local",
         model_profile="local",
@@ -53,7 +60,9 @@ def build_agent_plan(
         plan = _plan_from_payload(payload, message=policy_message or message, tool_registry=tool_registry)
         if plan.steps:
             return _with_planner_model_meta(
-                _augment_plan(plan, message=policy_message or message, reference_context=reference_context),
+                _normalize_chat_answer_steps(
+                    _augment_plan(plan, message=policy_message or message, reference_context=reference_context)
+                ),
                 **model_meta,
             )
         return _with_planner_model_meta(local_plan, **model_meta)
@@ -133,7 +142,7 @@ def _planner_messages(
                 "TickFlow 已覆盖的 A 股主行情优先使用 TickFlow/SATS resolver；Tushare 白名单数据优先用 Tushare 工具；"
                 "只有需要 TickFlow/Tushare 未覆盖的数据，或用户明确要求 AkShare/数据字典接口时，才用 AkShare catalog 工具。"
                 "AkShare 必须先通过 data.list_akshare_datasets 或 data.describe_akshare_dataset 确认 dataset，再用 data.get_akshare_data 取数；不要编造 AkShare 函数名。"
-                "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.social_hot / web.hot_mentions；"
+                "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.open / web.social_hot / web.hot_mentions；"
                 "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
                 "用户说“明天/后天/下周/未来几天/未来一周”时，这是 forecast horizon，不是历史 trade_date；"
@@ -141,10 +150,17 @@ def _planner_messages(
                 "trade_date/start_date/end_date 必须使用 YYYYMMDD。"
                 "SATS 命令必须输出 argv 数组，不要输出 shell 字符串。"
                 "交易步骤只有在 policy auto_trade 允许对应 side 时才可规划；否则规划 dry-run/说明步骤。"
-                "普通解释、总结、命令帮助请规划 chat.answer 工具；不要规划 sats_command.run chat。"
+                "只有不需要其他工具的单步骤普通解释、总结、命令帮助才规划 chat.answer；不要规划 sats_command.run chat。"
+                "chat.answer 不读取前序步骤 observations，计划中已有 research/data/web/factor/workflow 等工具时，"
+                "不要再用 chat.answer 汇总“以上数据”，由 final 步骤统一综合。"
+                "需要本地知识库时使用 research.knowledge_context；其中 knowledge 只能是真实存在的知识库名称或 ID，"
+                "自然语言分析要求应放在 message 中。"
                 "默认优先使用确定性 research 组件工具："
                 "个股问题 -> research.stock_context + research.internal_analysis(kind=indicators)；"
+                "深度个股研究、估值、DCF、投委会或首次覆盖 -> research.deep_stock_analysis；"
                 "大盘问题 -> research.market_context；"
+                "research.market_context 的 dimensions 只使用 core_indices、market_breadth、limit_sentiment、hot_sectors；"
+                "Serenity、供应链卡位/卡脖子/瓶颈筛选，或 AI 科技主题选股 -> research.serenity_screen；"
                 "选股问题 -> research.discover_opportunities；"
                 "缠论问题 -> research.chan_context；"
                 "规则生成 -> research.rule_generation。"
@@ -205,6 +221,9 @@ def _plan_from_payload(payload: dict[str, Any], *, message: str, tool_registry: 
         steps=tuple(steps),
         risk_level=str(payload.get("risk_level") or "medium"),
         requires_live_trading=bool(payload.get("requires_live_trading", False)),
+        natural_task=dict(payload.get("natural_task") or {}) if isinstance(payload.get("natural_task"), dict) else {},
+        analysis_mode=str(payload.get("analysis_mode") or ""),
+        verification_checks=tuple(dict(item) for item in payload.get("verification_checks") or [] if isinstance(item, dict)),
     )
 
 
@@ -221,7 +240,41 @@ def _fallback_plan(
     symbols = extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
     clean_symbols = symbols or ["000001"] if _needs_symbol_default(text) else symbols
     confirmed_rule_name = parse_rule_generation_confirmation(text)
-    if confirmed_rule_name is not None:
+    natural_task = {}
+    analysis_mode = ""
+    verification_checks: tuple[dict[str, Any], ...] = ()
+    if _is_serenity_screen_request(text):
+        steps.append(
+            _tool_step(
+                "serenity_screen",
+                "research.serenity_screen",
+                "Serenity AI 卡位筛选",
+                _serenity_screen_args(text, clean_symbols),
+                side_effect="write_artifact",
+            )
+        )
+    elif is_screened_stock_analysis_request(text):
+        spec = build_screened_natural_task_spec(text)
+        natural_task = spec.to_dict()
+        analysis_mode = spec.analysis_mode.value
+        verification_checks = tuple(item.to_dict() for item in spec.verification_checks)
+        steps.append(
+            _tool_step(
+                "screened_stock_analysis_plan",
+                "workflow.screened_stock_analysis",
+                "筛选股票集合分析工作流",
+                {
+                    "message": text,
+                    "rule": infer_screening_rule(text),
+                    "trade_date": extract_trade_date(text) or "",
+                    "candidate_limit": extract_candidate_limit(text, default=0),
+                    "analysis_mode": requested_screened_analysis_mode(text).value,
+                    "run_screen": True,
+                },
+                side_effect="write_db",
+            )
+        )
+    elif confirmed_rule_name is not None:
         steps.append(
             _tool_step(
                 "rule_generation_confirm",
@@ -310,8 +363,27 @@ def _fallback_plan(
                     side_effect="readonly",
                 )
             )
+    elif _is_theme_stock_return_request(text):
+        steps.append(_theme_stock_returns_step(text))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
+    elif clean_symbols and _is_deep_stock_analysis_request(text):
+        trade_date = _analysis_trade_date(text, reference_context)
+        steps.append(
+            _tool_step(
+                "deep_stock_analysis",
+                "research.deep_stock_analysis",
+                "原生个股深研",
+                {
+                    "symbols": clean_symbols,
+                    "trade_date": trade_date,
+                    "phase": "run",
+                    "lookback_days": 180,
+                    "llm_review": True,
+                },
+                side_effect="write_artifact",
+            )
+        )
     elif clean_symbols and _is_stock_analysis_request(text):
         trade_date = _analysis_trade_date(text, reference_context)
         steps.append(_tool_step("stock_context", "research.stock_context", "获取个股上下文", {"symbols": clean_symbols, "trade_date": trade_date}, side_effect="readonly"))
@@ -342,7 +414,7 @@ def _fallback_plan(
                     "factor_summary",
                     "research.internal_analysis",
                     "补充因子画像",
-                    {"kind": "factor_summary", "symbols": clean_symbols, "trade_date": trade_date},
+                    {"kind": "factor_summary", "symbols": clean_symbols, "trade_date": trade_date, "profile": _factor_profile(text)},
                     side_effect="readonly",
                 )
             )
@@ -387,11 +459,14 @@ def _fallback_plan(
     steps.append(AgentStep(step_id="final", kind="final", title="总结结果"))
     return AgentPlan(
         objective=text,
-        success_criteria=("完成可审计的 SATS agent 执行。",),
-        assumptions=("市场数据只接受 SATS resolver 的 DuckDB/provider provenance。",),
+        success_criteria=tuple(natural_task.get("success_criteria") or ("完成可审计的 SATS agent 执行。",)),
+        assumptions=tuple(natural_task.get("assumptions") or ("市场数据只接受 SATS resolver 的 DuckDB/provider provenance。",)),
         steps=tuple(steps),
         risk_level="high" if policy.auto_trade else "medium",
         requires_live_trading=bool(policy.live_trading),
+        natural_task=natural_task,
+        analysis_mode=analysis_mode,
+        verification_checks=verification_checks,
     )
 
 
@@ -400,6 +475,27 @@ def _requires_standard_planner(plan: AgentPlan) -> bool:
     if not meaningful:
         return False
     return not all(step.kind == "tool" and str(step.tool_name).startswith("chat.") for step in meaningful)
+
+
+def _normalize_chat_answer_steps(plan: AgentPlan) -> AgentPlan:
+    steps = list(plan.steps)
+    has_other_work = any(
+        step.kind != "final"
+        and not (step.kind == "tool" and str(step.tool_name or "") == "chat.answer")
+        for step in steps
+    )
+    if not has_other_work:
+        return plan
+    filtered = [
+        step
+        for step in steps
+        if not (step.kind == "tool" and str(step.tool_name or "") == "chat.answer")
+    ]
+    if len(filtered) == len(steps):
+        return plan
+    if not any(step.kind == "final" for step in filtered):
+        filtered.append(AgentStep(step_id="final", kind="final", title="总结结果"))
+    return replace(plan, steps=tuple(filtered))
 
 
 def _with_planner_model_meta(
@@ -441,6 +537,52 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
         return plan
     insert_at = _final_index(steps)
     text = str(message or "")
+    symbols = _plan_stock_symbols(steps) or extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
+    if _is_serenity_screen_request(text):
+        steps = [
+            step
+            for step in steps
+            if step.tool_name not in {"research.discover_opportunities", "workflow.screened_stock_analysis"}
+        ]
+        if not _has_tool(steps, "research.serenity_screen"):
+            steps.insert(
+                _final_index(steps),
+                _tool_step(
+                    "serenity_screen",
+                    "research.serenity_screen",
+                    "Serenity AI 卡位筛选",
+                    _serenity_screen_args(text, symbols),
+                    side_effect="write_artifact",
+                ),
+            )
+        return replace(plan, steps=tuple(steps))
+    if is_screened_stock_analysis_request(text):
+        spec = build_screened_natural_task_spec(text)
+        if not _has_tool(steps, "workflow.screened_stock_analysis"):
+            steps.insert(
+                insert_at,
+                _tool_step(
+                    "screened_stock_analysis_plan",
+                    "workflow.screened_stock_analysis",
+                    "筛选股票集合分析工作流",
+                    {
+                        "message": text,
+                        "rule": infer_screening_rule(text),
+                        "trade_date": extract_trade_date(text) or "",
+                        "candidate_limit": extract_candidate_limit(text, default=0),
+                        "analysis_mode": requested_screened_analysis_mode(text).value,
+                        "run_screen": True,
+                    },
+                    side_effect="write_db",
+                ),
+            )
+        return replace(
+            plan,
+            steps=tuple(steps),
+            natural_task=spec.to_dict(),
+            analysis_mode=spec.analysis_mode.value,
+            verification_checks=tuple(item.to_dict() for item in spec.verification_checks),
+        )
     if parse_rule_generation_confirmation(text) is not None:
         if not _has_tool(steps, "research.rule_generation"):
             steps.insert(
@@ -467,12 +609,36 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
                 ),
             )
         return replace(plan, steps=tuple(steps))
+    if _is_theme_stock_return_request(text):
+        return replace(plan, steps=(_theme_stock_returns_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_market_analysis_request(text) and not _has_tool(steps, "research.market_context"):
         steps.insert(insert_at, _tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
         insert_at += 1
     elif _is_market_analysis_request(text):
         steps = [_with_default_market_dimensions(step) for step in steps]
     symbols = _plan_stock_symbols(steps) or extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
+    if symbols and _needs_hot_sector_context(text) and not _is_market_analysis_request(text) and not _has_tool(steps, "research.market_context"):
+        steps.insert(_final_index(steps), _hot_sector_context_step(text))
+    if symbols and _is_deep_stock_analysis_request(text):
+        trade_date = _analysis_trade_date(text, reference_context)
+        if not _has_tool(steps, "research.deep_stock_analysis"):
+            steps.insert(
+                _final_index(steps),
+                _tool_step(
+                    "deep_stock_analysis",
+                    "research.deep_stock_analysis",
+                    "原生个股深研",
+                    {
+                        "symbols": symbols,
+                        "trade_date": trade_date,
+                        "phase": "run",
+                        "lookback_days": 180,
+                        "llm_review": True,
+                    },
+                    side_effect="write_artifact",
+                ),
+            )
+        return replace(plan, steps=tuple(steps))
     if _is_chan_request(text):
         if not _has_tool(steps, "research.chan_context"):
             steps.insert(insert_at, _tool_step("chan_context", "research.chan_context", "获取缠论上下文", {"message": text}, side_effect="readonly"))
@@ -519,7 +685,7 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
                     "factor_summary",
                     "research.internal_analysis",
                     "补充因子画像",
-                    {"kind": "factor_summary", "symbols": symbols, "trade_date": trade_date},
+                    {"kind": "factor_summary", "symbols": symbols, "trade_date": trade_date, "profile": _factor_profile(text)},
                     side_effect="readonly",
                 ),
             )
@@ -544,6 +710,9 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
         steps=tuple(steps),
         risk_level=plan.risk_level,
         requires_live_trading=plan.requires_live_trading,
+        natural_task=plan.natural_task,
+        analysis_mode=plan.analysis_mode,
+        verification_checks=plan.verification_checks,
     )
 
 
@@ -574,7 +743,44 @@ def _analyze_signals_step(symbols: list[str], trade_date: str, text: str) -> Age
     )
 
 
+def _hot_sector_context_step(text: str) -> AgentStep:
+    return _tool_step(
+        "market_hot_sectors",
+        "research.market_context",
+        "补充热点板块上下文",
+        {"horizons": _market_horizons(text), "dimensions": ["hot_sectors"]},
+        side_effect="readonly",
+    )
+
+
+def _theme_stock_returns_step(text: str) -> AgentStep:
+    return _tool_step(
+        "theme_stock_returns",
+        "research.theme_stock_returns",
+        "解析主题股票池并计算区间涨跌幅",
+        {
+            "query": text,
+            "period": _theme_return_period(text),
+            "limit": 30,
+        },
+        side_effect="readonly",
+    )
+
+
 def _web_steps(text: str) -> list[AgentStep]:
+    url_match = re.search(r"https?://[^\s<>()]+", str(text or ""))
+    if url_match:
+        url = url_match.group(0).rstrip(".,，。；;")
+        query = str(text or "").replace(url_match.group(0), " ").strip()
+        return [
+            _tool_step(
+                "web_open",
+                "web.open",
+                "抓取并检索指定公开网页",
+                {"url": url, "query": query},
+                side_effect="readonly",
+            )
+        ]
     if _needs_social_mentions(text):
         return [
             _tool_step(
@@ -600,7 +806,12 @@ def _web_steps(text: str) -> list[AgentStep]:
             "web_search",
             "web.search",
             "搜索公开网络证据",
-            {"query": text, "limit": _web_limit(text, default=5), "freshness": _web_freshness(text)},
+            {
+                "query": text,
+                "limit": _web_limit(text, default=5),
+                "freshness": _web_freshness(text),
+                "context_size": _web_context_size(text),
+            },
             side_effect="readonly",
         )
     ]
@@ -720,7 +931,100 @@ def _is_stock_analysis_request(text: str) -> bool:
     lowered = text.lower()
     if any(term in text for term in ("报价", "实时报价", "持仓", "资金")):
         return False
-    return any(term in lowered for term in ("analyze", "analysis", "signal")) or any(term in text for term in ("分析", "走势", "预测", "技术面", "信号", "因子", "缠论", "风险"))
+    return (
+        any(term in lowered for term in ("analyze", "analysis", "signal", "dsa", "das"))
+        or any(term in text for term in ("分析", "走势", "预测", "技术面", "信号", "因子", "缠论", "风险"))
+        or bool(_strategy_intents(text))
+    )
+
+
+def _is_deep_stock_analysis_request(text: str) -> bool:
+    lowered = text.lower()
+    deep_terms = (
+        "deep analysis",
+        "dcf",
+        "valuation",
+        "initiation",
+        "initiating coverage",
+        "ic memo",
+    )
+    cn_terms = (
+        "深度分析",
+        "全面分析",
+        "个股深研",
+        "深研",
+        "DCF",
+        "估值",
+        "投委会",
+        "首次覆盖",
+        "投研报告",
+        "全面基本面",
+        "基本面拆解",
+        "风险拆解",
+    )
+    return any(term in lowered for term in deep_terms) or any(term in text for term in cn_terms)
+
+
+def _is_serenity_screen_request(text: str) -> bool:
+    source = str(text or "")
+    lowered = source.lower()
+    if _has_explicit_non_serenity_rule(source):
+        return False
+    explicit_terms = (
+        "serenity",
+        "卡位",
+        "卡脖子",
+        "供应链卡点",
+        "供应链瓶颈",
+        "稀缺层",
+        "瓶颈筛选",
+    )
+    if any(term in lowered or term in source for term in explicit_terms):
+        return True
+    ai_terms = (
+        "ai",
+        "人工智能",
+        "半导体",
+        "光通信",
+        "光模块",
+        "cpo",
+        "先进封装",
+        "hbm",
+        "算力",
+        "数据中心",
+        "液冷",
+        "服务器电源",
+        "人形机器人",
+        "具身智能",
+        "机器人核心部件",
+    )
+    pick_terms = ("选股", "筛选", "推荐", "找标的", "找股票", "优先研究", "候选")
+    return any(term in lowered or term in source for term in ai_terms) and any(
+        term in source for term in pick_terms
+    )
+
+
+def _has_explicit_non_serenity_rule(text: str) -> bool:
+    lowered = str(text or "").lower()
+    for rule_name in list_rules():
+        variants = {rule_name.lower(), rule_name.replace("_", "-").lower()}
+        if any(variant in lowered for variant in variants):
+            return True
+    return False
+
+
+def _serenity_screen_args(text: str, symbols: list[str]) -> dict[str, Any]:
+    limit = extract_candidate_limit(text, default=10)
+    return {
+        "query": text,
+        "theme": "",
+        "symbols": symbols,
+        "trade_date": extract_trade_date(text) or agent_today(),
+        "limit": limit,
+        "candidate_limit": max(30, limit),
+        "lookback_days": 180,
+        "llm_review": True,
+    }
 
 
 def _is_opportunity_request(text: str) -> bool:
@@ -734,17 +1038,17 @@ def _is_chan_request(text: str) -> bool:
 
 def _is_dsa_request(text: str) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in ("dsa", "daily_stock_analysis")) or any(term in text for term in ("买卖点", "交易策略", "多头趋势", "回踩低吸", "放量突破", "均线金叉"))
+    return any(term in lowered for term in ("dsa", "das", "daily_stock_analysis")) or any(term in text for term in ("买卖点", "交易策略")) or bool(_strategy_intents(text))
 
 
 def _needs_signal_analysis(text: str) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in ("signal", "analyze")) or any(term in text for term in ("信号", "策略", "买卖点"))
+    return any(term in lowered for term in ("signal", "analyze")) or any(term in text for term in ("信号", "策略", "买卖点")) or bool(_strategy_signals(text))
 
 
 def _needs_factor_summary(text: str) -> bool:
     lowered = text.lower()
-    return _is_factor_request(text) or any(term in lowered for term in ("valuation", "fundamental", "pe", "roe")) or any(
+    return _needs_factor_strategy_summary(text) or _is_factor_request(text) or any(term in lowered for term in ("valuation", "fundamental", "pe", "roe")) or any(
         term in text for term in ("估值", "基本面", "财报", "盈利", "ROE", "PE")
     )
 
@@ -752,11 +1056,18 @@ def _needs_factor_summary(text: str) -> bool:
 def _knowledge_context_args(text: str) -> dict[str, Any]:
     collections: list[str] = []
     lowered = text.lower()
+    inferred = infer_stock_collections(text)
+    if "price-action" in inferred:
+        collections.append("price-action")
     if any(term in lowered for term in ("valuation", "fundamental", "pe", "roe")) or any(term in text for term in ("估值", "基本面", "财报", "盈利", "ROE", "PE")):
         collections.append("fundamental")
+    if _needs_factor_strategy_summary(text):
+        collections.append("fundamental")
+    if _needs_hot_sector_context(text) or _needs_public_strategy_evidence(text):
+        collections.extend(["market", "sentiment"])
     if any(term in lowered for term in ("risk", "drawdown", "volatility")) or any(term in text for term in ("风险", "回撤", "波动", "适当性")):
         collections.append("risk")
-    return {"message": text, "collections": collections}
+    return {"message": text, "collections": list(dict.fromkeys(collections))}
 
 
 def _market_horizons(text: str) -> list[str]:
@@ -778,6 +1089,30 @@ def _market_context_args(text: str) -> dict[str, Any]:
 
 def _needs_web_evidence(text: str) -> bool:
     return _needs_web_search(text) or _needs_social_hot(text)
+
+
+def _is_theme_stock_return_request(text: str) -> bool:
+    value = re.sub(r"\s+", "", str(text or "").strip())
+    if not value:
+        return False
+    has_theme_stock = any(term in value for term in ("相关股票", "相关个股", "相关A股", "概念股", "产业链股票", "题材股"))
+    has_period = bool(
+        re.search(r"(近|过去|最近|内)?([0-9一二两三四五六七八九十]+)(个)?月", value)
+        or "半年" in value
+        or re.search(r"([0-9一二两三四五六七八九十]+)(日|天|周|季度|年)", value)
+    )
+    has_return_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现"))
+    return has_theme_stock and has_period and has_return_metric
+
+
+def _theme_return_period(text: str) -> str:
+    value = re.sub(r"\s+", "", str(text or "").strip())
+    if "半年" in value or re.search(r"(近|过去|最近|内)?6(个)?月", value) or re.search(r"(近|过去|最近|内)?六(个)?月", value):
+        return "6m"
+    match = re.search(r"([0-9]{1,3})个?月", value)
+    if match:
+        return f"{match.group(1)}m"
+    return "6m"
 
 
 def _is_akshare_data_request(text: str) -> bool:
@@ -804,10 +1139,30 @@ def _akshare_query(text: str) -> str:
 
 def _needs_web_search(text: str) -> bool:
     lowered = text.lower()
+    if re.search(r"https?://[^\s<>()]+", str(text or "")):
+        return True
     explicit = ("web", "网页", "网络搜索", "网上", "网络上", "搜索", "查一下", "搜一下")
-    public_info = ("最新", "新闻", "公告", "报道", "消息", "公开信息", "监管", "政策", "事件")
+    public_info = (
+        "最新",
+        "新闻",
+        "公告",
+        "报道",
+        "消息",
+        "公开信息",
+        "监管",
+        "政策",
+        "事件",
+        "近况",
+        "近期动态",
+        "最近发生",
+        "目前情况",
+    )
     today_with_info = ("今天", "今日")
     if any(term in lowered or term in text for term in explicit):
+        return True
+    if _is_market_data_only_request(text):
+        return False
+    if _needs_public_strategy_evidence(text):
         return True
     if any(term in text for term in public_info):
         return True
@@ -897,6 +1252,35 @@ def _web_freshness(text: str) -> str:
     return ""
 
 
+def _web_context_size(text: str) -> str:
+    lowered = str(text or "").lower()
+    high_terms = ("深入", "全面", "详细", "深度", "调研", "研究报告", "对比", "比较", "综合分析", "deep research", "in-depth")
+    return "high" if any(term in lowered for term in high_terms) else "medium"
+
+
+def _is_market_data_only_request(text: str) -> bool:
+    lowered = str(text or "").lower()
+    market_terms = (
+        "最新价",
+        "当前价格",
+        "实时价格",
+        "实时行情",
+        "股价",
+        "收盘价",
+        "涨跌幅",
+        "成交量",
+        "成交额",
+        "k线",
+        "k 线",
+        "资金流",
+        "盘口",
+        "分钟线",
+        "quote",
+    )
+    public_terms = ("新闻", "公告", "报道", "消息", "政策", "监管", "事件", "公开信息", "近况", "动态")
+    return any(term in lowered for term in market_terms) and not any(term in lowered for term in public_terms)
+
+
 def _web_limit(text: str, *, default: int) -> int:
     import re
 
@@ -909,10 +1293,9 @@ def _web_limit(text: str, *, default: int) -> int:
 def _with_default_market_dimensions(step: AgentStep) -> AgentStep:
     if step.kind != "tool" or step.tool_name != "research.market_context":
         return step
-    if step.arguments.get("dimensions"):
-        return step
     arguments = dict(step.arguments)
-    arguments["dimensions"] = list(DEFAULT_MARKET_DIMENSIONS)
+    resolved, unsupported = resolve_market_dimensions_with_warnings(arguments.get("dimensions"))
+    arguments["dimensions"] = list(dict.fromkeys([*DEFAULT_MARKET_DIMENSIONS, *resolved, *unsupported]))
     return replace(step, arguments=arguments)
 
 
@@ -924,7 +1307,74 @@ def _analysis_trade_date(text: str, reference_context: Any | None = None) -> str
 
 
 def _analysis_signals(text: str) -> str:
-    return _explicit_signal_selection(text) or "short_up"
+    return _explicit_signal_selection(text) or _strategy_signals(text) or "short_up"
+
+
+def _strategy_intents(text: str) -> list[str]:
+    lowered = text.lower()
+    intents: list[str] = []
+
+    def add(intent: str) -> None:
+        if intent not in intents:
+            intents.append(intent)
+
+    if any(term in text for term in ("均线金叉", "金蜘蛛", "MA金叉", "ma金叉")) or "ma golden cross" in lowered:
+        add("ma-golden-cross")
+    if any(term in text for term in ("多头趋势", "多头排列", "强势多头")) or "bull trend" in lowered:
+        add("bull-trend")
+    if any(term in text for term in ("回踩低吸", "缩量回调", "低吸")):
+        add("shrink-pullback")
+    if any(term in text for term in ("放量突破", "突破放量", "量价突破")):
+        add("volume-breakout")
+    if _is_chan_request(text):
+        add("chan-theory")
+    if any(term in text for term in ("波浪理论", "艾略特", "C浪", "B浪", "c浪", "b浪")) or any(term in lowered for term in ("elliott", "wave")):
+        add("elliott-wave")
+    if any(term in text for term in ("热点题材", "题材发酵", "题材", "热点")) or "hot theme" in lowered:
+        add("hot-theme")
+    if "龙头" in text:
+        add("dragon-head")
+    if "情绪周期" in text:
+        add("emotion-cycle")
+    if any(term in text for term in ("事件驱动", "公告", "并购", "订单", "政策催化")):
+        add("event-driven-detector")
+    if any(term in text for term in ("成长品质", "成长质量", "利润质量", "ROE")) or any(term in lowered for term in ("growth quality", "roe")):
+        add("growth-quality")
+    if any(term in text for term in ("预期重估", "预期差", "估值修复")) or "repricing" in lowered:
+        add("expectation-repricing")
+    return intents
+
+
+def _strategy_signals(text: str) -> str:
+    signals: list[str] = []
+
+    def add(value: str) -> None:
+        if value not in signals:
+            signals.append(value)
+
+    intents = set(_strategy_intents(text))
+    if "ma-golden-cross" in intents:
+        add("ma")
+    if intents & {"bull-trend", "shrink-pullback", "volume-breakout"}:
+        for value in ("ma", "trendline", "kline"):
+            add(value)
+    if "chan-theory" in intents:
+        add("chan")
+    if "elliott-wave" in intents:
+        add("wave")
+    return ",".join(signals)
+
+
+def _needs_hot_sector_context(text: str) -> bool:
+    return bool(set(_strategy_intents(text)) & {"hot-theme", "dragon-head", "emotion-cycle"})
+
+
+def _needs_factor_strategy_summary(text: str) -> bool:
+    return bool(set(_strategy_intents(text)) & {"growth-quality", "expectation-repricing"})
+
+
+def _needs_public_strategy_evidence(text: str) -> bool:
+    return bool(set(_strategy_intents(text)) & {"event-driven-detector", "expectation-repricing"})
 
 
 def _explicit_signal_selection(text: str) -> str:
@@ -1003,12 +1453,12 @@ def _is_pure_factor_workflow(text: str) -> bool:
 
 def _factor_profile(text: str) -> str:
     lowered = text.lower()
-    if "价值" in text or "value" in lowered:
-        return "value"
-    if "成长" in text or "growth" in lowered:
-        return "growth"
-    if "质量" in text or "quality" in lowered:
-        return "quality"
+    if any(term in text for term in ("短线", "短期", "量价")) or "short" in lowered:
+        return "short_term"
+    if any(term in text for term in ("成长", "质量", "品质", "ROE", "利润质量")) or any(term in lowered for term in ("growth", "quality", "roe")):
+        return "growth_quality"
+    if any(term in text for term in ("价值", "估值", "低估", "预期重估", "预期差", "估值修复")) or "value" in lowered:
+        return "fundamental_quality"
     return "balanced"
 
 

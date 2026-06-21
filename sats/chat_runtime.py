@@ -479,6 +479,22 @@ def format_runtime_trace(store: ChatMemoryStore, *, turn_id: str = "", session_i
         f"Intent: {turn['intent'] or '-'}",
         f"Request: {turn['request']}",
     ]
+    meta = turn.get("meta") if isinstance(turn.get("meta"), dict) else {}
+    agent_plan = meta.get("agent_plan") if isinstance(meta.get("agent_plan"), dict) else {}
+    if agent_plan:
+        lines.extend(
+            [
+                f"Objective: {agent_plan.get('objective') or '-'}",
+                f"Analysis Mode: {agent_plan.get('analysis_mode') or (agent_plan.get('natural_task') or {}).get('analysis_mode') or '-'}",
+            ]
+        )
+        natural_task = agent_plan.get("natural_task") if isinstance(agent_plan.get("natural_task"), dict) else {}
+        checks = natural_task.get("verification_checks") or agent_plan.get("verification_checks") or []
+        if checks:
+            lines.append("Verification:")
+            for check in checks:
+                if isinstance(check, dict):
+                    lines.append(f"- {check.get('name')}: {check.get('status')}")
     if turn.get("duration_seconds"):
         lines.append(f"Duration: {turn['duration_seconds']:.2f}s")
     if trace["items"]:

@@ -11,7 +11,11 @@ from unittest.mock import patch
 
 from prompt_toolkit.completion import CompleteEvent
 from prompt_toolkit.document import Document
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.formatted_text.utils import fragment_list_to_text
+from prompt_toolkit.input import DummyInput
+from prompt_toolkit.layout.containers import HSplit, Window
+from prompt_toolkit.output import DummyOutput
 from prompt_toolkit.utils import get_cwidth
 
 from sats import __version__
@@ -34,9 +38,12 @@ from sats.repl import (
     COMMAND_STYLE,
     DESC_STYLE,
     INTERRUPT_MESSAGE,
+    InputSeparatorProcessor,
     MUTED_STYLE,
     PROMPT_MESSAGE,
+    PROMPT_STYLE,
     REPL_STYLE,
+    ReplPromptSession,
     SEPARATOR_STYLE,
     ReplState,
     SlashCommandFileHistory,
@@ -225,7 +232,7 @@ class ReplCliTest(unittest.TestCase):
         with (
             patch("sats.repl.load_settings", return_value=settings),
             patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]),
-            patch("sats.repl.PromptSession") as prompt_session,
+            patch("sats.repl.ReplPromptSession") as prompt_session,
             patch("sats.repl.print_formatted_text", side_effect=lambda fragments: formatted.append(list(fragments))),
             patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
             patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ schedule:0/0"),
@@ -239,21 +246,52 @@ class ReplCliTest(unittest.TestCase):
 
         printed = [call.args[0] for call in printer.call_args_list if call.args]
         prompt_session.return_value.prompt.assert_called_once_with(PROMPT_MESSAGE)
-        self.assertEqual(PROMPT_MESSAGE[0], ("", "sats> "))
+        self.assertEqual(PROMPT_MESSAGE[0], (PROMPT_STYLE, "sats> "))
+        self.assertEqual(PROMPT_STYLE, "fg:#7dd3fc")
         self.assertNotIn("─" * 72, printed)
         separators = [
             row for row in formatted
             if len(row) == 1 and row[0][0] == SEPARATOR_STYLE and set(row[0][1]) == {"─"}
         ]
-        self.assertEqual(len(separators), 2)
-        self.assertTrue(all(get_cwidth(row[0][1]) == 90 for row in separators))
+        self.assertEqual(len(separators), 1)
+        self.assertEqual(get_cwidth(separators[0][0][1]), 90)
         self.assertTrue(callable(bottom_toolbar))
         self.assertTrue(bottom_toolbar_text.startswith("  OpenAI:GPT-5.5  ｜  0.0s  ｜  Last：--"))
         self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
         self.assertEqual(get_cwidth(bottom_toolbar_text), 90)
         completer = prompt_session.call_args.kwargs["completer"]
         self.assertEqual(completer.meta_dict["/discover"], "短线机会发现")
-        self.assertNotIn("input_processors", prompt_session.call_args.kwargs)
+        processors = prompt_session.call_args.kwargs["input_processors"]
+        self.assertEqual(len(processors), 1)
+        self.assertIsInstance(processors[0], InputSeparatorProcessor)
+
+    def test_input_separator_processor_places_separator_on_next_terminal_row(self) -> None:
+        processor = InputSeparatorProcessor(prompt_width=get_cwidth("sats> "))
+
+        for text in ("", "results", "分析贵州茅台", "x" * 85):
+            with self.subTest(text=text):
+                fragments = FormattedText([("", text)])
+                transformation_input = SimpleNamespace(
+                    lineno=0,
+                    document=SimpleNamespace(line_count=1),
+                    width=40,
+                    fragments=fragments,
+                )
+                rendered = fragment_list_to_text(processor.apply_transformation(transformation_input).fragments)
+                before_separator, separator = rendered.rsplit("─" * 40, 1)
+
+                self.assertEqual(separator, "")
+                self.assertEqual((get_cwidth("sats> ") + get_cwidth(before_separator)) % 40, 0)
+
+    def test_repl_prompt_session_offsets_completion_menu_below_separator(self) -> None:
+        session = ReplPromptSession(input=DummyInput(), output=DummyOutput())
+        layout = session._create_layout()
+        main_input = layout.container.children[0].alternative_content
+
+        for completion_float in main_input.floats[:2]:
+            self.assertIsInstance(completion_float.content, HSplit)
+            self.assertIsInstance(completion_float.content.children[0], Window)
+            self.assertEqual(completion_float.content.children[0].height, 1)
 
     def test_run_repl_ctrl_c_at_prompt_keeps_existing_input_behavior(self) -> None:
         settings = SimpleNamespace(db_path=Path("data/sats.duckdb"), llm_provider="openai", openai_model="GPT-5.5")
@@ -261,7 +299,7 @@ class ReplCliTest(unittest.TestCase):
         with (
             patch("sats.repl.load_settings", return_value=settings),
             patch("sats.repl.time.monotonic", return_value=100.0),
-            patch("sats.repl.PromptSession") as prompt_session,
+            patch("sats.repl.ReplPromptSession") as prompt_session,
             patch("sats.repl.print_formatted_text"),
             patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=40)),
             patch("builtins.print") as printer,
@@ -444,13 +482,22 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(COMPLETION_WORDS, list(COMPLETION_DESCRIPTIONS))
         self.assertIn("/screen", COMPLETION_WORDS)
         self.assertIn("/save", COMPLETION_WORDS)
+        self.assertIn("/plan", COMPLETION_WORDS)
         self.assertIn("--trade-date", COMPLETION_WORDS)
         self.assertIn("--format", COMPLETION_WORDS)
+        self.assertIn("--plan-only", COMPLETION_WORDS)
+        self.assertIn("--dry-run", COMPLETION_WORDS)
+        self.assertNotIn("--buy-price", COMPLETION_WORDS)
+        self.assertNotIn("--buy-date", COMPLETION_WORDS)
+        self.assertNotIn("sync", COMPLETION_WORDS)
         self.assertIn("--no-hot-sector", COMPLETION_WORDS)
         self.assertIn("--knowledge", COMPLETION_WORDS)
         self.assertIn("/web", COMPLETION_WORDS)
         self.assertIn("--platforms", COMPLETION_WORDS)
+        self.assertIn("--providers", COMPLETION_WORDS)
         self.assertIn("mentions", COMPLETION_WORDS)
+        self.assertIn("open", COMPLETION_WORDS)
+        self.assertIn("cache", COMPLETION_WORDS)
         self.assertIn("xueqiu", COMPLETION_WORDS)
         self.assertIn("xueqiu_stock", COMPLETION_WORDS)
         self.assertIn("xueqiu_spot", COMPLETION_WORDS)
@@ -474,6 +521,10 @@ class ReplCliTest(unittest.TestCase):
             repl_command_to_argv("/web hot --platforms xueqiu --limit 5"),
             ["web", "hot", "--platforms", "xueqiu", "--limit", "5"],
         )
+        self.assertEqual(
+            repl_command_to_argv("/web open https://example.com --query 公告"),
+            ["web", "open", "https://example.com", "--query", "公告"],
+        )
 
     def test_repl_line_runs_existing_command(self) -> None:
         calls: list[list[str]] = []
@@ -488,6 +539,18 @@ class ReplCliTest(unittest.TestCase):
         self.assertTrue(keep_running)
         self.assertEqual(calls, [["results", "--passed"]])
         self.assertEqual(output, [])
+
+    def test_repl_plan_runs_agent_plan_only(self) -> None:
+        calls: list[list[str]] = []
+
+        keep_running = handle_repl_line(
+            "/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=lambda line: None,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertEqual(calls, [["agent", "--plan-only", "用", "price_volume_ma", "筛选并对筛选股票制定明天交易计划"]])
 
     def test_repl_allows_analyze_dsa_command(self) -> None:
         calls: list[list[str]] = []
@@ -1045,6 +1108,7 @@ class ReplCliTest(unittest.TestCase):
                 data_names=("Agent",),
                 skill_names=(),
                 artifacts=(),
+                sources=({"id": "S1", "title": "公告", "url": "https://www.sse.com.cn/a"},),
                 turn_id="turn",
                 session_id="agent",
             )
@@ -1060,6 +1124,7 @@ class ReplCliTest(unittest.TestCase):
             run_agent.assert_called_once()
             self.assertIs(run_agent.call_args.kwargs.get("reference_context"), reference_context)
             self.assertIn("DSA完成", output[-1])
+            self.assertIn("## 来源", output[-1])
 
     def test_repl_new_clears_agent_reference_context(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1263,6 +1328,13 @@ class ReplCliTest(unittest.TestCase):
         )
         self.assertTrue(
             handle_repl_line(
+                "/monitor plans import --file plan.json",
+                runner=lambda argv: calls.append(argv) or 0,
+                printer=lambda _: None,
+            )
+        )
+        self.assertTrue(
+            handle_repl_line(
                 "/monitor-display start",
                 runner=lambda argv: calls.append(argv) or 0,
                 printer=lambda _: None,
@@ -1272,11 +1344,13 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("monitor", CLI_COMMANDS)
         self.assertIn("monitor-display", CLI_COMMANDS)
         self.assertIn("/monitor start --rules chan_signals", help_text())
+        self.assertIn("/monitor plans import --file plan.json", help_text())
         self.assertIn("/monitor-display start", help_text())
         self.assertEqual(
             calls,
             [
                 ["monitor", "start", "--rules", "chan_signals"],
+                ["monitor", "plans", "import", "--file", "plan.json"],
                 ["monitor-display", "start"],
             ],
         )

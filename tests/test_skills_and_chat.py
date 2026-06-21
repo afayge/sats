@@ -19,6 +19,7 @@ from sats.chat import (
     build_chat_messages,
 )
 from sats.chat_planner import build_chat_plan
+from sats.chat_preprocessor import ChatPreprocessResult
 from sats.chat_reference import ChatReferenceContext
 from sats.cli import main
 from sats.llm import LLMResponse, ToolCallRequest
@@ -735,11 +736,12 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(FakeLLM.instances[0].kwargs["model_name"], "mimo-light")
         self.assertEqual(FakeLLM.instances[0].kwargs["profile"], "light")
         messages = FakeLLM.instances[0].messages
+        payload = "\n".join(message["content"] for message in messages)
         self.assertIn("SATS CLI 助手", messages[0]["content"])
-        self.assertIn("chat_plan", messages[1]["content"])
-        self.assertIn("market-skill", messages[2]["content"])
-        self.assertNotIn("解释筛选规则，不构成投资建议。", messages[2]["content"])
-        self.assertEqual(messages[-1], {"role": "user", "content": "帮我解释股票筛选"})
+        self.assertIn("chat_route", payload)
+        self.assertIn("market-skill", payload)
+        self.assertNotIn("解释筛选规则，不构成投资建议。", payload)
+        self.assertIn("帮我解释股票筛选", messages[-1]["content"])
         self.assertEqual(session.history[-2]["role"], "user")
         self.assertEqual(session.history[-1]["role"], "assistant")
 
@@ -882,7 +884,8 @@ class ChatSessionTest(unittest.TestCase):
         result = session.ask("用 TickFlow 看实时行情和分钟K")
 
         self.assertIn("tickflow", result.skill_names)
-        self.assertIn("tickflow", FakeLLM.instances[0].messages[1]["content"])
+        payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
+        self.assertIn("tickflow", payload)
 
     def test_chat_session_injects_real_stock_context_before_llm(self) -> None:
         FakeLLM.instances = []
@@ -910,19 +913,21 @@ class ChatSessionTest(unittest.TestCase):
         builder.assert_called_once()
         market_builder.assert_called_once()
         messages = FakeLLM.instances[0].messages
+        payload = "\n".join(message["content"] for message in messages)
         self.assertIn("SATS CLI 助手", messages[0]["content"])
-        self.assertIn("chat_plan", messages[1]["content"])
-        self.assertIn("真实股票结构化数据", messages[2]["content"])
-        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
-        self.assertEqual(messages[-1], {"role": "user", "content": "分析002436"})
-        self.assertEqual(result.data_names, ("个股", "大盘"))
+        self.assertIn("chat_route", payload)
+        self.assertIn("真实股票结构化数据", payload)
+        self.assertIn("真实 A 股大盘结构化数据", payload)
+        self.assertIn("分析002436", messages[-1]["content"])
+        self.assertEqual(builder.call_count, 1)
+        self.assertEqual(result.data_names, ("个股", "大盘", "知识库RAG"))
 
     def test_chat_session_uses_preprocessor_symbols_for_stock_name(self) -> None:
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
         session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
         question = StockQuestion(symbols=["000938.SZ"], trade_date=None, has_stock_question=True)
-        preprocess = SimpleNamespace(
+        preprocess = ChatPreprocessResult(
             intent="stock_analysis",
             symbols=("000938.SZ",),
             stock_names=("紫光股份",),
@@ -933,10 +938,10 @@ class ChatSessionTest(unittest.TestCase):
             needs_market_context=True,
             needs_opportunity_discovery=False,
             needs_indicators=True,
+            needs_realtime_quote_context=False,
             skill_hints=("technical-basic",),
             confidence=0.9,
             missing_questions=(),
-            system_message=lambda: "SATS chat_preprocess:\n- symbols: 000938.SZ",
         )
         stock_calls = []
 
@@ -949,7 +954,7 @@ class ChatSessionTest(unittest.TestCase):
             )
 
         with (
-            patch("sats.chat.preprocess_chat_message", return_value=preprocess),
+            patch("sats.chat_components.preprocess_chat_message", return_value=preprocess),
             patch("sats.chat.build_stock_llm_context", side_effect=fake_stock_context),
             patch(
                 "sats.chat.build_market_llm_context",
@@ -961,14 +966,14 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(stock_calls[0].symbols, ["000938.SZ"])
         self.assertIn("个股", result.data_names)
         payload = "\n".join(message["content"] for message in FakeLLM.instances[0].messages)
-        self.assertIn("chat_preprocess", payload)
+        self.assertIn("chat_route", payload)
         self.assertIn("000938.SZ", payload)
 
     def test_chat_session_uses_quote_context_without_full_stock_context_for_quote_question(self) -> None:
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
         session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
-        preprocess = SimpleNamespace(
+        preprocess = ChatPreprocessResult(
             intent="stock_quote",
             symbols=("000001.SZ",),
             stock_names=(),
@@ -988,11 +993,10 @@ class ChatSessionTest(unittest.TestCase):
             confidence=0.9,
             missing_questions=(),
             source="local",
-            system_message=lambda: "SATS chat_preprocess:\n- quote=True",
         )
 
         with (
-            patch("sats.chat.preprocess_chat_message", return_value=preprocess),
+            patch("sats.chat_components.preprocess_chat_message", return_value=preprocess),
             patch(
                 "sats.chat.build_stock_quote_llm_context",
                 return_value=SimpleNamespace(system_message='真实实时报价 {"ts_code":"000001.SZ"}'),
@@ -1013,7 +1017,7 @@ class ChatSessionTest(unittest.TestCase):
         FakeLLM.instances = []
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
         session = ChatSession(settings=settings, skills=[], llm_factory=FakeLLM, memory_enabled=False)
-        preprocess = SimpleNamespace(
+        preprocess = ChatPreprocessResult(
             intent="stock_analysis",
             symbols=(),
             stock_names=("银行",),
@@ -1027,10 +1031,9 @@ class ChatSessionTest(unittest.TestCase):
             skill_hints=(),
             confidence=0.5,
             missing_questions=("股票名称“银行”匹配到多个结果，请指定 6 位代码。",),
-            system_message=lambda: "",
         )
 
-        with patch("sats.chat.preprocess_chat_message", return_value=preprocess):
+        with patch("sats.chat_components.preprocess_chat_message", return_value=preprocess):
             result = session.ask("分析银行技术面")
 
         self.assertIn("需要先确认", result.content)
@@ -1055,10 +1058,11 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow", "next_week"))
         messages = FakeLLM.instances[0].messages
-        self.assertIn("chat_plan", messages[1]["content"])
-        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
-        self.assertEqual(messages[-1], {"role": "user", "content": "今天A股大盘分析，明天和下周走势预测"})
-        self.assertEqual(result.data_names, ("大盘",))
+        payload = "\n".join(message["content"] for message in messages)
+        self.assertIn("chat_route", payload)
+        self.assertIn("真实 A 股大盘结构化数据", payload)
+        self.assertIn("今天A股大盘分析，明天和下周走势预测", messages[-1]["content"])
+        self.assertEqual(result.data_names, ("大盘", "知识库RAG"))
 
     def test_chat_session_handles_today_market_tomorrow_trend_question(self) -> None:
         FakeLLM.instances = []
@@ -1076,9 +1080,10 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
-        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
-        self.assertEqual(messages[-1], {"role": "user", "content": "分析今天大盘走势，预测明天走势"})
-        self.assertEqual(result.data_names, ("大盘",))
+        payload = "\n".join(message["content"] for message in messages)
+        self.assertIn("真实 A 股大盘结构化数据", payload)
+        self.assertIn("分析今天大盘走势，预测明天走势", messages[-1]["content"])
+        self.assertEqual(result.data_names, ("大盘", "知识库RAG"))
 
     def test_chat_session_handles_today_possessive_market_tomorrow_trend_question(self) -> None:
         FakeLLM.instances = []
@@ -1097,9 +1102,10 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
-        self.assertIn("真实 A 股大盘结构化数据", messages[2]["content"])
-        self.assertEqual(messages[-1], {"role": "user", "content": "分析今天的大盘走势，预测明天走势"})
-        self.assertEqual(result.data_names, ("大盘",))
+        payload = "\n".join(message["content"] for message in messages)
+        self.assertIn("真实 A 股大盘结构化数据", payload)
+        self.assertIn("分析今天的大盘走势，预测明天走势", messages[-1]["content"])
+        self.assertEqual(result.data_names, ("大盘", "知识库RAG"))
 
     def test_chat_session_injects_opportunity_discovery_context_before_llm(self) -> None:
         FakeLLM.instances = []
@@ -1469,7 +1475,7 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(stock_calls[1][0], "继续分析它的三买结构")
         self.assertEqual(stock_calls[1][1].symbols, ["002436.SZ"])
         self.assertEqual(stock_calls[1][1].trade_date, "20260515")
-        self.assertEqual(market_builder.call_count, 2)
+        self.assertEqual(market_builder.call_count, 1)
 
     def test_chat_session_followup_can_override_trade_date(self) -> None:
         FakeLLM.instances = []
@@ -1716,7 +1722,7 @@ class ChatSessionTest(unittest.TestCase):
                 return LLMResponse(content="已获取大盘上下文")
 
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro", light_model_name="light-model")
-        session = ChatSession(settings=settings, skills=[], llm_factory=MarketToolLLM)
+        session = ChatSession(settings=settings, skills=[], llm_factory=MarketToolLLM, memory_enabled=False)
 
         with (
             patch("sats.chat.build_stock_llm_context", return_value=None),
@@ -1726,7 +1732,7 @@ class ChatSessionTest(unittest.TestCase):
                 return_value={"trade_date": "20260521", "indices": [{"ts_code": "000001.SH"}]},
             ) as market_context,
         ):
-            result = session.ask("需要时获取大盘数据")
+            result = session.ask("请按需查询辅助信息")
 
         self.assertEqual(result.content, "已获取大盘上下文")
         self.assertEqual(result.tool_call_count, 1)

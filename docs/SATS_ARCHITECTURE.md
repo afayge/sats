@@ -45,6 +45,7 @@ flowchart TD
   AkShare["AkShare backend"]
 
   Storage["sats/storage/duckdb.py\nDuckDB"]
+  WebRAG["sats/web/\n多源搜索 / 安全抓取 / RAG"]
 
   Screening["sats/screening/\n规则筛选"]
   Signals["sats/signals/\nAnalyze 信号"]
@@ -67,6 +68,7 @@ flowchart TD
   Chat --> Skills
   Chat --> LLM
   Chat --> Analysis
+  Chat --> WebRAG
 
   CLI --> Screening
   CLI --> Analysis
@@ -100,6 +102,7 @@ flowchart TD
   Scheduler --> Storage
   Trading --> Storage
   Chat --> Storage
+  WebRAG --> Storage
 ```
 
 ### 分层原则
@@ -131,6 +134,7 @@ flowchart TD
 | `sats/chan/` | 缠论引擎和结构识别。 |
 | `sats/indicators/` | 技术指标计算，CLI `/indicators` 与自然语言个股分析共享底层计算能力。 |
 | `sats/llm/` | LLM provider 抽象、OpenAI-compatible 调用、JSON 提取等工具。 |
+| `sats/web/` | 原生网络 RAG：DDGS/Bing/可选 API 搜索源、安全抓取、HTML/PDF 正文提取、独立网页索引、混合召回、重排和引用。 |
 | `sats/chat.py` | `ChatSession` 主编排：预处理、规划、取数、skills、工具调用、LLM 分析、记忆。 |
 | `sats/chat_preprocessor.py` | 自然语言任务预处理，抽取意图、股票代码/名称、数据需求和 skill hints。 |
 | `sats/chat_planner.py` | 规则式聊天计划器，决定需要哪些上下文和内部分析能力。 |
@@ -140,6 +144,18 @@ flowchart TD
 | `sats/progress.py` | 长耗时命令的统一进度面板，非 TTY、JSON、管道输出默认静默。 |
 | `sats/monitoring/` | 持仓、关注列表、买入候选、监控事件、`monitor-display` 面板。 |
 | `sats/scheduler/` | 定时任务定义、执行、运行记录和 CLI 管理。 |
+
+### 原生网络 RAG
+
+`sats web search` 默认走不依赖 Responses API 的原生管线：
+
+1. 轻量模型按搜索深度生成最多 2/3 个查询，失败时保留原查询。
+2. DDGS、Bing 和显式配置的 Tavily/BoCha/Querit 并发搜索并用 RRF 合并。
+3. URL 经过协议、域名、DNS 和公网地址检查后抓取；重定向目标会重新验证。
+4. HTML/PDF 正文写入独立的 `web_documents`、`web_chunks`、`web_chunk_embeddings`，不污染人工知识库。
+5. 关键词与可选 embedding 向量召回融合，轻量模型可选重排并生成 `[S#]` 引用答案。
+
+`responses` 仅是显式兼容后端；调用失败会降级原生 RAG。行情、K 线、资金流和财务数据仍必须通过 `AStockDataProvider`。
 
 ## 功能细节
 
@@ -351,7 +367,6 @@ REPL 支持保存上一条输出或本轮输出：
 - `sats qmt status`
 - `sats qmt asset`
 - `sats qmt positions`
-- `sats qmt sync positions`
 - `sats qmt buy/sell/cancel ...`
 
 交易模块位于 `sats/trading/`。SATS 主机侧通过 `MiniQmtBrokerClient` 访问 Windows bridge；Windows bridge 在安装并登录国金证券 QMT/MiniQMT 的环境中运行，运行时才导入 `xtquant`。Bridge 默认绑定 `127.0.0.1`；跨机器绑定 `0.0.0.0` 时必须配置 Bearer token。
@@ -361,7 +376,8 @@ REPL 支持保存上一条输出或本轮输出：
 - `buy` / `sell` CLI 默认是真实委托，`--dry-run` 只校验并写审计记录。
 - 聊天和 LLM 工具不直接下单，只能解释或建议可运行命令。
 - 监控自动交易默认关闭；只有 `monitor start/run --broker qmt --auto-trade buy,sell` 显式开启时才会根据监控信号下单。
-- 委托、撤单、成交和同步持仓写入 broker 审计表；`qmt sync positions` 同步真实持仓到 `monitor_positions`，供 `monitor-display` 展示。
+- 委托、撤单、成交和同步持仓写入 broker 审计表；`qmt positions`、持仓监控和 `monitor-display` 会自动从 QMT 刷新真实持仓到 `monitor_positions`。
+- QMT 是成本价和数量的唯一事实源。只有完整合法的响应会原子替换本地快照；失败时保留上次成功快照并标记 `STALE`。
 
 ### 定时任务
 

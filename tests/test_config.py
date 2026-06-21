@@ -147,10 +147,47 @@ class ConfigTest(unittest.TestCase):
         self.assertIn("DEFAULT_MODEL=DEEPSEEK", DEFAULT_ENV_CONTENT)
         self.assertIn("DEFAULT_LIGHT_MODEL=XIAOMIMIMO", DEFAULT_ENV_CONTENT)
         self.assertIn("LLM_TEMPERATURE=0.0", DEFAULT_ENV_CONTENT)
+        self.assertIn("WEB_SEARCH_PROVIDERS=ddgs,bing", DEFAULT_ENV_CONTENT)
+        self.assertIn("WEB_EMBEDDING_PROVIDER=auto", DEFAULT_ENV_CONTENT)
+        self.assertIn("WEB_PAGE_CACHE_TTL_SECONDS=86400", DEFAULT_ENV_CONTENT)
         self.assertNotIn("LANGCHAIN_PROVIDER=", DEFAULT_ENV_CONTENT)
         self.assertNotIn("OPENAI_API_KEY=", DEFAULT_ENV_CONTENT)
         self.assertNotIn("LLM_PROVIDER=", DEFAULT_ENV_CONTENT)
         self.assertNotIn("OPENAI_MODEL=", DEFAULT_ENV_CONTENT)
+
+    def test_web_responses_configuration_is_loaded_and_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".env").write_text(
+                "DEEPSEEK_PROVIDER=deepseek\n"
+                "DEEPSEEK_MODEL=deepseek-chat\n"
+                "DEFAULT_MODEL=DEEPSEEK\n"
+                "WEB_SEARCH_BACKEND=responses\n"
+                "WEB_SEARCH_PROVIDERS=ddgs,bing,tavily\n"
+                "WEB_PAGE_CACHE_TTL_SECONDS=7200\n"
+                "WEB_RESPONSES_BASE_URL=http://127.0.0.1:8080/v1\n"
+                "WEB_RESPONSES_API_KEY=test-key\n"
+                "WEB_RESPONSES_MODEL=openrouter/deepseek/deepseek-r1\n"
+                "WEB_SEARCH_CONTEXT_SIZE=high\n"
+                "WEB_TAVILY_API_KEY=tavily-key\n"
+                "WEB_EMBEDDING_PROVIDER=openai\n"
+                "WEB_EMBEDDING_BASE_URL=http://127.0.0.1:8081/v1\n"
+                "WEB_EMBEDDING_API_KEY=embedding-key\n"
+                "WEB_EMBEDDING_MODEL=text-embedding-test\n",
+                encoding="utf-8",
+            )
+            with patch.dict(os.environ, {}, clear=True):
+                settings = load_settings(project_root=root)
+
+        self.assertEqual(settings.web_search_backend, "responses")
+        self.assertEqual(settings.web_responses_base_url, "http://127.0.0.1:8080/v1")
+        self.assertEqual(settings.web_responses_model, "openrouter/deepseek/deepseek-r1")
+        self.assertEqual(settings.web_search_context_size, "high")
+        self.assertEqual(settings.web_search_providers, "ddgs,bing,tavily")
+        self.assertEqual(settings.web_page_cache_ttl_seconds, 7200)
+        self.assertEqual(settings.web_tavily_api_key, "tavily-key")
+        self.assertEqual(settings.web_embedding_provider, "openai")
+        self.assertEqual(settings.web_embedding_model, "text-embedding-test")
 
     def test_model_use_updates_default_model_in_env(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

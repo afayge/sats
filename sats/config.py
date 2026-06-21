@@ -27,6 +27,21 @@ WEB_SEARCH_TIMEOUT_SECONDS=10
 WEB_SEARCH_CACHE_TTL_SECONDS=43200
 SOCIAL_HOT_CACHE_TTL_SECONDS=300
 WEB_SEARCH_MAX_RESULTS=10
+WEB_SEARCH_BACKEND=auto
+WEB_SEARCH_PROVIDERS=ddgs,bing
+WEB_PAGE_CACHE_TTL_SECONDS=86400
+WEB_RESPONSES_BASE_URL=
+WEB_RESPONSES_API_KEY=
+WEB_RESPONSES_MODEL=
+WEB_SEARCH_CONTEXT_SIZE=auto
+WEB_TAVILY_API_KEY=
+WEB_BOCHA_API_KEY=
+WEB_QUERIT_API_KEY=
+WEB_EMBEDDING_PROVIDER=auto
+WEB_EMBEDDING_BASE_URL=
+WEB_EMBEDDING_API_KEY=
+WEB_EMBEDDING_MODEL=
+WEB_FASTEMBED_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 
 # LLM model profiles
 DEEPSEEK_PROVIDER=deepseek
@@ -100,6 +115,21 @@ class Settings:
     qmt_account_type: str
     qmt_userdata_path: str
     qmt_session_id: str
+    web_search_backend: str = "auto"
+    web_responses_base_url: str = ""
+    web_responses_api_key: str = ""
+    web_responses_model: str = ""
+    web_search_context_size: str = "auto"
+    web_search_providers: str = "ddgs,bing"
+    web_page_cache_ttl_seconds: int = 86400
+    web_tavily_api_key: str = ""
+    web_bocha_api_key: str = ""
+    web_querit_api_key: str = ""
+    web_embedding_provider: str = "auto"
+    web_embedding_base_url: str = ""
+    web_embedding_api_key: str = ""
+    web_embedding_model: str = ""
+    web_fastembed_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -117,6 +147,11 @@ def _env_int(name: str, default: int) -> int:
         return int(raw.strip())
     except ValueError:
         return default
+
+
+def _env_choice(name: str, default: str, choices: set[str]) -> str:
+    value = os.getenv(name, default).strip().lower()
+    return value if value in choices else default
 
 
 def load_settings(project_root: Path | None = None, env_path: Path | None = None) -> Settings:
@@ -146,6 +181,24 @@ def load_settings(project_root: Path | None = None, env_path: Path | None = None
         web_search_cache_ttl_seconds=_env_int("WEB_SEARCH_CACHE_TTL_SECONDS", 43200),
         social_hot_cache_ttl_seconds=_env_int("SOCIAL_HOT_CACHE_TTL_SECONDS", 300),
         web_search_max_results=_env_int("WEB_SEARCH_MAX_RESULTS", 10),
+        web_search_backend=_env_choice("WEB_SEARCH_BACKEND", "auto", {"auto", "rag", "responses", "ddgs"}),
+        web_search_providers=os.getenv("WEB_SEARCH_PROVIDERS", "ddgs,bing").strip(),
+        web_page_cache_ttl_seconds=_env_int("WEB_PAGE_CACHE_TTL_SECONDS", 86400),
+        web_responses_base_url=os.getenv("WEB_RESPONSES_BASE_URL", "").strip(),
+        web_responses_api_key=os.getenv("WEB_RESPONSES_API_KEY", "").strip(),
+        web_responses_model=os.getenv("WEB_RESPONSES_MODEL", "").strip(),
+        web_search_context_size=_env_choice("WEB_SEARCH_CONTEXT_SIZE", "auto", {"auto", "medium", "high"}),
+        web_tavily_api_key=os.getenv("WEB_TAVILY_API_KEY", "").strip(),
+        web_bocha_api_key=os.getenv("WEB_BOCHA_API_KEY", "").strip(),
+        web_querit_api_key=os.getenv("WEB_QUERIT_API_KEY", "").strip(),
+        web_embedding_provider=_env_choice("WEB_EMBEDDING_PROVIDER", "auto", {"auto", "openai", "fastembed", "none"}),
+        web_embedding_base_url=os.getenv("WEB_EMBEDDING_BASE_URL", "").strip(),
+        web_embedding_api_key=os.getenv("WEB_EMBEDDING_API_KEY", "").strip(),
+        web_embedding_model=os.getenv("WEB_EMBEDDING_MODEL", "").strip(),
+        web_fastembed_model=os.getenv(
+            "WEB_FASTEMBED_MODEL",
+            "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        ).strip(),
         llm_provider=main_model.provider,
         llm_profile=main_model.profile_name,
         light_llm_provider=light_model.provider,

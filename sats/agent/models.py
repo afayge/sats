@@ -9,6 +9,7 @@ class AgentExecutionPolicy:
     auto_trade: tuple[str, ...] = ()
     broker: str = "noop"
     live_trading: bool = False
+    dry_run: bool = False
     max_order_value: float = 20000.0
     max_position_pct: float = 0.2
     sell_ratio: float = 1.0
@@ -57,12 +58,16 @@ class AgentPlan:
     model_policy: str = ""
     model_profile: str = ""
     model_name: str = ""
+    natural_task: dict[str, Any] = field(default_factory=dict)
+    analysis_mode: str = ""
+    verification_checks: tuple[dict[str, Any], ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
         payload["success_criteria"] = list(self.success_criteria)
         payload["assumptions"] = list(self.assumptions)
         payload["steps"] = [step.to_dict() for step in self.steps]
+        payload["verification_checks"] = [dict(item) for item in self.verification_checks]
         return payload
 
 
@@ -118,6 +123,7 @@ class AgentResult:
     artifacts: tuple[dict[str, Any], ...] = ()
     turn_id: str | None = None
     session_id: str = "agent"
+    sources: tuple[dict[str, Any], ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)

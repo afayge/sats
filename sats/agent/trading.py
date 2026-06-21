@@ -56,7 +56,7 @@ class AgentTradingExecutor:
                 quantity=quantity,
                 price_type=intent.price_type or "latest",
                 price=intent.price,
-                dry_run=not self.policy.live_trading or self.policy.broker != "qmt",
+                dry_run=bool(getattr(self.policy, "dry_run", False)) or not self.policy.live_trading or self.policy.broker != "qmt",
                 strategy="sats-agent",
                 source_event_id=intent.source_step_id,
             )

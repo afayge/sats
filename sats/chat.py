@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from sats.chat_components import (
+    STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS,
+    STOCK_ANALYSIS_DEFAULT_RAG_LIMIT,
     ChatEvidenceBundle,
     ChatRequestRoute,
     build_plain_chat_answer,
@@ -71,19 +73,6 @@ SYSTEM_PROMPT = (
     "只有用户明确回复“确认生成规则 <rule_name>”后，SATS 才会写入 generated 目录并注册规则。"
     "涉及股票、交易或投资判断时，必须说明内容不构成投资建议。回答保持简洁、直接、可操作。"
 )
-
-STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS = (
-    "technical",
-    "signals",
-    "chan",
-    "market",
-    "sentiment",
-    "fundamental",
-    "risk",
-    "stock-basic",
-)
-STOCK_ANALYSIS_DEFAULT_RAG_LIMIT = 12
-
 
 @dataclass(frozen=True, slots=True)
 class ChatResult:
@@ -385,6 +374,7 @@ class ChatSession:
                 )
                 if route.route_kind == "general_qa"
                 else None,
+                progress=active_progress,
             )
             content = synthesis.content or "无响应"
             tool_call_count = synthesis.tool_call_count
@@ -981,14 +971,42 @@ def _tool_result_event_status(result: str) -> str:
 
 
 def format_chat_result(result: ChatResult) -> str:
-    return normalize_natural_markdown(
-        result.content,
-        data_names=result.data_names,
-        skill_names=result.skill_names,
-        artifacts=result.artifacts,
-        requires_confirmation=result.requires_confirmation,
-        pending_action_id=result.pending_action_id,
+    return _append_source_table(
+        normalize_natural_markdown(
+            result.content,
+            data_names=result.data_names,
+            skill_names=result.skill_names,
+            artifacts=result.artifacts,
+            requires_confirmation=result.requires_confirmation,
+            pending_action_id=result.pending_action_id,
+        ),
+        result.sources,
     )
+
+
+def _append_source_table(content: str, sources: tuple[dict[str, Any], ...]) -> str:
+    rows = []
+    seen_urls = set()
+    for index, source in enumerate(sources, start=1):
+        if not isinstance(source, dict):
+            continue
+        url = str(source.get("url") or "").strip()
+        if not url.startswith(("http://", "https://")) or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        source_id = str(source.get("id") or f"S{index}")
+        title = str(source.get("title") or source.get("domain") or url).replace("]", "\\]")
+        meta = " · ".join(
+            str(value)
+            for value in (source.get("domain"), source.get("backend"), source.get("fetched_at"))
+            if str(value or "").strip()
+        )
+        suffix = f" — {meta}" if meta else ""
+        rows.append(f"- [{source_id}] [{title}]({url}){suffix}")
+    text = str(content or "").rstrip()
+    if not rows or "\n## 来源\n" in f"\n{text}\n":
+        return text
+    return f"{text}\n\n## 来源\n\n" + "\n".join(rows)
 
 
 def render_chat_result(

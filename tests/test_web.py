@@ -7,9 +7,10 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from sats.cli import main
+from sats.web.search import _parse_responses_response
 from sats.web import hot_mentions, search, social_hot
 
 
@@ -20,7 +21,57 @@ def _settings(root: Path) -> SimpleNamespace:
         web_search_cache_ttl_seconds=43200,
         social_hot_cache_ttl_seconds=300,
         web_search_max_results=10,
+        web_search_backend="ddgs",
     )
+
+
+def _responses_settings(root: Path) -> SimpleNamespace:
+    return SimpleNamespace(
+        **{
+            **vars(_settings(root)),
+            "web_search_backend": "responses",
+            "web_responses_base_url": "http://127.0.0.1:8080/v1",
+            "web_responses_api_key": "test-key",
+            "web_responses_model": "openrouter/deepseek/deepseek-r1",
+            "web_search_context_size": "auto",
+        }
+    )
+
+
+def _responses_payload() -> dict:
+    return {
+        "output": [
+            {
+                "type": "web_search_call",
+                "action": {
+                    "type": "search",
+                    "queries": ["贵州茅台 最新公告"],
+                    "sources": [
+                        {"type": "url", "title": "上交所公告", "url": "https://www.sse.com.cn/a"},
+                        {"type": "url", "title": "新闻报道", "url": "https://news.example.com/b"},
+                    ],
+                },
+            },
+            {
+                "type": "message",
+                "content": [
+                    {
+                        "type": "output_text",
+                        "text": "公司发布了公告。",
+                        "annotations": [
+                            {
+                                "type": "url_citation",
+                                "start_index": 0,
+                                "end_index": 8,
+                                "title": "上交所公告",
+                                "url": "https://www.sse.com.cn/a",
+                            }
+                        ],
+                    }
+                ],
+            },
+        ]
+    }
 
 
 def _xueqiu_html(payload: dict) -> str:
@@ -28,6 +79,116 @@ def _xueqiu_html(payload: dict) -> str:
 
 
 class WebCapabilityTest(unittest.TestCase):
+    def test_responses_parser_keeps_actions_sources_and_inline_source_ids(self) -> None:
+        payload = _parse_responses_response(
+            _responses_payload(),
+            query="贵州茅台 最新公告",
+            max_results=5,
+            domains=(),
+            freshness="d",
+            context_size="medium",
+            fetched_at="2026-06-19T00:00:00Z",
+            model="test-model",
+        )
+
+        self.assertEqual(payload["backend"], "responses")
+        self.assertEqual(payload["actions"][0]["type"], "search")
+        self.assertEqual(payload["sources"][0]["id"], "S1")
+        self.assertIn("[S1]", payload["answer"])
+        self.assertEqual(payload["citations"][0]["source_id"], "S1")
+
+    def test_responses_search_uses_filters_include_and_required_tool_choice(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _responses_settings(Path(tmp))
+            create = Mock(return_value=_responses_payload())
+            client = SimpleNamespace(responses=SimpleNamespace(create=create))
+            with patch("openai.OpenAI", return_value=client):
+                payload = search(
+                    "贵州茅台 最新公告",
+                    trusted_domains=["sse.com.cn"],
+                    context_size="high",
+                    settings=settings,
+                    use_cache=False,
+                )
+
+        request = create.call_args.kwargs
+        self.assertEqual(payload["backend"], "responses")
+        self.assertEqual(request["tool_choice"], "required")
+        self.assertEqual(request["include"], ["web_search_call.action.sources"])
+        self.assertEqual(request["tools"][0]["search_context_size"], "high")
+        self.assertEqual(request["tools"][0]["filters"]["allowed_domains"], ["sse.com.cn"])
+        self.assertEqual([item["url"] for item in payload["sources"]], ["https://www.sse.com.cn/a"])
+
+    def test_responses_search_retries_minimal_request_when_advanced_controls_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _responses_settings(Path(tmp))
+            create = Mock(side_effect=[RuntimeError("unsupported filters"), _responses_payload()])
+            client = SimpleNamespace(responses=SimpleNamespace(create=create))
+            with patch("openai.OpenAI", return_value=client):
+                payload = search("贵州茅台 最新公告", settings=settings, use_cache=False)
+
+        self.assertEqual(create.call_count, 2)
+        self.assertNotIn("include", create.call_args_list[1].kwargs)
+        self.assertEqual(create.call_args_list[1].kwargs["tools"], [{"type": "web_search"}])
+        self.assertTrue(payload["degraded"])
+        self.assertIn("retried with minimal parameters", payload["warnings"][0])
+
+    def test_responses_failure_degrades_to_native_rag_with_warning(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _responses_settings(Path(tmp))
+            create = Mock(side_effect=RuntimeError("endpoint unavailable"))
+            client = SimpleNamespace(responses=SimpleNamespace(create=create))
+            raw = [{"title": "公告", "href": "https://example.com/a", "body": "摘要"}]
+            with (
+                patch("openai.OpenAI", return_value=client),
+                patch("sats.web.search._ddg_search", return_value=raw),
+            ):
+                payload = search("贵州茅台 最新公告", settings=settings, use_cache=False)
+
+        self.assertEqual(payload["backend"], "rag")
+        self.assertTrue(payload["degraded"])
+        self.assertIn("Responses web search failed", payload["warnings"][0])
+        self.assertEqual(create.call_count, 1)
+
+    def test_ddgs_trusted_domains_are_strictly_filtered(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _settings(Path(tmp))
+            raw = [
+                {"title": "允许", "href": "https://news.sse.com.cn/a", "body": "摘要"},
+                {"title": "伪装", "href": "https://sse.com.cn.evil.example/b", "body": "摘要"},
+            ]
+            with patch("sats.web.search._ddg_search", return_value=raw):
+                payload = search(
+                    "贵州茅台 公告",
+                    trusted_domains=["sse.com.cn"],
+                    settings=settings,
+                    use_cache=False,
+                )
+
+        self.assertEqual([item["title"] for item in payload["results"]], ["允许"])
+
+    def test_context_size_changes_cache_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _settings(Path(tmp))
+            raw = [{"title": "结果", "href": "https://example.com/a", "body": "摘要"}]
+            with patch("sats.web.search._ddg_search", return_value=raw) as ddg:
+                search("行业对比", context_size="medium", settings=settings)
+                search("行业对比", context_size="high", settings=settings)
+
+        self.assertEqual(ddg.call_count, 2)
+
+    def test_latest_query_uses_short_cache_ttl(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = _settings(Path(tmp))
+            with (
+                patch("sats.web.search.read_cache", return_value=None) as read_cache,
+                patch("sats.web.search.write_cache"),
+                patch("sats.web.search._ddg_search", return_value=[]),
+            ):
+                search("贵州茅台 最新公告", settings=settings)
+
+        self.assertEqual(read_cache.call_args.args[1], 300)
+
     def test_web_search_normalizes_results_and_uses_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = _settings(Path(tmp))
@@ -270,11 +431,12 @@ class WebCapabilityTest(unittest.TestCase):
             patch("sats.cli.web_search", return_value=fake) as web_search,
             redirect_stdout(stdout),
         ):
-            self.assertEqual(main(["web", "search", "贵州茅台", "最新公告", "--limit", "5", "--json"]), 0)
+            self.assertEqual(main(["web", "search", "贵州茅台", "最新公告", "--limit", "5", "--context-size", "high", "--json"]), 0)
 
         web_search.assert_called_once()
         self.assertEqual(web_search.call_args.args[0], "贵州茅台 最新公告")
         self.assertEqual(web_search.call_args.kwargs["limit"], 5)
+        self.assertEqual(web_search.call_args.kwargs["context_size"], "high")
         self.assertEqual(json.loads(stdout.getvalue())["query"], "贵州茅台 最新公告")
 
     def test_cli_web_hot_json_passes_xueqiu_platform_alias(self) -> None:

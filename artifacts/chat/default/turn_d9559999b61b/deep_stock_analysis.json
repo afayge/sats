@@ -1,0 +1,692 @@
+{
+  "request": {
+    "symbols": [
+      "601888.SH"
+    ],
+    "trade_date": "20260615",
+    "phase": "run",
+    "lookback_days": 180,
+    "llm_review": true,
+    "report": false
+  },
+  "analyses": [
+    {
+      "ts_code": "601888.SH",
+      "name": "中国中免",
+      "trade_date": "20260615",
+      "overall_score": 48.2,
+      "verdict_label": "观望优先",
+      "dimensions": [
+        {
+          "key": "0_basic",
+          "label": "基础信息",
+          "score": 10,
+          "weight": 1.0,
+          "quality": "full",
+          "summary": "中国中免，价格 58.50，行业 旅游服务",
+          "evidence": {
+            "name": "中国中免",
+            "price": 58.5,
+            "market_cap": 12153032.5708,
+            "industry": "旅游服务",
+            "listed_date": "20091015"
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "1_financial_quality",
+          "label": "财务质量",
+          "score": 2.5,
+          "weight": 3.0,
+          "quality": "full",
+          "summary": "ROE 4.14，营收增速 N/A，利润增速 N/A，负债率 25.54",
+          "evidence": {
+            "roe": 4.1407,
+            "revenue": 16906021992.25,
+            "profit": 2793150132.49,
+            "revenue_growth": null,
+            "profit_growth": null,
+            "debt_to_assets": 25.544
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "2_kline_technical",
+          "label": "K线技术",
+          "score": 6.0,
+          "weight": 2.0,
+          "quality": "full",
+          "summary": "均线纠缠，MACD 中性，量能 缩量上涨",
+          "evidence": {
+            "ma_alignment": "均线纠缠",
+            "macd_signal": "中性",
+            "rsi6": 68.4659,
+            "volume_status": "缩量上涨",
+            "support": [
+              54.76
+            ],
+            "resistance": [
+              59.58,
+              96.09
+            ]
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "3_market_macro",
+          "label": "市场/宏观",
+          "score": 6.8,
+          "weight": 1.0,
+          "quality": "full",
+          "summary": "市场宽度与涨跌停情绪用于校准个股风险偏好",
+          "evidence": {
+            "breadth": {
+              "total": 5525,
+              "up_count": 3399,
+              "down_count": 1971,
+              "flat_count": 155,
+              "advancing_count": 3399,
+              "declining_count": 1971,
+              "unchanged_count": 155,
+              "limit_up_count": 223,
+              "limit_down_count": 11,
+              "median_pct_chg": 0.635039223010847,
+              "average_pct_chg": 1.3553365759653153,
+              "total_amount": 2256375195.3,
+              "valid_price_count": 5525
+            },
+            "breadth_source": "tickflow_universe_quote",
+            "limit_up_count": 223,
+            "limit_down_count": 11,
+            "hot_industries": [
+              {
+                "sector_code": "884284.TI",
+                "name": "钴",
+                "sector_type": "industry",
+                "heat_score": 438.09,
+                "return_5d": 5.2028,
+                "return_3d": 6.636,
+                "latest_pct_chg": 2852.976,
+                "up_days_5": 3,
+                "up_days_3": 2
+              },
+              {
+                "sector_code": "881267.TI",
+                "name": "能源金属",
+                "sector_type": "industry",
+                "heat_score": 194.3549,
+                "return_5d": 3.6261,
+                "return_3d": 4.868,
+                "latest_pct_chg": 1235.88,
+                "up_days_5": 3,
+                "up_days_3": 2
+              },
+              {
+                "sector_code": "884310.TI",
+                "name": "电池化学品",
+                "sector_type": "industry",
+                "heat_score": 140.3996,
+                "return_5d": 1.71,
+                "return_3d": 3.5771,
+                "latest_pct_chg": 883.661,
+                "up_days_5": 3,
+                "up_days_3": 2
+              },
+              {
+                "sector_code": "884286.TI",
+                "name": "锂",
+                "sector_type": "industry",
+                "heat_score": 117.1947,
+                "return_5d": 5.3116,
+                "return_3d": 6.6758,
+                "latest_pct_chg": 713.327,
+                "up_days_5": 3,
+                "up_days_3": 2
+              },
+              {
+                "sector_code": "884244.TI",
+                "name": "医疗研发外包",
+                "sector_type": "industry",
+                "heat_score": 104.59,
+                "return_5d": 1.2445,
+                "return_3d": 0.8876,
+                "latest_pct_chg": 652.292,
+                "up_days_5": 3,
+                "up_days_3": 2
+              }
+            ]
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "breadth": "tickflow_universe_quote"
+          }
+        },
+        {
+          "key": "4_peers",
+          "label": "同行对比",
+          "score": 0,
+          "weight": 0.6,
+          "quality": "partial",
+          "summary": "SATS v1 尚未接入同业估值表，保留维度缺口",
+          "evidence": {
+            "industry": "旅游服务",
+            "peer_table": []
+          },
+          "missing_fields": [
+            "peer_table"
+          ],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "5_fund_holders",
+          "label": "基金持仓",
+          "score": 0,
+          "weight": 0.6,
+          "quality": "missing",
+          "summary": "SATS v1 provider 未返回基金持仓明细",
+          "evidence": {
+            "fund_holders": {}
+          },
+          "missing_fields": [
+            "fund_holders"
+          ],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "6_industry",
+          "label": "行业景气",
+          "score": 7.0,
+          "weight": 1.0,
+          "quality": "full",
+          "summary": "行业 旅游服务，命中热点 1 个",
+          "evidence": {
+            "industry": "旅游服务",
+            "hot_sectors": [
+              {
+                "sector_code": "883301.TI",
+                "name": "上证50样本股",
+                "sector_type": "concept",
+                "heat_score": 13.8208,
+                "return_5d": 1.6924,
+                "return_3d": 1.4184,
+                "latest_pct_chg": 44.88,
+                "up_days_5": 3,
+                "up_days_3": 2
+              }
+            ]
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "7_valuation",
+          "label": "估值",
+          "score": 4.7,
+          "weight": 2.0,
+          "quality": "full",
+          "summary": "PE 33.89，PB 2.10，ROE/PE 0.12",
+          "evidence": {
+            "pe": 33.8885,
+            "pb": 2.097,
+            "ps": 2.2634,
+            "total_mv": 12153032.5708,
+            "roe": 4.1407
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "8_governance",
+          "label": "治理",
+          "score": 0,
+          "weight": 0.7,
+          "quality": "missing",
+          "summary": "SATS v1 未取得治理结构/质押字段",
+          "evidence": {
+            "actual_controller": "",
+            "chairman": "",
+            "pledge": null
+          },
+          "missing_fields": [
+            "actual_controller",
+            "pledge"
+          ],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "9_capital_flow",
+          "label": "资金流",
+          "score": 7.0,
+          "weight": 1.0,
+          "quality": "full",
+          "summary": "5日主力净额 42507.99，10日 4484.65",
+          "evidence": {
+            "main_net_amount": 26993.58,
+            "main_net_amount_5d": 42507.99,
+            "main_net_amount_10d": 4484.65
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "10_moat_risk",
+          "label": "护城河/风险",
+          "score": 6.0,
+          "weight": 1.4,
+          "quality": "full",
+          "summary": "未触发核心财务/估值/趋势风险红灯",
+          "evidence": {
+            "roe": 4.1407,
+            "debt_to_assets": 25.544,
+            "pe": 33.8885,
+            "ma_alignment": "均线纠缠",
+            "risk_flags": []
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        },
+        {
+          "key": "11_events",
+          "label": "事件催化",
+          "score": 6.0,
+          "weight": 0.7,
+          "quality": "full",
+          "summary": "取得 4 条事件/新闻线索",
+          "evidence": {
+            "events": [
+              {
+                "ts_code": "600109.SH",
+                "dataset": "repurchase",
+                "ann_date": "20260615",
+                "end_date": "20260612",
+                "proc": "实施",
+                "exp_date": null,
+                "vol": 2190400.0,
+                "amount": 18558154.0,
+                "high_limit": 8.59,
+                "low_limit": 8.16
+              },
+              {
+                "ts_code": "603683.SH",
+                "dataset": "repurchase",
+                "ann_date": "20260615",
+                "end_date": null,
+                "proc": "预案",
+                "exp_date": null,
+                "vol": null,
+                "amount": 145800.0,
+                "high_limit": 4.05,
+                "low_limit": 4.05
+              },
+              {
+                "ts_code": "601888.SH",
+                "dataset": "block_trade",
+                "trade_date": "20260507",
+                "price": 63.05,
+                "vol": 48.0,
+                "amount": 3026.4,
+                "buyer": "华泰证券股份有限公司深圳前海证券营业部",
+                "seller": "招商证券股份有限公司上海浦东新区陆家嘴东路证券营业部"
+              },
+              {
+                "ts_code": "601888.SH",
+                "dataset": "block_trade",
+                "trade_date": "20260506",
+                "price": 63.03,
+                "vol": 30.0,
+                "amount": 1890.9,
+                "buyer": "中信建投证券股份有限公司上海营口路证券营业部",
+                "seller": "国泰海通证券股份有限公司总部"
+              }
+            ],
+            "news": []
+          },
+          "missing_fields": [],
+          "data_sources": {
+            "daily": "tickflow_daily",
+            "daily_basic": "tushare_daily_basic",
+            "moneyflow": "tushare_moneyflow_dc",
+            "fundamentals": "tushare_fundamentals",
+            "quote": "AStockDataProvider.load_realtime_quote_lookup",
+            "hot_sector": "AStockDataProvider.load_hot_sector_context"
+          }
+        }
+      ],
+      "investor_votes": [
+        {
+          "investor_id": "buffett",
+          "name": "巴菲特",
+          "group": "A",
+          "signal": "bullish",
+          "score": 75.0,
+          "headline": "中国中免 ROE 4.14、PE 33.89，质量与价格共同决定态度",
+          "reasoning": "3/4 条核心准则通过；负债率<=50；估值不过热",
+          "matched_rules": [
+            "负债率<=50",
+            "估值不过热",
+            "业务质量可见"
+          ],
+          "failed_rules": [
+            "ROE>=15"
+          ]
+        },
+        {
+          "investor_id": "munger",
+          "name": "芒格",
+          "group": "A",
+          "signal": "bullish",
+          "score": 75.0,
+          "headline": "中国中免 ROE 4.14、PE 33.89，质量与价格共同决定态度",
+          "reasoning": "3/4 条核心准则通过；低杠杆；不过度交易",
+          "matched_rules": [
+            "低杠杆",
+            "不过度交易",
+            "风险红灯少"
+          ],
+          "failed_rules": [
+            "高质量ROE"
+          ]
+        },
+        {
+          "investor_id": "graham",
+          "name": "格雷厄姆",
+          "group": "A",
+          "signal": "neutral",
+          "score": 50.0,
+          "headline": "PE 33.89 / PB 2.10 是防御型安全边际核心",
+          "reasoning": "2/4 条核心准则通过；负债率可控；盈利为正",
+          "matched_rules": [
+            "负债率可控",
+            "盈利为正"
+          ],
+          "failed_rules": [
+            "PE<15",
+            "PB<1.5"
+          ]
+        },
+        {
+          "investor_id": "fisher",
+          "name": "费雪",
+          "group": "A",
+          "signal": "bearish",
+          "score": 25.0,
+          "headline": "营收增速 N/A、利润增速 N/A",
+          "reasoning": "1/4 条核心准则通过；行业信息可见",
+          "matched_rules": [
+            "行业信息可见"
+          ],
+          "failed_rules": [
+            "营收增长",
+            "利润增长",
+            "ROE不弱"
+          ]
+        },
+        {
+          "investor_id": "lynch",
+          "name": "林奇",
+          "group": "B",
+          "signal": "neutral",
+          "score": 50.0,
+          "headline": "营收增速 N/A、利润增速 N/A",
+          "reasoning": "2/4 条核心准则通过；PE未失控；业务可理解",
+          "matched_rules": [
+            "PE未失控",
+            "业务可理解"
+          ],
+          "failed_rules": [
+            "成长性为正",
+            "盈利增长"
+          ]
+        },
+        {
+          "investor_id": "oneill",
+          "name": "欧奈尔",
+          "group": "B",
+          "signal": "bearish",
+          "score": 25.0,
+          "headline": "趋势 均线纠缠，MACD 中性",
+          "reasoning": "1/4 条核心准则通过；热点加成",
+          "matched_rules": [
+            "热点加成"
+          ],
+          "failed_rules": [
+            "趋势多头",
+            "MACD不弱",
+            "成长较快"
+          ]
+        },
+        {
+          "investor_id": "soros",
+          "name": "索罗斯",
+          "group": "C",
+          "signal": "bullish",
+          "score": 75.0,
+          "headline": "热点 有，5日资金 42507.99",
+          "reasoning": "3/4 条核心准则通过；热点/反身性；资金正反馈",
+          "matched_rules": [
+            "热点/反身性",
+            "资金正反馈",
+            "估值可承受"
+          ],
+          "failed_rules": [
+            "趋势确认"
+          ]
+        },
+        {
+          "investor_id": "dalio",
+          "name": "达里奥",
+          "group": "C",
+          "signal": "bullish",
+          "score": 100.0,
+          "headline": "bullish，基于 SATS v1 深研规则骨架",
+          "reasoning": "4/4 条核心准则通过；杠杆风险低；市场环境不差",
+          "matched_rules": [
+            "杠杆风险低",
+            "市场环境不差",
+            "现金流/盈利可见",
+            "风险分散"
+          ],
+          "failed_rules": []
+        },
+        {
+          "investor_id": "livermore",
+          "name": "利弗莫尔",
+          "group": "D",
+          "signal": "neutral",
+          "score": 50.0,
+          "headline": "趋势 均线纠缠，MACD 中性",
+          "reasoning": "2/4 条核心准则通过；资金配合；不过度超买",
+          "matched_rules": [
+            "资金配合",
+            "不过度超买"
+          ],
+          "failed_rules": [
+            "趋势多头",
+            "MACD多头"
+          ]
+        },
+        {
+          "investor_id": "minervini",
+          "name": "米内尔维尼",
+          "group": "D",
+          "signal": "neutral",
+          "score": 50.0,
+          "headline": "趋势 均线纠缠，MACD 中性",
+          "reasoning": "2/4 条核心准则通过；相对强势线索；风险可控",
+          "matched_rules": [
+            "相对强势线索",
+            "风险可控"
+          ],
+          "failed_rules": [
+            "均线强势",
+            "盈利增长"
+          ]
+        },
+        {
+          "investor_id": "duan",
+          "name": "段永平",
+          "group": "E",
+          "signal": "bullish",
+          "score": 75.0,
+          "headline": "中国中免 ROE 4.14、PE 33.89，质量与价格共同决定态度",
+          "reasoning": "3/4 条核心准则通过；价格不离谱；负债温和",
+          "matched_rules": [
+            "价格不离谱",
+            "负债温和",
+            "行业清楚"
+          ],
+          "failed_rules": [
+            "好生意线索"
+          ]
+        },
+        {
+          "investor_id": "zhao_lg",
+          "name": "赵老哥",
+          "group": "F",
+          "signal": "bullish",
+          "score": 75.0,
+          "headline": "热点 有，5日资金 42507.99",
+          "reasoning": "3/4 条核心准则通过；热点题材；资金流入",
+          "matched_rules": [
+            "热点题材",
+            "资金流入",
+            "市值/估值不过重"
+          ],
+          "failed_rules": [
+            "趋势可打"
+          ]
+        }
+      ],
+      "synthesis": {
+        "overall_score": 48.2,
+        "verdict_label": "观望优先",
+        "core_conclusion": "中国中免 综合评分 48.2/100，观望优先；面板看多 6、看空 2。",
+        "bull_reasons": [
+          "基础信息: 中国中免，价格 58.50，行业 旅游服务",
+          "行业景气: 行业 旅游服务，命中热点 1 个",
+          "资金流: 5日主力净额 42507.99，10日 4484.65"
+        ],
+        "bear_reasons": [
+          "同行对比: SATS v1 尚未接入同业估值表，保留维度缺口",
+          "基金持仓: SATS v1 provider 未返回基金持仓明细",
+          "治理: SATS v1 未取得治理结构/质押字段"
+        ],
+        "risks": [
+          "SATS v1 尚未接入同业估值表，保留维度缺口",
+          "SATS v1 provider 未返回基金持仓明细",
+          "SATS v1 未取得治理结构/质押字段",
+          "ROE 4.14，营收增速 N/A，利润增速 N/A，负债率 25.54"
+        ],
+        "vote_distribution": {
+          "bullish": 6,
+          "neutral": 4,
+          "bearish": 2
+        },
+        "observation_zones": {
+          "valuation": "当前 PE 33.89；若盈利质量不改善，高 PE 区间需降低仓位假设",
+          "balance_sheet": "当前 PB 2.10；资产重行业需结合 ROE 判断 PB 是否合理",
+          "technical": "最近支撑位约 54.76，跌破后技术面需重新评估"
+        },
+        "data_completeness": {
+          "full": 9,
+          "partial": 1,
+          "missing": 2
+        },
+        "llm_review": {
+          "status": "ok",
+          "comment": "中国中免整体“观望优先”。核心矛盾在于财务增长数据缺失（营收/利润增速N/A），且技术面（均线纠缠、缩量上涨）未提供明确方向。**主要数据缺口集中在：缺乏可比的同业估值、机构持仓明细以及实际控制人/质押等治理信息**，致使估值锚定和风险评估不完整。需待数据补全后再议。"
+        }
+      },
+      "missing_fields": [
+        "peer_table",
+        "fund_holders",
+        "actual_controller",
+        "pledge"
+      ],
+      "data_sources": {
+        "daily": "tickflow_daily",
+        "daily_basic": "tushare_daily_basic",
+        "moneyflow": "tushare_moneyflow_dc",
+        "fundamentals": "tushare_fundamentals",
+        "quote": "AStockDataProvider.load_realtime_quote_lookup",
+        "hot_sector": "AStockDataProvider.load_hot_sector_context"
+      }
+    }
+  ],
+  "message": "",
+  "markdown_report_path": "",
+  "json_artifact_path": ""
+}

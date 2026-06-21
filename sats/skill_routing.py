@@ -33,6 +33,7 @@ STOCK_SHORT_TERM_SKILLS = (
     *DSA_TECHNICAL_SKILLS,
 )
 STOCK_FUNDAMENTAL_SKILLS = (
+    "deep-stock-analysis",
     "tushare-data",
     "financial-statement",
     "valuation-model",
@@ -41,6 +42,7 @@ STOCK_FUNDAMENTAL_SKILLS = (
     "risk-analysis",
 )
 DISCOVERY_SKILLS = (
+    "serenity-stock-screen",
     "sats-market-assistant",
     "technical-basic",
     "risk-analysis",
@@ -147,6 +149,14 @@ def select_skills(context: SkillRouteContext, skills: Iterable[Skill], *, limit:
         if _is_dsa_request(text) or "native_dsa" in internal_kinds:
             for skill_id in DSA_EXTENDED_TECHNICAL_SKILLS:
                 add(skill_id, 120, "DSA/买卖点分析默认策略视角")
+            if any(term in text for term in ("热点题材", "题材发酵", "热点", "龙头", "情绪周期")):
+                for skill_id in ("hot-theme", "dragon-head", "emotion-cycle"):
+                    add(skill_id, 115, "DSA 热点/情绪策略视角")
+            if any(term in text for term in ("事件驱动", "公告", "并购", "订单", "政策催化")):
+                add("event-driven-detector", 115, "事件驱动策略视角")
+            if any(term in text for term in ("成长品质", "成长质量", "利润质量", "ROE", "预期重估", "预期差", "估值修复")):
+                for skill_id in ("growth-quality", "expectation-repricing"):
+                    add(skill_id, 115, "成长品质/预期重估策略视角")
             suggested_internal_analysis.append("native_dsa")
     elif intent == "factor_analysis" or _is_factor_request(text):
         for skill_id in FACTOR_SKILLS:
@@ -176,10 +186,14 @@ def _normalized_intent(context: SkillRouteContext, text: str) -> str:
         return explicit
     if "research.discover_opportunities" in tools:
         return "opportunity_discovery"
+    if "research.serenity_screen" in tools:
+        return "opportunity_discovery"
     if "research.market_context" in tools or _is_market_request(text):
         return "market_analysis"
     if "factor.pick" in tools or any(tool.startswith("factor.") for tool in tools) or _is_factor_request(text):
         return "factor_analysis"
+    if "research.deep_stock_analysis" in tools:
+        return "financial_analysis"
     if "research.stock_context" in tools or context.symbols or _is_stock_request(text):
         return "financial_analysis" if _is_financial_request(text) else "stock_analysis"
     if _is_command_help(text):
@@ -195,10 +209,14 @@ def _evidence_terms(planned_tools: set[str], observed_tools: set[str], internal_
             terms.update({"market_context", "market_breadth", "limit_sentiment", "hot_sectors"})
         elif tool == "research.stock_context":
             terms.add("stock_context")
+        elif tool == "research.deep_stock_analysis":
+            terms.update({"deep_stock_analysis", "stock_context", "indicators"})
         elif tool == "research.internal_analysis":
             terms.update({"indicators", "analyze_signals", "factor_summary"})
         elif tool == "research.discover_opportunities":
             terms.update({"opportunity_discovery", "analyze_signals", "hot_sectors"})
+        elif tool == "research.serenity_screen":
+            terms.update({"serenity_screen", "opportunity_discovery", "stock_context", "tushare_data"})
         elif tool.startswith("factor."):
             terms.add("factor")
     return terms
@@ -284,7 +302,25 @@ def _is_market_request(text: str) -> bool:
 
 def _is_stock_request(text: str) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in ("analyze", "analysis", "signal")) or any(term in text for term in ("个股", "股票", "分析", "走势", "技术面", "买卖点", "DSA", "dsa"))
+    return any(term in lowered for term in ("analyze", "analysis", "signal", "dsa", "das")) or any(
+        term in text
+        for term in (
+            "个股",
+            "股票",
+            "分析",
+            "走势",
+            "技术面",
+            "买卖点",
+            "DSA",
+            "DAS",
+            "缠论",
+            "波浪理论",
+            "热点题材",
+            "事件驱动",
+            "成长品质",
+            "预期重估",
+        )
+    )
 
 
 def _is_financial_request(text: str) -> bool:
@@ -294,7 +330,26 @@ def _is_financial_request(text: str) -> bool:
 
 def _is_dsa_request(text: str) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in ("dsa", "daily_stock_analysis")) or any(term in text for term in ("买卖点", "交易策略", "多头趋势", "回踩低吸", "放量突破", "均线金叉"))
+    return any(term in lowered for term in ("dsa", "das", "daily_stock_analysis", "elliott", "wave")) or any(
+        term in text
+        for term in (
+            "买卖点",
+            "交易策略",
+            "多头趋势",
+            "回踩低吸",
+            "放量突破",
+            "均线金叉",
+            "缠论",
+            "波浪理论",
+            "热点题材",
+            "题材发酵",
+            "事件驱动",
+            "成长品质",
+            "成长质量",
+            "预期重估",
+            "预期差",
+        )
+    )
 
 
 def _is_factor_request(text: str) -> bool:

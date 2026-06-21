@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+from calendar import monthrange
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -21,6 +23,13 @@ from sats.symbols import normalize_symbols
 
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 MINUTE_PERIOD_LIMITS = {"15m": 160, "30m": 120}
+_PERIOD_RETURN_RE = re.compile(
+    r"(?P<prefix>近|最近|过去)?\s*"
+    r"(?P<amount>\d+|[一二两三四五六七八九十]+)\s*"
+    r"(?:个)?(?P<unit>交易日|天|日|周|星期|个月|月|季度|季|年)"
+    r"(?P<suffix>内|以来|表现|涨跌幅|涨幅|收益|回报)?"
+)
+_PERIOD_CONTEXT_TERMS = ("涨跌幅", "涨幅", "跌幅", "表现", "收益", "回报")
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +38,14 @@ class StockLLMContext:
     trade_date: str
     payload: dict[str, Any]
     system_message: str
+
+
+@dataclass(frozen=True, slots=True)
+class PeriodReturnRequest:
+    key: str
+    label: str
+    unit: str
+    amount: int
 
 
 def build_stock_llm_context(
@@ -44,24 +61,29 @@ def build_stock_llm_context(
     if not question.has_stock_question:
         return None
     storage = storage or DuckDBStorage(settings.db_path)
-    trade_date = question.trade_date or _resolve_trade_date()
+    requested_trade_date = question.trade_date or _resolve_trade_date()
+    period_requests = extract_period_return_requests(message)
+    lookback_days = _period_lookback_days(requested_trade_date, period_requests, default=lookback_days)
     symbols = question.symbols
     if not symbols:
         return None
 
     stock_contexts = ensure_stock_analysis_data(
         symbols,
-        trade_date,
+        requested_trade_date,
         settings=settings,
         storage=storage,
         as_of_time=question.as_of_time,
         lookback_days=lookback_days,
         minute_lookback_days=minute_lookback_days,
+        period_requests=period_requests,
     )
+    trade_date = _context_trade_date(stock_contexts, requested_trade_date)
     as_of_trade_time = _as_of_trade_time(trade_date, question.as_of_time)
 
     payload = {
         "user_question": message,
+        "requested_trade_date": requested_trade_date,
         "trade_date": trade_date,
         "as_of_time": as_of_trade_time,
         "symbols": symbols,
@@ -87,17 +109,20 @@ def ensure_stock_analysis_data(
     lookback_days: int = 180,
     minute_lookback_days: int = 30,
     astock_provider: Any | None = None,
+    period_requests: tuple[PeriodReturnRequest, ...] = (),
 ) -> dict[str, dict[str, Any]]:
     clean_symbols = normalize_symbols(symbols, required=False)
     if not clean_symbols:
         return {}
+    requested_trade_date = str(trade_date)
+    provider = astock_provider or AStockDataProvider(settings)
+    trade_date = _resolve_effective_trade_date(provider, requested_trade_date)
     question = StockQuestion(
         symbols=clean_symbols,
         trade_date=trade_date,
         as_of_time=as_of_time,
         has_stock_question=True,
     )
-    provider = astock_provider or AStockDataProvider(settings)
     inputs = provider.load_indicator_inputs(
         clean_symbols,
         trade_date,
@@ -137,6 +162,7 @@ def ensure_stock_analysis_data(
     return _build_stock_contexts(
         clean_symbols,
         trade_date,
+        requested_trade_date=requested_trade_date,
         inputs=input_lookup,
         indicator_results=indicator_results,
         minute_frames=minute_frames,
@@ -144,6 +170,7 @@ def ensure_stock_analysis_data(
         as_of_time=as_of_time,
         lookback_days=lookback_days,
         factor_summary=factor_summary,
+        period_requests=period_requests,
     )
 
 
@@ -178,6 +205,7 @@ def _build_stock_contexts(
     symbols: list[str],
     trade_date: str,
     *,
+    requested_trade_date: str,
     inputs: dict[str, IndicatorInput],
     indicator_results: dict[str, IndicatorResult],
     minute_frames: dict[str, pd.DataFrame],
@@ -185,6 +213,7 @@ def _build_stock_contexts(
     as_of_time: str | None,
     lookback_days: int,
     factor_summary: dict[str, Any] | None = None,
+    period_requests: tuple[PeriodReturnRequest, ...] = (),
 ) -> dict[str, dict[str, Any]]:
     contexts = {}
     as_of_trade_time = _as_of_trade_time(trade_date, as_of_time)
@@ -195,10 +224,17 @@ def _build_stock_contexts(
         contexts[symbol] = {
             "ts_code": symbol,
             "name": result.name,
+            "requested_trade_date": requested_trade_date,
             "trade_date": trade_date,
             "as_of_time": as_of_trade_time,
             "price_context": _price_context(result, quotes.get(symbol, {})),
             "indicator_result": result.to_dict(),
+            "period_returns": _period_returns(
+                item.daily,
+                period_requests,
+                requested_trade_date=requested_trade_date,
+                effective_trade_date=trade_date,
+            ),
             "daily_tail": _records_tail(item.daily, limit=lookback_days, columns=[
                 "trade_date",
                 "open",
@@ -315,9 +351,120 @@ def _system_message(payload: dict[str, Any]) -> str:
         "以下是 SATS 在调用 LLM 前获取的真实股票结构化数据。你只能基于这些数据回答；"
         "不得编造价格、涨跌幅、成交量、新闻、公告、题材或基本面。"
         "如果字段在 missing_fields 中，必须说明该数据缺失。"
+        "模糊时间段（如近6个月、半年、过去3个月）已按区间内最近交易日边界计算 period_returns；"
+        "不要因为自然日端点不是交易日而声称区间涨跌幅缺失。"
         "输出任何投资相关判断时必须说明仅供研究，不构成投资建议。\n"
         f"{json.dumps(_jsonable(payload), ensure_ascii=False, default=str)}"
     )
+
+
+def extract_period_return_requests(message: str) -> tuple[PeriodReturnRequest, ...]:
+    text = str(message or "")
+    requests: list[PeriodReturnRequest] = []
+    seen: set[str] = set()
+    half_year_index = text.find("半年")
+    if half_year_index >= 0 and _period_context(text, half_year_index, half_year_index + 2):
+        _append_period_request(requests, seen, PeriodReturnRequest(key="6m", label="半年", unit="month", amount=6))
+    for match in _PERIOD_RETURN_RE.finditer(text):
+        request = _period_request_from_match(match, text)
+        if request is not None:
+            _append_period_request(requests, seen, request)
+    return tuple(requests)
+
+
+def _append_period_request(requests: list[PeriodReturnRequest], seen: set[str], request: PeriodReturnRequest) -> None:
+    if request.key in seen:
+        return
+    seen.add(request.key)
+    requests.append(request)
+
+
+def _period_request_from_match(match: re.Match[str], text: str) -> PeriodReturnRequest | None:
+    amount = _period_amount(match.group("amount"))
+    if amount is None:
+        return None
+    unit_text = match.group("unit")
+    prefix = match.group("prefix") or ""
+    suffix = match.group("suffix") or ""
+    if not (prefix or suffix or _period_context(text, match.start(), match.end())):
+        return None
+    if unit_text in {"天", "日", "交易日"}:
+        if amount > 365:
+            return None
+        return PeriodReturnRequest(key=f"{amount}d", label=f"{amount}{unit_text}", unit="day", amount=amount)
+    if unit_text in {"周", "星期"}:
+        if amount > 52:
+            return None
+        return PeriodReturnRequest(key=f"{amount}w", label=f"{amount}{unit_text}", unit="week", amount=amount)
+    if unit_text in {"个月", "月"}:
+        if amount > 36:
+            return None
+        return PeriodReturnRequest(key=f"{amount}m", label=f"{amount}个月", unit="month", amount=amount)
+    if unit_text in {"季度", "季"}:
+        if amount > 12:
+            return None
+        return PeriodReturnRequest(key=f"{amount}q", label=f"{amount}季度", unit="quarter", amount=amount)
+    if unit_text == "年":
+        if amount > 5:
+            return None
+        return PeriodReturnRequest(key=f"{amount}y", label=f"{amount}年", unit="year", amount=amount)
+    return None
+
+
+def _period_amount(value: str) -> int | None:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text in digits:
+        return digits[text]
+    if text == "十":
+        return 10
+    if text.startswith("十") and len(text) == 2 and text[1] in digits:
+        return 10 + digits[text[1]]
+    if text.endswith("十") and len(text) == 2 and text[0] in digits:
+        return digits[text[0]] * 10
+    if "十" in text:
+        head, tail = text.split("十", 1)
+        if head in digits and tail in digits:
+            return digits[head] * 10 + digits[tail]
+    return None
+
+
+def _period_context(text: str, start: int, end: int) -> bool:
+    if start < 0:
+        return False
+    window = text[max(0, start - 8) : min(len(text), end + 8)]
+    return any(term in window for term in _PERIOD_CONTEXT_TERMS)
+
+
+def _period_lookback_days(trade_date: str, requests: tuple[PeriodReturnRequest, ...], *, default: int) -> int:
+    if not requests:
+        return default
+    end = _parse_date(trade_date)
+    if end is None:
+        return default
+    days = default
+    for request in requests:
+        start = _period_calendar_start(end, request)
+        days = max(days, (end - start).days + 20)
+    return days
+
+
+def _resolve_effective_trade_date(provider: Any, requested_trade_date: str) -> str:
+    if hasattr(provider, "_recent_trade_dates"):
+        try:
+            dates = provider._recent_trade_dates(str(requested_trade_date), count=1)
+        except Exception:
+            dates = []
+        if dates:
+            return str(dates[-1])
+    return _previous_weekday(str(requested_trade_date))
+
+
+def _context_trade_date(stock_contexts: dict[str, dict[str, Any]], fallback: str) -> str:
+    dates = [str(item.get("trade_date") or "") for item in stock_contexts.values() if isinstance(item, dict) and item.get("trade_date")]
+    return max(dates) if dates else fallback
 
 
 def _resolve_trade_date() -> str:
@@ -338,6 +485,129 @@ def _as_of_trade_time(trade_date: str, as_of_time: str | None) -> str | None:
 
 def _days_before(trade_date: str, days: int) -> str:
     return (datetime.strptime(trade_date, "%Y%m%d") - timedelta(days=days)).strftime("%Y%m%d")
+
+
+def _period_returns(
+    frame: pd.DataFrame,
+    requests: tuple[PeriodReturnRequest, ...],
+    *,
+    requested_trade_date: str,
+    effective_trade_date: str,
+) -> dict[str, Any]:
+    if not requests:
+        return {}
+    if frame is None or frame.empty or "trade_date" not in frame.columns or "close" not in frame.columns:
+        return {
+            request.key: {
+                "label": request.label,
+                "calendar_end": requested_trade_date,
+                "coverage_warning": "区间内无真实日线数据，无法计算涨跌幅。",
+            }
+            for request in requests
+        }
+    data = frame.copy()
+    data["trade_date"] = data["trade_date"].astype(str)
+    data["_close_num"] = pd.to_numeric(data["close"], errors="coerce")
+    data = data.dropna(subset=["_close_num"]).sort_values("trade_date")
+    result: dict[str, Any] = {}
+    calendar_end = _parse_date(requested_trade_date) or _parse_date(effective_trade_date)
+    if calendar_end is None:
+        return result
+    for request in requests:
+        result[request.key] = _period_return(data, request, calendar_end=calendar_end)
+    return result
+
+
+def _period_return(data: pd.DataFrame, request: PeriodReturnRequest, *, calendar_end: datetime) -> dict[str, Any]:
+    calendar_start = _period_calendar_start(calendar_end, request)
+    calendar_start_text = calendar_start.strftime("%Y%m%d")
+    calendar_end_text = calendar_end.strftime("%Y%m%d")
+    eligible = data[data["trade_date"] <= calendar_end_text]
+    if eligible.empty:
+        return {
+            "label": request.label,
+            "calendar_start": calendar_start_text,
+            "calendar_end": calendar_end_text,
+            "coverage_warning": "区间内无真实日线数据，无法计算涨跌幅。",
+        }
+    end_row = eligible.iloc[-1]
+    window = eligible[eligible["trade_date"] >= calendar_start_text]
+    if window.empty:
+        return {
+            "label": request.label,
+            "calendar_start": calendar_start_text,
+            "calendar_end": calendar_end_text,
+            "end_trade_date": str(end_row.get("trade_date") or ""),
+            "coverage_warning": "区间内无真实日线数据，无法计算涨跌幅。",
+        }
+    start_row = window.iloc[0]
+    start_close = _safe_float(start_row.get("_close_num"))
+    end_close = _safe_float(end_row.get("_close_num"))
+    pct_change = ((end_close / start_close - 1.0) * 100.0) if start_close not in (None, 0) and end_close is not None else None
+    return _drop_empty(
+        {
+            "label": request.label,
+            "calendar_start": calendar_start_text,
+            "calendar_end": calendar_end_text,
+            "start_trade_date": str(start_row.get("trade_date") or ""),
+            "end_trade_date": str(end_row.get("trade_date") or ""),
+            "trading_days": int(len(window)),
+            "start_close": start_close,
+            "end_close": end_close,
+            "pct_change": pct_change,
+        }
+    )
+
+
+def _period_calendar_start(calendar_end: datetime, request: PeriodReturnRequest) -> datetime:
+    if request.unit == "day":
+        return calendar_end - timedelta(days=request.amount)
+    if request.unit == "week":
+        return calendar_end - timedelta(days=request.amount * 7)
+    if request.unit == "month":
+        return _add_months(calendar_end, -request.amount)
+    if request.unit == "quarter":
+        return _add_months(calendar_end, -request.amount * 3)
+    if request.unit == "year":
+        return _add_months(calendar_end, -request.amount * 12)
+    return calendar_end
+
+
+def _add_months(value: datetime, months: int) -> datetime:
+    month_index = value.month - 1 + months
+    year = value.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(value.day, monthrange(year, month)[1])
+    return value.replace(year=year, month=month, day=day)
+
+
+def _parse_date(value: str) -> datetime | None:
+    try:
+        return datetime.strptime(str(value), "%Y%m%d")
+    except ValueError:
+        return None
+
+
+def _previous_weekday(value: str) -> str:
+    date = _parse_date(value)
+    if date is None:
+        return value
+    while date.weekday() >= 5:
+        date -= timedelta(days=1)
+    return date.strftime("%Y%m%d")
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _drop_empty(value: dict[str, Any]) -> dict[str, Any]:
+    return {key: item for key, item in value.items() if item not in (None, "", [], {})}
 
 
 def _records_tail(frame: pd.DataFrame, *, limit: int, columns: list[str]) -> list[dict[str, Any]]:

@@ -15,6 +15,7 @@ from sats.symbols import normalize_symbols
 
 ANALYSIS_QUOTE_TTL_SECONDS = 60
 TRADING_QUOTE_TTL_SECONDS = 30
+MARKET_BREADTH_MIN_COUNT = 3000
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,6 +86,42 @@ class MarketDataResolver:
                 return _mark(combined, dataset="index_daily", source="astock_provider_cached", cache_hit=False)
             return _mark(fetched, dataset="index_daily", source=str(fetched.attrs.get("data_source") or "astock_provider"), cache_hit=False)
         return _mark(cached, dataset="index_daily", source="duckdb_cache_incomplete", cache_hit=not cached.empty)
+
+    def load_market_breadth(
+        self,
+        *,
+        as_of_date: str,
+        min_count: int = MARKET_BREADTH_MIN_COUNT,
+    ) -> tuple[dict[str, Any], str]:
+        try:
+            live_payload, live_source = self.provider.load_market_breadth()
+        except Exception:
+            live_payload, live_source = {}, "unavailable"
+        if live_payload and int(live_payload.get("total_count") or live_payload.get("total") or 0) > 0:
+            payload = dict(live_payload)
+            payload.setdefault("trade_date", str(as_of_date))
+            payload["data_source"] = str(live_source or "realtime_quote")
+            payload["is_fallback"] = False
+            return payload, str(live_source or "realtime_quote")
+
+        snapshot = self.storage.get_latest_stock_daily_snapshot(
+            end_date=str(as_of_date),
+            min_count=max(1, int(min_count)),
+        )
+        if snapshot.empty:
+            return {}, "unavailable"
+        trade_date = str(snapshot["trade_date"].astype(str).max())
+        source = "duckdb_stock_daily_snapshot"
+        payload = _breadth_metrics(snapshot)
+        payload.update(
+            {
+                "trade_date": trade_date,
+                "data_source": source,
+                "is_fallback": True,
+                "stale_calendar_days": _calendar_day_gap(trade_date, str(as_of_date)),
+            }
+        )
+        return payload, source
 
     def load_stock_minute(
         self,
@@ -250,6 +287,39 @@ def _frame_source(frame: pd.DataFrame) -> str:
     if isinstance(provenance, list) and provenance:
         return str(provenance[0].get("source") or "")
     return str(frame.attrs.get("data_source") or "")
+
+
+def _breadth_metrics(frame: pd.DataFrame) -> dict[str, Any]:
+    pct = pd.to_numeric(frame.get("pct_chg"), errors="coerce") if "pct_chg" in frame.columns else pd.Series(dtype=float)
+    amount = pd.to_numeric(frame.get("amount"), errors="coerce") if "amount" in frame.columns else pd.Series(dtype=float)
+    return {
+        "total_count": int(len(frame)),
+        "advancing_count": int((pct > 0).sum()),
+        "declining_count": int((pct < 0).sum()),
+        "flat_count": int((pct == 0).sum()),
+        "limit_up_count": int((pct >= 9.8).sum()),
+        "limit_down_count": int((pct <= -9.8).sum()),
+        "total_amount": _safe_float(amount.sum()),
+        "median_pct_chg": _safe_float(pct.median()),
+    }
+
+
+def _calendar_day_gap(start_date: str, end_date: str) -> int:
+    try:
+        start = datetime.strptime(str(start_date), "%Y%m%d")
+        end = datetime.strptime(str(end_date), "%Y%m%d")
+    except ValueError:
+        return 0
+    return max(0, (end - start).days)
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _business_dates(start_date: str, end_date: str) -> list[str]:

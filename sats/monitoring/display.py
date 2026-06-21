@@ -12,6 +12,7 @@ from prompt_toolkit.utils import get_cwidth
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.storage.duckdb import DuckDBStorage
+from sats.trading.sync import QMT_POSITION_SYNC_SERVICE, QmtPositionSyncService
 
 
 @dataclass(slots=True)
@@ -23,6 +24,8 @@ class MonitorDisplaySnapshot:
     trade_events: list[dict]
     monitor_events: list[dict]
     scheduled_runs: list[dict]
+    position_sync: dict
+    plan_counts: dict[str, int]
     quote_error: str = ""
 
 
@@ -33,14 +36,20 @@ class MonitorDisplay:
         settings: Settings,
         storage: DuckDBStorage,
         provider: AStockDataProvider | None = None,
+        position_sync: QmtPositionSyncService | None = None,
         refresh_seconds: int = 3,
     ) -> None:
         self.settings = settings
         self.storage = storage
         self.provider = provider or AStockDataProvider(settings)
+        self.position_sync = position_sync
         self.refresh_seconds = max(1, int(refresh_seconds))
 
     def snapshot(self) -> MonitorDisplaySnapshot:
+        try:
+            self._position_sync_service().sync()
+        except Exception:
+            pass
         positions = self.storage.list_monitor_positions(enabled=True)
         watchlist = self.storage.list_monitor_watchlist(enabled=True)
         buy_candidates = self.storage.list_monitor_buy_candidates(enabled=True)
@@ -63,6 +72,8 @@ class MonitorDisplay:
             trade_events=self.storage.list_monitor_trade_events(limit=50),
             monitor_events=self.storage.list_monitor_events(limit=100),
             scheduled_runs=self.storage.list_scheduled_task_runs(limit=20),
+            position_sync=self.storage.get_monitor_runtime(QMT_POSITION_SYNC_SERVICE),
+            plan_counts=self.storage.monitor_plan_counts(),
             quote_error=quote_error,
         )
 
@@ -84,6 +95,11 @@ class MonitorDisplay:
             snapshot = self.snapshot()
             _draw_dashboard(stdscr, snapshot)
             time.sleep(self.refresh_seconds)
+
+    def _position_sync_service(self) -> QmtPositionSyncService:
+        if self.position_sync is None:
+            self.position_sync = QmtPositionSyncService.from_settings(storage=self.storage, settings=self.settings)
+        return self.position_sync
 
 
 def format_monitor_dashboard(snapshot: MonitorDisplaySnapshot, *, width: int | None = None, height: int | None = None) -> str:
@@ -124,7 +140,12 @@ def _draw_dashboard(stdscr, snapshot: MonitorDisplaySnapshot) -> None:
 
 def _top_panel_lines(snapshot: MonitorDisplaySnapshot, *, watch_width: int, position_width: int, rows: int) -> list[str]:
     left_lines = _watchlist_lines(snapshot.watchlist, watch_width, rows)
-    right_lines = _position_lines(snapshot.positions, position_width, rows)
+    right_lines = _position_lines(
+        snapshot.positions,
+        position_width,
+        rows,
+        stale=str(snapshot.position_sync.get("status") or "") == "stale",
+    )
     result = []
     for index in range(rows):
         left = left_lines[index] if index < len(left_lines) else " " * watch_width
@@ -162,11 +183,11 @@ def _watchlist_lines(rows: list[dict], width: int, rows_limit: int) -> list[str]
     return lines
 
 
-def _position_lines(rows: list[dict], width: int, rows_limit: int) -> list[str]:
+def _position_lines(rows: list[dict], width: int, rows_limit: int, *, stale: bool = False) -> list[str]:
     content_width = max(1, width - 2)
     table_widths = _position_widths(content_width)
     lines = [
-        _segment_title("positions", width),
+        _segment_title("positions STALE" if stale else "positions", width),
         _segment_line(_table_row(["NO", "股票代码", "股票名称", "买入时间", "成本价", "数量", "实时价格", "盈亏", "盈亏比"], table_widths), width),
         _segment_line("─" * content_width, width),
     ]
@@ -209,6 +230,18 @@ def _info_rows(snapshot: MonitorDisplaySnapshot) -> list[str]:
     rows = []
     runtime = snapshot.runtime
     rows.append(f"运行 monitor {runtime.get('status', 'stopped')} PID {runtime.get('pid') or ''} 心跳 {runtime.get('heartbeat_at', '')}".strip())
+    plan_counts = snapshot.plan_counts
+    rows.append(
+        f"监控计划 active {plan_counts.get('active', 0)} draft {plan_counts.get('draft', 0)} "
+        f"disabled {plan_counts.get('disabled', 0)} total {plan_counts.get('total', 0)}"
+    )
+    position_sync = snapshot.position_sync
+    if str(position_sync.get("status") or "") == "stale":
+        rows.append(
+            "QMT 持仓 STALE "
+            f"最后成功 {position_sync.get('heartbeat_at') or '从未成功'} "
+            f"错误: {position_sync.get('last_error') or '未知错误'}"
+        )
     if snapshot.quote_error:
         rows.append(f"行情错误: {snapshot.quote_error}")
     for item in snapshot.buy_candidates[:10]:
@@ -306,6 +339,8 @@ def _watchlist_with_quote(row: dict, quote: dict) -> dict:
 def _line_attr(line: str) -> int:
     if not curses.has_colors():
         return 0
+    if "STALE" in line:
+        return curses.color_pair(1) | curses.A_BOLD
     tokens = str(line).split()
     if any(token.startswith("+") and any(char.isdigit() for char in token) for token in tokens):
         return curses.color_pair(1)

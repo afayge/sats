@@ -59,6 +59,15 @@ FACTOR_PROFILES: dict[str, FactorProfile] = {
         ),
         description="低估值、盈利收益、账面价值、质量和小市值风格。",
     ),
+    "growth_quality": FactorProfile(
+        name="growth_quality",
+        display_name="成长品质",
+        factor_ids=(
+            "barra_style_growth",
+            "barra_style_quality",
+        ),
+        description="成长和质量风格组合，用于成长品质、ROE 和利润质量类分析。",
+    ),
 }
 
 FACTOR_PROFILE_CHOICES = tuple(FACTOR_PROFILES)

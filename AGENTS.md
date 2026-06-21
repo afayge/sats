@@ -86,3 +86,12 @@ Any new user-callable SATS feature must keep all command surfaces in sync:
 - If the feature creates AI-generated screening rules, route it through `sats.screening.rule_composer`, write only to `sats/screening/rules/generated/`, require explicit user confirmation, and do not add arbitrary subprocess or shell-based code generation.
 
 FastAPI routes are added only when the feature is intended to be available over HTTP; the CLI, slash command, and README requirements apply to every user-callable command-line feature.
+
+## 7. Command Output Naming Constraint
+
+All user-facing command results must display a security name whenever they display a security code:
+
+- An A-share stock code must be accompanied by its stock name.
+- An index code must be accompanied by its index name.
+- This applies to one-shot CLI and REPL slash-command output, including text tables, Markdown, and JSON.
+- Resolve names through the local `stock_basic` cache and `AStockDataProvider`; do not call backend providers directly.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,6 +8,7 @@ from types import SimpleNamespace
 import pandas as pd
 
 from sats.analysis.market_llm_context import build_market_llm_context, get_a_share_market_context, is_market_question
+from sats.storage.duckdb import DuckDBStorage
 
 
 def _daily(symbol: str, *, end: str = "20260521") -> pd.DataFrame:
@@ -112,16 +114,21 @@ class _EmptyAkShareProvider:
 
 
 class MarketLLMContextTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        root = Path(self._tmp.name)
+        self.settings = SimpleNamespace(project_root=root, db_path=root / "sats.duckdb")
+
     def test_detects_market_question_without_stock_code(self) -> None:
         self.assertTrue(is_market_question("今天A股大盘分析，明天和下周走势预测"))
         self.assertTrue(is_market_question("上证和创业板今天怎么看"))
         self.assertFalse(is_market_question("帮我解释筛选规则"))
 
     def test_build_market_context_contains_indices_breadth_and_data_sources(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), db_path=Path("/tmp/sats.duckdb"))
         context = build_market_llm_context(
             "今天A股大盘分析，明天和下周走势预测",
-            settings=settings,
+            settings=self.settings,
             trade_date="20260521",
             tickflow_provider=_FakeTickFlowProvider(),
             tushare_provider=_EmptyTushareProvider(),
@@ -136,12 +143,13 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertEqual(payload["indices"][0]["ts_code"], "000001.SH")
         self.assertIn("399330.SZ", payload["requested_indices"])
         self.assertIn("ma60", payload["indices"][0]["technical"]["ma"])
+        self.assertEqual(payload["indices"][0]["weekly"]["trading_days"], 4)
         self.assertEqual(payload["market_breadth"]["advancing_count"], 2)
         self.assertEqual(payload["market_breadth"]["declining_count"], 2)
         self.assertEqual(payload["limit_sentiment"]["limit_up_count"], 1)
         self.assertEqual(payload["limit_sentiment"]["limit_down_count"], 1)
         self.assertIn("broken_limit_count:tushare_unavailable", payload["limit_sentiment"]["missing_fields"])
-        self.assertEqual(payload["data_sources"]["index_daily"], "tickflow_index_daily")
+        self.assertEqual(payload["data_sources"]["index_daily"], "astock_provider_cached")
         self.assertIn("limit_sentiment", payload["data_sources"])
         self.assertEqual(payload["hot_sector_context"]["hot_industries"][0]["name"], "电力")
         self.assertEqual(payload["hot_sector_context"]["hot_concepts"][0]["name"], "AI算力")
@@ -150,9 +158,8 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertIn("limit_sentiment 来自涨停、跌停、炸板统计", context.system_message)
 
     def test_market_context_respects_requested_dimensions_and_day_after_tomorrow(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), db_path=Path("/tmp/sats.duckdb"))
         payload = get_a_share_market_context(
-            settings=settings,
+            settings=self.settings,
             trade_date="20260521",
             horizons=["tomorrow", "day_after_tomorrow"],
             dimensions=["core_indices", "limit_sentiment"],
@@ -173,9 +180,8 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertEqual([item["ts_code"] for item in payload["indices"]], ["000001.SH", "399330.SZ"])
 
     def test_market_context_continues_when_breadth_missing(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), db_path=Path("/tmp/sats.duckdb"))
         payload = get_a_share_market_context(
-            settings=settings,
+            settings=self.settings,
             trade_date="20260521",
             tickflow_provider=_BrokenBreadthTickFlowProvider(),
             tushare_provider=_EmptyTushareProvider(),
@@ -187,15 +193,86 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertIn("limit_sentiment", payload["missing_fields"])
 
     def test_market_context_stops_when_core_index_daily_missing(self) -> None:
-        settings = SimpleNamespace(project_root=Path("."), db_path=Path("/tmp/sats.duckdb"))
         with self.assertRaisesRegex(ValueError, "核心指数真实日线数据"):
             get_a_share_market_context(
-                settings=settings,
+                settings=self.settings,
                 trade_date="20260521",
                 tickflow_provider=_EmptyProvider(),
                 tushare_provider=_EmptyTushareProvider(),
                 akshare_provider=_EmptyAkShareProvider(),
             )
+
+    def test_full_market_question_normalizes_aliases_and_warns_for_unsupported_dimension(self) -> None:
+        context = build_market_llm_context(
+            "评价和分析这周A股走势，最近走势，预测下周走势，以及热点板块",
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["breadth", "sentiment", "hot_sectors", "fund_flow"],
+            tickflow_provider=_FakeTickFlowProvider(),
+            tushare_provider=_EmptyTushareProvider(),
+            akshare_provider=_EmptyAkShareProvider(),
+        )
+
+        self.assertEqual(context.payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
+        self.assertEqual(context.payload["warnings"], ["unsupported_market_dimension:fund_flow"])
+        self.assertTrue(context.payload["indices"])
+        self.assertTrue(context.payload["market_breadth"])
+
+    def test_weekend_market_context_uses_cached_indices_and_complete_breadth_snapshot(self) -> None:
+        self.settings.market_breadth_min_count = 3
+        storage = DuckDBStorage(self.settings.db_path)
+        dates = ["20260612", "20260615", "20260616", "20260617", "20260618"]
+        for code in ("000001.SH", "399001.SZ", "399006.SZ"):
+            storage.upsert_industry_daily(
+                code,
+                pd.DataFrame(
+                    [
+                        {
+                            "index_code": code,
+                            "trade_date": trade_date,
+                            "open": 100 + index,
+                            "high": 102 + index,
+                            "low": 99 + index,
+                            "close": 101 + index,
+                            "vol": 1000 + index,
+                            "amount": 10000 + index,
+                            "pct_chg": 1.0,
+                            "data_source": "test_cache",
+                        }
+                        for index, trade_date in enumerate(dates)
+                    ]
+                ),
+            )
+        storage.upsert_stock_daily(
+            pd.DataFrame(
+                [
+                    {"ts_code": "000001.SZ", "trade_date": "20260617", "close": 10.0, "pct_chg": 1.0, "amount": 100.0},
+                    {"ts_code": "000002.SZ", "trade_date": "20260617", "close": 9.0, "pct_chg": -0.5, "amount": 80.0},
+                    {"ts_code": "600000.SH", "trade_date": "20260617", "close": 8.0, "pct_chg": 0.0, "amount": 120.0},
+                    {"ts_code": "600001.SH", "trade_date": "20260618", "close": 7.0, "pct_chg": -1.0, "amount": 70.0},
+                ]
+            )
+        )
+
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260620",
+            indices=["上证指数", "深证成指", "创业板指"],
+            tickflow_provider=_EmptyProvider(),
+            tushare_provider=_EmptyTushareProvider(),
+            akshare_provider=_EmptyAkShareProvider(),
+        )
+
+        self.assertEqual(payload["trade_date"], "20260618")
+        self.assertEqual(payload["periods"]["current_week"], {"start": "20260615", "end": "20260619", "data_through": "20260618"})
+        self.assertEqual(payload["periods"]["next_week"], {"start": "20260622", "end": "20260626"})
+        self.assertEqual(payload["data_sources"]["index_daily"], "duckdb_cache_incomplete")
+        self.assertEqual(payload["market_breadth"]["trade_date"], "20260617")
+        self.assertEqual(payload["market_breadth"]["total_count"], 3)
+        self.assertEqual(payload["market_breadth"]["advancing_count"], 1)
+        self.assertEqual(payload["market_breadth"]["declining_count"], 1)
+        self.assertTrue(payload["market_breadth"]["is_fallback"])
+        self.assertNotIn("market_breadth", payload["missing_fields"])
 
 
 if __name__ == "__main__":

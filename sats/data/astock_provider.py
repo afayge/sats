@@ -326,7 +326,7 @@ class AStockDataProvider(MarketDataProvider):
                 lambda: tushare.load_indicator_inputs(
                     clean_symbols,
                     str(end_date),
-                    lookback_days=180,
+                    lookback_days=_historical_daily_lookback_days(start_date, end_date),
                     storage=storage,
                 )
             )
@@ -354,7 +354,8 @@ class AStockDataProvider(MarketDataProvider):
             else:
                 frame = _safe_frame(lambda: tick.load_realtime_quotes(universe_id=universe_id))
             if not frame.empty:
-                frame.attrs["data_source"] = "tickflow_quote" if clean_symbols is not None else "tickflow_universe_quote"
+                default_source = "tickflow_quote" if clean_symbols is not None else "tickflow_universe_quote"
+                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or default_source)
                 return frame
         if clean_symbols is not None:
             ak = self.akshare
@@ -378,7 +379,7 @@ class AStockDataProvider(MarketDataProvider):
         if tick is not None and hasattr(tick, "load_realtime_daily_quotes"):
             frame = _safe_frame(lambda: tick.load_realtime_daily_quotes(clean_symbols, trade_date=trade_date))
             if not frame.empty:
-                frame.attrs["data_source"] = "tickflow_quote_daily"
+                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_quote_daily")
                 return frame
         quotes = self.load_realtime_quotes(symbols=clean_symbols)
         if quotes.empty:
@@ -541,14 +542,184 @@ class AStockDataProvider(MarketDataProvider):
             return {}
         return ak.load_fundamental_context(symbols)
 
+    def load_statement_context(self, symbols: list[str], *, trade_date: str, limit: int = 8) -> dict[str, dict[str, Any]]:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return {}
+        result: dict[str, dict[str, Any]] = {}
+        for ts_code in clean_symbols:
+            items: list[dict[str, Any]] = []
+            sources: dict[str, str] = {}
+            missing: list[str] = []
+            for dataset in ("income", "balancesheet", "cashflow", "fina_indicator"):
+                payload = self.fetch_tushare_stock_dataset(dataset, {"ts_code": ts_code}, limit=limit)
+                rows = _rows_on_or_before(payload.get("rows") or [], trade_date)
+                if rows:
+                    items.extend({"dataset": dataset, **row} for row in rows[:limit])
+                    sources[dataset] = str(payload.get("data_source") or f"tushare_{dataset}")
+                else:
+                    missing.append(f"statement:{dataset}:unavailable")
+            result[ts_code] = _context_payload(
+                items,
+                data_source="+".join(sources.values()) if sources else "unavailable",
+                missing_fields=missing,
+                data_sources=sources,
+            )
+        return result
+
+    def load_company_news_context(self, symbols: list[str], *, trade_date: str, lookback_days: int = 7, limit: int = 20) -> dict[str, dict[str, Any]]:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return {}
+        start_date = _days_before(str(trade_date), max(1, int(lookback_days or 7)))
+        result: dict[str, dict[str, Any]] = {}
+        for ts_code in clean_symbols:
+            items: list[dict[str, Any]] = []
+            sources: dict[str, str] = {}
+            missing: list[str] = []
+            for dataset in ("anns_d", "research_report", "irm_qa_sh", "irm_qa_sz"):
+                payload = self.fetch_tushare_dataset(
+                    dataset,
+                    {"ts_code": ts_code, "start_date": start_date, "end_date": str(trade_date)},
+                    limit=limit,
+                )
+                rows = payload.get("rows") or []
+                if rows:
+                    items.extend({"dataset": dataset, **row} for row in rows[:limit])
+                    sources[dataset] = str(payload.get("data_source") or f"tushare_{dataset}")
+                else:
+                    missing.append(f"company_news:{dataset}:unavailable")
+            ak_payload = self.fetch_akshare_dataset("stock_news_em", {"symbol": ts_code.split(".", 1)[0]}, limit=limit)
+            ak_rows = ak_payload.get("rows") or []
+            if ak_rows:
+                items.extend({"dataset": "stock_news_em", **row} for row in ak_rows[:limit])
+                sources["stock_news_em"] = str(ak_payload.get("data_source") or "akshare_stock_news_em")
+            result[ts_code] = _context_payload(
+                items[:limit],
+                data_source="+".join(sources.values()) if sources else "unavailable",
+                missing_fields=missing if not items else [],
+                data_sources=sources,
+            )
+        return result
+
+    def load_macro_news_context(self, *, trade_date: str, lookback_days: int = 7, limit: int = 30) -> dict[str, Any]:
+        start_date = _days_before(str(trade_date), max(1, int(lookback_days or 7)))
+        items: list[dict[str, Any]] = []
+        sources: dict[str, str] = {}
+        missing: list[str] = []
+        for dataset in ("news", "major_news", "cctv_news"):
+            payload = self.fetch_tushare_dataset(
+                dataset,
+                {"start_date": start_date, "end_date": str(trade_date), "date": str(trade_date)},
+                limit=limit,
+            )
+            rows = payload.get("rows") or []
+            if rows:
+                items.extend({"dataset": dataset, **row} for row in rows[:limit])
+                sources[dataset] = str(payload.get("data_source") or f"tushare_{dataset}")
+            else:
+                missing.append(f"macro_news:{dataset}:unavailable")
+        return _context_payload(
+            items[:limit],
+            data_source="+".join(sources.values()) if sources else "unavailable",
+            missing_fields=missing if not items else [],
+            data_sources=sources,
+        )
+
+    def load_holder_activity_context(self, symbols: list[str], *, trade_date: str, lookback_days: int = 90, limit: int = 20) -> dict[str, dict[str, Any]]:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return {}
+        start_date = _days_before(str(trade_date), max(1, int(lookback_days or 90)))
+        result: dict[str, dict[str, Any]] = {}
+        for ts_code in clean_symbols:
+            items: list[dict[str, Any]] = []
+            sources: dict[str, str] = {}
+            missing: list[str] = []
+            for dataset in ("stk_holdertrade", "pledge_stat", "repurchase", "block_trade"):
+                payload = self.fetch_tushare_stock_dataset(
+                    dataset,
+                    {"ts_code": ts_code, "start_date": start_date, "end_date": str(trade_date), "ann_date": str(trade_date)},
+                    limit=limit,
+                )
+                rows = payload.get("rows") or []
+                if rows:
+                    items.extend({"dataset": dataset, **row} for row in rows[:limit])
+                    sources[dataset] = str(payload.get("data_source") or f"tushare_{dataset}")
+                else:
+                    missing.append(f"holder_activity:{dataset}:unavailable")
+            result[ts_code] = _context_payload(
+                items[:limit],
+                data_source="+".join(sources.values()) if sources else "unavailable",
+                missing_fields=missing if not items else [],
+                data_sources=sources,
+            )
+        return result
+
+    def load_social_sentiment_context(self, symbols: list[str], *, limit: int = 50) -> dict[str, dict[str, Any]]:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return {}
+        names = _stock_name_lookup(self.load_stock_basic())
+        result: dict[str, dict[str, Any]] = {}
+        for ts_code in clean_symbols:
+            keywords = [ts_code.split(".", 1)[0]]
+            name = names.get(ts_code)
+            if name:
+                keywords.append(name)
+            try:
+                from sats.web.social_hot import hot_mentions
+
+                payload = hot_mentions(
+                    keywords[0],
+                    platforms=("xueqiu_stock", "xueqiu_spot", "weibo", "zhihu", "baidu"),
+                    limit=limit,
+                    extra_keywords=keywords[1:],
+                    settings=self.settings,
+                    use_cache=True,
+                )
+            except Exception as exc:
+                payload = {
+                    "status": "error",
+                    "items": [],
+                    "data_source": "unavailable",
+                    "missing_fields": [f"social_sentiment:unavailable:{type(exc).__name__}"],
+                }
+            result[ts_code] = {
+                **payload,
+                "data_source": payload.get("source") or payload.get("data_source") or "social_hot",
+                "missing_fields": list(payload.get("missing_fields") or ([] if payload.get("total_hits") else ["social_sentiment:empty_or_unavailable"])),
+            }
+        return result
+
     def load_realtime_quote_lookup(self, symbols: list[str]) -> dict[str, dict[str, Any]]:
         frame = self.load_realtime_quotes(symbols=symbols)
         return _records_by_symbol(frame)
 
     def load_news_context(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        symbols = kwargs.get("symbols")
+        trade_date = str(kwargs.get("trade_date") or "")
+        if symbols and trade_date:
+            per_symbol = self.load_company_news_context(list(symbols), trade_date=trade_date)
+            items = []
+            for ts_code, payload in per_symbol.items():
+                for item in payload.get("items") or []:
+                    items.append({"ts_code": ts_code, **item})
+            return _context_payload(items, data_source="company_news_context" if items else "unavailable", missing_fields=[] if items else ["news_context:unavailable"])
+        if trade_date:
+            return self.load_macro_news_context(trade_date=trade_date)
         return {"items": [], "missing_fields": ["news_context: provider_unavailable"], "data_source": "unavailable"}
 
     def load_event_context(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        symbols = kwargs.get("symbols")
+        trade_date = str(kwargs.get("trade_date") or "")
+        if symbols and trade_date:
+            per_symbol = self.load_holder_activity_context(list(symbols), trade_date=trade_date)
+            items = []
+            for ts_code, payload in per_symbol.items():
+                for item in payload.get("items") or []:
+                    items.append({"ts_code": ts_code, **item})
+            return _context_payload(items, data_source="holder_activity_context" if items else "unavailable", missing_fields=[] if items else ["event_context:unavailable"])
         return {"items": [], "missing_fields": ["event_context: provider_unavailable"], "data_source": "unavailable"}
 
     def list_tushare_stock_datasets(
@@ -636,6 +807,72 @@ class AStockDataProvider(MarketDataProvider):
                 dates.append(cursor.strftime("%Y%m%d"))
             cursor -= timedelta(days=1)
         return sorted(dates)
+
+
+def _context_payload(
+    items: list[dict[str, Any]],
+    *,
+    data_source: str,
+    missing_fields: list[str] | tuple[str, ...] | None = None,
+    data_sources: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "items": _jsonable(items),
+        "data_source": data_source or "unavailable",
+        "data_sources": dict(data_sources or {}),
+        "missing_fields": list(missing_fields or []),
+    }
+
+
+def _rows_on_or_before(rows: Any, trade_date: str) -> list[dict[str, Any]]:
+    if not isinstance(rows, list):
+        return []
+    cutoff = str(trade_date or "").replace("-", "")[:8]
+    result = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        date_value = ""
+        for key in ("f_ann_date", "ann_date", "pub_date", "end_date", "trade_date", "datetime", "date"):
+            raw = row.get(key)
+            if raw:
+                date_value = str(raw).replace("-", "")[:8]
+                break
+        if not cutoff or not date_value or date_value <= cutoff:
+            result.append(row)
+    return result
+
+
+def _stock_name_lookup(frame: pd.DataFrame | None) -> dict[str, str]:
+    if frame is None or frame.empty or "ts_code" not in frame.columns or "name" not in frame.columns:
+        return {}
+    return {
+        str(row.get("ts_code")): str(row.get("name") or "").strip()
+        for _, row in frame.iterrows()
+        if str(row.get("ts_code") or "").strip() and str(row.get("name") or "").strip()
+    }
+
+
+def _days_before(trade_date: str, calendar_days: int) -> str:
+    raw = str(trade_date or "").strip()
+    fmt = "%Y%m%d" if "-" not in raw else "%Y-%m-%d"
+    try:
+        end = datetime.strptime(raw, fmt)
+    except ValueError:
+        end = datetime.now()
+    return (end - timedelta(days=calendar_days)).strftime("%Y%m%d")
+
+
+def _historical_daily_lookback_days(start_date: int | str | None, end_date: int | str) -> int:
+    if start_date is None:
+        return 180
+    try:
+        start = datetime.strptime("".join(char for char in str(start_date) if char.isdigit())[:8], "%Y%m%d")
+        end = datetime.strptime("".join(char for char in str(end_date) if char.isdigit())[:8], "%Y%m%d")
+    except ValueError:
+        return 180
+    calendar_days = max(0, (end - start).days)
+    return max(180, (calendar_days + 1) // 2 + 5)
 
 
 def _safe_frame(loader: Callable[[], Any]) -> pd.DataFrame:

@@ -9,7 +9,7 @@ from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.models import AgentExecutionPolicy, AgentObservation, AgentResult, AgentStep, TradeIntent
 from sats.agent.planner import build_agent_plan
 from sats.agent.python_runtime import RestrictedPythonRuntime
-from sats.agent.synthesis import save_agent_report, should_write_agent_report, synthesize_agent_result
+from sats.agent.synthesis import collect_agent_sources, save_agent_report, should_write_agent_report, synthesize_agent_result
 from sats.agent.tools import AgentToolContext, AgentToolRegistry, build_default_tool_registry
 from sats.agent.trading import AgentTradingExecutor
 from sats.chat_events import ChatEventSink, ChatTurnRecorder
@@ -114,6 +114,7 @@ def run_agent_once(
                 observations=observations,
                 trade_context={"source_step_id": step.step_id},
             )
+            observation = _with_step_verification(step, observation)
             observations.append(observation)
             recorder.complete_item(
                 item_id,
@@ -259,6 +260,7 @@ def run_agent_once(
             data_names=tuple(data_names),
             skill_names=synthesis.skill_names,
             artifacts=tuple(artifacts),
+            sources=tuple(collect_agent_sources(tuple(observations))),
             turn_id=recorder.turn_id,
             session_id=session_id,
         )
@@ -301,6 +303,9 @@ def _execute_step(
     observations: list[AgentObservation],
     trade_context: dict[str, Any],
 ) -> AgentObservation:
+    gated = _gated_step_observation(step, tool_registry=tool_registry, policy=command_runner.policy)
+    if gated is not None:
+        return gated
     if step.kind == "tool":
         if step.tool_name == "research.write_report" and not str(step.arguments.get("content") or "").strip():
             return AgentObservation(
@@ -372,6 +377,59 @@ def _execute_step(
             payload=audit.to_dict(),
         )
     return AgentObservation(step_id=step.step_id, kind=step.kind, status="done", content=step.title or "done")
+
+
+def _gated_step_observation(step: Any, *, tool_registry: AgentToolRegistry, policy: AgentExecutionPolicy) -> AgentObservation | None:
+    side_effect = str(getattr(step, "side_effect", "") or "readonly")
+    requires_confirmation = bool(getattr(step, "requires_confirmation", False))
+    if getattr(step, "kind", "") == "tool":
+        spec = tool_registry.get(str(getattr(step, "tool_name", "") or ""))
+        if spec is not None:
+            side_effect = side_effect or spec.side_effect
+            requires_confirmation = requires_confirmation or bool(spec.requires_confirmation)
+    if requires_confirmation:
+        return AgentObservation(
+            step_id=step.step_id,
+            kind=step.kind,
+            status="error",
+            content=f"{step.title or step.step_id} requires confirmation before execution",
+            payload={"requires_confirmation": True, "side_effect": side_effect},
+        )
+    if bool(getattr(policy, "dry_run", False)) and side_effect in {"write_artifact", "long_running", "live_trade"}:
+        return AgentObservation(
+            step_id=step.step_id,
+            kind=step.kind,
+            status="done",
+            content=f"dry-run skipped {step.title or step.step_id}",
+            payload={"dry_run_skipped": True, "side_effect": side_effect},
+        )
+    return None
+
+
+def _with_step_verification(step: Any, observation: AgentObservation) -> AgentObservation:
+    payload = dict(observation.payload or {})
+    if payload.get("dry_run_skipped"):
+        status = "skipped"
+        message = "dry-run skipped side-effectful step"
+    elif observation.status == "done":
+        status = "passed"
+        message = "step completed"
+    else:
+        status = "failed"
+        message = observation.content or "step failed"
+    payload["verification"] = {
+        "name": f"{step.step_id}_completed",
+        "status": status,
+        "message": message,
+        "success_criteria": str(getattr(step, "success_criteria", "") or ""),
+    }
+    return AgentObservation(
+        step_id=observation.step_id,
+        kind=observation.kind,
+        status=observation.status,
+        content=observation.content,
+        payload=payload,
+    )
 
 
 def _trade_intent(payload: dict[str, Any], *, source_step_id: str) -> TradeIntent:

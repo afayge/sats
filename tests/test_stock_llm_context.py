@@ -145,6 +145,37 @@ class StockLLMContextTest(unittest.TestCase):
             self.assertTrue(all(call["end_time"] == "2026-05-15 10:30:00" for call in _FakeTickFlowProvider.historical_calls))
             self.assertIn("不得编造价格", context.system_message)
 
+    def test_fuzzy_period_return_uses_recent_trading_window_for_non_trading_as_of(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+
+            with (
+                patch("sats.analysis.stock_llm_context._resolve_trade_date", return_value="20260620"),
+                patch("sats.data.astock_provider.TickFlowDataProvider", _FakeTickFlowProvider),
+                patch("sats.data.astock_provider.TushareDataProvider", _EmptyTushareProvider),
+            ):
+                context = build_stock_llm_context(
+                    "看002436 6个月内涨跌幅",
+                    settings=settings,
+                    storage=DuckDBStorage(settings.db_path),
+                )
+
+            self.assertIsNotNone(context)
+            payload = context.payload
+            stock = payload["stocks"][0]
+            period = stock["period_returns"]["6m"]
+            self.assertEqual(payload["requested_trade_date"], "20260620")
+            self.assertEqual(payload["trade_date"], "20260619")
+            self.assertEqual(stock["requested_trade_date"], "20260620")
+            self.assertEqual(stock["trade_date"], "20260619")
+            self.assertEqual(period["calendar_start"], "20251220")
+            self.assertEqual(period["calendar_end"], "20260620")
+            self.assertEqual(period["start_trade_date"], "20251222")
+            self.assertEqual(period["end_trade_date"], "20260619")
+            self.assertGreater(period["trading_days"], 100)
+            self.assertIn("pct_change", period)
+            self.assertNotIn("coverage_warning", period)
+
     def test_ensure_stock_analysis_data_fetches_15m_30m_without_caching(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")

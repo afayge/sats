@@ -13,14 +13,13 @@ def chat_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
             name="chat.answer",
-            description="普通问答、解释、总结、命令帮助。只做最终回答合成，不再递归进入 ChatSession。",
+            description="单步骤普通问答、解释和命令帮助。不读取 Agent 前序 observations，也不负责研究结果汇总。",
             category="chat",
             side_effect="readonly",
             timeout=60,
             input_schema=object_schema(
                 {
                     "message": {"type": "string"},
-                    "knowledge": {"type": "string"},
                     "no_memory": {"type": "boolean"},
                 },
                 ["message"],
@@ -70,7 +69,6 @@ def _answer(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolRe
         settings=context.settings,
         skills=list(context.skills) or None,
         llm_factory=context.llm_factory,
-        knowledge=str(arguments.get("knowledge") or "").strip() or None,
     )
     payload = {
         "skill_names": [item.name for item in context.skills],

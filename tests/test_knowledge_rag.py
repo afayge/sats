@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from sats.rag.knowledge import KnowledgeStore, load_document_chunks
+from sats.rag.knowledge import KnowledgeStore, infer_stock_collections, load_document_chunks
 from sats.storage.duckdb import DuckDBStorage
 
 
@@ -98,6 +98,22 @@ class KnowledgeRagTest(unittest.TestCase):
             cases = {
                 ("factor 多因子", "signals"): "skills/quant-factor-screener/SKILL.md",
                 ("均线金叉", "technical"): "skills/ma-golden-cross/SKILL.md",
+                ("开盘溢价率 负溢价", "price-action"): "knowledge/price_action/opening_premium_retention.md",
+                ("缩量阴线 止损", "price-action"): "knowledge/price_action/retail_candlestick_discipline.md",
+                ("量价齐升 成交量放大", "price-action"): "knowledge/price_action/volume_price_relationship_patterns.md",
+                ("放量下跌 空方力量", "price-action"): "knowledge/price_action/volume_price_relationship_patterns.md",
+                ("60日线不穿 看空", "price-action"): "knowledge/price_action/moving_average_signal_patterns.md",
+                ("线上缩量阴 主力洗盘", "price-action"): "knowledge/price_action/moving_average_signal_patterns.md",
+                ("RSI低于20 高于80", "price-action"): "knowledge/price_action/rsi_extreme_reversal_discipline.md",
+                ("RSI战法 顶背离 底背离", "price-action"): "knowledge/price_action/rsi_extreme_reversal_discipline.md",
+                ("主升浪首次分歧 缩量回踩", "price-action"): "knowledge/price_action/trend_execution_five_disciplines.md",
+                ("量比低于1.5 RPS强度", "price-action"): "knowledge/price_action/trend_execution_five_disciplines.md",
+                ("左倍量抄底 右倍量逃顶", "price-action"): "knowledge/price_action/left_right_double_volume_discipline.md",
+                ("阳柱左倍量 黄金坑 倍量低点", "price-action"): "knowledge/price_action/left_right_double_volume_discipline.md",
+                ("520均线战法 20日线向上 金叉买点", "price-action"): "knowledge/price_action/moving_average_520_discipline.md",
+                ("回踩买点 缩量回踩20日线 死叉清仓", "price-action"): "knowledge/price_action/moving_average_520_discipline.md",
+                ("回踩均线洗盘 缩量企稳 放量突破", "price-action"): "knowledge/price_action/main_force_washout_patterns.md",
+                ("假跌破支撑洗盘 快速收回支撑", "price-action"): "knowledge/price_action/main_force_washout_patterns.md",
                 ("放量突破", "signals"): "skills/volume-breakout/SKILL.md",
                 ("热点题材", "market"): "skills/hot-theme/SKILL.md",
                 ("情绪周期", "sentiment"): "skills/emotion-cycle/SKILL.md",
@@ -112,11 +128,36 @@ class KnowledgeRagTest(unittest.TestCase):
                 expected_path: store.search(query, knowledge=knowledge, limit=5)
                 for (query, knowledge), expected_path in cases.items()
             }
+            natural_rows = store.search(
+                "量价背离和放量下跌怎么判断",
+                collections=("technical", "price-action"),
+                limit=5,
+            )
 
         self.assertGreater(count, 0)
         for expected_path, rows in results.items():
             with self.subTest(expected_path=expected_path):
                 self.assertTrue(any(row.source_path == expected_path for row in rows))
+        self.assertTrue(
+            any(row.source_path == "knowledge/price_action/volume_price_relationship_patterns.md" for row in natural_rows)
+        )
+
+    def test_price_action_queries_infer_price_action_collection(self) -> None:
+        self.assertIn("price-action", infer_stock_collections("开盘溢价率为负，今天该走还是该留"))
+        self.assertIn("price-action", infer_stock_collections("缩量阴线踩支撑后如何设置止损"))
+        self.assertIn("price-action", infer_stock_collections("量价背离和放量下跌怎么判断"))
+        self.assertIn("price-action", infer_stock_collections("60日均线不穿还能看多吗"))
+        self.assertIn("price-action", infer_stock_collections("线上缩量阴是不是主力洗盘"))
+        self.assertIn("price-action", infer_stock_collections("RSI低于20能不能满仓买"))
+        self.assertIn("price-action", infer_stock_collections("RSI 低于 20 后出现底背离"))
+        self.assertIn("price-action", infer_stock_collections("主升浪首次分歧后缩量回踩怎么处理"))
+        self.assertIn("price-action", infer_stock_collections("量比低于1.5但RPS强度高能买吗"))
+        self.assertIn("price-action", infer_stock_collections("左倍量抄底右倍量逃顶怎么判断"))
+        self.assertIn("price-action", infer_stock_collections("阳柱左倍量后黄金坑有没有跌破倍量低点"))
+        self.assertIn("price-action", infer_stock_collections("520均线战法里20日线向上怎么找金叉买点"))
+        self.assertIn("price-action", infer_stock_collections("缩量回踩20日线后跌破5日线要不要死叉清仓"))
+        self.assertIn("price-action", infer_stock_collections("大阴线洗盘后快速收回支撑是不是洗盘"))
+        self.assertIn("price-action", infer_stock_collections("三角形洗盘旗形整理放量突破上轨怎么判断"))
 
 
 if __name__ == "__main__":

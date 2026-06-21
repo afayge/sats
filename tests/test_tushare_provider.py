@@ -184,7 +184,7 @@ class FakeMissingCurrentPro(FakeBatchPro):
         self.basic_rows = make_daily_basic(end="20260513")
 
     def rt_k(self, **kwargs):
-        raise RuntimeError("no rt_k permission")
+        raise AssertionError("must not call rt_k")
 
 
 class FakeRefreshCurrentPro(FakeBatchPro):
@@ -219,7 +219,6 @@ class FakeRealtimeCurrentPro(FakeBatchPro):
         self.trade_dates = make_trade_dates(70, end="20260514")
         self.daily_rows = make_passing_daily(end="20260513")
         self.basic_rows = make_daily_basic(end="20260513")
-        self.rt_k_calls: list[dict] = []
         self.premarket_calls: list[dict] = []
 
     def daily(self, **kwargs):
@@ -237,22 +236,7 @@ class FakeRealtimeCurrentPro(FakeBatchPro):
         return self.basic_rows[self.basic_rows["trade_date"].astype(str) == trade_date].copy()
 
     def rt_k(self, **kwargs):
-        self.rt_k_calls.append(kwargs)
-        return pd.DataFrame(
-            [
-                {
-                    "ts_code": "000001.SZ",
-                    "trade_time": "2026-05-14 14:58:00",
-                    "open": 13.0,
-                    "high": 13.6,
-                    "low": 12.9,
-                    "close": 13.5,
-                    "pre_close": 13.0,
-                    "vol": 120000.0,
-                    "amount": 162000000.0,
-                }
-            ]
-        )
+        raise AssertionError("must not call rt_k")
 
     def stk_premarket(self, **kwargs):
         self.premarket_calls.append(kwargs)
@@ -270,26 +254,10 @@ class FakeRealtimeCurrentPro(FakeBatchPro):
 class FakeForcedRealtimeCachedPro(FakeBatchPro):
     def __init__(self) -> None:
         super().__init__()
-        self.rt_k_calls: list[dict] = []
         self.premarket_calls: list[dict] = []
 
     def rt_k(self, **kwargs):
-        self.rt_k_calls.append(kwargs)
-        return pd.DataFrame(
-            [
-                {
-                    "ts_code": "000001.SZ",
-                    "trade_time": "2026-04-30 10:00:00",
-                    "open": 98.0,
-                    "high": 100.0,
-                    "low": 97.0,
-                    "close": 99.0,
-                    "pre_close": 95.0,
-                    "vol": 40000000.0,
-                    "amount": 3960000000.0,
-                }
-            ]
-        )
+        raise AssertionError("must not call rt_k")
 
     def stk_premarket(self, **kwargs):
         self.premarket_calls.append(kwargs)
@@ -305,9 +273,7 @@ class FakeForcedRealtimeCachedPro(FakeBatchPro):
 
 
 class FakeForcedRealtimeFailurePro(FakeForcedRealtimeCachedPro):
-    def rt_k(self, **kwargs):
-        self.rt_k_calls.append(kwargs)
-        raise RuntimeError("rt_k denied")
+    pass
 
 
 def _stock_daily(ts_code: str, *, latest_volume: float = 1200.0, ma_stack: bool = True) -> pd.DataFrame:
@@ -437,7 +403,6 @@ class FakePriceVolumeForcedRealtimePro:
         self.daily_calls: list[dict] = []
         self.daily_basic_calls: list[dict] = []
         self.pro_bar_calls: list[dict] = []
-        self.rt_k_calls: list[dict] = []
         self.premarket_calls: list[dict] = []
 
     def stock_basic(self, **kwargs):
@@ -461,22 +426,7 @@ class FakePriceVolumeForcedRealtimePro:
         raise AssertionError("forced realtime price_volume_ma must not call pro_bar")
 
     def rt_k(self, **kwargs):
-        self.rt_k_calls.append(kwargs)
-        return pd.DataFrame(
-            [
-                {
-                    "ts_code": "000001.SZ",
-                    "trade_time": "2026-04-30 10:00:00",
-                    "open": 13.0,
-                    "high": 13.6,
-                    "low": 12.9,
-                    "close": 13.5,
-                    "pre_close": 12.9807692308,
-                    "vol": 40000000.0,
-                    "amount": 540000000.0,
-                }
-            ]
-        )
+        raise AssertionError("must not call rt_k")
 
     def stk_premarket(self, **kwargs):
         self.premarket_calls.append(kwargs)
@@ -575,10 +525,10 @@ class FakeChanTickFlowProvider:
 class FakeFallbackTickFlowProvider(FakeChanTickFlowProvider):
     stock_basic_calls = 0
     daily_calls: list[dict] = []
-    quote_calls: list[dict] = []
+    minute_quote_calls: list[dict] = []
     daily_basic_like_calls: list[dict] = []
     fail_daily = False
-    fail_quotes = False
+    fail_minute_quotes = False
     fail_stock_basic = False
     fail_daily_basic_like = False
 
@@ -609,9 +559,11 @@ class FakeFallbackTickFlowProvider(FakeChanTickFlowProvider):
         return frame
 
     def load_realtime_daily_quotes(self, symbols, *, trade_date):
-        type(self).quote_calls.append({"symbols": list(symbols), "trade_date": trade_date})
-        if type(self).fail_quotes:
-            raise TimeoutError("tickflow quote timeout")
+        type(self).minute_quote_calls.append(
+            {"symbols": list(symbols), "trade_date": trade_date, "period": "1m", "count": 1}
+        )
+        if type(self).fail_minute_quotes:
+            raise TimeoutError("tickflow 1m minute timeout")
         return pd.DataFrame(
             [
                 {
@@ -664,6 +616,34 @@ class FakeFallbackTickFlowProvider(FakeChanTickFlowProvider):
         frame = pd.DataFrame(rows)
         frame.attrs["daily_basic_source"] = "tickflow_realtime_basic_like"
         return frame
+
+
+class FakePriceVolumeRealtimeTickFlowProvider(FakeFallbackTickFlowProvider):
+    minute_quote_calls: list[dict] = []
+    fail_minute_quotes = False
+
+    def load_realtime_daily_quotes(self, symbols, *, trade_date):
+        type(self).minute_quote_calls.append(
+            {"symbols": list(symbols), "trade_date": trade_date, "period": "1m", "count": 1}
+        )
+        if type(self).fail_minute_quotes:
+            raise TimeoutError("tickflow 1m minute timeout")
+        return pd.DataFrame(
+            [
+                {
+                    "ts_code": symbol,
+                    "trade_date": trade_date,
+                    "open": 13.0,
+                    "high": 13.6,
+                    "low": 12.9,
+                    "close": 13.5,
+                    "vol": 400000.0,
+                    "amount": 540000.0,
+                    "pct_chg": 4.0,
+                }
+                for symbol in symbols
+            ]
+        )
 
 
 class FakeMonthlyTickFlowProvider:
@@ -1074,12 +1054,16 @@ class TushareDataProviderTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakeRealtimeCurrentPro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             provider._stock_basic_cache = {}
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            FakeFallbackTickFlowProvider.minute_quote_calls = []
+            FakeFallbackTickFlowProvider.fail_minute_quotes = False
 
             with (
                 patch("sats.data.tushare_provider._is_today_shanghai", return_value=True),
                 patch("sats.data.tushare_provider._is_a_share_trading_time_now", return_value=False),
+                patch("sats.data.tushare_provider.TickFlowDataProvider", FakeFallbackTickFlowProvider),
             ):
                 inputs = provider.load_all_screening_inputs("20260514", storage=storage)
 
@@ -1092,14 +1076,18 @@ class TushareDataProviderTest(unittest.TestCase):
             self.assertEqual(str(latest_basic["trade_date"]), "20260514")
             self.assertAlmostEqual(float(latest_basic["turnover_rate"]), 1200.0 / 15_000.0)
             self.assertAlmostEqual(float(latest_basic["circ_mv"]), 13.5 * 15_000.0)
-            self.assertEqual(inputs[0].metadata["data_source"], "tushare_rt_k")
-            self.assertEqual(len(provider.pro.rt_k_calls), 1)
+            self.assertEqual(inputs[0].metadata["data_source"], "tickflow_realtime_minute_quote")
+            self.assertEqual(
+                FakeFallbackTickFlowProvider.minute_quote_calls,
+                [{"symbols": ["000001.SZ"], "trade_date": "20260514", "period": "1m", "count": 1}],
+            )
             self.assertEqual(len(provider.pro.premarket_calls), 1)
 
     def test_today_trading_hours_forces_realtime_even_with_cached_daily_data(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakeForcedRealtimeCachedPro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             provider._stock_basic_cache = {}
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
 
@@ -1107,17 +1095,23 @@ class TushareDataProviderTest(unittest.TestCase):
             stored_before = storage.get_stock_daily(["20260430"]).iloc[-1]["close"]
             provider.pro.daily_calls.clear()
             provider.pro.daily_basic_calls.clear()
+            FakeFallbackTickFlowProvider.minute_quote_calls = []
+            FakeFallbackTickFlowProvider.fail_minute_quotes = False
 
             with (
                 patch("sats.data.tushare_provider._is_today_shanghai", return_value=True),
                 patch("sats.data.tushare_provider._is_a_share_trading_time_now", return_value=True),
+                patch("sats.data.tushare_provider.TickFlowDataProvider", FakeFallbackTickFlowProvider),
             ):
                 inputs = provider.load_all_screening_inputs("20260430", storage=storage)
 
             latest_daily = inputs[0].daily.tail(1).iloc[0]
-            self.assertEqual(inputs[0].metadata["data_source"], "tushare_rt_k_forced")
-            self.assertEqual(float(latest_daily["close"]), 99.0)
-            self.assertEqual(len(provider.pro.rt_k_calls), 1)
+            self.assertEqual(inputs[0].metadata["data_source"], "tickflow_realtime_minute_quote")
+            self.assertEqual(float(latest_daily["close"]), 13.5)
+            self.assertEqual(
+                FakeFallbackTickFlowProvider.minute_quote_calls,
+                [{"symbols": ["000001.SZ"], "trade_date": "20260430", "period": "1m", "count": 1}],
+            )
             self.assertEqual(len(provider.pro.premarket_calls), 1)
             self.assertEqual([call for call in provider.pro.daily_calls if call.get("trade_date") == "20260430"], [])
             stored_after = storage.get_stock_daily(["20260430"]).iloc[-1]["close"]
@@ -1139,26 +1133,34 @@ class TushareDataProviderTest(unittest.TestCase):
                 inputs = provider.load_all_screening_inputs("20260430", storage=storage)
 
             self.assertEqual(inputs[0].metadata["data_source"], "tushare_daily")
-            self.assertEqual(provider.pro.rt_k_calls, [])
 
     def test_forced_realtime_failure_uses_same_day_cache_without_overwriting(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakeForcedRealtimeFailurePro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             provider._stock_basic_cache = {}
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
 
             provider.load_all_screening_inputs("20260430", storage=storage)
             cached_rows_before = len(storage.get_stock_daily(["20260430"]))
+            FakeFallbackTickFlowProvider.minute_quote_calls = []
+            FakeFallbackTickFlowProvider.fail_minute_quotes = True
 
             with (
                 patch("sats.data.tushare_provider._is_today_shanghai", return_value=True),
                 patch("sats.data.tushare_provider._is_a_share_trading_time_now", return_value=True),
+                patch("sats.data.tushare_provider.TickFlowDataProvider", FakeFallbackTickFlowProvider),
             ):
                 inputs = provider.load_all_screening_inputs("20260430", storage=storage)
 
             self.assertEqual(inputs[0].metadata["data_source"], "duckdb_cache_after_provider_failure")
+            self.assertEqual(
+                FakeFallbackTickFlowProvider.minute_quote_calls,
+                [{"symbols": ["000001.SZ"], "trade_date": "20260430", "period": "1m", "count": 1}],
+            )
             self.assertEqual(len(storage.get_stock_daily(["20260430"])), cached_rows_before)
+            FakeFallbackTickFlowProvider.fail_minute_quotes = False
 
     def test_stock_basic_timeout_falls_back_to_tickflow_and_caches(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1284,46 +1286,56 @@ class TushareDataProviderTest(unittest.TestCase):
             self.assertTrue(inputs[0].daily_basic.empty)
             self.assertEqual(FakeFallbackTickFlowProvider.daily_basic_like_calls, [])
 
-    def test_realtime_rt_k_failure_falls_back_to_tickflow_quote(self) -> None:
+    def test_forced_realtime_tickflow_failure_without_cache_raises_short_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakeForcedRealtimeFailurePro()
             provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             provider._stock_basic_cache = {}
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
-            FakeFallbackTickFlowProvider.quote_calls = []
-            FakeFallbackTickFlowProvider.fail_quotes = False
-
-            provider.load_all_screening_inputs("20260430", storage=storage)
+            FakeFallbackTickFlowProvider.minute_quote_calls = []
+            FakeFallbackTickFlowProvider.fail_minute_quotes = True
 
             with (
                 patch("sats.data.tushare_provider._is_today_shanghai", return_value=True),
                 patch("sats.data.tushare_provider._is_a_share_trading_time_now", return_value=True),
                 patch("sats.data.tushare_provider.TickFlowDataProvider", FakeFallbackTickFlowProvider),
             ):
-                inputs = provider.load_all_screening_inputs("20260430", storage=storage)
+                with self.assertRaisesRegex(ValueError, "daily 实时数据不可用"):
+                    provider.load_all_screening_inputs("20260430", storage=storage)
 
-            self.assertEqual(inputs[0].metadata["data_source"], "tickflow_realtime_quote")
-            self.assertEqual(len(FakeFallbackTickFlowProvider.quote_calls), 1)
+            self.assertEqual(
+                FakeFallbackTickFlowProvider.minute_quote_calls,
+                [{"symbols": ["000001.SZ"], "trade_date": "20260430", "period": "1m", "count": 1}],
+            )
+            FakeFallbackTickFlowProvider.fail_minute_quotes = False
 
     def test_price_volume_ma_forced_realtime_uses_overlay_without_external_ma_calls(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakePriceVolumeForcedRealtimePro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             provider._stock_basic_cache = {}
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            FakePriceVolumeRealtimeTickFlowProvider.minute_quote_calls = []
+            FakePriceVolumeRealtimeTickFlowProvider.fail_minute_quotes = False
 
             with (
                 patch("sats.data.tushare_provider._is_today_shanghai", return_value=True),
                 patch("sats.data.tushare_provider._is_a_share_trading_time_now", return_value=True),
                 patch("sats.data.tushare_provider.ts.pro_bar", side_effect=AssertionError("must not call pro_bar")),
+                patch("sats.data.tushare_provider.TickFlowDataProvider", FakePriceVolumeRealtimeTickFlowProvider),
             ):
                 inputs = provider.load_all_screening_inputs("20260430", storage=storage, rule_name="price_volume_ma")
 
             metadata = inputs[0].metadata["price_volume_ma"]
-            self.assertEqual(inputs[0].metadata["data_source"], "tushare_rt_k_forced")
+            self.assertEqual(inputs[0].metadata["data_source"], "tickflow_realtime_minute_quote")
             self.assertTrue(metadata["selected"], metadata)
             self.assertEqual(metadata["selection_source"], "current+legacy")
+            self.assertEqual(
+                FakePriceVolumeRealtimeTickFlowProvider.minute_quote_calls,
+                [{"symbols": ["000001.SZ"], "trade_date": "20260430", "period": "1m", "count": 1}],
+            )
             self.assertEqual(provider.pro.pro_bar_calls, [])
             self.assertEqual([call for call in provider.pro.daily_calls if "ts_code" in call], [])
 
@@ -1509,15 +1521,19 @@ class TushareDataProviderTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             provider = object.__new__(TushareDataProvider)
             provider.pro = FakeForcedRealtimeCachedPro()
+            provider.settings = SimpleNamespace(tickflow_api_key="key", tickflow_base_url="https://api.tickflow.org")
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            FakeFallbackTickFlowProvider.minute_quote_calls = []
+            FakeFallbackTickFlowProvider.fail_minute_quotes = False
 
-            data_source = provider._ensure_current_trade_date_data(
-                storage,
-                "20260430",
-                _stock_basic_rows(["000001.SZ"]),
-                force_realtime=True,
-                require_daily_basic=False,
-            )
+            with patch("sats.data.tushare_provider.TickFlowDataProvider", FakeFallbackTickFlowProvider):
+                data_source = provider._ensure_current_trade_date_data(
+                    storage,
+                    "20260430",
+                    _stock_basic_rows(["000001.SZ"]),
+                    force_realtime=True,
+                    require_daily_basic=False,
+                )
 
             self.assertEqual(data_source["daily_basic_source"], "skipped_for_chan_third_buy")
             self.assertIsNone(data_source["realtime_basic"])
@@ -1542,7 +1558,7 @@ class TushareDataProviderTest(unittest.TestCase):
                     trade_date="20260430",
                     storage=storage,
                     use_realtime=True,
-                    data_source="tushare_rt_k_forced",
+                    data_source="tickflow_realtime_minute_quote",
                 )
 
             self.assertEqual([call["mode"] for call in FakeChanTickFlowProvider.calls], ["history", "realtime"])
@@ -1570,7 +1586,7 @@ class TushareDataProviderTest(unittest.TestCase):
                     trade_date="20260430",
                     storage=storage,
                     use_realtime=True,
-                    data_source="tushare_rt_k_forced",
+                    data_source="tickflow_realtime_minute_quote",
                 )
 
             self.assertEqual([call["mode"] for call in FakeChanTickFlowProvider.calls], ["history", "realtime"])
@@ -1597,7 +1613,7 @@ class TushareDataProviderTest(unittest.TestCase):
                         trade_date="20260430",
                         storage=storage,
                         use_realtime=True,
-                        data_source="tushare_rt_k_forced",
+                        data_source="tickflow_realtime_minute_quote",
                     )
 
             FakeChanTickFlowProvider.fail_realtime = False
@@ -1622,7 +1638,7 @@ class TushareDataProviderTest(unittest.TestCase):
                         trade_date="20260430",
                         storage=storage,
                         use_realtime=True,
-                        data_source="tushare_rt_k_forced",
+                        data_source="tickflow_realtime_minute_quote",
                     )
 
             FakeChanTickFlowProvider.fail_realtime = False

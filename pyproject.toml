@@ -15,6 +15,7 @@ dependencies = [
     "langchain>=0.1.0",
     "langchain-core>=0.1.0",
     "langchain-openai>=0.0.5",
+    "openai>=2.0",
     "fastapi>=0.110",
     "uvicorn>=0.27",
     "pydantic>=2.0",
@@ -24,12 +25,15 @@ dependencies = [
     "pypdf>=4.0",
     "reportlab>=4.0",
     "ddgs>=9.0.0",
+    "httpx>=0.27",
+    "trafilatura>=2.0",
 ]
 
 [project.optional-dependencies]
 akshare = ["akshare>=1.16"]
 ml = ["pyqlib", "lightgbm", "xgboost", "scikit-learn"]
 deep = ["torch"]
+web-rag = ["fastembed>=0.7"]
 
 [project.scripts]
 sats = "sats.cli:main"

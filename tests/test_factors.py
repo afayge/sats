@@ -17,6 +17,7 @@ from sats.factors.analysis import analyze_factor_panel
 from sats.factors.composite import compute_factor_panels, compose_scores, pick_top
 from sats.factors.ml import predict_factor_ml_model, train_factor_ml_model
 from sats.factors.panel import panel_from_screening_inputs
+from sats.factors.profiles import get_factor_profile
 from sats.factors.registry import Registry, SkipAlpha
 from sats.factors.service import compute_factor_snapshot, summarize_factor_exposure
 from sats.screening.base import ScreeningInput
@@ -105,6 +106,12 @@ class FactorAnalysisAndPickTest(unittest.TestCase):
         self.assertEqual(exposure["ts_code"], "000001.SZ")
         self.assertIn("barra_style_value", exposure["factor_values"])
         self.assertFalse(np.isinf(float(exposure["score"])))
+
+    def test_growth_quality_profile_maps_growth_and_quality_factors(self) -> None:
+        profile = get_factor_profile("growth_quality")
+
+        self.assertEqual(profile.display_name, "成长品质")
+        self.assertEqual(profile.factor_ids, ("barra_style_growth", "barra_style_quality"))
 
 
 class FactorCliTest(unittest.TestCase):

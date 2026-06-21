@@ -98,6 +98,7 @@ def run_dsa_analysis(
     tushare_provider: Any | None = None,
     akshare_provider: Any | None = None,
     progress: Any | None = None,
+    report: bool = True,
 ) -> DsaAnalysisRunResult:
     settings = settings or load_settings()
     storage = storage or DuckDBStorage(settings.db_path)
@@ -267,7 +268,10 @@ def run_dsa_analysis(
         )
         for item in analyses
     ]
-    if progress is None:
+    report_path: Path | None = None
+    if not report:
+        report_path = None
+    elif progress is None:
         report_path = _write_report(analyses, trade_date=trade_date, reports_dir=reports_dir, source_label=source_label)
     else:
         with progress.step("报告生成", total=1) as step:

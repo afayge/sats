@@ -9,10 +9,14 @@ import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
+from unittest.mock import patch
 
+from sats.trading.broker import BrokerError
 from sats.trading.miniqmt_client import MiniQmtBrokerClient
 from sats.trading.models import OrderRequest
+from sats.trading.qmt_bridge import QmtBridgeConfig, XtQuantQmtGateway
 
 
 _SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "qmt_windows_bridge.py"
@@ -193,6 +197,53 @@ class QmtWindowsBridgeTest(unittest.TestCase):
         self.assertEqual(bridge.gateway.order_payloads[0]["symbol"], "000001.SZ")
         self.assertTrue(bridge.gateway.open_only_values[-1])
 
+    def test_miniqmt_client_rejects_missing_null_duplicate_and_malformed_positions(self) -> None:
+        client = MiniQmtBrokerClient(base_url="http://127.0.0.1:8765", account_id="acct")
+        valid = {
+            "stock_code": "000001.SZ",
+            "volume": 100,
+            "can_use_volume": 100,
+            "open_price": 10,
+        }
+
+        for payload in ({}, {"positions": None}, {"positions": "bad"}, {"positions": [None]}):
+            with self.subTest(payload=payload), patch.object(client, "_request", return_value=payload):
+                with self.assertRaises(BrokerError):
+                    client.positions()
+
+        with patch.object(client, "_request", return_value={"positions": [valid, dict(valid)]}):
+            with self.assertRaisesRegex(BrokerError, "duplicate"):
+                client.positions()
+
+        with patch.object(client, "_request", return_value={"positions": [{**valid, "volume": "bad"}]}):
+            with self.assertRaisesRegex(BrokerError, "not numeric"):
+                client.positions()
+
+    def test_miniqmt_client_rejects_invalid_json(self) -> None:
+        client = MiniQmtBrokerClient(base_url="http://127.0.0.1:8765", account_id="acct")
+
+        with patch("sats.trading.miniqmt_client.urllib.request.urlopen", return_value=_FakeHttpResponse(b"not-json")):
+            with self.assertRaisesRegex(BrokerError, "invalid JSON"):
+                client.positions()
+
+    def test_both_qmt_bridges_reject_none_position_query(self) -> None:
+        standalone = qmt_windows_bridge.XtQuantGateway(
+            qmt_windows_bridge.BridgeConfig(qmt_path="C:/qmt/userdata_mini", account_id="acct")
+        )
+        standalone.connected = True
+        standalone._trader = SimpleNamespace(query_stock_positions=lambda _account: None)
+        standalone._account = object()
+
+        embedded = XtQuantQmtGateway(QmtBridgeConfig(qmt_path="C:/qmt/userdata_mini", account_id="acct"))
+        embedded.connected = True
+        embedded._trader = SimpleNamespace(query_stock_positions=lambda _account: None)
+        embedded._account = object()
+
+        with self.assertRaisesRegex(RuntimeError, "returned None"):
+            standalone.positions()
+        with self.assertRaisesRegex(RuntimeError, "returned None"):
+            embedded.positions()
+
 
 class _RunningBridge:
     def __init__(self, *, token: str = "") -> None:
@@ -314,6 +365,20 @@ class _FakeGateway:
             "order_id": payload.get("order_id", ""),
             "sats_order_id": payload.get("sats_order_id", ""),
         }
+
+
+class _FakeHttpResponse:
+    def __init__(self, body: bytes) -> None:
+        self.body = body
+
+    def __enter__(self) -> "_FakeHttpResponse":
+        return self
+
+    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return self.body
 
 
 def _request(method: str, url: str, payload: dict[str, Any] | None = None, *, token: str = "") -> Any:

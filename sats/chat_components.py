@@ -19,7 +19,7 @@ from sats.analysis.opportunity_discovery import (
 )
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
 from sats.analysis.stock_llm_context import StockLLMContext, build_stock_llm_context
-from sats.analysis.stock_picking_agent import run_stock_picking_agent
+from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.chat_planner import ChatPlan, build_chat_plan
 from sats.chat_preprocessor import ChatPreprocessResult, preprocess_chat_message
@@ -80,9 +80,21 @@ SYNTHESIS_SYSTEM_PROMPT = (
 FULL_SKILL_CHAR_LIMIT = 2400
 MAX_FULL_SKILLS = 4
 
+STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS = (
+    "technical",
+    "signals",
+    "chan",
+    "market",
+    "sentiment",
+    "fundamental",
+    "risk",
+    "stock-basic",
+)
+STOCK_ANALYSIS_DEFAULT_RAG_LIMIT = 12
+
 ROUTE_COMPONENTS: dict[str, tuple[str, ...]] = {
     CHAT_ROUTE_GENERAL: (),
-    CHAT_ROUTE_STOCK: (COMPONENT_STOCK_CONTEXT, COMPONENT_INDICATORS),
+    CHAT_ROUTE_STOCK: (COMPONENT_STOCK_CONTEXT, COMPONENT_INDICATORS, COMPONENT_MARKET_CONTEXT),
     CHAT_ROUTE_MARKET: (COMPONENT_MARKET_CONTEXT,),
     CHAT_ROUTE_OPPORTUNITY: (COMPONENT_OPPORTUNITY,),
     CHAT_ROUTE_CHAN: (COMPONENT_CHAN_CONTEXT,),
@@ -427,24 +439,22 @@ def collect_chat_evidence(
 
     if COMPONENT_INDICATORS in route.required_components and route.symbols:
         indicator_trade_date = completion_trade_date or route.trade_date or extract_trade_date(message) or ""
-        indicators = _run_component(
-            COMPONENT_INDICATORS,
-            lambda: run_internal_analysis_component(
-                settings,
-                {
-                    "kind": "indicators",
+        indicators = _indicators_from_stock_context(
+            stock_context,
+            trade_date=indicator_trade_date,
+        )
+        if indicators and indicators.get("results"):
+            data_names.append("指标")
+            _emit_context_completed(
+                recorder,
+                COMPONENT_INDICATORS,
+                payload={
+                    "available": True,
                     "symbols": list(route.symbols),
                     "trade_date": indicator_trade_date,
+                    "source": "stock_context",
                 },
-            ),
-            progress=progress,
-            recorder=recorder,
-            payload={"symbols": list(route.symbols), "trade_date": indicator_trade_date},
-            progress_label="内部分析",
-            progress_message="指标",
-        )
-        if indicators is not None:
-            data_names.append("指标")
+            )
 
     if COMPONENT_MARKET_CONTEXT in route.required_components:
         market_trade_date = completion_trade_date or route.trade_date
@@ -546,7 +556,7 @@ def collect_chat_evidence(
             pending_action_id = outcome.pending_action_id
             requires_confirmation = outcome.requires_confirmation
 
-    sources = knowledge_context.sources if knowledge_context is not None else ()
+    sources = tuple(getattr(knowledge_context, "sources", ()) or ()) if knowledge_context is not None else ()
     return ChatEvidenceBundle(
         route=route,
         stock_context=stock_context,
@@ -567,6 +577,44 @@ def collect_chat_evidence(
     )
 
 
+def _indicators_from_stock_context(
+    context: StockLLMContext | None,
+    *,
+    trade_date: str = "",
+) -> dict[str, Any] | None:
+    if context is None:
+        return None
+    payload = getattr(context, "payload", None)
+    if not isinstance(payload, dict):
+        payload = _context_payload_for_llm(context)
+    stocks = payload.get("stocks") if isinstance(payload, dict) and isinstance(payload.get("stocks"), list) else []
+    results = []
+    for item in stocks:
+        if not isinstance(item, dict):
+            continue
+        indicator_result = item.get("indicator_result")
+        if not isinstance(indicator_result, dict) or not indicator_result:
+            continue
+        results.append(
+            {
+                "ts_code": item.get("ts_code"),
+                "name": item.get("name"),
+                "trade_date": item.get("trade_date") or trade_date,
+                "indicator_result": indicator_result,
+                "period_returns": item.get("period_returns"),
+                "missing_fields": item.get("missing_fields"),
+            }
+        )
+    if not results:
+        return None
+    return {
+        "kind": "indicators",
+        "trade_date": str(getattr(context, "trade_date", "") or trade_date),
+        "results": results,
+        "source": "stock_context",
+    }
+
+
 def synthesize_chat_response(
     message: str,
     *,
@@ -579,6 +627,7 @@ def synthesize_chat_response(
     memories: list[MemoryRecord] | None = None,
     session_summary: str = "",
     tool_chat: Callable[[list[dict[str, Any]]], tuple[Any, int] | tuple[Any, int, dict[str, str]]] | None = None,
+    progress: Any | None = None,
 ) -> ChatSynthesisResult:
     if route.route_kind == CHAT_ROUTE_RULE and evidence.rule_generation is not None:
         content = str(evidence.rule_generation.get("content") or "").strip()
@@ -628,10 +677,18 @@ def synthesize_chat_response(
                 default_model_name=_main_model_name(settings),
                 timeout_seconds=_llm_timeout_seconds(settings),
             )
-        try:
-            response = llm.chat(messages, timeout=_llm_timeout_seconds(settings))
-        except TypeError:
-            response = llm.chat(messages)
+        def call_llm() -> Any:
+            try:
+                return llm.chat(messages, timeout=_llm_timeout_seconds(settings))
+            except TypeError:
+                return llm.chat(messages)
+
+        if progress is None:
+            response = call_llm()
+        else:
+            with progress.step(f"{model_name} LLM") as step:
+                response = call_llm()
+                step.complete()
         model_profile = str(getattr(llm, "last_profile", "") or getattr(llm, "profile", "") or model_profile)
         model_name = str(getattr(llm, "last_model_name", "") or getattr(llm, "model_name", "") or model_name)
         content = str(getattr(response, "content", "") or "").strip()
@@ -790,20 +847,23 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
     trade_date = str(arguments.get("trade_date") or "").strip() or extract_trade_date(" ".join(symbols))
     if kind == "native_dsa":
         storage = DuckDBStorage(getattr(settings, "db_path", None) or "data/sats.duckdb")
+        resolved_trade_date = trade_date or _today_yyyymmdd()
         result = run_dsa_analysis(
             symbols,
             settings=settings,
             storage=storage,
-            trade_date=trade_date,
+            trade_date=resolved_trade_date,
             reports_dir=Path(getattr(settings, "project_root", ".")) / "reports",
             report=False,
             llm_enabled=False,
         )
         return {
             "kind": kind,
-            "trade_date": result.trade_date,
+            "trade_date": resolved_trade_date,
             "rankings": [asdict(ranking) for ranking in result.rankings],
+            "analyses": [asdict(analysis) for analysis in result.analyses],
             "message": result.message,
+            "llm_unavailable": result.llm_unavailable,
         }
     if kind == "factor_summary":
         storage = DuckDBStorage(getattr(settings, "db_path", None) or "data/sats.duckdb")
@@ -837,7 +897,7 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
             "snapshot": snapshot_payload,
         }
     stock_context = build_stock_context_component(
-        " ".join(symbols),
+        str(arguments.get("_message") or arguments.get("message") or " ".join(symbols)),
         settings=settings,
         question=StockQuestion(symbols=symbols, trade_date=trade_date or None, has_stock_question=True),
     )
@@ -860,6 +920,7 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
                     "name": item.get("name"),
                     "trade_date": item.get("trade_date"),
                     "indicator_result": item.get("indicator_result"),
+                    "period_returns": item.get("period_returns"),
                     "missing_fields": item.get("missing_fields"),
                 }
                 for item in stocks
@@ -1386,6 +1447,8 @@ def _build_synthesis_messages(
                 "必须包含：标题、核心结论引用、badge 元信息、结论摘要、关键证据、文字图表、风险与限制、下一步。"
                 "逐股票条目只能来自 reference_symbol_policy.allowed_symbols 或真实结构化数据中的有效 ts_code，且必须同时有有效股票代码和名称。"
                 "【...】、章节标题、策略标签、风险标签、分组名不是股票；没有代码的文本标签只能放到分类/风险说明/限制里，不能作为股票条目。"
+                "如果 evidence_digest 中有 period_returns，应直接使用其中的 start_trade_date、end_trade_date 和 pct_change 回答模糊时间段涨跌幅；"
+                "不要因为用户的自然日端点不是交易日而说区间涨跌幅缺失。"
                 "若缺少真实数据或对应组件未命中，明确写“数据缺失/未命中”。"
             ),
         }
@@ -1404,7 +1467,10 @@ def _chat_evidence_digest(evidence: ChatEvidenceBundle) -> dict[str, Any]:
         "market_context": _market_context_digest(evidence.market_context),
         "opportunity_context": _opportunity_digest(evidence.opportunity_context),
         "chan_context": _chan_context_digest(evidence.chan_context),
-        "knowledge_context": _knowledge_context_digest(evidence.knowledge_context),
+        "knowledge_context": _knowledge_context_digest(
+            evidence.knowledge_context,
+            collections=evidence.route.knowledge_collections,
+        ),
         "rule_generation": _trim_payload(evidence.rule_generation or {}, max_chars=8000),
         "data_names": list(evidence.data_names),
     }
@@ -1441,6 +1507,8 @@ def _stock_context_digest(context: StockLLMContext | None, *, requested_symbols:
     payload = _context_payload_for_llm(context)
     payload = payload if isinstance(payload, dict) else {}
     stocks = payload.get("stocks") if isinstance(payload.get("stocks"), list) else []
+    if not stocks and payload.get("system_message"):
+        return [{"system_message": payload["system_message"]}]
     requested = _normalized_symbol_list(requested_symbols)
     if requested:
         stocks = _matching_symbol_rows(stocks, requested)
@@ -1455,12 +1523,14 @@ def _stock_context_digest(context: StockLLMContext | None, *, requested_symbols:
                 {
                     "ts_code": item.get("ts_code"),
                     "name": item.get("name"),
+                    "requested_trade_date": item.get("requested_trade_date"),
                     "trade_date": item.get("trade_date"),
                     "price_context": _pick_fields(item.get("price_context") or {}, ("close", "pct_chg", "change", "source")),
                     "indicator_result": _pick_fields(
                         item.get("indicator_result") or {},
                         ("close", "ma5", "ma10", "ma20", "ma60", "macd", "macd_dif", "macd_dea", "rsi6", "rsi12", "kdj_j"),
                     ),
+                    "period_returns": _trim_payload(item.get("period_returns") or {}, max_chars=2500),
                     "missing_fields": item.get("missing_fields"),
                 }
             )
@@ -1488,6 +1558,7 @@ def _indicator_digest(payload: dict[str, Any] | None, *, requested_symbols: tupl
                     "name": item.get("name"),
                     "trade_date": item.get("trade_date"),
                     "indicator_result": _trim_payload(item.get("indicator_result") or {}, max_chars=1600),
+                    "period_returns": _trim_payload(item.get("period_returns") or {}, max_chars=2500),
                     "missing_fields": item.get("missing_fields"),
                 }
             )
@@ -1555,6 +1626,7 @@ def _market_context_digest(context: Any | None) -> dict[str, Any]:
             "limit_sentiment": _trim_payload(payload.get("limit_sentiment") or {}, max_chars=2500),
             "hot_sector_context": _trim_payload(payload.get("hot_sector_context") or {}, max_chars=2500),
             "missing_fields": payload.get("missing_fields"),
+            "system_message": payload.get("system_message"),
         }
     )
 
@@ -1570,13 +1642,26 @@ def _chan_context_digest(context: ChanChatContext | None) -> dict[str, Any]:
     return _trim_payload(context.payload, max_chars=5000)
 
 
-def _knowledge_context_digest(context: StockResearchContext | None) -> dict[str, Any]:
+def _knowledge_context_digest(
+    context: StockResearchContext | None,
+    *,
+    collections: Iterable[str] = (),
+) -> dict[str, Any]:
     if context is None:
         return {}
-    return {
-        "collections": list(context.collections),
-        "sources": list(context.sources),
+    payload = _context_payload_for_llm(context)
+    result = {
+        "collections": list(getattr(context, "collections", ()) or collections),
+        "sources": list(getattr(context, "sources", ()) or ()),
     }
+    if isinstance(payload, dict):
+        if not result["collections"] and isinstance(payload.get("collections"), (list, tuple)):
+            result["collections"] = list(payload["collections"])
+        if not result["sources"] and isinstance(payload.get("sources"), (list, tuple)):
+            result["sources"] = list(payload["sources"])
+        if payload.get("system_message"):
+            result["system_message"] = payload["system_message"]
+    return _drop_empty(result)
 
 
 def _quote_context_digest(context: Any | None) -> dict[str, Any]:
@@ -1620,14 +1705,16 @@ def _resolve_stock_followup(message: str, parsed: StockQuestion, *, last_stock_q
 def _should_include_knowledge_context(route_kind: str, *, explicit_knowledge: str | None, plan: ChatPlan) -> bool:
     if explicit_knowledge:
         return True
-    return bool(getattr(plan, "intent", "") == "stock_research_framework")
+    if route_kind not in {CHAT_ROUTE_STOCK, CHAT_ROUTE_MARKET, CHAT_ROUTE_OPPORTUNITY, CHAT_ROUTE_CHAN}:
+        return False
+    return bool(_knowledge_collections_for_route(route_kind, plan))
 
 
 def _knowledge_collections_for_route(route_kind: str, plan: ChatPlan) -> tuple[str, ...]:
     collections: list[str] = []
     skill_ids = set(getattr(plan, "skills", ()) or ())
     if route_kind == CHAT_ROUTE_STOCK:
-        collections.extend(["technical", "signals"])
+        collections.extend(STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS)
     elif route_kind == CHAT_ROUTE_MARKET:
         collections.extend(["market", "sentiment"])
     elif route_kind == CHAT_ROUTE_OPPORTUNITY:
@@ -1645,8 +1732,8 @@ def _knowledge_collections_for_route(route_kind: str, plan: ChatPlan) -> tuple[s
 def _knowledge_context_limit(plan_collections: tuple[str, ...], *, explicit_knowledge: str | None) -> int:
     if explicit_knowledge:
         return 6
-    if plan_collections and set(plan_collections) >= {"technical", "signals"}:
-        return 12
+    if set(STOCK_ANALYSIS_DEFAULT_RAG_COLLECTIONS).issubset(plan_collections):
+        return STOCK_ANALYSIS_DEFAULT_RAG_LIMIT
     return 6
 
 
@@ -1663,6 +1750,9 @@ def _context_payload_for_llm(context: Any) -> Any:
     to_dict = getattr(context, "to_dict", None)
     if callable(to_dict):
         return to_dict()
+    system_message = str(getattr(context, "system_message", "") or "").strip()
+    if system_message:
+        return {"system_message": system_message}
     return {}
 
 
@@ -1951,13 +2041,27 @@ def _looks_like_rule_plan_revision(message: str) -> bool:
 
 def _opportunity_discovery_content_or_fallback(content: str, opportunity_context: Any | None) -> str:
     text = str(content or "").strip()
-    if text:
+    if _is_substantive_opportunity_answer(text):
         return text
     if opportunity_context is None:
         return text
-    formatter = getattr(opportunity_context, "to_dict", None)
-    if callable(formatter):
-        payload = formatter()
-    else:
-        payload = _context_payload_for_llm(opportunity_context)
-    return format_opportunity_discovery(payload) if isinstance(payload, dict) else text
+    try:
+        if hasattr(opportunity_context, "discovery"):
+            fallback = format_stock_picking_agent_result(opportunity_context)
+        else:
+            fallback = format_opportunity_discovery(opportunity_context)
+    except Exception:
+        return text
+    report_path = str(getattr(opportunity_context, "report_path", "") or "").strip()
+    if report_path and "报告:" not in fallback:
+        fallback = f"{fallback}\n报告: {report_path}"
+    return fallback
+
+
+def _is_substantive_opportunity_answer(content: str) -> bool:
+    text = str(content or "").strip()
+    if not text:
+        return False
+    if len(text) < 80 and text.lstrip().startswith("#") and "\n\n" not in text:
+        return False
+    return any(term in text for term in ("触发", "失效", "风险", "报告:", "不构成投资建议"))

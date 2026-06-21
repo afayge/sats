@@ -65,8 +65,12 @@ def _event_label(event: Any) -> str:
         return "因子与信号"
     if tool_name.startswith("data.") or tool_name in {"research.market_context", "research.stock_context"}:
         return "获取真实数据"
-    if tool_name.startswith("chat."):
-        return "调用 chat/skill"
+    if tool_name == "chat.answer":
+        return "生成普通回答"
+    if tool_name in {"chat.list_skills", "chat.load_skill"}:
+        return "调用 skill"
+    if tool_name in {"chat.knowledge_search", "research.knowledge_context"}:
+        return "检索知识库"
     if str(getattr(event, "event_type", "") or "") == "plan_ready":
         return "理解目标"
     title = str(payload.get("title") or "")

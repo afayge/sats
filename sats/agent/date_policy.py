@@ -112,6 +112,8 @@ def _apply_forecast_policy(tool_name: str, args: dict[str, Any], context: AgentT
     if tool_name in {
         "research.stock_context",
         "research.internal_analysis",
+        "research.deep_stock_analysis",
+        "research.serenity_screen",
         "data.indicator_inputs",
         "factor.analyze",
         "factor.pick",

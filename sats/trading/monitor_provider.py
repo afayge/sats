@@ -23,7 +23,14 @@ class QmtTradingProvider:
         self.storage = storage
         self.config = config
 
-    def build_trade_event(self, event: dict, *, action: str, quantity: Any = None) -> dict:
+    def build_trade_event(
+        self,
+        event: dict,
+        *,
+        action: str,
+        quantity: Any = None,
+        sizing: dict[str, Any] | None = None,
+    ) -> dict:
         trade_event_id = _stable_id(f"trade:{event.get('event_id')}:{action}")
         base = {
             "trade_event_id": trade_event_id,
@@ -36,12 +43,12 @@ class QmtTradingProvider:
             "quantity": quantity,
             "status": "rejected",
             "message": "",
-            "metrics": {"source_event": event, "broker": "qmt"},
+            "metrics": {"source_event": event, "broker": "qmt", "sizing": sizing or {"mode": "default"}},
         }
         if action not in self.config.enabled_actions:
             return {**base, "status": "not_configured", "message": f"自动{action}未启用，仅记录监控建议"}
         try:
-            request = self._request_for_event(event, action=action, quantity=quantity)
+            request = self._request_for_event(event, action=action, quantity=quantity, sizing=sizing)
             result = self.client.place_order(request)
             self.storage.insert_broker_order(
                 {
@@ -82,39 +89,79 @@ class QmtTradingProvider:
         except Exception as exc:
             return {**base, "message": f"QMT {action} 拒绝: {exc}"}
 
-    def _request_for_event(self, event: dict, *, action: str, quantity: Any = None) -> OrderRequest:
+    def _request_for_event(
+        self,
+        event: dict,
+        *,
+        action: str,
+        quantity: Any = None,
+        sizing: dict[str, Any] | None = None,
+    ) -> OrderRequest:
         ts_code = str(event.get("ts_code") or "")
         price = float(event.get("price") or 0.0)
         if not ts_code:
             raise BrokerError("missing symbol")
         if action == "buy":
-            shares = self._buy_quantity(price)
+            shares = self._buy_quantity(price, sizing=sizing)
         else:
-            shares = self._sell_quantity(ts_code, quantity)
+            shares = self._sell_quantity(ts_code, quantity, price=price, sizing=sizing)
         if shares <= 0:
             raise BrokerError("calculated order quantity is zero")
         return OrderRequest(symbol=ts_code, side=action, quantity=shares, price_type="latest", price=None, strategy="sats-monitor", source_event_id=str(event.get("event_id") or ""))
 
-    def _buy_quantity(self, price: float) -> int:
+    def _buy_quantity(self, price: float, *, sizing: dict[str, Any] | None = None) -> int:
         if price <= 0:
             raise BrokerError("missing realtime price for buy")
         asset = self.client.asset()
         budget = min(float(asset.available_cash or 0.0), float(self.config.max_order_value or 0.0))
         if self.config.max_position_pct and asset.total_asset:
             budget = min(budget, float(asset.total_asset) * float(self.config.max_position_pct))
+        sizing = sizing or {"mode": "default"}
+        mode = str(sizing.get("mode") or "default")
+        value = float(sizing.get("value") or 0.0)
+        if mode == "amount":
+            budget = min(budget, value)
+        elif mode == "position_pct":
+            budget = min(budget, float(asset.total_asset or 0.0) * value)
+        elif mode == "shares":
+            max_shares = int(budget // (price * 100)) * 100
+            shares = min(int(value), max_shares)
+            if shares <= 0:
+                raise BrokerError("cash is insufficient for requested shares")
+            return shares
         shares = int(budget // (price * 100)) * 100
         if shares <= 0:
             raise BrokerError("cash is insufficient for one board lot")
         return shares
 
-    def _sell_quantity(self, ts_code: str, quantity: Any) -> int:
+    def _sell_quantity(
+        self,
+        ts_code: str,
+        quantity: Any,
+        *,
+        price: float,
+        sizing: dict[str, Any] | None = None,
+    ) -> int:
         available = 0.0
         for position in self.client.positions():
             if position.ts_code == ts_code:
                 available = position.available_quantity or position.quantity
                 break
-        target = float(quantity or available or 0.0) * float(self.config.sell_ratio or 1.0)
-        target = min(target, available)
+        cap = float(available or 0.0) * float(self.config.sell_ratio or 1.0)
+        sizing = sizing or {"mode": "default"}
+        mode = str(sizing.get("mode") or "default")
+        value = float(sizing.get("value") or 0.0)
+        if mode == "shares":
+            target = value
+        elif mode == "position_pct":
+            target = float(available or 0.0) * value
+        elif mode == "amount":
+            if price <= 0:
+                raise BrokerError("missing realtime price for sell amount")
+            target = value / price
+        else:
+            target = float(quantity or available or 0.0)
+        target = min(target, cap, available)
         shares = int(target)
         if shares <= 0:
             raise BrokerError("available position is insufficient")

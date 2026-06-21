@@ -36,7 +36,6 @@ else:
 SCREENING_TRADE_DAYS = 80
 TUSHARE_ROW_WARNING_LIMIT = 5900
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
-RT_K_A_SHARE_PATTERN = "0*.SZ,3*.SZ,6*.SH,4*.BJ,8*.BJ,9*.BJ"
 PRICE_VOLUME_MA_RULE_NAME = "price_volume_ma"
 CHAN_THIRD_BUY_RULE_NAME = "chan_third_buy"
 CHAN_COMPOSITE_RULE_NAME = "chan_composite"
@@ -1136,7 +1135,7 @@ class TushareDataProvider(MarketDataProvider):
 
         if daily_missing:
             raise ValueError(
-                f"{trade_date} 当日 daily 尚不可用，Tushare/TickFlow/本地缓存均无法提供请求交易日数据，"
+                f"{trade_date} 当日 daily 尚不可用，TickFlow/本地缓存均无法提供请求交易日数据，"
                 "已停止筛选，未使用前一交易日数据。"
             )
         return {
@@ -1257,36 +1256,21 @@ class TushareDataProvider(MarketDataProvider):
         symbols: list[str],
         forced: bool,
     ) -> tuple[pd.DataFrame, str]:
-        if self.pro is not None:
-            try:
-                return self._fetch_realtime_daily(trade_date), "tushare_rt_k_forced" if forced else "tushare_rt_k"
-            except Exception as exc:
-                self._warn_fallback(f"Tushare rt_k 实时日线获取失败，尝试 TickFlow quote：{exc}")
         try:
             frame = self._tickflow_provider().load_realtime_daily_quotes(symbols, trade_date=trade_date)
         except Exception as exc:
-            self._warn_fallback(f"TickFlow quote 实时日线获取失败，尝试本地同交易日缓存：{exc}")
+            self._warn_fallback(
+                f"TickFlow 1m 分钟K 实时日线获取失败，尝试本地同交易日缓存：{exc}"
+            )
         else:
             if not frame.empty:
-                self._warn_fallback("实时日线使用 TickFlow quote 备份源。")
-                return frame, "tickflow_realtime_quote"
+                self._warn_fallback("实时日线使用 TickFlow 1m 分钟K。")
+                return frame, "tickflow_realtime_minute_quote"
         cached = storage.get_stock_daily([trade_date])
         if not cached.empty:
             self._warn_fallback("实时日线使用 DuckDB 本地同交易日缓存。")
             return cached, "duckdb_cache_after_provider_failure"
         return pd.DataFrame(), "missing"
-
-    def _fetch_realtime_daily(self, trade_date: str) -> pd.DataFrame:
-        if self.pro is None:
-            raise ValueError("Tushare provider is unavailable")
-        try:
-            frame = _call_pro(self.pro, "rt_k", ts_code=RT_K_A_SHARE_PATTERN)
-        except Exception as exc:
-            raise ValueError(f"{trade_date} rt_k 实时日线获取失败：{exc}") from exc
-        data = _adapt_rt_k_daily(frame, trade_date)
-        if data.empty:
-            raise ValueError(f"{trade_date} rt_k 实时日线返回为空或日期不匹配")
-        return data
 
     def _build_realtime_daily_basic(
         self,
@@ -1792,7 +1776,10 @@ def _setting(provider: TushareDataProvider, name: str, default: int) -> int:
 
 
 def _is_realtime_source(source: str) -> bool:
-    return str(source or "") in {"tushare_rt_k", "tushare_rt_k_forced", "tickflow_realtime_quote"}
+    return str(source or "") in {
+        "tickflow_realtime_quote",
+        "tickflow_realtime_minute_quote",
+    }
 
 
 def _is_tushare_fallback_error(exc: Exception) -> bool:
@@ -2513,56 +2500,6 @@ def _dataframe_records(frame: pd.DataFrame | None) -> list[dict[str, Any]]:
         return []
     data = frame.astype(object).where(pd.notna(frame), None)
     return data.to_dict(orient="records")
-
-
-def _adapt_rt_k_daily(frame: pd.DataFrame | None, trade_date: str) -> pd.DataFrame:
-    if frame is None or frame.empty:
-        return pd.DataFrame()
-    data = frame.copy()
-    code_col = _first_column(data, ["ts_code", "code", "symbol"])
-    if code_col is None:
-        return pd.DataFrame()
-    if not _rt_k_matches_trade_date(data, trade_date):
-        return pd.DataFrame()
-
-    data["ts_code"] = data[code_col].astype(str).map(_normalize_ts_code)
-    data = data[data["ts_code"].map(_is_a_share_code)]
-    data["trade_date"] = str(trade_date)
-    for target, names in {
-        "open": ["open"],
-        "high": ["high"],
-        "low": ["low"],
-        "close": ["close", "price"],
-        "pre_close": ["pre_close", "preclose", "pre_close_px"],
-        "vol": ["vol", "volume"],
-        "amount": ["amount"],
-    }.items():
-        source = _first_column(data, names)
-        data[target] = pd.to_numeric(data[source], errors="coerce") if source else None
-
-    data["pct_chg"] = 0.0
-    valid_pre_close = pd.to_numeric(data["pre_close"], errors="coerce") > 0
-    data.loc[valid_pre_close, "pct_chg"] = (
-        data.loc[valid_pre_close, "close"] / data.loc[valid_pre_close, "pre_close"] - 1.0
-    ) * 100
-    data["vol"] = data["vol"] / 100.0
-    data["amount"] = data["amount"] / 1000.0
-    columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg"]
-    data = data.dropna(subset=["ts_code", "open", "high", "low", "close", "vol"])
-    return data[columns].drop_duplicates(subset=["ts_code", "trade_date"], keep="last").reset_index(drop=True)
-
-
-def _rt_k_matches_trade_date(frame: pd.DataFrame, trade_date: str) -> bool:
-    date_col = _first_column(frame, ["trade_date", "date"])
-    if date_col:
-        dates = frame[date_col].dropna().astype(str).str.replace("-", "", regex=False).str[:8]
-        return dates.empty or bool((dates == str(trade_date)).any())
-    time_col = _first_column(frame, ["trade_time", "time", "datetime"])
-    if time_col:
-        dates = frame[time_col].dropna().astype(str).str.replace("-", "", regex=False).str[:8]
-        date_like = dates[dates.str.match(r"^\d{8}$", na=False)]
-        return date_like.empty or bool((date_like == str(trade_date)).any())
-    return True
 
 
 def _normalize_ts_code(value: Any) -> str:
