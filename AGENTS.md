@@ -4,6 +4,13 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## 0. SATS Primary Python Environment
+
+- Use `/Users/elliotge/python/.venv` as the primary SATS development and test environment.
+- From the repository root, run Python, pip, tests, and the console script as `../.venv/bin/python`, `../.venv/bin/pip`, and `../.venv/bin/sats`.
+- Keep `/Users/elliotge/python/SATS/.venv` intact, but do not use it for default installation or verification.
+- The shared parent environment has a known `mootdx` declaration conflict with SATS/Vibe Trading's `httpx>=0.28`; do not downgrade `httpx` or remove shared packages merely to make `pip check` clean.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**

@@ -5,7 +5,7 @@ from typing import Any
 
 import pandas as pd
 
-from sats.screening.base import ScreeningInput, ScreeningResult, ScreeningRule
+from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
 
 
 @dataclass(frozen=True)
@@ -24,9 +24,25 @@ class ChanThirdBuyThresholds:
 
 class ChanThirdBuyRule(ScreeningRule):
     name = "chan_third_buy"
+    intraday_kline_requirements = (
+        IntradayKlineRequirement(
+            period="30m",
+            metadata_key="minute_30m",
+            source_metadata_key="minute_30m_source",
+            history_calendar_days=30,
+            count=80,
+        ),
+    )
 
     def __init__(self, thresholds: ChanThirdBuyThresholds | None = None) -> None:
         self.thresholds = thresholds or ChanThirdBuyThresholds()
+
+    def intraday_candidate_labels(
+        self,
+        data: ScreeningInput,
+        requirement: IntradayKlineRequirement,
+    ) -> list[str]:
+        return [self.name] if is_chan_daily_candidate(data) else []
 
     def evaluate(self, data: ScreeningInput) -> ScreeningResult:
         checks, metrics = evaluate_chan_daily_setup(data, thresholds=self.thresholds)

@@ -101,7 +101,7 @@ flowchart LR
 
 - Python `3.12+`
 - macOS 或 Linux
-- 建议使用虚拟环境
+- 本仓库默认使用父目录共享环境 `/Users/elliotge/python/.venv`
 
 ### 安装
 
@@ -109,29 +109,26 @@ flowchart LR
 git clone <repo-url>
 cd SATS
 
-python -m venv .venv
-source .venv/bin/activate
-
-pip install -r requirements.txt
-pip install -e .
+../.venv/bin/pip install -e ".[akshare]"
 ```
 
 ### 可选依赖
 
 ```bash
-pip install -e ".[akshare]"  # 启用 AkShare 补充数据
-pip install -e ".[ml]"       # 启用 Qlib / LightGBM / XGBoost 等因子 ML 依赖
-pip install -e ".[deep]"     # 启用 PyTorch 深度学习依赖
-pip install -e ".[web-rag]"  # 启用本地 FastEmbed 网页向量检索
+../.venv/bin/pip install -e ".[ml]"       # 启用 Qlib / LightGBM / XGBoost 等因子 ML 依赖
+../.venv/bin/pip install -e ".[deep]"     # 启用 PyTorch 深度学习依赖
+../.venv/bin/pip install -e ".[web-rag]"  # 启用本地 FastEmbed 网页向量检索
 ```
+
+项目内的 `SATS/.venv` 保留用于兼容，但默认安装、测试和 CLI 验证统一使用父环境。父环境中 `mootdx` 对旧版 `httpx` 的声明与 SATS/Vibe Trading 使用的新版本存在已知冲突；不要为消除 `pip check` 警告而降级 `httpx`。
 
 ### 最小自检
 
 先确认模块入口和 console script 都可用：
 
 ```bash
-.venv/bin/python -m sats --help
-sats --help
+../.venv/bin/python -m sats --help
+../.venv/bin/sats --help
 ```
 
 正常情况下你会看到 31 个顶层命令，包括：
@@ -146,7 +143,7 @@ schedule, qmt, serve
 > **安装排错**
 >
 > - 如果这里直接报 `ModuleNotFoundError`，通常说明依赖还没装全。
-> - 如果 `python -m sats --help` 可用但 `sats --help` 不可用，通常是 `pip install -e .` 尚未执行成功。
+> - 如果 `../.venv/bin/python -m sats --help` 可用但 `../.venv/bin/sats --help` 不可用，通常是 editable 安装尚未执行成功。
 
 ## 4. 配置说明
 
@@ -452,6 +449,7 @@ sats init --overwrite
 - 用途：按规则执行全 A 股筛选，并把结果写入 DuckDB。
 - 入口：CLI、REPL `/screen`
 - 核心参数：`--rule`、`--trade-date`、`--select-watchlist`、`--no-select-watchlist`
+- 当请求日期为当天且处于 A 股交易时段时，所有规则使用 TickFlow 当日 `1d` K 覆盖当天日线；规则声明需要的 `1m/5m/15m/30m/60m` 周期会合并历史窗口与对应当日分钟 K。批量上限分别为日 K 60 次/分、分钟 K 30 次/分，每次最多 100 个标的。
 
 ```bash
 sats screen --trade-date 20260514 --rule ma_volume_relative_strength
@@ -832,7 +830,7 @@ sats web cache clear --expired-only
 - `WEB_SEARCH_PROVIDERS=ddgs,bing`：原生 RAG 并发搜索源；可显式加入 `tavily`、`bocha`、`querit`。
 - `WEB_TAVILY_API_KEY`、`WEB_BOCHA_API_KEY`、`WEB_QUERIT_API_KEY`：只有提供方被列入 `WEB_SEARCH_PROVIDERS` 时才使用。
 - `WEB_EMBEDDING_PROVIDER=auto`：远程 embedding 配置完整时启用 OpenAI-compatible `/v1/embeddings`；否则明确降级关键词检索。
-- `WEB_EMBEDDING_PROVIDER=fastembed`：使用可选本地模型，需先执行 `pip install -e ".[web-rag]"`。
+- `WEB_EMBEDDING_PROVIDER=fastembed`：使用可选本地模型，需先执行 `../.venv/bin/pip install -e ".[web-rag]"`。
 - `WEB_RESPONSES_BASE_URL`、`WEB_RESPONSES_API_KEY`、`WEB_RESPONSES_MODEL`：由用户配置已经运行的 Responses 兼容服务；SATS 不负责安装或启动该服务。
 - `WEB_SEARCH_CONTEXT_SIZE=auto`：普通问题使用 `medium`；明确要求深入、全面、对比或报告时使用 `high`。
 
@@ -1058,7 +1056,7 @@ sats serve --host 127.0.0.1 --port 8000
 
 | 数据类型 | 主要来源 | 说明 |
 | --- | --- | --- |
-| 实时行情 / quote | TickFlow 优先 | 用于 `quote`、监控、实时研究 |
+| 实时行情 / quote | TickFlow 当日 1m K | 使用最新一根当日 1m K，并通过本地历史日线补齐昨收和涨跌幅 |
 | 日线 / 分钟 K | TickFlow 优先 | 分析、监控、回测、缠论、信号 |
 | `daily_basic` | Tushare | 换手率、流通市值、估值等 |
 | 财务、资金流、股票列表 | Tushare | 基本面与股票基础资料 |
@@ -1131,6 +1129,10 @@ SATS 允许同时配置主模型与轻量模型：
 - `sats_command.*`
 - `workflow.*`
 - `trade.*`
+
+公司介绍、公司概况、主营业务、业务构成或基本面介绍请求会先把中文证券名称解析为规范 A 股代码，再调用 `research.internal_analysis(kind=company_fundamentals)`。该路径以 Tushare 的 `stock_company`、`fina_mainbz`、`daily_basic`、`fina_indicator` 和三张财务报表为主，不依赖日线行情；AkShare 仅在对应字段缺失且接口可用时补充。
+
+`sats_command.catalog` 会列出除 `agent`、`chat` 自递归入口之外的全部顶层 CLI 命令，`sats_command.run` 可通过 argv runner 调用这些命令。QMT 买卖和撤单仍受 Agent 的自动交易与实盘权限策略约束。
 
 筛选股票分析类自然任务会优先走 `workflow.screened_stock_analysis`：先解析规则/交易日和候选上限，再按 `batch`、`group` 或 `per_stock` 分析模式生成次日交易计划素材。默认是集合分析；只有用户明确说“逐股/每只/逐一”或候选很少且要求详细时，才会逐股展开。
 
@@ -1356,15 +1358,15 @@ curl "http://127.0.0.1:8000/api/market/minute-k?symbols=000001.SZ&period=1m&mode
 ### 运行测试
 
 ```bash
-pytest
+../.venv/bin/python -m unittest
 ```
 
 如果你只想先看文档覆盖到的关键用户面，建议优先关注这些测试：
 
 ```bash
-pytest tests/test_repl_cli.py
-pytest tests/test_storage_and_api.py
-pytest tests/test_chat_runtime.py
+../.venv/bin/python -m unittest tests.test_repl_cli
+../.venv/bin/python -m unittest tests.test_storage_and_api
+../.venv/bin/python -m unittest tests.test_chat_runtime
 ```
 
 ### 开发提示

@@ -74,11 +74,11 @@ class _TickFlowBackend:
             )
         frame = pd.DataFrame(
             [
-                {"ts_code": symbol, "close": 10.0, "pct_chg": 1.0, "amount": 100.0}
+                {"ts_code": symbol, "trade_date": "20260520", "close": 10.0, "pct_chg": 0.0, "amount": 100.0}
                 for symbol in symbols
             ]
         )
-        frame.attrs["data_source"] = "tickflow_realtime_minute_quote"
+        frame.attrs["data_source"] = "tickflow_current_1m_quote"
         return frame
 
     def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
@@ -372,10 +372,14 @@ class AStockDataProviderTest(unittest.TestCase):
 
     def test_realtime_quotes_prefer_tickflow(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            DuckDBStorage(db_path).upsert_stock_daily(
+                _daily_frame(["000001.SZ"], trade_date="20260519", close=9.5)
+            )
             tickflow = _TickFlowBackend()
             akshare = _AkShareBackend()
             provider = AStockDataProvider(
-                _settings(Path(tmp) / "sats.duckdb"),
+                _settings(db_path),
                 tickflow_provider=tickflow,
                 tushare_provider=_TushareBackend(),
                 akshare_provider=akshare,
@@ -383,12 +387,14 @@ class AStockDataProviderTest(unittest.TestCase):
 
             frame = provider.load_realtime_quotes(symbols=["000001"])
 
-            self.assertEqual(frame.attrs["data_source"], "tickflow_realtime_minute_quote")
+            self.assertEqual(frame.attrs["data_source"], "tickflow_current_1m_quote")
             self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
+            self.assertAlmostEqual(float(frame.iloc[0]["pre_close"]), 9.5)
+            self.assertAlmostEqual(float(frame.iloc[0]["pct_chg"]), (10.0 / 9.5 - 1.0) * 100.0)
             self.assertEqual(tickflow.quote_calls, 1)
             self.assertEqual(akshare.quote_calls, 0)
 
-    def test_realtime_quotes_fall_back_to_akshare(self) -> None:
+    def test_realtime_quotes_do_not_fall_back_to_akshare(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             akshare = _AkShareBackend()
             provider = AStockDataProvider(
@@ -398,11 +404,10 @@ class AStockDataProviderTest(unittest.TestCase):
                 akshare_provider=akshare,
             )
 
-            frame = provider.load_realtime_quotes(symbols=["000001"])
+            with self.assertRaisesRegex(RuntimeError, "tickflow unavailable"):
+                provider.load_realtime_quotes(symbols=["000001"])
 
-            self.assertEqual(frame.attrs["data_source"], "akshare_spot_em")
-            self.assertEqual(frame.iloc[0]["close"], 8.0)
-            self.assertEqual(akshare.quote_calls, 1)
+            self.assertEqual(akshare.quote_calls, 0)
 
     def test_daily_klines_prefer_tickflow_before_tushare(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -637,6 +642,104 @@ class AStockDataProviderTest(unittest.TestCase):
             self.assertEqual(payload["domain"], "指数专题")
             self.assertEqual(payload["data_source"], "tushare_index_daily")
             self.assertEqual(tushare.dataset_calls, 1)
+
+    def test_company_fundamentals_aggregate_tushare_without_daily_klines(self) -> None:
+        class CompanyTickFlow(_TickFlowBackend):
+            def load_stock_basic(self, *, storage=None):
+                frame = pd.DataFrame(
+                    [
+                        {"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"},
+                        {"ts_code": "688559.SH", "symbol": "688559", "name": "海目星"},
+                    ]
+                )
+                if storage is not None:
+                    storage.upsert_stock_basic(frame)
+                return frame
+
+        class CompanyTushare(_TushareBackend):
+            def fetch_stock_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                ts_code = str((params or {}).get("ts_code") or "")
+                rows = {
+                    "stock_company": [{"ts_code": ts_code, "com_name": f"{ts_code}公司", "main_business": "专用设备"}],
+                    "fina_mainbz": [{"ts_code": ts_code, "end_date": "20251231", "bz_item": "设备", "bz_sales": 100.0}],
+                    "daily_basic": [{"ts_code": ts_code, "trade_date": "20260618", "pe": 20.0, "pb": 2.0, "ps": 3.0, "total_mv": 100000.0}],
+                    "fina_indicator": [
+                        {"ts_code": ts_code, "end_date": f"{year}1231", "roe": 10.0 + year - 2022, "debt_to_assets": 45.0}
+                        for year in range(2022, 2026)
+                    ],
+                    "income": [{"ts_code": ts_code, "end_date": "20251231", "revenue": 1000.0, "n_income": 100.0}],
+                    "balancesheet": [{"ts_code": ts_code, "end_date": "20251231", "total_assets": 2000.0, "total_liab": 900.0}],
+                    "cashflow": [{"ts_code": ts_code, "end_date": "20251231", "n_cashflow_act": 120.0}],
+                }[dataset]
+                return {
+                    "dataset": dataset,
+                    "rows": rows[:limit],
+                    "row_count": len(rows),
+                    "returned_row_count": min(len(rows), limit),
+                    "data_source": f"tushare_{dataset}",
+                    "missing_fields": [],
+                }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=CompanyTickFlow(),
+                tushare_provider=CompanyTushare(),
+                akshare_provider=SimpleNamespace(),
+            )
+
+            payload = provider.load_company_fundamentals(
+                ["688700.SH", "688559.SH"],
+                trade_date="20260621",
+                storage=DuckDBStorage(Path(tmp) / "sats.duckdb"),
+            )
+
+        self.assertEqual(payload["688700.SH"]["name"], "东威科技")
+        self.assertEqual(payload["688559.SH"]["name"], "海目星")
+        self.assertEqual(payload["688700.SH"]["main_business"], "专用设备")
+        self.assertEqual(len(payload["688700.SH"]["financial_indicators"]), 4)
+        self.assertEqual(payload["688700.SH"]["valuation"]["trade_date"], "20260618")
+        self.assertEqual(payload["688700.SH"]["missing_fields"], [])
+
+    def test_company_fundamentals_keeps_tushare_results_when_akshare_fallback_fails(self) -> None:
+        class PartialTushare(_TushareBackend):
+            def fetch_stock_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                rows = [] if dataset in {"stock_company", "fina_mainbz"} else [{"ts_code": "688700.SH", "end_date": "20251231", "roe": 12.0}]
+                return {
+                    "dataset": dataset,
+                    "rows": rows,
+                    "row_count": len(rows),
+                    "returned_row_count": len(rows),
+                    "data_source": f"tushare_{dataset}" if rows else "unavailable",
+                    "missing_fields": [] if rows else [f"{dataset}:unavailable"],
+                }
+
+        class FailedAkShare:
+            def fetch_akshare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {
+                    "dataset": dataset,
+                    "rows": [],
+                    "data_source": "unavailable",
+                    "missing_fields": ["akshare:fetch_failed"],
+                }
+
+        provider = AStockDataProvider(
+            _settings(Path("sats.duckdb")),
+            tickflow_provider=SimpleNamespace(
+                load_stock_basic=lambda **kwargs: pd.DataFrame(
+                    [{"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"}]
+                )
+            ),
+            tushare_provider=PartialTushare(),
+            akshare_provider=FailedAkShare(),
+        )
+
+        payload = provider.load_company_fundamentals(["688700.SH"], trade_date="20260621")
+
+        company = payload["688700.SH"]
+        self.assertEqual(company["name"], "东威科技")
+        self.assertTrue(company["financial_indicators"])
+        self.assertIn("akshare:fetch_failed", company["missing_fields"])
 
     def test_provider_capabilities_facade_lists_tickflow_and_tushare(self) -> None:
         provider = AStockDataProvider(

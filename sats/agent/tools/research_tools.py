@@ -142,13 +142,13 @@ def research_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="research.internal_analysis",
-            description="运行 SATS 白名单内部分析：指标、信号分析、native DSA、因子摘要。",
+            description="运行 SATS 白名单内部分析：指标、信号分析、native DSA、因子摘要、公司介绍与基本面。",
             category="research",
             side_effect="readonly",
             timeout=90,
             input_schema=object_schema(
                 {
-                    "kind": {"type": "string", "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary"]},
+                    "kind": {"type": "string", "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary", "company_fundamentals"]},
                     "symbols": {"type": "array", "items": {"type": "string"}},
                     "trade_date": {"type": "string"},
                     "signals": {"type": "string"},
@@ -527,6 +527,34 @@ def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> Agen
 
 def _internal_analysis(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     kind = str(arguments.get("kind") or "").strip()
+    if kind == "company_fundamentals":
+        symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
+        provider = AStockDataProvider(context.settings)
+        companies = provider.load_company_fundamentals(
+            symbols,
+            trade_date=str(arguments.get("trade_date") or agent_today()),
+            storage=context.storage,
+            periods=4,
+        )
+        rows = [companies[symbol] for symbol in symbols if symbol in companies]
+        payload = {
+            "kind": kind,
+            "trade_date": str(arguments.get("trade_date") or agent_today()),
+            "companies": rows,
+            "missing_fields": list(
+                dict.fromkeys(
+                    field
+                    for company in rows
+                    for field in company.get("missing_fields") or []
+                )
+            ),
+        }
+        return AgentToolResult(
+            status="done",
+            content=json.dumps({"status": "ok", "analysis": payload}, ensure_ascii=False, default=str),
+            payload={"status": "ok", "analysis": payload},
+            data_names=("company_fundamentals",),
+        )
     if kind not in {"indicators", "analyze_signals"} or not is_forecast_without_intraday(context.message, arguments):
         payload = run_internal_analysis_component(context.settings, {**arguments, "_message": context.message})
         result_payload = {"status": "ok", "analysis": payload}

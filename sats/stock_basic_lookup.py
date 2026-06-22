@@ -186,6 +186,23 @@ def names_from_stock_basic(message: str, stock_basic: pd.DataFrame) -> list[str]
     return _dedupe(names)
 
 
+def resolve_stock_mentions(message: str, stock_basic: pd.DataFrame) -> list[str]:
+    text = str(message or "")
+    mentions: list[tuple[int, str]] = []
+    for symbol in normalize_symbols(_symbol_mentions(text), required=False):
+        position = text.upper().find(symbol[:6])
+        if position >= 0:
+            mentions.append((position, symbol))
+    if not stock_basic.empty and {"name", "ts_code"}.issubset(stock_basic.columns):
+        data = _clean_stock_basic(stock_basic)
+        for _, row in data.drop_duplicates(subset=["ts_code"]).iterrows():
+            name = str(row.get("name") or "").strip()
+            position = text.find(name) if len(name) >= 2 else -1
+            if position >= 0:
+                mentions.append((position, str(row.get("ts_code") or "")))
+    return _dedupe(symbol for _, symbol in sorted(mentions, key=lambda item: item[0]))
+
+
 def _clean_stock_basic(stock_basic: pd.DataFrame) -> pd.DataFrame:
     data = stock_basic.copy()
     for column in ("ts_code", "symbol", "name", "industry", "market", "exchange"):
@@ -200,6 +217,19 @@ def _clean_stock_basic(stock_basic: pd.DataFrame) -> pd.DataFrame:
 def _looks_symbol(value: str) -> bool:
     text = str(value or "")
     return len(text) == 9 and text[:6].isdigit() and text[6] == "." or (len(text) == 6 and text.isdigit())
+
+
+def _symbol_mentions(message: str) -> list[str]:
+    import re
+
+    return [
+        match.group(1)
+        for match in re.finditer(
+            r"(?<![A-Za-z0-9])([034689]\d{5}(?:\.(?:SH|SZ|BJ))?)(?![A-Za-z0-9])",
+            str(message or ""),
+            flags=re.IGNORECASE,
+        )
+    ]
 
 
 def _dedupe(values: Iterable[str]) -> list[str]:

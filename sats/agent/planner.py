@@ -17,6 +17,7 @@ from sats.natural_task import build_screened_natural_task_spec, extract_candidat
 from sats.rag.knowledge import infer_stock_collections
 from sats.screening.registry import list_rules
 from sats.screening.rule_composer import is_rule_generation_request, parse_rule_generation_confirmation
+from sats.stock_basic_lookup import load_stock_basic_frame, resolve_stock_mentions
 from sats.stock_question import extract_stock_symbols, extract_trade_date
 from sats.agent.tools.workflow_tools import infer_screening_rule, is_screened_stock_analysis_request
 
@@ -34,12 +35,21 @@ def build_agent_plan(
     policy_message: str | None = None,
     reference_context: Any | None = None,
 ) -> AgentPlan:
+    planning_message = policy_message or message
+    resolved_symbols = _resolve_message_stock_symbols(planning_message, settings=settings, reference_context=reference_context)
     local_plan = _with_planner_model_meta(
         _normalize_chat_answer_steps(
             _augment_plan(
-                _fallback_plan(policy_message or message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
-                message=policy_message or message,
+                _fallback_plan(
+                    planning_message,
+                    policy=policy,
+                    tool_registry=tool_registry,
+                    reference_context=reference_context,
+                    resolved_symbols=resolved_symbols,
+                ),
+                message=planning_message,
                 reference_context=reference_context,
+                resolved_symbols=resolved_symbols,
             )
         ),
         model_policy="local",
@@ -56,12 +66,23 @@ def build_agent_plan(
             tool_registry=tool_registry,
             reference_context=reference_context,
             model_policy=model_policy,
+            resolved_symbols=resolved_symbols,
         )
-        plan = _plan_from_payload(payload, message=policy_message or message, tool_registry=tool_registry)
+        plan = _plan_from_payload(
+            payload,
+            message=planning_message,
+            tool_registry=tool_registry,
+            resolved_symbols=resolved_symbols,
+        )
         if plan.steps:
             return _with_planner_model_meta(
                 _normalize_chat_answer_steps(
-                    _augment_plan(plan, message=policy_message or message, reference_context=reference_context)
+                    _augment_plan(
+                        plan,
+                        message=planning_message,
+                        reference_context=reference_context,
+                        resolved_symbols=resolved_symbols,
+                    )
                 ),
                 **model_meta,
             )
@@ -78,6 +99,7 @@ def _llm_plan_payload(
     tool_registry: AgentToolRegistry | None,
     reference_context: Any | None,
     model_policy: str,
+    resolved_symbols: list[str],
 ) -> tuple[dict[str, Any], dict[str, str]]:
     model_profile = "default" if model_policy == "standard" else "light"
     model_name = _main_model_name(settings) if model_policy == "standard" else _light_model_name(settings)
@@ -104,11 +126,25 @@ def _llm_plan_payload(
     }
     try:
         response = llm.chat(
-            _planner_messages(message, policy=policy, tool_registry=tool_registry, reference_context=reference_context),
+            _planner_messages(
+                message,
+                policy=policy,
+                tool_registry=tool_registry,
+                reference_context=reference_context,
+                resolved_symbols=resolved_symbols,
+            ),
             timeout=_llm_timeout_seconds(settings),
         )
     except TypeError:
-        response = llm.chat(_planner_messages(message, policy=policy, tool_registry=tool_registry, reference_context=reference_context))
+        response = llm.chat(
+            _planner_messages(
+                message,
+                policy=policy,
+                tool_registry=tool_registry,
+                reference_context=reference_context,
+                resolved_symbols=resolved_symbols,
+            )
+        )
     except Exception:
         return {}, model_meta
     model_meta = {
@@ -126,6 +162,7 @@ def _planner_messages(
     policy: AgentExecutionPolicy,
     tool_registry: AgentToolRegistry | None,
     reference_context: Any | None = None,
+    resolved_symbols: list[str] | None = None,
 ) -> list[dict[str, str]]:
     tools = tool_registry.planner_context() if tool_registry is not None else "[]"
     today = agent_today()
@@ -165,6 +202,8 @@ def _planner_messages(
                 "缠论问题 -> research.chan_context；"
                 "规则生成 -> research.rule_generation。"
                 "除非用户明确要求，否则不要默认追加 factor_summary、analyze_signals、knowledge_context 或额外 data.* 取数步骤。"
+                "公司介绍、公司概况、主营业务、业务构成或基本面介绍请求，使用 research.internal_analysis(kind=company_fundamentals)，"
+                "该工具不依赖日线行情；不要为这类请求改用 stock_context 或 deep_stock_analysis。"
                 "如果用户说上面、上述、刚才、这些、它或它们，并且可用上文上下文提供 symbols，必须把这些 symbols 当作本轮股票输入。"
             ),
         },
@@ -173,13 +212,20 @@ def _planner_messages(
             "content": (
                 "按 JSON 输出字段：objective, success_criteria, assumptions, risk_level, requires_live_trading, steps。"
                 "steps 每项字段：step_id, kind(tool|command|python|trade|final), title, tool_name, arguments, command, code, trade, side_effect, requires_confirmation, success_criteria。"
-                f"\npolicy={policy.to_dict()}\n可用工具={tools}\n{reference_summary}用户目标：{message}"
+                f"\npolicy={policy.to_dict()}\n已解析股票代码={', '.join(resolved_symbols or []) or 'none'}"
+                f"\n可用工具={tools}\n{reference_summary}用户目标：{message}"
             ),
         },
     ]
 
 
-def _plan_from_payload(payload: dict[str, Any], *, message: str, tool_registry: AgentToolRegistry | None) -> AgentPlan:
+def _plan_from_payload(
+    payload: dict[str, Any],
+    *,
+    message: str,
+    tool_registry: AgentToolRegistry | None,
+    resolved_symbols: list[str] | None = None,
+) -> AgentPlan:
     if not payload:
         return AgentPlan(objective=message)
     steps = []
@@ -195,6 +241,7 @@ def _plan_from_payload(payload: dict[str, Any], *, message: str, tool_registry: 
             continue
         arguments = dict(raw.get("arguments") or {}) if isinstance(raw.get("arguments"), dict) else {}
         if kind == "tool":
+            arguments = _replace_unresolved_step_symbols(arguments, resolved_symbols or [])
             sanitized = sanitize_agent_tool_arguments(tool_name, arguments, message)
             if sanitized.error:
                 continue
@@ -233,11 +280,12 @@ def _fallback_plan(
     policy: AgentExecutionPolicy,
     tool_registry: AgentToolRegistry | None = None,
     reference_context: Any | None = None,
+    resolved_symbols: list[str] | None = None,
 ) -> AgentPlan:
     text = str(message or "").strip()
     lowered = text.lower()
     steps: list[AgentStep] = []
-    symbols = extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
+    symbols = list(resolved_symbols or ()) or extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
     clean_symbols = symbols or ["000001"] if _needs_symbol_default(text) else symbols
     confirmed_rule_name = parse_rule_generation_confirmation(text)
     natural_task = {}
@@ -367,6 +415,20 @@ def _fallback_plan(
         steps.append(_theme_stock_returns_step(text))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
+    elif clean_symbols and _is_company_fundamentals_request(text):
+        steps.append(
+            _tool_step(
+                "company_fundamentals",
+                "research.internal_analysis",
+                "获取公司介绍、主营业务与基本面",
+                {
+                    "kind": "company_fundamentals",
+                    "symbols": clean_symbols,
+                    "trade_date": _analysis_trade_date(text, reference_context),
+                },
+                side_effect="readonly",
+            )
+        )
     elif clean_symbols and _is_deep_stock_analysis_request(text):
         trade_date = _analysis_trade_date(text, reference_context)
         steps.append(
@@ -531,13 +593,24 @@ def _llm_timeout_seconds(settings: Settings) -> int | None:
     return timeout if timeout > 0 else None
 
 
-def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | None = None) -> AgentPlan:
-    steps = list(plan.steps)
+def _augment_plan(
+    plan: AgentPlan,
+    *,
+    message: str,
+    reference_context: Any | None = None,
+    resolved_symbols: list[str] | None = None,
+) -> AgentPlan:
+    steps = [_with_resolved_step_symbols(step, resolved_symbols or []) for step in plan.steps]
     if not steps:
         return plan
     insert_at = _final_index(steps)
     text = str(message or "")
-    symbols = _plan_stock_symbols(steps) or extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
+    symbols = (
+        list(resolved_symbols or ())
+        or _plan_stock_symbols(steps)
+        or extract_stock_symbols(text)
+        or _reference_symbols_for_message(text, reference_context)
+    )
     if _is_serenity_screen_request(text):
         steps = [
             step
@@ -611,12 +684,33 @@ def _augment_plan(plan: AgentPlan, *, message: str, reference_context: Any | Non
         return replace(plan, steps=tuple(steps))
     if _is_theme_stock_return_request(text):
         return replace(plan, steps=(_theme_stock_returns_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
+    if symbols and _is_company_fundamentals_request(text):
+        company_step = _tool_step(
+            "company_fundamentals",
+            "research.internal_analysis",
+            "获取公司介绍、主营业务与基本面",
+            {
+                "kind": "company_fundamentals",
+                "symbols": symbols,
+                "trade_date": _analysis_trade_date(text, reference_context),
+            },
+            side_effect="readonly",
+        )
+        return replace(
+            plan,
+            steps=(company_step, AgentStep(step_id="final", kind="final", title="总结结果")),
+        )
     if _is_market_analysis_request(text) and not _has_tool(steps, "research.market_context"):
         steps.insert(insert_at, _tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
         insert_at += 1
     elif _is_market_analysis_request(text):
         steps = [_with_default_market_dimensions(step) for step in steps]
-    symbols = _plan_stock_symbols(steps) or extract_stock_symbols(text) or _reference_symbols_for_message(text, reference_context)
+    symbols = (
+        list(resolved_symbols or ())
+        or _plan_stock_symbols(steps)
+        or extract_stock_symbols(text)
+        or _reference_symbols_for_message(text, reference_context)
+    )
     if symbols and _needs_hot_sector_context(text) and not _is_market_analysis_request(text) and not _has_tool(steps, "research.market_context"):
         steps.insert(_final_index(steps), _hot_sector_context_step(text))
     if symbols and _is_deep_stock_analysis_request(text):
@@ -936,6 +1030,23 @@ def _is_stock_analysis_request(text: str) -> bool:
         or any(term in text for term in ("分析", "走势", "预测", "技术面", "信号", "因子", "缠论", "风险"))
         or bool(_strategy_intents(text))
     )
+
+
+def _is_company_fundamentals_request(text: str) -> bool:
+    lowered = str(text or "").lower()
+    company_terms = (
+        "company profile",
+        "business overview",
+        "company fundamentals",
+        "公司介绍",
+        "公司概况",
+        "企业介绍",
+        "主营业务",
+        "业务介绍",
+        "业务构成",
+        "基本面介绍",
+    )
+    return any(term in lowered for term in company_terms)
 
 
 def _is_deep_stock_analysis_request(text: str) -> bool:
@@ -1436,6 +1547,77 @@ def _plan_stock_symbols(steps: list[AgentStep]) -> list[str]:
                 if symbol and symbol not in symbols and not _looks_like_index_symbol(symbol):
                     symbols.append(symbol)
     return symbols
+
+
+def _resolve_message_stock_symbols(message: str, *, settings: Settings, reference_context: Any | None) -> list[str]:
+    explicit = extract_stock_symbols(message)
+    if not _message_may_contain_stock_name(message):
+        return explicit or _reference_symbols_for_message(message, reference_context)
+    try:
+        stock_basic = load_stock_basic_frame(settings)
+        mentioned = resolve_stock_mentions(message, stock_basic)
+    except Exception:
+        mentioned = []
+    symbols = list(dict.fromkeys([*mentioned, *explicit]))
+    if not symbols:
+        symbols.extend(_reference_symbols_for_message(message, reference_context))
+    return symbols
+
+
+def _message_may_contain_stock_name(message: str) -> bool:
+    text = str(message or "")
+    return any(
+        term in text
+        for term in (
+            "公司",
+            "股票",
+            "个股",
+            "分析",
+            "走势",
+            "基本面",
+            "财务",
+            "估值",
+            "主营",
+            "业务",
+            "公告",
+            "新闻",
+            "报价",
+            "股价",
+            "持仓",
+            "买入",
+            "卖出",
+            "缠论",
+            "DSA",
+            "DAS",
+        )
+    )
+
+
+def _replace_unresolved_step_symbols(arguments: dict[str, Any], resolved_symbols: list[str]) -> dict[str, Any]:
+    result = dict(arguments)
+    values = result.get("symbols")
+    if not isinstance(values, list) or not values or not resolved_symbols:
+        return result
+    if any(not _looks_like_stock_symbol(value) for value in values):
+        result["symbols"] = list(resolved_symbols)
+    return result
+
+
+def _with_resolved_step_symbols(step: AgentStep, resolved_symbols: list[str]) -> AgentStep:
+    if step.kind != "tool":
+        return step
+    arguments = _replace_unresolved_step_symbols(step.arguments, resolved_symbols)
+    return replace(step, arguments=arguments) if arguments != step.arguments else step
+
+
+def _looks_like_stock_symbol(value: Any) -> bool:
+    text = str(value or "").strip().upper()
+    return (len(text) == 6 and text.isdigit()) or (
+        len(text) == 9
+        and text[:6].isdigit()
+        and text[6] == "."
+        and text[7:] in {"SH", "SZ", "BJ"}
+    )
 
 
 def _looks_like_index_symbol(symbol: str) -> bool:

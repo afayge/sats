@@ -197,7 +197,7 @@ class MonitorService:
                     stock_basic={**stock_basic.get(ts_code, {}), "name": target.get("name") or stock_basic.get(ts_code, {}).get("name", "")},
                     metadata={
                         "data_source": str(
-                            quote_lookup.get(ts_code, {}).get("data_source") or "tickflow_realtime_minute_quote"
+                            quote_lookup.get(ts_code, {}).get("data_source") or "tickflow_current_1m_quote"
                         ),
                         "minute_30m": minute_groups.get(ts_code, pd.DataFrame()),
                         "minute_30m_source": "tickflow_realtime",

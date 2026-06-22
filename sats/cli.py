@@ -936,11 +936,6 @@ def cmd_quote(args: argparse.Namespace) -> int:
     start_date = (datetime.now(SHANGHAI_TZ) - timedelta(days=420)).strftime("%Y%m%d")
     progress = _progress_for_args(args)
     try:
-        with progress.step("AStock 实时行情") as step:
-            quotes = provider.load_realtime_quotes(symbols=symbols)
-            step.complete(message=f"{len(quotes)} 条")
-        if quotes.empty:
-            raise SystemExit("未获取到实时行情")
         with progress.step("AStock 历史日线") as step:
             daily = provider.load_historical_daily_klines(
                 symbols,
@@ -949,6 +944,11 @@ def cmd_quote(args: argparse.Namespace) -> int:
                 storage=storage,
             )
             step.complete(message=f"{len(daily)} 条")
+        with progress.step("AStock 实时行情") as step:
+            quotes = provider.load_realtime_quotes(symbols=symbols)
+            step.complete(message=f"{len(quotes)} 条")
+        if quotes.empty:
+            raise SystemExit("未获取到实时行情")
         with progress.step("AStock 实时日线") as step:
             realtime_daily = provider.load_realtime_daily_quotes(symbols, trade_date=trade_date)
             step.complete(message=f"{len(realtime_daily)} 条")

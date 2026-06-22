@@ -11,14 +11,17 @@ SATS_COMMANDS = (
     "results",
     "result-rules",
     "quote",
+    "period-change",
     "analyze",
     "analyze-dsa",
     "dsa",
     "deep-analysis",
     "serenity-screen",
+    "trading-committee",
     "analyze-chan",
     "chan-kb",
     "discover",
+    "web",
     "model",
     "memory",
     "history",
@@ -34,12 +37,14 @@ SATS_COMMANDS = (
     "serve",
 )
 
+RECURSIVE_SATS_COMMANDS = ("agent", "chat")
+
 
 def command_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
             name="sats_command.catalog",
-            description="列出 Agent 可通过 argv runner 调用的 SATS CLI 命令。",
+            description="列出 Agent 可通过 argv runner 调用的全部非递归 SATS CLI 命令。",
             category="command",
             side_effect="readonly",
             timeout=5,
@@ -48,7 +53,10 @@ def command_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="sats_command.run",
-            description="通过 SATS argv runner 执行一个 SATS CLI 命令；不走 shell，禁止递归 agent/chat。",
+            description=(
+                "通过 SATS argv runner 执行任一非递归 SATS CLI 命令；不走 shell，禁止递归 agent/chat。"
+                f"可用顶层命令：{', '.join(SATS_COMMANDS)}。"
+            ),
             category="command",
             side_effect="command",
             timeout=120,

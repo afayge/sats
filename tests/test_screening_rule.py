@@ -301,6 +301,15 @@ class SequoiaXRulesTest(unittest.TestCase):
         self.assertEqual(get_rule("UptrendLimitDown").name, "uptrend_limit_down")
         self.assertEqual(get_rule("RpsBreakout").name, "rps_breakout")
 
+    def test_chan_rules_declare_30m_intraday_requirement(self) -> None:
+        for rule_name in ("chan_third_buy", "chan_composite", "chan_signals"):
+            with self.subTest(rule=rule_name):
+                requirements = get_rule(rule_name).intraday_kline_requirements
+                self.assertEqual(len(requirements), 1)
+                self.assertEqual(requirements[0].period, "30m")
+                self.assertEqual(requirements[0].metadata_key, "minute_30m")
+                self.assertEqual(requirements[0].history_calendar_days, 30)
+
 
 def _daily_frame(rows: list[dict[str, float]], *, end: str = "20260430", ts_code: str = "000001.SZ") -> pd.DataFrame:
     dates = make_trade_dates(len(rows), end=end)

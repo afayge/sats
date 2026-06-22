@@ -348,46 +348,52 @@ class AStockDataProvider(MarketDataProvider):
     ) -> pd.DataFrame:
         clean_symbols = normalize_symbols(symbols, required=False) if symbols is not None else None
         tick = self.tickflow
-        if tick is not None:
-            if clean_symbols is not None:
-                frame = _safe_frame(lambda: tick.load_realtime_quotes(symbols=clean_symbols))
-            else:
-                frame = _safe_frame(lambda: tick.load_realtime_quotes(universe_id=universe_id))
-            if not frame.empty:
-                default_source = "tickflow_quote" if clean_symbols is not None else "tickflow_universe_quote"
-                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or default_source)
-                return frame
-        if clean_symbols is not None:
-            ak = self.akshare
-            if ak is not None:
-                frame = _safe_frame(lambda: ak.load_realtime_quotes(clean_symbols))
-                if not frame.empty:
-                    frame.attrs["data_source"] = "akshare_spot_em"
-                    return frame
-        elif universe_id is not None:
-            ak = self.akshare
-            if ak is not None and hasattr(ak, "load_a_share_realtime_quotes"):
-                frame = _safe_frame(lambda: ak.load_a_share_realtime_quotes())
-                if not frame.empty:
-                    frame.attrs["data_source"] = "akshare_spot_em"
-                    return frame
-        return pd.DataFrame()
+        if tick is None:
+            return pd.DataFrame()
+        frame = (
+            tick.load_realtime_quotes(symbols=clean_symbols)
+            if clean_symbols is not None
+            else tick.load_realtime_quotes(universe_id=universe_id)
+        )
+        if frame.empty:
+            return frame
+        frame = _with_cached_previous_close(
+            frame,
+            storage=DuckDBStorage(self.settings.db_path),
+        )
+        frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_current_1m_quote")
+        return frame
 
     def load_realtime_daily_quotes(self, symbols: list[str], *, trade_date: str) -> pd.DataFrame:
         clean_symbols = normalize_symbols(symbols, required=False)
         tick = self.tickflow
-        if tick is not None and hasattr(tick, "load_realtime_daily_quotes"):
-            frame = _safe_frame(lambda: tick.load_realtime_daily_quotes(clean_symbols, trade_date=trade_date))
-            if not frame.empty:
-                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_quote_daily")
-                return frame
-        quotes = self.load_realtime_quotes(symbols=clean_symbols)
-        if quotes.empty:
+        if tick is None or not hasattr(tick, "load_realtime_daily_quotes"):
             return pd.DataFrame()
-        frame = quotes.copy()
-        frame["trade_date"] = str(trade_date)
-        frame.attrs["data_source"] = str(quotes.attrs.get("data_source") or "quote_daily")
+        frame = tick.load_realtime_daily_quotes(clean_symbols, trade_date=trade_date)
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_current_1d")
         return frame
+
+    def load_current_klines(
+        self,
+        symbols: list[str],
+        *,
+        period: str,
+        trade_date: str,
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return pd.DataFrame()
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_current_klines"):
+            return pd.DataFrame()
+        return tick.load_current_klines(
+            clean_symbols,
+            period=period,
+            trade_date=trade_date,
+            count=count,
+        )
 
     def load_realtime_minute_klines(
         self,
@@ -449,7 +455,13 @@ class AStockDataProvider(MarketDataProvider):
         return result
 
     def load_market_breadth(self) -> tuple[dict[str, Any], str]:
-        frame = self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID)
+        frame = _safe_frame(lambda: self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID))
+        if frame.empty:
+            ak = self.akshare
+            if ak is not None and hasattr(ak, "load_a_share_realtime_quotes"):
+                frame = _safe_frame(lambda: ak.load_a_share_realtime_quotes())
+                if not frame.empty:
+                    frame.attrs["data_source"] = "akshare_spot_em"
         source = str(frame.attrs.get("data_source") or "unavailable") if not frame.empty else "unavailable"
         if frame.empty:
             return {}, "unavailable"
@@ -461,7 +473,7 @@ class AStockDataProvider(MarketDataProvider):
             payload = _safe_payload(lambda: tushare.load_limit_sentiment(trade_date, storage=storage))
             if payload and not _limit_sentiment_needs_fallback(payload):
                 return payload
-        frame = self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID)
+        frame = _safe_frame(lambda: self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID))
         source = str(frame.attrs.get("data_source") or "realtime_quote_fallback") if not frame.empty else "unavailable"
         if not frame.empty:
             payload = build_quote_limit_sentiment_payload(
@@ -541,6 +553,125 @@ class AStockDataProvider(MarketDataProvider):
         if ak is None or not hasattr(ak, "load_fundamental_context"):
             return {}
         return ak.load_fundamental_context(symbols)
+
+    def load_company_fundamentals(
+        self,
+        symbols: list[str],
+        *,
+        trade_date: str = "",
+        storage: DuckDBStorage | None = None,
+        periods: int = 4,
+    ) -> dict[str, dict[str, Any]]:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if not clean_symbols:
+            return {}
+        names = _stock_name_lookup(self.load_stock_basic(storage=storage))
+        result: dict[str, dict[str, Any]] = {}
+        for ts_code in clean_symbols:
+            data_sources: dict[str, str] = {}
+            missing_fields: list[str] = []
+            profile = _dataset_rows(
+                self.fetch_tushare_stock_dataset(
+                    "stock_company",
+                    {"ts_code": ts_code},
+                    fields=[
+                        "ts_code",
+                        "com_name",
+                        "exchange",
+                        "chairman",
+                        "manager",
+                        "secretary",
+                        "reg_capital",
+                        "setup_date",
+                        "province",
+                        "city",
+                        "main_business",
+                    ],
+                    limit=1,
+                ),
+                dataset="stock_company",
+                sources=data_sources,
+                missing=missing_fields,
+            )
+            business = _latest_period_rows(
+                _dataset_rows(
+                    self.fetch_tushare_stock_dataset(
+                        "fina_mainbz",
+                        {"ts_code": ts_code},
+                        fields=["ts_code", "end_date", "bz_item", "bz_code", "bz_sales", "bz_profit", "bz_cost", "curr_type"],
+                        limit=200,
+                    ),
+                    dataset="fina_mainbz",
+                    sources=data_sources,
+                    missing=missing_fields,
+                ),
+                trade_date=trade_date,
+                limit=12,
+            )
+            valuation = _latest_rows(
+                _dataset_rows(
+                    self.fetch_tushare_stock_dataset(
+                        "daily_basic",
+                        {"ts_code": ts_code, "end_date": trade_date},
+                        fields=["ts_code", "trade_date", "close", "pe", "pe_ttm", "pb", "ps", "total_mv", "circ_mv"],
+                        limit=20,
+                    ),
+                    dataset="daily_basic",
+                    sources=data_sources,
+                    missing=missing_fields,
+                ),
+                trade_date=trade_date,
+                limit=1,
+            )
+            statements: dict[str, list[dict[str, Any]]] = {}
+            statement_fields = {
+                "fina_indicator": ["ts_code", "ann_date", "end_date", "eps", "grossprofit_margin", "netprofit_margin", "roe", "roa", "roic", "debt_to_assets", "current_ratio", "quick_ratio", "rd_exp"],
+                "income": ["ts_code", "ann_date", "end_date", "basic_eps", "total_revenue", "revenue", "operate_profit", "total_profit", "n_income", "ebit", "ebitda"],
+                "balancesheet": ["ts_code", "ann_date", "end_date", "total_assets", "total_cur_assets", "total_liab", "total_cur_liab", "total_hldr_eqy_inc_min_int"],
+                "cashflow": ["ts_code", "ann_date", "end_date", "net_profit", "c_inf_fr_operate_a", "n_cashflow_act", "n_cashflow_inv_act", "n_cash_flows_fnc_act", "free_cashflow"],
+            }
+            for dataset, fields in statement_fields.items():
+                rows = _dataset_rows(
+                    self.fetch_tushare_stock_dataset(
+                        dataset,
+                        {"ts_code": ts_code, "end_date": trade_date},
+                        fields=fields,
+                        limit=max(8, periods * 2),
+                    ),
+                    dataset=dataset,
+                    sources=data_sources,
+                    missing=missing_fields,
+                )
+                statements[dataset] = _latest_rows(rows, trade_date=trade_date, limit=max(1, int(periods)))
+
+            akshare_profile: dict[str, Any] = {}
+            akshare_business: list[dict[str, Any]] = []
+            if not profile:
+                payload = self.fetch_akshare_dataset("stock_individual_info_em", {"symbol": ts_code[:6]}, limit=50)
+                akshare_profile = _akshare_item_value_payload(payload.get("rows") or [])
+                _record_optional_dataset(payload, "stock_individual_info_em", data_sources, missing_fields, available=bool(akshare_profile))
+            if not business:
+                payload = self.fetch_akshare_dataset("stock_zygc_em", {"symbol": ts_code[:6]}, limit=50)
+                akshare_business = [dict(row) for row in payload.get("rows") or [] if isinstance(row, dict)]
+                _record_optional_dataset(payload, "stock_zygc_em", data_sources, missing_fields, available=bool(akshare_business))
+
+            company_profile = dict(profile[0]) if profile else akshare_profile
+            name = names.get(ts_code) or str(company_profile.get("com_name") or company_profile.get("股票简称") or "")
+            result[ts_code] = {
+                "ts_code": ts_code,
+                "name": name,
+                "company_profile": _jsonable(company_profile),
+                "main_business": str(company_profile.get("main_business") or company_profile.get("主营业务") or ""),
+                "business_composition": _jsonable(business or akshare_business),
+                "valuation": _jsonable(valuation[0] if valuation else {}),
+                "financial_indicators": _jsonable(statements["fina_indicator"]),
+                "income": _jsonable(statements["income"]),
+                "balance_sheet": _jsonable(statements["balancesheet"]),
+                "cashflow": _jsonable(statements["cashflow"]),
+                "data_sources": data_sources,
+                "missing_fields": list(dict.fromkeys(missing_fields)),
+            }
+        return result
 
     def load_statement_context(self, symbols: list[str], *, trade_date: str, limit: int = 8) -> dict[str, dict[str, Any]]:
         clean_symbols = normalize_symbols(symbols, required=False)
@@ -843,6 +974,82 @@ def _rows_on_or_before(rows: Any, trade_date: str) -> list[dict[str, Any]]:
     return result
 
 
+def _dataset_rows(
+    payload: dict[str, Any],
+    *,
+    dataset: str,
+    sources: dict[str, str],
+    missing: list[str],
+) -> list[dict[str, Any]]:
+    rows = [dict(row) for row in payload.get("rows") or [] if isinstance(row, dict)]
+    source = str(payload.get("data_source") or "")
+    if rows:
+        sources[dataset] = source or dataset
+    else:
+        reasons = [str(item) for item in payload.get("missing_fields") or [] if str(item)]
+        missing.extend(reasons or [f"{dataset}:unavailable"])
+    return rows
+
+
+def _record_optional_dataset(
+    payload: dict[str, Any],
+    dataset: str,
+    sources: dict[str, str],
+    missing: list[str],
+    *,
+    available: bool,
+) -> None:
+    if available:
+        sources[dataset] = str(payload.get("data_source") or f"akshare_{dataset}")
+        return
+    reasons = [str(item) for item in payload.get("missing_fields") or [] if str(item)]
+    missing.extend(reasons or [f"{dataset}:unavailable"])
+
+
+def _latest_rows(rows: list[dict[str, Any]], *, trade_date: str, limit: int) -> list[dict[str, Any]]:
+    filtered = _rows_on_or_before(rows, trade_date)
+    ordered = sorted(
+        filtered,
+        key=lambda row: str(row.get("end_date") or row.get("trade_date") or row.get("ann_date") or ""),
+        reverse=True,
+    )
+    result: list[dict[str, Any]] = []
+    seen_dates: set[str] = set()
+    for row in ordered:
+        date_value = str(row.get("end_date") or row.get("trade_date") or row.get("ann_date") or "")
+        if date_value and date_value in seen_dates:
+            continue
+        if date_value:
+            seen_dates.add(date_value)
+        result.append(row)
+        if len(result) >= limit:
+            break
+    return result
+
+
+def _latest_period_rows(rows: list[dict[str, Any]], *, trade_date: str, limit: int) -> list[dict[str, Any]]:
+    filtered = _rows_on_or_before(rows, trade_date)
+    dates = sorted(
+        {str(row.get("end_date") or "") for row in filtered if str(row.get("end_date") or "")},
+        reverse=True,
+    )
+    latest = dates[0] if dates else ""
+    selected = [row for row in filtered if not latest or str(row.get("end_date") or "") == latest]
+    return selected[:limit]
+
+
+def _akshare_item_value_payload(rows: list[Any]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        key = row.get("item") if row.get("item") is not None else row.get("项目")
+        value = row.get("value") if row.get("value") is not None else row.get("值")
+        if key not in (None, ""):
+            result[str(key)] = value
+    return result
+
+
 def _stock_name_lookup(frame: pd.DataFrame | None) -> dict[str, str]:
     if frame is None or frame.empty or "ts_code" not in frame.columns or "name" not in frame.columns:
         return {}
@@ -851,6 +1058,48 @@ def _stock_name_lookup(frame: pd.DataFrame | None) -> dict[str, str]:
         for _, row in frame.iterrows()
         if str(row.get("ts_code") or "").strip() and str(row.get("name") or "").strip()
     }
+
+
+def _with_cached_previous_close(frame: pd.DataFrame, *, storage: DuckDBStorage) -> pd.DataFrame:
+    if frame is None or frame.empty or "ts_code" not in frame.columns:
+        return frame
+    data = frame.copy()
+    trade_date = (
+        str(data["trade_date"].dropna().astype(str).max())
+        if "trade_date" in data.columns and not data["trade_date"].dropna().empty
+        else datetime.now().strftime("%Y%m%d")
+    )
+    symbols = sorted({str(value) for value in data["ts_code"].dropna().tolist() if str(value)})
+    try:
+        history = storage.get_stock_daily_range(
+            symbols,
+            start_date=_days_before(trade_date, 400),
+            end_date=trade_date,
+            with_meta=False,
+        )
+    except Exception:
+        history = pd.DataFrame()
+    previous_close: dict[str, float] = {}
+    if not history.empty:
+        history = history[history["trade_date"].astype(str) < trade_date]
+        history = history.sort_values(["ts_code", "trade_date"]).drop_duplicates("ts_code", keep="last")
+        previous_close = {
+            str(row["ts_code"]): _safe_float(row.get("close"))
+            for _, row in history.iterrows()
+        }
+    if "pre_close" not in data.columns:
+        data["pre_close"] = None
+    if "pct_chg" not in data.columns:
+        data["pct_chg"] = None
+    for index, row in data.iterrows():
+        ts_code = str(row.get("ts_code") or "")
+        pre_close = _safe_float(row.get("pre_close")) or previous_close.get(ts_code, 0.0)
+        close = _safe_float(row.get("close"))
+        if pre_close > 0:
+            data.at[index, "pre_close"] = pre_close
+            data.at[index, "pct_chg"] = (close / pre_close - 1.0) * 100.0 if close > 0 else None
+    data.attrs.update(frame.attrs)
+    return data
 
 
 def _days_before(trade_date: str, calendar_days: int) -> str:

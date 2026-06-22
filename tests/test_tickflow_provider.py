@@ -27,6 +27,26 @@ def _minute_frame(symbol: str, trade_time: str = "2026-05-14 09:31:00") -> pd.Da
     )
 
 
+def _intraday_daily_frame(symbol: str) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "symbol": [symbol] * 4,
+            "trade_time": [
+                "2026-05-13 15:00:00",
+                "2026-05-14 09:31:00",
+                "2026-05-14 09:32:00",
+                "2026-05-14 09:33:00",
+            ],
+            "open": [9.8, 10.0, 10.2, 10.4],
+            "high": [10.0, 10.3, 10.8, 10.7],
+            "low": [9.7, 9.9, 9.8, 10.3],
+            "close": [9.9, 10.2, 10.5, 10.6],
+            "volume": [900.0, 1000.0, 2000.0, 3000.0],
+            "amount": [8910.0, 10200.0, 21000.0, 31800.0],
+        }
+    )
+
+
 def _daily_frame(symbol: str) -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -43,9 +63,20 @@ def _daily_frame(symbol: str) -> pd.DataFrame:
 
 
 class FakeKlines:
-    def __init__(self, *, fail_batch: bool | Exception = False, fail_intraday=None) -> None:
+    def __init__(
+        self,
+        *,
+        fail_batch: bool | Exception = False,
+        fail_intraday=None,
+        batch_failures=None,
+        intraday_batch_failures=None,
+        intraday_frame_factory=None,
+    ) -> None:
         self.fail_batch = fail_batch
         self.fail_intraday = list(fail_intraday or [])
+        self.batch_failures = list(batch_failures or [])
+        self.intraday_batch_failures = list(intraday_batch_failures or [])
+        self.intraday_frame_factory = intraday_frame_factory or _minute_frame
         self.intraday_batch_calls: list[dict] = []
         self.batch_calls: list[dict] = []
         self.intraday_calls: list[dict] = []
@@ -53,14 +84,22 @@ class FakeKlines:
 
     def intraday_batch(self, symbols, **kwargs):
         self.intraday_batch_calls.append({"symbols": list(symbols), **kwargs})
+        if self.intraday_batch_failures:
+            exc = self.intraday_batch_failures.pop(0)
+            if exc is not None:
+                raise exc
         if isinstance(self.fail_batch, Exception):
             raise self.fail_batch
         if self.fail_batch:
             raise RuntimeError("batch failed")
-        return {symbol: _minute_frame(symbol) for symbol in symbols}
+        return {symbol: self.intraday_frame_factory(symbol) for symbol in symbols}
 
     def batch(self, symbols, **kwargs):
         self.batch_calls.append({"symbols": list(symbols), **kwargs})
+        if self.batch_failures:
+            exc = self.batch_failures.pop(0)
+            if exc is not None:
+                raise exc
         if self.fail_batch:
             raise RuntimeError("batch failed")
         if kwargs.get("period") == "1d":
@@ -144,16 +183,6 @@ class FakeQuotes:
         return self.get_by_symbols(["000001.SZ", "600519.SH"], as_dataframe=as_dataframe)
 
 
-class FakeSdkQuotes:
-    def __init__(self) -> None:
-        self.calls: list[dict] = []
-
-    def get(self, *, symbols=None, universes=None, as_dataframe=False):
-        self.calls.append({"symbols": list(symbols or []), "universes": list(universes or [])})
-        selected = symbols or ["000001.SZ", "600519.SH"]
-        return FakeQuotes().get_by_symbols(list(selected), as_dataframe=as_dataframe)
-
-
 class FakeDepth:
     def __init__(self) -> None:
         self.calls: list[str] = []
@@ -186,19 +215,27 @@ class FakeFinancials:
 
 
 class FakeClient:
-    def __init__(self, *, fail_batch: bool | Exception = False, fail_intraday=None) -> None:
-        self.klines = FakeKlines(fail_batch=fail_batch, fail_intraday=fail_intraday)
+    def __init__(
+        self,
+        *,
+        fail_batch: bool | Exception = False,
+        fail_intraday=None,
+        batch_failures=None,
+        intraday_batch_failures=None,
+        intraday_frame_factory=None,
+    ) -> None:
+        self.klines = FakeKlines(
+            fail_batch=fail_batch,
+            fail_intraday=fail_intraday,
+            batch_failures=batch_failures,
+            intraday_batch_failures=intraday_batch_failures,
+            intraday_frame_factory=intraday_frame_factory,
+        )
         self.universes = FakeUniverses()
         self.instruments = FakeInstruments()
         self.quotes = FakeQuotes()
         self.depth = FakeDepth()
         self.financials = FakeFinancials()
-
-
-class FakeSdkQuoteClient(FakeClient):
-    def __init__(self) -> None:
-        super().__init__()
-        self.quotes = FakeSdkQuotes()
 
 
 class FakeTickFlowPermissionError(Exception):
@@ -390,59 +427,120 @@ class TickFlowProviderTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported K-line period"):
             provider.load_klines(["000001.SZ"], period="10m")
 
-    def test_realtime_daily_quotes_use_1m_minute_kline(self) -> None:
-        provider = self._provider(FakeClient())
+    def test_realtime_daily_quotes_use_current_1d_kline(self) -> None:
+        client = FakeClient()
+        provider = self._provider(client)
 
         frame = provider.load_realtime_daily_quotes(["000001.SZ"], trade_date="20260514")
 
         self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
-        self.assertAlmostEqual(float(frame.iloc[0]["close"]), 10.1)
+        self.assertAlmostEqual(float(frame.iloc[0]["close"]), 10.5)
         self.assertAlmostEqual(float(frame.iloc[0]["pct_chg"]), 0.0)
-        self.assertAlmostEqual(float(frame.iloc[0]["vol"]), 12.0)
+        self.assertEqual(frame.attrs["data_source"], "tickflow_current_1d")
+        self.assertEqual(client.klines.batch_calls[0]["period"], "1d")
+        self.assertEqual(client.klines.batch_calls[0]["count"], 1)
+        self.assertEqual(client.klines.intraday_batch_calls, [])
+
+    def test_current_daily_uses_100_symbol_batches_and_60_per_minute_limit(self) -> None:
+        client = FakeClient()
+        sleeps: list[float] = []
+        provider = TickFlowDataProvider(_settings(), client=client, sleep=sleeps.append, clock=lambda: 0.0)
+        symbols = [f"{index:06d}.SZ" for index in range(250)]
+
+        frame = provider.load_realtime_daily_quotes(symbols, trade_date="20260514")
+
+        self.assertEqual([len(call["symbols"]) for call in client.klines.batch_calls], [100, 100, 50])
+        self.assertTrue(all(call["period"] == "1d" for call in client.klines.batch_calls))
+        self.assertEqual(sleeps, [1.0, 1.0])
+        self.assertEqual(len(frame), 250)
+
+    def test_current_minute_filters_trade_date_and_uses_30_per_minute_limit(self) -> None:
+        client = FakeClient(intraday_frame_factory=_intraday_daily_frame)
+        sleeps: list[float] = []
+        provider = TickFlowDataProvider(_settings(), client=client, sleep=sleeps.append, clock=lambda: 0.0)
+        symbols = [f"{index:06d}.SZ" for index in range(250)]
+
+        frame = provider.load_current_klines(
+            symbols,
+            period="15m",
+            trade_date="20260514",
+            count=80,
+        )
+
+        self.assertEqual([len(call["symbols"]) for call in client.klines.intraday_batch_calls], [100, 100, 50])
+        self.assertTrue(all(call["period"] == "15m" for call in client.klines.intraday_batch_calls))
+        self.assertTrue(all("start_time" not in call and "end_time" not in call for call in client.klines.intraday_batch_calls))
+        self.assertEqual(sleeps, [2.0, 2.0])
+        self.assertEqual(set(frame["trade_date"]), {"20260514"})
+        self.assertEqual(frame.attrs["data_source"], "tickflow_current_15m")
+
+    def test_current_daily_retries_without_single_symbol_fallback(self) -> None:
+        client = FakeClient(batch_failures=[TimeoutError("temporary"), None])
+        sleeps: list[float] = []
+        settings = SimpleNamespace(
+            tickflow_api_key="",
+            tickflow_base_url="https://api.tickflow.org",
+            tickflow_max_retries=2,
+        )
+        provider = TickFlowDataProvider(settings, client=client, sleep=sleeps.append, clock=lambda: 0.0)
+
+        frame = provider.load_realtime_daily_quotes(["000001.SZ"], trade_date="20260514")
+
+        self.assertEqual(len(frame), 1)
+        self.assertEqual(len(client.klines.batch_calls), 2)
+        self.assertEqual(client.klines.get_calls, [])
+        self.assertEqual(sleeps, [1.0])
+
+    def test_current_minute_raises_after_retries_without_fallback(self) -> None:
+        client = FakeClient(intraday_batch_failures=[TimeoutError("offline")] * 3)
+        sleeps: list[float] = []
+        settings = SimpleNamespace(
+            tickflow_api_key="",
+            tickflow_base_url="https://api.tickflow.org",
+            tickflow_max_retries=2,
+        )
+        provider = TickFlowDataProvider(settings, client=client, sleep=sleeps.append, clock=lambda: 0.0)
+
+        with self.assertRaisesRegex(ValueError, "已重试 2 次"):
+            provider.load_current_klines(
+                ["000001.SZ"],
+                period="30m",
+                trade_date="20260514",
+                count=80,
+            )
+
+        self.assertEqual(len(client.klines.intraday_batch_calls), 3)
+        self.assertEqual(client.klines.intraday_calls, [])
+        self.assertEqual(sleeps, [2.0, 2.0])
 
     def test_realtime_quotes_can_load_by_symbols_or_universe(self) -> None:
         client = FakeClient()
         provider = self._provider(client)
 
-        by_symbols = provider.load_realtime_quotes(symbols=["000001"])
+        with patch("sats.data.tickflow_provider._today_shanghai", return_value="20260514"):
+            by_symbols = provider.load_realtime_quotes(symbols=["000001"])
+            by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
 
-        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_realtime_minute_quote")
+        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_current_1m_quote")
         self.assertEqual(by_symbols.iloc[0]["close"], 10.1)
         self.assertIn("pre_close", by_symbols.columns)
         self.assertEqual(client.klines.intraday_batch_calls[0]["symbols"], ["000001.SZ"])
         self.assertEqual(client.klines.intraday_batch_calls[0]["period"], "1m")
         self.assertEqual(client.klines.intraday_batch_calls[0]["count"], 1)
+        self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
         self.assertEqual(client.quotes.get_by_symbols_calls, [])
 
-        by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
-
-        self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
-        self.assertEqual(client.quotes.get_by_symbols_calls[0], ["000001.SZ", "600519.SH"])
-
-    def test_realtime_quotes_support_sdk_get_shape(self) -> None:
-        client = FakeSdkQuoteClient()
+    def test_realtime_quotes_do_not_fall_back_to_quote_endpoint(self) -> None:
+        client = FakeClient(intraday_batch_failures=[TimeoutError("offline")] * 4)
         provider = self._provider(client)
 
-        by_symbols = provider.load_realtime_quotes(symbols=["000001.SZ"])
-        by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
+        with (
+            patch("sats.data.tickflow_provider._today_shanghai", return_value="20260514"),
+            self.assertRaisesRegex(ValueError, "当日 1m K线批量获取失败"),
+        ):
+            provider.load_realtime_quotes(symbols=["000001.SZ"])
 
-        self.assertEqual(by_symbols.iloc[0]["ts_code"], "000001.SZ")
-        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_realtime_minute_quote")
-        self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
-        self.assertEqual(client.quotes.calls[0]["universes"], ["CN_Equity_A"])
-
-    def test_realtime_quotes_fall_back_to_quote_endpoint_when_1m_minute_fails(self) -> None:
-        client = FakeClient(
-            fail_batch=FakeTickFlowPermissionError("当前套餐不支持日内批量查询"),
-            fail_intraday=[FakeTickFlowPermissionError("当前套餐不支持日内分时")],
-        )
-        provider = self._provider(client)
-
-        frame = provider.load_realtime_quotes(symbols=["000001.SZ"])
-
-        self.assertEqual(frame.iloc[0]["data_source"], "tickflow_quote")
-        self.assertAlmostEqual(float(frame.iloc[0]["close"]), 10.5)
-        self.assertEqual(client.quotes.get_by_symbols_calls[0], ["000001.SZ"])
+        self.assertEqual(client.quotes.get_by_symbols_calls, [])
 
     def test_intraday_timeshare_uses_200_symbol_batches_and_alias_source(self) -> None:
         client = FakeClient()
@@ -467,14 +565,14 @@ class TickFlowProviderTest(unittest.TestCase):
         self.assertEqual(factors.iloc[0]["ts_code"], "000001.SZ")
         self.assertEqual(factors.iloc[0]["data_source"], "tickflow_ex_factor")
 
-    def test_realtime_daily_basic_like_uses_1m_minute_quote_and_share_data(self) -> None:
+    def test_realtime_daily_basic_like_uses_current_daily_kline_and_share_data(self) -> None:
         provider = self._provider(FakeClient())
 
         frame = provider.load_realtime_daily_basic_like(["000001.SZ"], trade_date="20260514")
 
         self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
-        self.assertAlmostEqual(float(frame.iloc[0]["turnover_rate"]), 12.0 / 15000.0)
-        self.assertAlmostEqual(float(frame.iloc[0]["circ_mv"]), 10.1 * 15000.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["turnover_rate"]), 1400.0 / 15000.0)
+        self.assertAlmostEqual(float(frame.iloc[0]["circ_mv"]), 10.5 * 15000.0)
         self.assertEqual(frame.attrs["daily_basic_source"], "tickflow_realtime_basic_like")
 
 

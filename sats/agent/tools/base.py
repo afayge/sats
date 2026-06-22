@@ -119,6 +119,9 @@ class AgentToolRegistry:
         if spec is None:
             return AgentToolResult(status="error", content=f"unknown agent tool: {tool_name}")
         args = dict(arguments or {})
+        symbol_error = _normalize_symbol_arguments(args, context)
+        if symbol_error:
+            return AgentToolResult(status="error", content=symbol_error)
         sanitized = sanitize_agent_tool_arguments(tool_name, args, context.message)
         if sanitized.error:
             return AgentToolResult(status="error", content=sanitized.error, payload={"argument_policy": sanitized.metadata})
@@ -148,6 +151,37 @@ class AgentToolRegistry:
                 artifacts=result.artifacts,
             )
         return result
+
+
+def _normalize_symbol_arguments(arguments: dict[str, Any], context: AgentToolContext) -> str:
+    values = arguments.get("symbols")
+    if not isinstance(values, list) or not values:
+        return ""
+    from sats.symbols import normalize_symbols
+
+    if all(_looks_like_security_code(value) for value in values):
+        arguments["symbols"] = normalize_symbols(values, required=True)
+        return ""
+    try:
+        from sats.stock_basic_lookup import load_stock_basic_frame, resolve_symbol_or_name_values
+
+        stock_basic = context.storage.get_stock_basic() if hasattr(context.storage, "get_stock_basic") else None
+        if stock_basic is None or stock_basic.empty:
+            stock_basic = load_stock_basic_frame(context.settings)
+        arguments["symbols"] = resolve_symbol_or_name_values(values, stock_basic, required=True)
+    except Exception as exc:
+        return str(exc)
+    return ""
+
+
+def _looks_like_security_code(value: Any) -> bool:
+    text = str(value or "").strip().upper()
+    return (len(text) == 6 and text.isdigit()) or (
+        len(text) == 9
+        and text[:6].isdigit()
+        and text[6] == "."
+        and text[7:] in {"SH", "SZ", "BJ"}
+    )
 
 
 def validate_tool_arguments(spec: AgentToolSpec, arguments: Mapping[str, Any]) -> str:

@@ -43,12 +43,30 @@ class ScreeningResult:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class IntradayKlineRequirement:
+    period: str
+    metadata_key: str
+    source_metadata_key: str
+    history_calendar_days: int = 0
+    count: int | None = None
+    candidate_metadata_key: str | None = None
+
+
 class ScreeningRule(ABC):
     name: str
     required_trade_days: int | None = None
+    intraday_kline_requirements: tuple[IntradayKlineRequirement, ...] = ()
 
     def prepare_inputs(self, inputs: list[ScreeningInput]) -> list[ScreeningInput]:
         return inputs
+
+    def intraday_candidate_labels(
+        self,
+        data: ScreeningInput,
+        requirement: IntradayKlineRequirement,
+    ) -> list[str]:
+        return [self.name]
 
     @abstractmethod
     def evaluate(self, data: ScreeningInput) -> ScreeningResult:

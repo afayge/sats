@@ -13,8 +13,6 @@ from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols
 
 
-ANALYSIS_QUOTE_TTL_SECONDS = 60
-TRADING_QUOTE_TTL_SECONDS = 30
 MARKET_BREADTH_MIN_COUNT = 3000
 
 
@@ -156,19 +154,14 @@ class MarketDataResolver:
 
     def load_realtime_quotes(self, symbols: list[str], *, for_trading: bool = False, ttl_seconds: int | None = None) -> pd.DataFrame:
         clean_symbols = normalize_symbols(symbols, required=False)
-        ttl = int(ttl_seconds if ttl_seconds is not None else (TRADING_QUOTE_TTL_SECONDS if for_trading else ANALYSIS_QUOTE_TTL_SECONDS))
-        cached = self.storage.get_realtime_quote_cache(clean_symbols)
-        fresh = _fresh_quotes(cached, ttl)
-        if _has_symbol_rows(fresh, clean_symbols, "ts_code"):
-            return _mark(fresh, dataset="realtime_quote", source="duckdb_cache", cache_hit=True)
         fetched = self.provider.load_realtime_quotes(symbols=clean_symbols)
         if not fetched.empty:
             fetched = _normalize_quote_frame(fetched)
-            fetched.attrs["data_source"] = str(fetched.attrs.get("data_source") or "astock_provider")
+            source = str(fetched.attrs.get("data_source") or "astock_provider")
+            fetched.attrs["data_source"] = source
             self.storage.upsert_realtime_quote_cache(fetched)
-            cached = self.storage.get_realtime_quote_cache(clean_symbols)
-            return _mark(cached if not cached.empty else fetched, dataset="realtime_quote", source="astock_provider_cached", cache_hit=False)
-        return _mark(fresh, dataset="realtime_quote", source="duckdb_cache_incomplete", cache_hit=not fresh.empty)
+            return _mark(fetched, dataset="realtime_quote", source=source, cache_hit=False)
+        return _mark(fetched, dataset="realtime_quote", source="unavailable", cache_hit=False)
 
     def load_indicator_inputs(self, symbols: list[str], trade_date: str, *, lookback_days: int = 180) -> list[IndicatorInput]:
         clean_symbols = normalize_symbols(symbols, required=False)
@@ -244,16 +237,6 @@ def _has_minute_count(frame: pd.DataFrame, symbols: list[str], count: int) -> bo
         return False
     counts = frame.groupby("ts_code").size().to_dict()
     return all(int(counts.get(symbol, 0)) >= count for symbol in symbols)
-
-
-def _fresh_quotes(frame: pd.DataFrame, ttl_seconds: int) -> pd.DataFrame:
-    if frame.empty or "fetched_at" not in frame.columns:
-        return pd.DataFrame(columns=frame.columns)
-    now = datetime.now()
-    data = frame.copy()
-    data["_fetched_dt"] = pd.to_datetime(data["fetched_at"], errors="coerce").dt.tz_localize(None)
-    fresh = data[data["_fetched_dt"].notna() & ((now - data["_fetched_dt"]).dt.total_seconds() <= max(0, ttl_seconds))]
-    return fresh.drop(columns=["_fetched_dt"], errors="ignore")
 
 
 def _normalize_index_frame(frame: pd.DataFrame) -> pd.DataFrame:

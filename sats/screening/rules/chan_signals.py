@@ -1,12 +1,30 @@
 from __future__ import annotations
 
+from sats.chan.engine import chan_signal_daily_candidates
 from sats.chan.engine import evaluate_chan_signals
-from sats.screening.base import ScreeningInput, ScreeningResult, ScreeningRule
+from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
 from sats.screening.rules.chan_third_buy import _latest_trade_date, _prepare_daily
 
 
 class ChanSignalsRule(ScreeningRule):
     name = "chan_signals"
+    intraday_kline_requirements = (
+        IntradayKlineRequirement(
+            period="30m",
+            metadata_key="minute_30m",
+            source_metadata_key="minute_30m_source",
+            history_calendar_days=30,
+            count=80,
+            candidate_metadata_key="chan_daily_candidates",
+        ),
+    )
+
+    def intraday_candidate_labels(
+        self,
+        data: ScreeningInput,
+        requirement: IntradayKlineRequirement,
+    ) -> list[str]:
+        return chan_signal_daily_candidates(data)
 
     def evaluate(self, data: ScreeningInput) -> ScreeningResult:
         signals = evaluate_chan_signals(data)

@@ -841,10 +841,26 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
     from sats.storage.duckdb import DuckDBStorage
 
     kind = str(arguments.get("kind") or "").strip()
-    if kind not in {"indicators", "analyze_signals", "native_dsa", "factor_summary"}:
+    if kind not in {"indicators", "analyze_signals", "native_dsa", "factor_summary", "company_fundamentals"}:
         raise ValueError(f"unsupported internal analysis kind: {kind}")
     symbols = normalize_symbols(arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else [], required=True)
     trade_date = str(arguments.get("trade_date") or "").strip() or extract_trade_date(" ".join(symbols))
+    if kind == "company_fundamentals":
+        storage = DuckDBStorage(getattr(settings, "db_path", None) or "data/sats.duckdb")
+        provider_cls = getattr(chat_module, "AStockDataProvider", AStockDataProvider)
+        provider = provider_cls(settings)
+        resolved_trade_date = trade_date or _today_yyyymmdd()
+        companies = provider.load_company_fundamentals(
+            symbols,
+            trade_date=resolved_trade_date,
+            storage=storage,
+            periods=4,
+        )
+        return {
+            "kind": kind,
+            "trade_date": resolved_trade_date,
+            "companies": [companies[symbol] for symbol in symbols if symbol in companies],
+        }
     if kind == "native_dsa":
         storage = DuckDBStorage(getattr(settings, "db_path", None) or "data/sats.duckdb")
         resolved_trade_date = trade_date or _today_yyyymmdd()
@@ -1220,7 +1236,7 @@ def chat_tool_definitions(skills: list[Skill]) -> list[dict[str, Any]]:
                     "properties": {
                         "kind": {
                             "type": "string",
-                            "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary"],
+                            "enum": ["indicators", "analyze_signals", "native_dsa", "factor_summary", "company_fundamentals"],
                         },
                         "symbols": {"type": "array", "items": {"type": "string"}},
                         "trade_date": {"type": "string"},

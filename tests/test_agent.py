@@ -19,10 +19,11 @@ from sats.agent.planner import build_agent_plan
 from sats.agent.python_runtime import RestrictedPythonRuntime
 from sats.agent.synthesis import collect_agent_sources, save_agent_report, synthesize_agent_result, _evidence_digest
 from sats.agent.tools import AgentToolContext, build_default_tool_registry
+from sats.agent.tools.command_tools import RECURSIVE_SATS_COMMANDS, SATS_COMMANDS
 from sats.agent.trading import AgentTradingExecutor
 from sats.analysis.dsa_native import DsaAnalysisRanking, DsaAnalysisRunResult, DsaStockAnalysis
 from sats.chat import ChatResult, format_chat_result
-from sats.cli import main
+from sats.cli import build_parser, main
 from sats.data.resolver import MarketDataResolver
 from sats.llm import LLMResponse
 from sats.screening.base import ScreeningResult
@@ -785,6 +786,64 @@ class AgentTest(unittest.TestCase):
         self.assertIn("AI算力", result.content)
         self.assertNotIn("核心指数数据缺失", result.content)
 
+    def test_company_fundamentals_synthesis_fallback_shows_names_and_codes(self) -> None:
+        observations = (
+            AgentObservation(
+                step_id="company",
+                kind="tool",
+                status="done",
+                content="company fundamentals",
+                payload={
+                    "tool_name": "research.internal_analysis",
+                    "arguments": {"kind": "company_fundamentals", "symbols": ["688700.SH", "688559.SH"]},
+                    "result": {
+                        "payload": {
+                            "analysis": {
+                                "kind": "company_fundamentals",
+                                "companies": [
+                                    {
+                                        "ts_code": "688700.SH",
+                                        "name": "东威科技",
+                                        "company_profile": {"com_name": "昆山东威科技股份有限公司", "main_business": "专用设备"},
+                                        "main_business": "专用设备",
+                                        "business_composition": [{"end_date": "20251231", "bz_item": "设备", "bz_sales": 100.0}],
+                                        "valuation": {"trade_date": "20260618", "pe": 20.0, "pb": 2.0},
+                                        "financial_indicators": [{"end_date": "20251231", "roe": 12.0}],
+                                        "missing_fields": [],
+                                    },
+                                    {
+                                        "ts_code": "688559.SH",
+                                        "name": "海目星",
+                                        "company_profile": {"com_name": "海目星激光科技集团股份有限公司", "main_business": "激光设备"},
+                                        "main_business": "激光设备",
+                                        "business_composition": [],
+                                        "valuation": {"trade_date": "20260618", "pe": 25.0, "pb": 2.5},
+                                        "financial_indicators": [{"end_date": "20251231", "roe": 10.0}],
+                                        "missing_fields": [],
+                                    },
+                                ],
+                            }
+                        }
+                    },
+                },
+            ),
+        )
+
+        result = synthesize_agent_result(
+            message="东威科技和海目星公司介绍、业务及基本面",
+            plan=AgentPlan(objective="公司基本面"),
+            observations=observations,
+            skills=(),
+            settings=SimpleNamespace(openai_model="m"),
+            llm_factory=None,
+        )
+
+        self.assertIn("东威科技", result.content)
+        self.assertIn("688700.SH", result.content)
+        self.assertIn("海目星", result.content)
+        self.assertIn("688559.SH", result.content)
+        self.assertNotIn("真实日线行情", result.content)
+
     def test_fallback_planner_stock_analysis_uses_deterministic_stock_components(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
@@ -797,6 +856,70 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(tools, ["research.stock_context", "research.internal_analysis"])
         self.assertEqual(internal_kinds, ["indicators"])
         self.assertNotIn("chat.answer", tools)
+
+    def test_company_fundamentals_request_resolves_names_and_avoids_daily_tools(self) -> None:
+        registry = build_default_tool_registry()
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", openai_model="m", llm_timeout_seconds=10)
+            storage = DuckDBStorage(settings.db_path)
+            storage.upsert_stock_basic(
+                pd.DataFrame(
+                    [
+                        {"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"},
+                        {"ts_code": "688559.SH", "symbol": "688559", "name": "海目星"},
+                    ]
+                )
+            )
+
+            plan = build_agent_plan(
+                "东威科技 和 海目星 公司介绍，业务以及基本面介绍",
+                settings=settings,
+                policy=AgentExecutionPolicy(),
+                llm_factory=None,
+                tool_registry=registry,
+            )
+
+        self.assertEqual([step.tool_name for step in plan.steps if step.kind == "tool"], ["research.internal_analysis"])
+        self.assertEqual(plan.steps[0].arguments["kind"], "company_fundamentals")
+        self.assertEqual(plan.steps[0].arguments["symbols"], ["688700.SH", "688559.SH"])
+
+    def test_llm_company_plan_names_are_replaced_with_resolved_symbols(self) -> None:
+        class CompanyPlanLLM:
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                return LLMResponse(
+                    content=(
+                        '{"objective":"company","steps":['
+                        '{"step_id":"stock","kind":"tool","title":"stock","tool_name":"research.stock_context",'
+                        '"arguments":{"symbols":["东威科技","海目星"],"trade_date":"20260621"}},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", openai_model="m", llm_timeout_seconds=10)
+            DuckDBStorage(settings.db_path).upsert_stock_basic(
+                pd.DataFrame(
+                    [
+                        {"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"},
+                        {"ts_code": "688559.SH", "symbol": "688559", "name": "海目星"},
+                    ]
+                )
+            )
+
+            plan = build_agent_plan(
+                "东威科技 和 海目星 公司介绍，业务以及基本面介绍",
+                settings=settings,
+                policy=AgentExecutionPolicy(),
+                llm_factory=CompanyPlanLLM,
+                tool_registry=build_default_tool_registry(),
+            )
+
+        self.assertEqual(plan.steps[0].tool_name, "research.internal_analysis")
+        self.assertEqual(plan.steps[0].arguments["kind"], "company_fundamentals")
+        self.assertEqual(plan.steps[0].arguments["symbols"], ["688700.SH", "688559.SH"])
 
     def test_fallback_planner_adds_web_search_for_latest_public_info(self) -> None:
         registry = build_default_tool_registry()
@@ -1850,6 +1973,58 @@ class AgentTest(unittest.TestCase):
             self.assertEqual(provider.quote_calls, 1)
             self.assertEqual(float(quote.iloc[0]["price"]), 12.3)
 
+    def test_resolver_realtime_quote_does_not_short_circuit_on_fresh_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+            storage.upsert_realtime_quote_cache(
+                pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000001.SZ",
+                            "price": 11.0,
+                            "fetched_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                    ]
+                )
+            )
+            provider = FakeDailyProvider()
+            resolver = MarketDataResolver(settings, storage=storage, provider=provider)
+
+            quote = resolver.load_realtime_quotes(["000001"], for_trading=True)
+
+            self.assertEqual(provider.quote_calls, 1)
+            self.assertEqual(float(quote.iloc[0]["price"]), 12.3)
+            self.assertEqual(quote.attrs["data_source"], "fake_provider_quote")
+
+    def test_resolver_realtime_quote_does_not_fall_back_to_cache_on_error(self) -> None:
+        class FailingQuoteProvider(FakeDailyProvider):
+            def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+                self.quote_calls += 1
+                raise RuntimeError("tickflow offline")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+            storage.upsert_realtime_quote_cache(
+                pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000001.SZ",
+                            "price": 11.0,
+                            "fetched_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                    ]
+                )
+            )
+            provider = FailingQuoteProvider()
+            resolver = MarketDataResolver(settings, storage=storage, provider=provider)
+
+            with self.assertRaisesRegex(RuntimeError, "tickflow offline"):
+                resolver.load_realtime_quotes(["000001"], for_trading=True)
+
+            self.assertEqual(provider.quote_calls, 1)
+
     def test_restricted_python_allows_resolver_and_rejects_market_literals(self) -> None:
         class Resolver:
             def load_stock_daily(self, symbols, *, start_date, end_date):
@@ -1882,6 +2057,17 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(blocked.status, "error")
         self.assertIn("--dry-run", calls[0])
         self.assertEqual(dry_run.status, "done")
+
+    def test_agent_command_catalog_covers_all_non_recursive_cli_commands(self) -> None:
+        parser = build_parser()
+        subparsers = next(action for action in parser._actions if getattr(action, "choices", None))
+        registered = set(subparsers.choices)
+
+        self.assertEqual(set(SATS_COMMANDS), registered - set(RECURSIVE_SATS_COMMANDS))
+        self.assertEqual(set(RECURSIVE_SATS_COMMANDS), registered & set(RECURSIVE_SATS_COMMANDS))
+        self.assertTrue({"period-change", "trading-committee", "web"}.issubset(SATS_COMMANDS))
+        command_description = build_default_tool_registry().get("sats_command.run").description
+        self.assertTrue(all(command in command_description for command in SATS_COMMANDS))
 
     def test_trading_executor_requires_permission_and_uses_quote(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -2038,6 +2224,79 @@ class AgentTest(unittest.TestCase):
 
         self.assertEqual(rejected.status, "error")
         self.assertIn("market data guard", rejected.content)
+
+    def test_tool_registry_resolves_company_names_at_execution_boundary(self) -> None:
+        class CompanyProvider:
+            def __init__(self) -> None:
+                self.symbols = []
+
+            def load_company_fundamentals(self, symbols, *, trade_date, storage, periods):
+                self.symbols = list(symbols)
+                return {
+                    symbol: {
+                        "ts_code": symbol,
+                        "name": "东威科技",
+                        "company_profile": {},
+                        "main_business": "专用设备",
+                        "business_composition": [],
+                        "valuation": {},
+                        "financial_indicators": [],
+                        "income": [],
+                        "balance_sheet": [],
+                        "cashflow": [],
+                        "data_sources": {},
+                        "missing_fields": [],
+                    }
+                    for symbol in symbols
+                }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+            storage.upsert_stock_basic(pd.DataFrame([{"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"}]))
+            context = AgentToolContext(
+                settings=settings,
+                storage=storage,
+                resolver=SimpleNamespace(),
+                policy=AgentExecutionPolicy(),
+                command_runner=SimpleNamespace(),
+                trader=SimpleNamespace(),
+                message="东威科技公司介绍",
+            )
+            company_provider = CompanyProvider()
+            with patch("sats.agent.tools.research_tools.AStockDataProvider", return_value=company_provider):
+                result = build_default_tool_registry().execute(
+                    "research.internal_analysis",
+                    {"kind": "company_fundamentals", "symbols": ["东威科技"], "trade_date": "20260621"},
+                    context,
+                )
+
+        self.assertEqual(result.status, "done")
+        self.assertEqual(company_provider.symbols, ["688700.SH"])
+        self.assertEqual(result.payload["analysis"]["companies"][0]["ts_code"], "688700.SH")
+
+    def test_tool_registry_rejects_unknown_company_name(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+            storage.upsert_stock_basic(pd.DataFrame([{"ts_code": "688700.SH", "symbol": "688700", "name": "东威科技"}]))
+            context = AgentToolContext(
+                settings=settings,
+                storage=storage,
+                resolver=SimpleNamespace(),
+                policy=AgentExecutionPolicy(),
+                command_runner=SimpleNamespace(),
+                trader=SimpleNamespace(),
+            )
+
+            result = build_default_tool_registry().execute(
+                "research.internal_analysis",
+                {"kind": "company_fundamentals", "symbols": ["不存在公司"]},
+                context,
+            )
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("请补充 6 位股票代码", result.content)
 
     def test_factor_tool_uses_stocks_cli_flag(self) -> None:
         registry = build_default_tool_registry()

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any, Callable
+from typing import Any
 import warnings
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 
 from sats.config import Settings
-from sats.chan.engine import chan_signal_daily_candidates
 from sats.data.base import MarketDataProvider
 from sats.data.limit_sentiment import build_limit_sentiment_payload
 from sats.data.tickflow_provider import TickFlowDataProvider
@@ -20,8 +19,7 @@ from sats.data.tushare_stock_datasets import (
 )
 from sats.indicators import IndicatorInput
 from sats.screening.base import ScreeningInput
-from sats.screening.rules.chan_composite import chan_composite_daily_candidates
-from sats.screening.rules.chan_third_buy import is_chan_daily_candidate
+from sats.screening.registry import get_rule
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_ts_code
 
@@ -43,7 +41,6 @@ CHAN_SIGNALS_RULE_NAME = "chan_signals"
 MONTHLY_BASE_BREAKOUT_RULE_NAME = "monthly_base_breakout"
 SIGNAL_COMPOSITE_RULE_NAME = "signal_composite"
 SIGNAL_DISCOVERY_RULE_NAME = "signal_discovery"
-CHAN_MINUTE_RULE_NAMES = {CHAN_THIRD_BUY_RULE_NAME, CHAN_COMPOSITE_RULE_NAME, CHAN_SIGNALS_RULE_NAME}
 CHAN_DAILY_BASIC_OPTIONAL_RULE_NAMES = {
     CHAN_THIRD_BUY_RULE_NAME,
     CHAN_COMPOSITE_RULE_NAME,
@@ -52,8 +49,6 @@ CHAN_DAILY_BASIC_OPTIONAL_RULE_NAMES = {
     SIGNAL_COMPOSITE_RULE_NAME,
     SIGNAL_DISCOVERY_RULE_NAME,
 }
-CHAN_THIRD_BUY_MINUTE_PERIOD = "30m"
-CHAN_THIRD_BUY_MINUTE_COUNT = 80
 MONTHLY_BASE_BREAKOUT_PERIOD = "1M"
 MONTHLY_BASE_BREAKOUT_MONTH_COUNT = 120
 MONTHLY_BASE_BREAKOUT_DAILY_CALENDAR_DAYS = 365 * 11
@@ -158,6 +153,7 @@ class TushareDataProvider(MarketDataProvider):
             raise ValueError(f"{trade_date} is not an open trade date; latest open trade date is {trade_dates[-1]}")
 
         force_realtime = _should_force_realtime(trade_date)
+        screening_rule = get_rule(rule_name) if rule_name else None
         require_daily_basic = rule_name not in CHAN_DAILY_BASIC_OPTIONAL_RULE_NAMES
         cache_trade_dates = [date for date in trade_dates if not (force_realtime and date == str(trade_date))]
         self._ensure_stock_daily(storage, cache_trade_dates, stock_basic=stock_basic, defer_dates={str(trade_date)})
@@ -169,6 +165,7 @@ class TushareDataProvider(MarketDataProvider):
             stock_basic,
             force_realtime=force_realtime,
             require_daily_basic=require_daily_basic,
+            previous_trade_date=trade_dates[-2] if len(trade_dates) >= 2 else None,
         )
 
         daily_frame = storage.get_stock_daily(trade_dates)
@@ -183,9 +180,7 @@ class TushareDataProvider(MarketDataProvider):
         daily_groups = _group_by_ts_code(daily_frame)
         basic_groups = _group_by_ts_code(basic_frame)
         price_volume_metadata = {}
-        chan_minute_metadata = {}
-        chan_minute_sources = {}
-        chan_daily_candidates = {}
+        intraday_metadata = {}
         monthly_metadata = {}
         monthly_sources = {}
         if rule_name == PRICE_VOLUME_MA_RULE_NAME:
@@ -196,39 +191,13 @@ class TushareDataProvider(MarketDataProvider):
                 trade_date=trade_date,
                 force_realtime=data_source["source"] != "tushare_daily",
             )
-        if rule_name == CHAN_THIRD_BUY_RULE_NAME:
-            chan_minute_metadata, chan_minute_sources = self._build_chan_third_buy_minute_metadata(
+        if screening_rule is not None and screening_rule.intraday_kline_requirements:
+            intraday_metadata = self._build_rule_intraday_metadata(
+                rule=screening_rule,
                 stock_basic=stock_basic,
                 daily_groups=daily_groups,
                 trade_date=trade_date,
-                storage=storage,
-                use_realtime=_is_realtime_source(data_source["source"]),
-                data_source=data_source["source"],
-            )
-        if rule_name == CHAN_COMPOSITE_RULE_NAME:
-            (
-                chan_minute_metadata,
-                chan_minute_sources,
-                chan_daily_candidates,
-            ) = self._build_chan_composite_minute_metadata(
-                stock_basic=stock_basic,
-                daily_groups=daily_groups,
-                trade_date=trade_date,
-                storage=storage,
-                use_realtime=_is_realtime_source(data_source["source"]),
-                data_source=data_source["source"],
-            )
-        if rule_name == CHAN_SIGNALS_RULE_NAME:
-            (
-                chan_minute_metadata,
-                chan_minute_sources,
-                chan_daily_candidates,
-            ) = self._build_chan_signals_minute_metadata(
-                stock_basic=stock_basic,
-                daily_groups=daily_groups,
-                trade_date=trade_date,
-                storage=storage,
-                use_realtime=_is_realtime_source(data_source["source"]),
+                use_realtime=force_realtime,
                 data_source=data_source["source"],
             )
         if rule_name == MONTHLY_BASE_BREAKOUT_RULE_NAME:
@@ -236,6 +205,7 @@ class TushareDataProvider(MarketDataProvider):
                 stock_basic=stock_basic,
                 trade_date=trade_date,
                 daily_groups=daily_groups,
+                use_realtime=force_realtime,
             )
 
         inputs = []
@@ -252,11 +222,7 @@ class TushareDataProvider(MarketDataProvider):
                     ts_code,
                     _empty_price_volume_ma_metadata(ts_code),
                 )
-            if rule_name in CHAN_MINUTE_RULE_NAMES:
-                metadata["minute_30m"] = chan_minute_metadata.get(ts_code, pd.DataFrame())
-                metadata["minute_30m_source"] = chan_minute_sources.get(ts_code, "")
-            if rule_name in {CHAN_COMPOSITE_RULE_NAME, CHAN_SIGNALS_RULE_NAME}:
-                metadata["chan_daily_candidates"] = chan_daily_candidates.get(ts_code, [])
+            metadata.update(intraday_metadata.get(ts_code, {}))
             if rule_name == MONTHLY_BASE_BREAKOUT_RULE_NAME:
                 metadata["monthly_1M"] = monthly_metadata.get(ts_code, pd.DataFrame())
                 metadata["monthly_1M_source"] = monthly_sources.get(ts_code, "unavailable")
@@ -1033,6 +999,7 @@ class TushareDataProvider(MarketDataProvider):
         *,
         force_realtime: bool = False,
         require_daily_basic: bool = True,
+        previous_trade_date: str | None = None,
     ) -> dict[str, Any]:
         universe_count = len(stock_basic)
         symbols = _stock_basic_symbols(stock_basic)
@@ -1042,6 +1009,7 @@ class TushareDataProvider(MarketDataProvider):
                 trade_date=trade_date,
                 symbols=symbols,
                 forced=True,
+                previous_trade_date=previous_trade_date,
             )
             daily_missing = _is_obviously_missing(realtime_daily, universe_count)
             if daily_missing:
@@ -1117,6 +1085,7 @@ class TushareDataProvider(MarketDataProvider):
                 trade_date=trade_date,
                 symbols=symbols,
                 forced=False,
+                previous_trade_date=previous_trade_date,
             )
             today_daily = realtime_daily
             daily_missing = _is_obviously_missing(today_daily, universe_count)
@@ -1255,17 +1224,28 @@ class TushareDataProvider(MarketDataProvider):
         trade_date: str,
         symbols: list[str],
         forced: bool,
+        previous_trade_date: str | None = None,
     ) -> tuple[pd.DataFrame, str]:
         try:
             frame = self._tickflow_provider().load_realtime_daily_quotes(symbols, trade_date=trade_date)
         except Exception as exc:
+            if forced:
+                raise ValueError(f"{trade_date} 交易时段当日日K批量获取失败，已停止筛选：{exc}") from exc
             self._warn_fallback(
-                f"TickFlow 1m 分钟K 实时日线获取失败，尝试本地同交易日缓存：{exc}"
+                f"TickFlow 当日日K获取失败，尝试本地同交易日缓存：{exc}"
             )
         else:
             if not frame.empty:
-                self._warn_fallback("实时日线使用 TickFlow 1m 分钟K。")
-                return frame, "tickflow_realtime_minute_quote"
+                previous_daily = (
+                    storage.get_stock_daily([previous_trade_date])
+                    if previous_trade_date
+                    else pd.DataFrame()
+                )
+                frame = _with_previous_close_pct_chg(frame, previous_daily)
+                self._warn_fallback("实时日线使用 TickFlow 当日 1d K线。")
+                return frame, "tickflow_current_1d"
+        if forced:
+            raise ValueError(f"{trade_date} 交易时段当日日K批量返回空数据，已停止筛选。")
         cached = storage.get_stock_daily([trade_date])
         if not cached.empty:
             self._warn_fallback("实时日线使用 DuckDB 本地同交易日缓存。")
@@ -1315,88 +1295,22 @@ class TushareDataProvider(MarketDataProvider):
             return pd.DataFrame()
         return frame
 
-    def _build_chan_third_buy_minute_metadata(
+    def _build_rule_intraday_metadata(
         self,
         *,
+        rule: Any,
         stock_basic: pd.DataFrame,
         daily_groups: dict[str, pd.DataFrame],
         trade_date: str,
-        storage: DuckDBStorage,
         use_realtime: bool,
         data_source: str,
-    ) -> tuple[dict[str, pd.DataFrame], dict[str, str]]:
-        groups, sources, _ = self._build_chan_minute_metadata(
-            stock_basic=stock_basic,
-            daily_groups=daily_groups,
-            trade_date=trade_date,
-            storage=storage,
-            use_realtime=use_realtime,
-            data_source=data_source,
-            candidate_func=lambda item: [CHAN_THIRD_BUY_RULE_NAME] if is_chan_daily_candidate(item) else [],
-            failure_name="chan_third_buy",
-        )
-        return groups, sources
-
-    def _build_chan_composite_minute_metadata(
-        self,
-        *,
-        stock_basic: pd.DataFrame,
-        daily_groups: dict[str, pd.DataFrame],
-        trade_date: str,
-        storage: DuckDBStorage,
-        use_realtime: bool,
-        data_source: str,
-    ) -> tuple[dict[str, pd.DataFrame], dict[str, str], dict[str, list[str]]]:
-        return self._build_chan_minute_metadata(
-            stock_basic=stock_basic,
-            daily_groups=daily_groups,
-            trade_date=trade_date,
-            storage=storage,
-            use_realtime=use_realtime,
-            data_source=data_source,
-            candidate_func=chan_composite_daily_candidates,
-            failure_name="chan_composite",
-        )
-
-    def _build_chan_signals_minute_metadata(
-        self,
-        *,
-        stock_basic: pd.DataFrame,
-        daily_groups: dict[str, pd.DataFrame],
-        trade_date: str,
-        storage: DuckDBStorage,
-        use_realtime: bool,
-        data_source: str,
-    ) -> tuple[dict[str, pd.DataFrame], dict[str, str], dict[str, list[str]]]:
-        return self._build_chan_minute_metadata(
-            stock_basic=stock_basic,
-            daily_groups=daily_groups,
-            trade_date=trade_date,
-            storage=storage,
-            use_realtime=use_realtime,
-            data_source=data_source,
-            candidate_func=chan_signal_daily_candidates,
-            failure_name="chan_signals",
-        )
-
-    def _build_chan_minute_metadata(
-        self,
-        *,
-        stock_basic: pd.DataFrame,
-        daily_groups: dict[str, pd.DataFrame],
-        trade_date: str,
-        storage: DuckDBStorage,
-        use_realtime: bool,
-        data_source: str,
-        candidate_func: Callable[[ScreeningInput], list[str]],
-        failure_name: str,
-    ) -> tuple[dict[str, pd.DataFrame], dict[str, str], dict[str, list[str]]]:
-        minute_provider = TickFlowDataProvider(self.settings)
-        candidates: list[str] = []
-        candidate_labels: dict[str, list[str]] = {}
+    ) -> dict[str, dict[str, Any]]:
+        symbols = _stock_basic_symbols(stock_basic)
+        metadata = {ts_code: {} for ts_code in symbols}
+        inputs: dict[str, ScreeningInput] = {}
         for _, row in stock_basic.iterrows():
             ts_code = str(row["ts_code"])
-            item = ScreeningInput(
+            inputs[ts_code] = ScreeningInput(
                 ts_code=ts_code,
                 trade_date=trade_date,
                 daily=daily_groups.get(ts_code, pd.DataFrame()),
@@ -1404,49 +1318,57 @@ class TushareDataProvider(MarketDataProvider):
                 stock_basic=row.dropna().to_dict(),
                 metadata={"data_source": data_source},
             )
-            daily_candidates = candidate_func(item)
-            if daily_candidates:
-                candidates.append(ts_code)
-                candidate_labels[ts_code] = daily_candidates
-        if not candidates:
-            return {}, {}, candidate_labels
-        if use_realtime:
-            history_frame = minute_provider.load_historical_minute_klines(
-                candidates,
-                period=CHAN_THIRD_BUY_MINUTE_PERIOD,
-                start_time=_days_before(trade_date, 30),
-                end_time=trade_date,
-            )
-            try:
-                realtime_frame = minute_provider.load_realtime_minute_klines(
+
+        provider = self._tickflow_provider()
+        for requirement in rule.intraday_kline_requirements:
+            candidates: list[str] = []
+            for ts_code, item in inputs.items():
+                labels = list(rule.intraday_candidate_labels(item, requirement))
+                if labels:
+                    candidates.append(ts_code)
+                metadata[ts_code][requirement.metadata_key] = pd.DataFrame()
+                metadata[ts_code][requirement.source_metadata_key] = ""
+                if requirement.candidate_metadata_key:
+                    metadata[ts_code][requirement.candidate_metadata_key] = labels
+            if not candidates:
+                continue
+
+            history = pd.DataFrame()
+            if requirement.history_calendar_days > 0:
+                history = provider.load_historical_minute_klines(
                     candidates,
-                    period=CHAN_THIRD_BUY_MINUTE_PERIOD,
-                    count=CHAN_THIRD_BUY_MINUTE_COUNT,
+                    period=requirement.period,
+                    start_time=_days_before(trade_date, requirement.history_calendar_days),
+                    end_time=_days_before(trade_date, 1) if use_realtime else trade_date,
                 )
-            except Exception as exc:
-                raise ValueError(f"{trade_date} {failure_name} 30分钟实时确认失败：{exc}") from exc
-            else:
-                realtime_today = _filter_minute_trade_date(realtime_frame, trade_date)
-                if realtime_today.empty:
-                    raise ValueError(f"{trade_date} {failure_name} 30分钟实时确认失败：TickFlow 未返回请求交易日30m数据")
-                else:
-                    minute_frame = _combine_minute_frames([history_frame, realtime_frame])
-                    source = (
-                        "tickflow_single_intraday"
-                        if realtime_frame.attrs.get("tickflow_source") == "tickflow_single_intraday"
-                        else "tickflow_history+realtime"
-                    )
-        else:
-            minute_frame = minute_provider.load_historical_minute_klines(
-                candidates,
-                period=CHAN_THIRD_BUY_MINUTE_PERIOD,
-                start_time=_days_before(trade_date, 30),
-                end_time=trade_date,
-            )
+            current = pd.DataFrame()
             source = "tickflow_history"
-        groups = _group_by_ts_code(minute_frame)
-        sources = {ts_code: source for ts_code in candidates if ts_code in groups and not groups[ts_code].empty}
-        return groups, sources, candidate_labels
+            if use_realtime:
+                try:
+                    current = provider.load_current_klines(
+                        candidates,
+                        period=requirement.period,
+                        trade_date=trade_date,
+                        count=requirement.count,
+                    )
+                except Exception as exc:
+                    raise ValueError(
+                        f"{trade_date} {rule.name} 当日 {requirement.period} K线获取失败：{exc}"
+                    ) from exc
+                if _current_kline_coverage_missing(current, candidates, trade_date):
+                    raise ValueError(
+                        f"{trade_date} {rule.name} 当日 {requirement.period} K线覆盖不足，已停止筛选。"
+                    )
+                source = f"tickflow_current_{requirement.period}"
+
+            combined = _combine_minute_frames([history, current]) if use_realtime else history
+            groups = _group_by_ts_code(combined)
+            for ts_code in candidates:
+                frame = groups.get(ts_code, pd.DataFrame())
+                metadata[ts_code][requirement.metadata_key] = frame
+                if not frame.empty:
+                    metadata[ts_code][requirement.source_metadata_key] = source
+        return metadata
 
     def _build_monthly_base_breakout_metadata(
         self,
@@ -1454,6 +1376,7 @@ class TushareDataProvider(MarketDataProvider):
         stock_basic: pd.DataFrame,
         trade_date: str,
         daily_groups: dict[str, pd.DataFrame],
+        use_realtime: bool = False,
     ) -> tuple[dict[str, pd.DataFrame], dict[str, str]]:
         symbols = _stock_basic_symbols(stock_basic)
         frames: dict[str, pd.DataFrame] = {symbol: pd.DataFrame() for symbol in symbols}
@@ -1501,8 +1424,14 @@ class TushareDataProvider(MarketDataProvider):
         for ts_code in missing:
             daily = fallback_daily_groups.get(ts_code, pd.DataFrame())
             source = "daily_aggregation:tickflow_daily"
+            screening_daily = daily_groups.get(ts_code, pd.DataFrame())
+            if use_realtime and not screening_daily.empty:
+                current = screening_daily[screening_daily["trade_date"].astype(str) == str(trade_date)]
+                if not current.empty:
+                    daily = _replace_trade_date_rows(daily, current, trade_date)
+                    source = "daily_aggregation:tickflow_daily+current_1d"
             if daily.empty:
-                daily = daily_groups.get(ts_code, pd.DataFrame())
+                daily = screening_daily
                 source = "daily_aggregation:screening_daily"
             monthly = _daily_to_monthly_frame(daily, trade_date=trade_date)
             if not monthly.empty:
@@ -1773,13 +1702,6 @@ def _setting(provider: TushareDataProvider, name: str, default: int) -> int:
         return int(getattr(settings, name, default))
     except (TypeError, ValueError):
         return default
-
-
-def _is_realtime_source(source: str) -> bool:
-    return str(source or "") in {
-        "tickflow_realtime_quote",
-        "tickflow_realtime_minute_quote",
-    }
 
 
 def _is_tushare_fallback_error(exc: Exception) -> bool:
@@ -2343,6 +2265,14 @@ def _filter_minute_trade_date(frame: pd.DataFrame, trade_date: str) -> pd.DataFr
     return frame[frame["trade_date"].astype(str) == str(trade_date)]
 
 
+def _current_kline_coverage_missing(frame: pd.DataFrame, symbols: list[str], trade_date: str) -> bool:
+    current = _filter_minute_trade_date(frame, trade_date)
+    if current.empty or "ts_code" not in current.columns:
+        return True
+    returned = current["ts_code"].dropna().astype(str).nunique()
+    return returned < max(1, int(len(symbols) * 0.5))
+
+
 def _group_by_ts_code(frame: pd.DataFrame) -> dict[str, pd.DataFrame]:
     if frame is None or frame.empty or "ts_code" not in frame.columns:
         return {}
@@ -2360,6 +2290,29 @@ def _replace_trade_date_rows(base: pd.DataFrame, replacement: pd.DataFrame, trad
         return replacement.copy()
     kept = base[base["trade_date"].astype(str) != str(trade_date)].copy()
     return pd.concat([kept, replacement], ignore_index=True, sort=False)
+
+
+def _with_previous_close_pct_chg(frame: pd.DataFrame, previous_daily: pd.DataFrame) -> pd.DataFrame:
+    if frame is None or frame.empty or previous_daily is None or previous_daily.empty:
+        return frame
+    history = previous_daily.copy()
+    history["ts_code"] = history["ts_code"].astype(str)
+    history["trade_date"] = history["trade_date"].astype(str)
+    history = history.sort_values(["ts_code", "trade_date"]).drop_duplicates(subset=["ts_code"], keep="last")
+    previous_close = {
+        str(row["ts_code"]): _num(row.get("close"))
+        for _, row in history.iterrows()
+    }
+    result = frame.copy()
+    if "pct_chg" not in result.columns:
+        result["pct_chg"] = 0.0
+    for index, row in result.iterrows():
+        close = _num(row.get("close"))
+        pre_close = previous_close.get(str(row.get("ts_code") or ""), 0.0)
+        if close > 0 and pre_close > 0:
+            result.at[index, "pct_chg"] = (close / pre_close - 1.0) * 100.0
+    result.attrs.update(frame.attrs)
+    return result
 
 
 def _is_obviously_missing(frame: pd.DataFrame | None, universe_count: int) -> bool:

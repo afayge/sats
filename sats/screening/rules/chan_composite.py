@@ -5,7 +5,7 @@ from typing import Any
 
 import pandas as pd
 
-from sats.screening.base import ScreeningInput, ScreeningResult, ScreeningRule
+from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
 from sats.screening.rules.chan_third_buy import (
     ChanThirdBuyRule,
     _is_bse_stock,
@@ -59,10 +59,27 @@ class ChanCompositeThresholds:
 
 class ChanCompositeRule(ScreeningRule):
     name = "chan_composite"
+    intraday_kline_requirements = (
+        IntradayKlineRequirement(
+            period="30m",
+            metadata_key="minute_30m",
+            source_metadata_key="minute_30m_source",
+            history_calendar_days=30,
+            count=80,
+            candidate_metadata_key="chan_daily_candidates",
+        ),
+    )
 
     def __init__(self, thresholds: ChanCompositeThresholds | None = None) -> None:
         self.thresholds = thresholds or ChanCompositeThresholds()
         self.third_rule = ChanThirdBuyRule()
+
+    def intraday_candidate_labels(
+        self,
+        data: ScreeningInput,
+        requirement: IntradayKlineRequirement,
+    ) -> list[str]:
+        return chan_composite_daily_candidates(data, thresholds=self.thresholds)
 
     def evaluate(self, data: ScreeningInput) -> ScreeningResult:
         common_checks, common_metrics, daily = _common_daily_context(data, thresholds=self.thresholds)

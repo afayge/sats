@@ -221,9 +221,18 @@ def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) ->
         return "stock_analysis"
     if "research.deep_stock_analysis" in tools:
         return "stock_analysis"
+    if any(_internal_analysis_kind(item) == "company_fundamentals" for item in observations):
+        return "company_fundamentals"
     if "research.stock_context" in tools or any(term in text for term in ("个股", "股票", "走势", "技术面")):
         return "stock_analysis"
     return "general_research"
+
+
+def _internal_analysis_kind(observation: AgentObservation) -> str:
+    if str(observation.payload.get("tool_name") or "") != "research.internal_analysis":
+        return ""
+    analysis = _result_payload(observation).get("analysis")
+    return str(analysis.get("kind") or "") if isinstance(analysis, dict) else ""
 
 
 def _style_guide(style: str) -> dict[str, Any]:
@@ -251,6 +260,13 @@ def _style_guide(style: str) -> dict[str, Any]:
                 "一句话总结",
             ],
             "table_hints": ["盘面表", "关键变化对比表", "Analyze 信号表", "关键价位表", "情景推演表", "综合判断表", "观察清单表"],
+        }
+    if style == "company_fundamentals":
+        return {
+            **common,
+            "title": "用公司名称和证券代码写 H1 标题。",
+            "sections": ["核心结论", "公司概况", "主营业务构成", "估值概览", "近四期财务指标", "资产负债与现金流", "风险与限制", "下一步"],
+            "table_hints": ["公司概况表必须同时展示代码和名称", "主营业务构成表", "估值表", "近四期财务指标表"],
         }
     if style == "market_analysis":
         return {
@@ -305,6 +321,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "analyze_signals": [],
         "native_dsa": {},
         "factor_summary": {},
+        "company_fundamentals": {},
         "theme_stock_returns": {},
         "discovery": {},
         "chan_context": {},
@@ -375,6 +392,8 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
                 digest["native_dsa"] = _trim_payload(analysis, max_chars=9000)
             elif kind == "factor_summary":
                 digest["factor_summary"] = _trim_payload(analysis, max_chars=7000)
+            elif kind == "company_fundamentals":
+                digest["company_fundamentals"] = _trim_payload(analysis, max_chars=16000)
         elif tool_name == "research.theme_stock_returns":
             context = payload.get("theme_stock_returns") if isinstance(payload.get("theme_stock_returns"), dict) else payload
             digest["theme_stock_returns"] = _trim_payload(context, max_chars=14000)
@@ -1121,6 +1140,8 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
     lines.extend(["## 文字图表", "", f"- 数据覆盖: {format_meter(min(5, max(1, len(successes))))}", f"- 风险等级: {format_meter(4 if errors else 2)}", f"- 信息密度: {format_sparkline([len(successes), len(errors), len(matched_skills), len(digest.get('provenance') or []), len(digest.get('quotes') or [])])}", ""])
     if style == "stock_analysis":
         _append_stock_fallback(lines, digest)
+    elif style == "company_fundamentals":
+        _append_company_fundamentals_fallback(lines, digest)
     elif style == "market_analysis":
         _append_market_fallback(lines, digest)
     elif style == "discovery":
@@ -1146,6 +1167,8 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
 
 
 def _fallback_title(style: str, objective: str) -> str:
+    if style == "company_fundamentals":
+        return "公司介绍、业务与基本面概览"
     if style == "stock_analysis":
         return "个股走势研究报告"
     if style == "market_analysis":
@@ -1155,6 +1178,80 @@ def _fallback_title(style: str, objective: str) -> str:
     if style == "backtest":
         return "策略回测研究报告"
     return str(objective or "SATS Agent 分析结果")
+
+
+def _append_company_fundamentals_fallback(lines: list[str], digest: dict[str, Any]) -> None:
+    payload = digest.get("company_fundamentals") if isinstance(digest.get("company_fundamentals"), dict) else {}
+    companies = payload.get("companies") if isinstance(payload.get("companies"), list) else []
+    profile_rows: list[dict[str, Any]] = []
+    valuation_rows: list[dict[str, Any]] = []
+    business_rows: list[dict[str, Any]] = []
+    indicator_rows: list[dict[str, Any]] = []
+    for company in companies:
+        if not isinstance(company, dict):
+            continue
+        profile = company.get("company_profile") if isinstance(company.get("company_profile"), dict) else {}
+        valuation = company.get("valuation") if isinstance(company.get("valuation"), dict) else {}
+        code = company.get("ts_code")
+        name = company.get("name")
+        profile_rows.append(
+            {
+                "代码": code,
+                "名称": name,
+                "公司名称": profile.get("com_name") or profile.get("公司名称"),
+                "成立日期": profile.get("setup_date") or profile.get("成立日期"),
+                "地区": " ".join(str(item) for item in (profile.get("province"), profile.get("city")) if item),
+                "董事长": profile.get("chairman"),
+                "主营业务": company.get("main_business"),
+            }
+        )
+        valuation_rows.append(
+            {
+                "代码": code,
+                "名称": name,
+                "日期": valuation.get("trade_date"),
+                "PE": valuation.get("pe") or valuation.get("pe_ttm"),
+                "PB": valuation.get("pb"),
+                "PS": valuation.get("ps"),
+                "总市值": valuation.get("total_mv"),
+                "流通市值": valuation.get("circ_mv"),
+            }
+        )
+        for item in company.get("business_composition") if isinstance(company.get("business_composition"), list) else []:
+            if isinstance(item, dict):
+                business_rows.append(
+                    {
+                        "代码": code,
+                        "名称": name,
+                        "报告期": item.get("end_date"),
+                        "业务项目": item.get("bz_item") or item.get("主营构成"),
+                        "收入": item.get("bz_sales") or item.get("主营收入"),
+                        "利润": item.get("bz_profit") or item.get("主营利润"),
+                        "成本": item.get("bz_cost") or item.get("主营成本"),
+                    }
+                )
+        for item in company.get("financial_indicators") if isinstance(company.get("financial_indicators"), list) else []:
+            if isinstance(item, dict):
+                indicator_rows.append(
+                    {
+                        "代码": code,
+                        "名称": name,
+                        "报告期": item.get("end_date"),
+                        "ROE": item.get("roe"),
+                        "ROA": item.get("roa"),
+                        "毛利率": item.get("grossprofit_margin") or item.get("gross_margin"),
+                        "净利率": item.get("netprofit_margin"),
+                        "资产负债率": item.get("debt_to_assets"),
+                    }
+                )
+    lines.extend(["## 公司概况", ""])
+    lines.extend(_markdown_table(profile_rows, ("代码", "名称", "公司名称", "成立日期", "地区", "董事长", "主营业务")) or ["公司概况数据缺失。"])
+    lines.extend(["", "## 主营业务构成", ""])
+    lines.extend(_markdown_table(business_rows[:24], ("代码", "名称", "报告期", "业务项目", "收入", "利润", "成本")) or ["主营业务构成数据缺失。"])
+    lines.extend(["", "## 估值概览", ""])
+    lines.extend(_markdown_table(valuation_rows, ("代码", "名称", "日期", "PE", "PB", "PS", "总市值", "流通市值")) or ["估值数据缺失。"])
+    lines.extend(["", "## 近四期财务指标", ""])
+    lines.extend(_markdown_table(indicator_rows, ("代码", "名称", "报告期", "ROE", "ROA", "毛利率", "净利率", "资产负债率")) or ["财务指标数据缺失。"])
 
 
 def _append_stock_fallback(lines: list[str], digest: dict[str, Any]) -> None:
