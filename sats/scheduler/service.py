@@ -172,6 +172,26 @@ class SchedulerService:
         for task in due_tasks:
             if not task.get("enabled", True):
                 continue
+            if str(task.get("schedule_kind") or "") == "trading_day" and not _is_trading_day(
+                current.strftime("%Y%m%d"),
+                settings=getattr(self.runner, "settings", None),
+            ):
+                run = self.runner.skipped_run(task, "非交易日，本轮跳过")
+                self.storage.insert_scheduled_task_run(run)
+                next_run_at = compute_next_run(
+                    current,
+                    schedule_kind="trading_day",
+                    days=[],
+                    time_of_day=str(task.get("time_of_day") or "09:00"),
+                )
+                self.storage.update_scheduled_task_after_run(
+                    str(task["name"]),
+                    last_status="skipped",
+                    last_run_at=str(run["finished_at"]),
+                    next_run_at=next_run_at,
+                )
+                runs.append(run)
+                continue
             if not self.storage.mark_scheduled_task_running(str(task["name"])):
                 run = self.runner.skipped_run(task, "上次运行未结束，本轮跳过")
                 self.storage.insert_scheduled_task_run(run)
@@ -282,7 +302,16 @@ def compute_next_run(
             if candidate > current:
                 return _format_dt(candidate)
         raise ValueError("unable to compute next weekly run")
-    raise ValueError("schedule kind must be daily or weekly")
+    if schedule_kind == "trading_day":
+        for offset in range(0, 8):
+            candidate_date = current + timedelta(days=offset)
+            if candidate_date.weekday() >= 5:
+                continue
+            candidate = candidate_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if candidate > current:
+                return _format_dt(candidate)
+        raise ValueError("unable to compute next trading-day run")
+    raise ValueError("schedule kind must be daily, weekly or trading_day")
 
 
 def parse_schedule_days(value: str | list[str] | tuple[str, ...]) -> tuple[str, ...]:
@@ -310,6 +339,8 @@ def format_task_schedule(task: dict) -> str:
     time_of_day = str(task.get("time_of_day") or "")
     if kind == "daily":
         return f"daily {time_of_day}"
+    if kind == "trading_day":
+        return f"trading-day {time_of_day}"
     days = ",".join(task.get("days") or [])
     return f"weekly {days} {time_of_day}".strip()
 
@@ -324,6 +355,8 @@ def _validate_cli_argv(argv: list[str]) -> None:
         raise ValueError(f"scheduled cli task cannot run '{command}'")
     if len(argv) >= 2 and (argv[0], argv[1]) in FORBIDDEN_LONG_RUNNING:
         raise ValueError(f"scheduled cli task cannot run '{argv[0]} {argv[1]}'")
+    if len(argv) >= 3 and argv[:3] == ["portfolio", "orders", "approve"]:
+        raise ValueError("scheduled cli task cannot approve live portfolio intents")
 
 
 class _ScheduledTaskExecutionError(Exception):
@@ -337,6 +370,38 @@ def _extract_report_path(output: str) -> str:
         if line.strip().startswith("报告:"):
             return line.split(":", 1)[1].strip()
     return ""
+
+
+def _is_trading_day(trade_date: str, *, settings=None) -> bool:
+    if settings is not None:
+        try:
+            from sats.data.astock_provider import AStockDataProvider
+            from sats.storage.duckdb import DuckDBStorage
+
+            provider = AStockDataProvider(settings)
+            payload = provider.fetch_data_operation(
+                "tushare.dataset.fetch",
+                {
+                    "dataset": "trade_cal",
+                    "params": {
+                        "exchange": "SSE",
+                        "start_date": trade_date,
+                        "end_date": trade_date,
+                    },
+                },
+                limit=10,
+                storage=DuckDBStorage(settings.db_path),
+            )
+            rows = payload.get("data") or payload.get("rows") or []
+            if rows:
+                return any(
+                    str(row.get("cal_date") or "") == trade_date
+                    and int(row.get("is_open") or 0) == 1
+                    for row in rows
+                )
+        except Exception:
+            pass
+    return datetime.strptime(trade_date, "%Y%m%d").weekday() < 5
 
 
 def _join_output(stdout: str, stderr: str) -> str:

@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from sats.config import Settings, load_settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.minute_periods import normalize_minute_period
 from sats.screening.base import ScreeningResult
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.service import evaluate_and_store
@@ -116,6 +117,7 @@ def create_app(settings: Settings | None = None, storage: DuckDBStorage | None =
         try:
             provider = AStockDataProvider(resolved_settings)
             symbol_list = parse_symbol_csv(symbols)
+            period = normalize_minute_period(period)
             if mode == "realtime":
                 frame = provider.load_realtime_minute_klines(
                     symbol_list,

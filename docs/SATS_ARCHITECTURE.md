@@ -143,6 +143,7 @@ flowchart TD
 | `sats/output_saver.py` | REPL 输出保存为 Markdown/PDF。 |
 | `sats/progress.py` | 长耗时命令的统一进度面板，非 TTY、JSON、管道输出默认静默。 |
 | `sats/monitoring/` | 持仓、关注列表、买入候选、监控事件、`monitor-display` 面板。 |
+| `sats/portfolio/` | 盘中 10 选 5、市场闸门、模拟撮合、组合计划和实盘待确认意图。 |
 | `sats/scheduler/` | 定时任务定义、执行、运行记录和 CLI 管理。 |
 
 ### 原生网络 RAG
@@ -390,7 +391,7 @@ REPL 支持保存上一条输出或本轮输出：
 - `sats schedule run-loop`
 - `sats schedule run <name>`
 
-调度模块位于 `sats/scheduler/`。v1 支持每天、每周、指定星期几和固定时间，默认 `Asia/Shanghai` 时区。
+调度模块位于 `sats/scheduler/`。支持每天、每周、指定星期几、A 股交易日和固定时间，默认 `Asia/Shanghai` 时区。交易日任务通过 `AStockDataProvider` 查询交易日历，休市日写入 skipped 运行记录。
 
 任务类型：
 
@@ -443,6 +444,7 @@ from sats.data.astock_provider import AStockDataProvider
 | 聊天与记忆 | `chat_sessions`、`chat_messages`、`chat_memories` |
 | 监控 | `monitor_positions`、`monitor_watchlist`、`monitor_buy_candidates`、`monitor_events`、`monitor_trade_events`、`monitor_runtime` |
 | Broker 审计 | `broker_accounts`、`broker_positions`、`broker_orders`、`broker_trades`、`broker_order_events` |
+| 组合与模拟交易 | `portfolio_runs`、`portfolio_candidates`、`market_regime_snapshots`、`paper_accounts`、`paper_positions`、`paper_orders`、`paper_trades`、`pending_trade_intents` |
 | 定时任务 | `scheduled_tasks`、`scheduled_task_runs` |
 
 多终端同步依赖同一个 `SATS_DB_PATH`。例如一个终端运行 `monitor-display`，另一个终端执行 `screen`、`schedule run` 或更新 watchlist，只要使用同一 DuckDB 文件，非聊天上下文类数据即可通过数据库共享。自然语言聊天的进程内上下文不跨终端共享，但聊天消息、记忆和定时任务结果可以落库。

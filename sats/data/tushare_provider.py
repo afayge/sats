@@ -41,6 +41,11 @@ CHAN_SIGNALS_RULE_NAME = "chan_signals"
 MONTHLY_BASE_BREAKOUT_RULE_NAME = "monthly_base_breakout"
 SIGNAL_COMPOSITE_RULE_NAME = "signal_composite"
 SIGNAL_DISCOVERY_RULE_NAME = "signal_discovery"
+FACTOR_OVERLAY_RULE_NAME = "factor_overlay"
+INTERNAL_SCREENING_INPUT_RULE_NAMES = {
+    FACTOR_OVERLAY_RULE_NAME,
+    SIGNAL_DISCOVERY_RULE_NAME,
+}
 CHAN_DAILY_BASIC_OPTIONAL_RULE_NAMES = {
     CHAN_THIRD_BUY_RULE_NAME,
     CHAN_COMPOSITE_RULE_NAME,
@@ -153,7 +158,11 @@ class TushareDataProvider(MarketDataProvider):
             raise ValueError(f"{trade_date} is not an open trade date; latest open trade date is {trade_dates[-1]}")
 
         force_realtime = _should_force_realtime(trade_date)
-        screening_rule = get_rule(rule_name) if rule_name else None
+        screening_rule = (
+            None
+            if rule_name in INTERNAL_SCREENING_INPUT_RULE_NAMES
+            else get_rule(rule_name) if rule_name else None
+        )
         require_daily_basic = rule_name not in CHAN_DAILY_BASIC_OPTIONAL_RULE_NAMES
         cache_trade_dates = [date for date in trade_dates if not (force_realtime and date == str(trade_date))]
         self._ensure_stock_daily(storage, cache_trade_dates, stock_basic=stock_basic, defer_dates={str(trade_date)})

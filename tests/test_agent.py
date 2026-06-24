@@ -24,6 +24,7 @@ from sats.agent.trading import AgentTradingExecutor
 from sats.analysis.dsa_native import DsaAnalysisRanking, DsaAnalysisRunResult, DsaStockAnalysis
 from sats.chat import ChatResult, format_chat_result
 from sats.cli import build_parser, main
+from sats.data.astock_provider import AStockDataProvider
 from sats.data.resolver import MarketDataResolver
 from sats.llm import LLMResponse
 from sats.screening.base import ScreeningResult
@@ -118,6 +119,21 @@ class FakeThemeReturnsOldPlanLLM:
                 '"arguments":{"query":"CVD金刚石散热 相关股票","trade_date":"20260620","limit":20}},'
                 '{"step_id":"daily","kind":"tool","title":"daily","tool_name":"data.stock_daily",'
                 '"arguments":{"symbols":"从步骤1输出中提取的股票代码列表","start_date":"20251220","end_date":"20260618"}},'
+                '{"step_id":"final","kind":"final","title":"summary"}]}'
+            )
+        )
+
+
+class FakeInvalidStockBasicLLM:
+    def __init__(self, *args, **kwargs) -> None:
+        pass
+
+    def chat(self, messages, timeout=None):
+        return LLMResponse(
+            content=(
+                '{"objective":"lookup stock","steps":['
+                '{"step_id":"basic","kind":"tool","title":"basic","tool_name":"data.astock_fetch",'
+                '"arguments":{"operation":"astock.stock_basic","params":{"name":"台基股份"},"limit":5}},'
                 '{"step_id":"final","kind":"final","title":"summary"}]}'
             )
         )
@@ -554,6 +570,91 @@ class AgentTest(unittest.TestCase):
         self.assertIn("候选排序表", discovery_context)
         self.assertIn("触发条件", discovery_context)
         self.assertIn("失效条件", discovery_context)
+
+    def test_discovery_synthesis_keeps_ten_candidate_summaries_without_truncated_json(self) -> None:
+        candidates = [
+            {
+                "ts_code": f"300{i:03d}.SZ",
+                "name": f"候选{i}",
+                "trade_date": "20260609",
+                "ranking_score": 100 - i,
+                "local_score": 80 - i,
+                "close": 10 + i,
+                "decision": "观察",
+                "trend": "看多",
+                "events": [
+                    {
+                        "signal_id": "short_up",
+                        "label": "短线买入信号",
+                        "side": "buy",
+                        "confidence": 80,
+                        "reason": "技术分析详情" * 120,
+                        "risk_flags": ["跌破支撑"],
+                    }
+                ],
+                "key_levels": {"support": 9 + i, "resistance": 12 + i},
+                "indicator": {
+                    "technical": {"ma5": 10 + i, "ma20": 9 + i, "macd": "金叉"},
+                    "volume": {"volume_ratio": 1.5},
+                    "factor": {"profile": "balanced", "score": 1.2, "factor_values": {"alpha": "大字段" * 200}},
+                },
+                "hot_sectors": [{"name": "AI算力", "heat_score": 12}],
+                "entry_trigger": "放量突破",
+                "invalidation": "跌破5日线",
+                "risk": "仅供观察",
+            }
+            for i in range(1, 11)
+        ]
+        discovery_payload = {
+            "trade_date": "20260609",
+            "signals": "short_up",
+            "candidates": candidates,
+            "candidate_count": 10,
+            "scanned_count": 5000,
+            "llm_pool_count": 10,
+        }
+        observations = (
+            AgentObservation(
+                step_id="discover",
+                kind="tool",
+                status="done",
+                content="discover",
+                payload={
+                    "tool_name": "research.discover_opportunities",
+                    "result": {
+                        "payload": {
+                            "status": "ok",
+                            "stock_picking_agent": {"query": "选取10支明天大概率上涨的股票", "opportunity_discovery": discovery_payload},
+                            "opportunity_discovery": discovery_payload,
+                        }
+                    },
+                },
+            ),
+        )
+
+        digest = _evidence_digest(observations)
+        digest_text = json.dumps(digest["discovery"], ensure_ascii=False)
+
+        self.assertEqual(len(digest["discovery"]["candidates"]), 10)
+        self.assertEqual(digest["discovery"]["candidate_summary"]["omitted_count"], 0)
+        self.assertNotIn("truncated_json", digest_text)
+        self.assertNotIn("factor_values", digest_text)
+
+        synthesize_agent_result(
+            message="选取10支明天大概率上涨的股票",
+            plan=AgentPlan(objective="短线机会发现"),
+            observations=observations,
+            skills=(),
+            settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10),
+            llm_factory=FakeSynthesisLLM,
+        )
+        context_text = "\n".join(str(item.get("content") or "") for item in FakeSynthesisLLM.last_messages)
+
+        self.assertNotIn("truncated_json", context_text)
+        self.assertIn('"omitted_count": 0', context_text)
+        for i in range(1, 11):
+            self.assertIn(f"300{i:03d}.SZ", context_text)
+            self.assertIn(f"候选{i}", context_text)
 
     def test_synthesis_fallback_uses_markdown_report_sections(self) -> None:
         result = synthesize_agent_result(
@@ -1375,6 +1476,21 @@ class AgentTest(unittest.TestCase):
         self.assertIn("factor.pick", [step.tool_name for step in plan.steps if step.kind == "tool"])
         self.assertNotIn("analyze_signals", [step.arguments.get("kind") for step in plan.steps if step.tool_name == "research.internal_analysis"])
 
+    def test_fallback_planner_uses_requested_opportunity_limit(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan(
+            "选取10支明天大概率上涨的股票",
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+        )
+        step = next(step for step in plan.steps if step.tool_name == "research.discover_opportunities")
+
+        self.assertEqual(step.arguments["limit"], 10)
+
     def test_agent_report_writes_final_synthesis_content(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             artifact = save_agent_report(
@@ -1450,6 +1566,49 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(tool_steps[0].arguments["query"], message)
         self.assertEqual(tool_steps[0].arguments["period"], "6m")
         self.assertNotIn("data.stock_daily", [step.tool_name for step in plan.steps])
+
+    def test_planner_routes_peer_bottom_one_year_question_to_theme_returns(self) -> None:
+        registry = build_default_tool_registry()
+        message = "台基股份 近一年的涨幅是多少？为什么在功率器件中 台基股份是涨幅垫底"
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            DuckDBStorage(db_path).upsert_stock_basic(
+                pd.DataFrame([{"ts_code": "300046.SZ", "symbol": "300046", "name": "台基股份"}])
+            )
+            plan = build_agent_plan(
+                message,
+                settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10, db_path=db_path),
+                policy=AgentExecutionPolicy(),
+                llm_factory=FakeInvalidStockBasicLLM,
+                tool_registry=registry,
+            )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.theme_stock_returns"])
+        self.assertEqual(tool_steps[0].arguments["query"], message)
+        self.assertEqual(tool_steps[0].arguments["theme"], "功率器件")
+        self.assertEqual(tool_steps[0].arguments["period"], "1y")
+        self.assertEqual(tool_steps[0].arguments["symbols"], ["300046.SZ"])
+
+    def test_planner_rewrites_invalid_stock_basic_fetch_to_safe_lookup(self) -> None:
+        registry = build_default_tool_registry()
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            DuckDBStorage(db_path).upsert_stock_basic(
+                pd.DataFrame([{"ts_code": "300046.SZ", "symbol": "300046", "name": "台基股份"}])
+            )
+            plan = build_agent_plan(
+                "查询台基股份股票基础信息",
+                settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10, db_path=db_path),
+                policy=AgentExecutionPolicy(),
+                llm_factory=FakeInvalidStockBasicLLM,
+                tool_registry=registry,
+            )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual(tool_steps[0].tool_name, "data.stock_basic")
+        self.assertEqual(tool_steps[0].arguments["name"], "台基股份")
+        self.assertNotEqual(tool_steps[0].arguments.get("operation"), "astock.stock_basic")
 
     def test_theme_stock_returns_merges_web_and_theme_universe_and_keeps_period_returns(self) -> None:
         registry = build_default_tool_registry()
@@ -1528,6 +1687,79 @@ class AgentTest(unittest.TestCase):
         self.assertEqual([item["ts_code"] for item in payload["stocks"]], ["600172.SH", "301071.SZ", "002046.SZ", "000519.SZ", "688028.SH"])
         self.assertTrue(all(item["period_returns"]["6m"]["pct_change"] == 12.3 for item in payload["stocks"]))
         self.assertEqual(payload["coverage"]["returned_count"], 5)
+
+    def test_theme_stock_returns_includes_focus_symbol_and_ranking(self) -> None:
+        registry = build_default_tool_registry()
+        stock_basic = pd.DataFrame(
+            [
+                {"ts_code": "300046.SZ", "symbol": "300046", "name": "台基股份"},
+                {"ts_code": "300373.SZ", "symbol": "300373", "name": "扬杰科技"},
+                {"ts_code": "300623.SZ", "symbol": "300623", "name": "捷捷微电"},
+            ]
+        )
+        web_payload = {"status": "ok", "query": "功率器件 A股股票", "backend": "rag", "answer": "", "sources": [], "results": []}
+        theme_universe = SimpleNamespace(
+            theme="功率器件",
+            stocks=(
+                SimpleNamespace(ts_code="300373.SZ", name="扬杰科技", reason="功率半导体", source="llm_theme_universe"),
+                SimpleNamespace(ts_code="300623.SZ", name="捷捷微电", reason="功率器件", source="llm_theme_universe"),
+            ),
+            warnings=(),
+        )
+        returns = {"300373.SZ": 80.0, "300623.SZ": 30.0, "300046.SZ": -10.0}
+
+        def fake_ensure(symbols, trade_date, **kwargs):
+            symbol = symbols[0]
+            return {
+                symbol: {
+                    "ts_code": symbol,
+                    "name": stock_basic.set_index("ts_code").loc[symbol, "name"],
+                    "requested_trade_date": trade_date,
+                    "trade_date": "20260618",
+                    "period_returns": {
+                        "1y": {
+                            "start_trade_date": "20250618",
+                            "end_trade_date": "20260618",
+                            "pct_change": returns[symbol],
+                        }
+                    },
+                    "missing_fields": [],
+                }
+            }
+
+        context = AgentToolContext(
+            settings=SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb")),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            llm_factory=lambda: SimpleNamespace(),
+            message="台基股份 近一年的涨幅是多少？为什么在功率器件中 台基股份是涨幅垫底",
+        )
+
+        with (
+            patch("sats.agent.tools.research_tools.AStockDataProvider", return_value=SimpleNamespace(load_stock_basic=lambda storage=None: stock_basic)),
+            patch("sats.agent.tools.research_tools.web_search", return_value=web_payload),
+            patch("sats.agent.tools.research_tools.resolve_theme_universe", return_value=theme_universe),
+            patch("sats.agent.tools.research_tools.ensure_stock_analysis_data", side_effect=fake_ensure),
+        ):
+            result = registry.execute(
+                "research.theme_stock_returns",
+                {"query": context.message, "theme": "功率器件", "symbols": ["300046.SZ"], "period": "1y", "limit": 30},
+                context,
+            )
+
+        payload = result.payload["theme_stock_returns"]
+        self.assertEqual(result.status, "done")
+        self.assertEqual(payload["focus_symbols"], ["300046.SZ"])
+        self.assertEqual(payload["period"], "1y")
+        self.assertEqual({item["ts_code"] for item in payload["stocks"]}, {"300046.SZ", "300373.SZ", "300623.SZ"})
+        taiji = next(item for item in payload["ranking"] if item["ts_code"] == "300046.SZ")
+        self.assertEqual(taiji["rank"], 3)
+        self.assertEqual(taiji["peer_count"], 3)
+        self.assertTrue(taiji["is_bottom"])
+        self.assertEqual(taiji["pct_change"], -10.0)
 
     def test_synthesis_digest_keeps_all_theme_stock_return_rows(self) -> None:
         stocks = [
@@ -1881,6 +2113,113 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(result.status, "done")
         self.assertEqual(len(result.payload["sample"]), 20)
         self.assertEqual({row["index_code"] for row in result.payload["sample"]}, {"000001.SH", "399001.SZ"})
+
+    def test_stock_minute_tool_normalizes_period_alias_before_resolver(self) -> None:
+        captured = {}
+
+        class Resolver:
+            def load_stock_minute(self, symbols, *, period="1m", start_time=None, end_time=None, count=None):
+                captured["period"] = period
+                frame = pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000001.SZ",
+                            "period": period,
+                            "trade_date": "20260514",
+                            "trade_time": "2026-05-14 10:00:00",
+                            "open": 10.0,
+                            "high": 10.5,
+                            "low": 9.9,
+                            "close": 10.2,
+                            "vol": 100.0,
+                            "amount": 1000.0,
+                        }
+                    ]
+                )
+                frame.attrs["market_data_provenance"] = [{"dataset": "stock_minute", "source": "test"}]
+                return frame
+
+        context = AgentToolContext(
+            settings=SimpleNamespace(db_path=Path("data/sats.duckdb")),
+            storage=SimpleNamespace(),
+            resolver=Resolver(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            message="获取 15min 分钟K",
+        )
+
+        result = build_default_tool_registry().execute(
+            "data.stock_minute",
+            {"symbols": ["000001"], "period": "15min", "count": 20},
+            context,
+        )
+
+        self.assertEqual(result.status, "done")
+        self.assertEqual(captured["period"], "15m")
+
+    def test_resolver_derives_unsupported_minute_period_from_native_base(self) -> None:
+        class TickFlowMinuteBackend:
+            def __init__(self) -> None:
+                self.calls = []
+
+            def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None):
+                self.calls.append({"symbols": list(symbols), "period": period, "start_time": start_time, "end_time": end_time, "count": count})
+                frame = pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000001.SZ",
+                            "period": period,
+                            "trade_date": "20260514",
+                            "trade_time": "2026-05-14 09:35:00",
+                            "open": 10.0,
+                            "high": 10.5,
+                            "low": 9.8,
+                            "close": 10.2,
+                            "vol": 100.0,
+                            "amount": 1000.0,
+                            "data_source": "fake_tickflow",
+                        },
+                        {
+                            "ts_code": "000001.SZ",
+                            "period": period,
+                            "trade_date": "20260514",
+                            "trade_time": "2026-05-14 09:40:00",
+                            "open": 10.2,
+                            "high": 10.8,
+                            "low": 10.0,
+                            "close": 10.6,
+                            "vol": 200.0,
+                            "amount": 2200.0,
+                            "data_source": "fake_tickflow",
+                        },
+                    ]
+                )
+                frame.attrs["data_source"] = "fake_tickflow"
+                return frame
+
+            def load_realtime_minute_klines(self, symbols, *, period="1m", count=None):
+                return pd.DataFrame()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+            backend = TickFlowMinuteBackend()
+            provider = AStockDataProvider(settings, tickflow_provider=backend, tushare_provider=SimpleNamespace(), akshare_provider=SimpleNamespace())
+            resolver = MarketDataResolver(settings, storage=storage, provider=provider)
+
+            frame = resolver.load_stock_minute(
+                ["000001"],
+                period="10min",
+                start_time="2026-05-14 09:30:00",
+                end_time="2026-05-14 10:00:00",
+            )
+
+        self.assertEqual(backend.calls[0]["period"], "5m")
+        self.assertEqual(frame["period"].unique().tolist(), ["10m"])
+        self.assertEqual(frame.iloc[0]["datetime"], "2026-05-14 09:40:00")
+        self.assertEqual(float(frame.iloc[0]["vol"]), 300.0)
+        self.assertTrue(frame.attrs.get("market_data_provenance"))
 
     def test_synthesis_uses_data_index_daily_rows_when_market_context_omits_indices(self) -> None:
         observations = (

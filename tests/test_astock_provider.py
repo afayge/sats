@@ -78,7 +78,7 @@ class _TickFlowBackend:
                 for symbol in symbols
             ]
         )
-        frame.attrs["data_source"] = "tickflow_current_1m_quote"
+        frame.attrs["data_source"] = "tickflow_current_1d_quote"
         return frame
 
     def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
@@ -387,7 +387,7 @@ class AStockDataProviderTest(unittest.TestCase):
 
             frame = provider.load_realtime_quotes(symbols=["000001"])
 
-            self.assertEqual(frame.attrs["data_source"], "tickflow_current_1m_quote")
+            self.assertEqual(frame.attrs["data_source"], "tickflow_current_1d_quote")
             self.assertEqual(frame.iloc[0]["ts_code"], "000001.SZ")
             self.assertAlmostEqual(float(frame.iloc[0]["pre_close"]), 9.5)
             self.assertAlmostEqual(float(frame.iloc[0]["pct_chg"]), (10.0 / 9.5 - 1.0) * 100.0)

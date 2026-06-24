@@ -9,6 +9,14 @@ from sats.config import Settings
 from sats.data.akshare_provider import AkShareDataProvider
 from sats.data.base import MarketDataProvider
 from sats.data.limit_sentiment import build_limit_sentiment_payload, build_quote_limit_sentiment_payload
+from sats.minute_periods import (
+    aggregate_minute_klines,
+    looks_like_minute_period,
+    native_minute_base_period,
+    native_minute_count_for,
+    normalize_minute_period,
+    tail_minute_klines,
+)
 from sats.data.tickflow_provider import DEFAULT_A_SHARE_UNIVERSE_ID, TickFlowDataProvider
 from sats.data.provider_capabilities import list_provider_capabilities
 from sats.data.tushare_provider import SCREENING_TRADE_DAYS, TushareDataProvider
@@ -100,6 +108,149 @@ class AStockDataProvider(MarketDataProvider):
                 return []
         return []
 
+    def list_universes(self) -> pd.DataFrame:
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "list_universes"):
+            return pd.DataFrame()
+        frame = _safe_frame(tick.list_universes)
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_universes")
+        return frame
+
+    def load_universe_symbols(self, universe_id: str = DEFAULT_A_SHARE_UNIVERSE_ID) -> list[str]:
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_universe_symbols"):
+            return self.list_a_share_symbols() if universe_id == DEFAULT_A_SHARE_UNIVERSE_ID else []
+        values = _safe_list(lambda: tick.load_universe_symbols(universe_id))
+        return sorted(normalize_symbols(values, required=False))
+
+    def load_instruments(self, symbols: list[str]) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_instruments") or not clean_symbols:
+            return pd.DataFrame()
+        frame = _safe_frame(lambda: tick.load_instruments(clean_symbols))
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_instruments")
+        return frame
+
+    def load_klines(
+        self,
+        symbols: list[str],
+        *,
+        period: str,
+        start_time: int | str | None = None,
+        end_time: int | str | None = None,
+        count: int | None = None,
+        adjust: str = "none",
+    ) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        if looks_like_minute_period(period):
+            return self.load_historical_minute_klines(
+                clean_symbols,
+                period=normalize_minute_period(period),
+                start_time=start_time,
+                end_time=end_time,
+                count=count,
+            )
+        tick = self.tickflow
+        if tick is not None and hasattr(tick, "load_klines") and clean_symbols:
+            frame = _safe_frame(
+                lambda: tick.load_klines(
+                    clean_symbols,
+                    period=period,
+                    start_time=start_time,
+                    end_time=end_time,
+                    count=count,
+                    adjust=adjust,
+                )
+            )
+            if not frame.empty:
+                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_klines")
+                return frame
+        normalized_period = str(period or "").strip().lower()
+        if normalized_period in {"1d", "d", "day", "daily"}:
+            return self.load_historical_daily_klines(
+                clean_symbols,
+                start_date=start_time,
+                end_date=end_time,
+            )
+        if looks_like_minute_period(period):
+            return self.load_historical_minute_klines(
+                clean_symbols,
+                period=normalize_minute_period(period),
+                start_time=start_time,
+                end_time=end_time,
+                count=count,
+            )
+        return pd.DataFrame()
+
+    def load_realtime_daily_basic_like(self, symbols: list[str], *, trade_date: str) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_realtime_daily_basic_like") or not clean_symbols:
+            return pd.DataFrame()
+        frame = _safe_frame(
+            lambda: tick.load_realtime_daily_basic_like(
+                clean_symbols,
+                trade_date=trade_date,
+            )
+        )
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_realtime_daily_basic_like")
+        return frame
+
+    def load_intraday_timeshare(
+        self,
+        symbols: list[str],
+        *,
+        period: str = "1m",
+        count: int | None = None,
+    ) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        target_period = normalize_minute_period(period)
+        base_period = native_minute_base_period(target_period)
+        request_count = native_minute_count_for(count, target_period=target_period, base_period=base_period)
+        tick = self.tickflow
+        if tick is not None and hasattr(tick, "load_intraday_timeshare") and clean_symbols:
+            frame = _safe_frame(lambda: tick.load_intraday_timeshare(clean_symbols, period=base_period, count=request_count))
+            if not frame.empty:
+                frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_intraday_timeshare")
+                return _finalize_minute_period_frame(frame, target_period=target_period, base_period=base_period, count=count)
+        return self.load_realtime_minute_klines(clean_symbols, period=target_period, count=count)
+
+    def load_market_depth(self, symbols: list[str]) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_market_depth") or not clean_symbols:
+            return pd.DataFrame()
+        frame = _safe_frame(lambda: tick.load_market_depth(clean_symbols))
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_market_depth")
+        return frame
+
+    def load_ex_factors(
+        self,
+        symbols: list[str],
+        *,
+        start_time: int | str | None = None,
+        end_time: int | str | None = None,
+    ) -> pd.DataFrame:
+        clean_symbols = normalize_symbols(symbols, required=False)
+        tick = self.tickflow
+        if tick is None or not hasattr(tick, "load_ex_factors") or not clean_symbols:
+            return pd.DataFrame()
+        frame = _safe_frame(
+            lambda: tick.load_ex_factors(
+                clean_symbols,
+                start_time=start_time,
+                end_time=end_time,
+            )
+        )
+        if not frame.empty:
+            frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_ex_factors")
+        return frame
+
     def load_provider_capabilities(
         self,
         *,
@@ -113,6 +264,51 @@ class AStockDataProvider(MarketDataProvider):
             category=category,
             realtime=realtime,
             compact=compact,
+        )
+
+    def list_data_operations(
+        self,
+        *,
+        provider: str | None = None,
+        query: str | None = None,
+        category: str | None = None,
+        realtime: bool | None = None,
+        writes_db: bool | None = None,
+        limit: int = 50,
+        offset: int = 0,
+        compact: bool = True,
+    ) -> dict[str, Any]:
+        from sats.data.astock_operations import list_astock_capabilities
+
+        return list_astock_capabilities(
+            provider=provider,
+            query=query,
+            category=category,
+            realtime=realtime,
+            writes_db=writes_db,
+            limit=limit,
+            offset=offset,
+            compact=compact,
+        )
+
+    def fetch_data_operation(
+        self,
+        operation: str,
+        params: dict[str, Any] | None = None,
+        *,
+        fields: list[str] | tuple[str, ...] | None = None,
+        limit: int = 200,
+        storage: DuckDBStorage | None = None,
+    ) -> dict[str, Any]:
+        from sats.data.astock_operations import execute_astock_operation
+
+        return execute_astock_operation(
+            operation,
+            params or {},
+            fields=fields or (),
+            limit=limit,
+            provider=self,
+            storage=storage,
         )
 
     def list_akshare_datasets(
@@ -361,7 +557,7 @@ class AStockDataProvider(MarketDataProvider):
             frame,
             storage=DuckDBStorage(self.settings.db_path),
         )
-        frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_current_1m_quote")
+        frame.attrs["data_source"] = str(frame.attrs.get("data_source") or "tickflow_current_1d_quote")
         return frame
 
     def load_realtime_daily_quotes(self, symbols: list[str], *, trade_date: str) -> pd.DataFrame:
@@ -385,15 +581,26 @@ class AStockDataProvider(MarketDataProvider):
         clean_symbols = normalize_symbols(symbols, required=False)
         if not clean_symbols:
             return pd.DataFrame()
+        if period == "1d":
+            target_period = "1d"
+            base_period = "1d"
+            request_count = count
+        else:
+            target_period = normalize_minute_period(period)
+            base_period = native_minute_base_period(target_period)
+            request_count = native_minute_count_for(count, target_period=target_period, base_period=base_period)
         tick = self.tickflow
         if tick is None or not hasattr(tick, "load_current_klines"):
             return pd.DataFrame()
-        return tick.load_current_klines(
+        frame = tick.load_current_klines(
             clean_symbols,
-            period=period,
+            period=base_period,
             trade_date=trade_date,
-            count=count,
+            count=request_count,
         )
+        if target_period == "1d":
+            return frame
+        return _finalize_minute_period_frame(frame, target_period=target_period, base_period=base_period, count=count)
 
     def load_realtime_minute_klines(
         self,
@@ -405,10 +612,14 @@ class AStockDataProvider(MarketDataProvider):
         clean_symbols = normalize_symbols(symbols, required=False)
         if not clean_symbols:
             return pd.DataFrame()
+        target_period = normalize_minute_period(period)
+        base_period = native_minute_base_period(target_period)
+        request_count = native_minute_count_for(count, target_period=target_period, base_period=base_period)
         tick = self.tickflow
         if tick is None:
             return pd.DataFrame()
-        return tick.load_realtime_minute_klines(clean_symbols, period=period, count=count)
+        frame = tick.load_realtime_minute_klines(clean_symbols, period=base_period, count=request_count)
+        return _finalize_minute_period_frame(frame, target_period=target_period, base_period=base_period, count=count)
 
     def load_historical_minute_klines(
         self,
@@ -422,16 +633,20 @@ class AStockDataProvider(MarketDataProvider):
         clean_symbols = normalize_symbols(symbols, required=False)
         if not clean_symbols:
             return pd.DataFrame()
+        target_period = normalize_minute_period(period)
+        base_period = native_minute_base_period(target_period)
+        request_count = native_minute_count_for(count, target_period=target_period, base_period=base_period)
         tick = self.tickflow
         if tick is None:
             return pd.DataFrame()
-        return tick.load_historical_minute_klines(
+        frame = tick.load_historical_minute_klines(
             clean_symbols,
-            period=period,
+            period=base_period,
             start_time=start_time,
             end_time=end_time,
-            count=count,
+            count=request_count,
         )
+        return _finalize_minute_period_frame(frame, target_period=target_period, base_period=base_period, count=count)
 
     def load_index_daily(self, index_codes: list[str], *, start_date: str, end_date: str) -> pd.DataFrame:
         frames: list[pd.DataFrame] = []
@@ -1130,6 +1345,21 @@ def _safe_frame(loader: Callable[[], Any]) -> pd.DataFrame:
     except Exception:
         return pd.DataFrame()
     return frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
+
+
+def _finalize_minute_period_frame(
+    frame: pd.DataFrame,
+    *,
+    target_period: str,
+    base_period: str,
+    count: int | None,
+) -> pd.DataFrame:
+    if frame is None or frame.empty:
+        return frame
+    data = frame
+    if target_period != base_period:
+        data = aggregate_minute_klines(data, target_period=target_period, source_period=base_period)
+    return tail_minute_klines(data, count)
 
 
 def _safe_list(loader: Callable[[], Any]) -> list[Any]:

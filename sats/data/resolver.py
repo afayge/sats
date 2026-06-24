@@ -8,6 +8,7 @@ import pandas as pd
 
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
+from sats.minute_periods import normalize_minute_period
 from sats.indicators import IndicatorInput
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols
@@ -131,6 +132,7 @@ class MarketDataResolver:
         count: int | None = None,
     ) -> pd.DataFrame:
         clean_symbols = normalize_symbols(symbols, required=False)
+        period = normalize_minute_period(period)
         cached = self.storage.get_stock_minute_cache(clean_symbols, period=period, start_time=start_time, end_time=end_time)
         if count is None and start_time and end_time and _has_symbol_rows(cached, clean_symbols, "ts_code"):
             return _mark(cached, dataset="stock_minute", source="duckdb_cache", cache_hit=True)

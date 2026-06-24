@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from sats.agent.tools.base import AgentToolContext, AgentToolRegistry, AgentToolResult, AgentToolSpec
+from sats.agent.tools.catalog_tools import catalog_tool_specs
 from sats.agent.tools.chat_tools import chat_tool_specs
 from sats.agent.tools.command_tools import command_tool_specs
 from sats.agent.tools.data_tools import data_tool_specs
@@ -14,6 +15,7 @@ from sats.agent.tools.workflow_tools import workflow_tool_specs
 def build_default_tool_registry() -> AgentToolRegistry:
     registry = AgentToolRegistry()
     for spec in (
+        *catalog_tool_specs(),
         *chat_tool_specs(),
         *data_tool_specs(),
         *research_tool_specs(),

@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
+from sats.minute_periods import aggregate_minute_klines, native_minute_base_period, normalize_minute_period
 from sats.data.tickflow_provider import TickFlowDataProvider
 from sats.storage.duckdb import DuckDBStorage
 
@@ -43,6 +44,27 @@ def _intraday_daily_frame(symbol: str) -> pd.DataFrame:
             "close": [9.9, 10.2, 10.5, 10.6],
             "volume": [900.0, 1000.0, 2000.0, 3000.0],
             "amount": [8910.0, 10200.0, 21000.0, 31800.0],
+        }
+    )
+
+
+def _ten_minute_source_frame(symbol: str) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "symbol": [symbol] * 5,
+            "trade_time": [
+                "2026-05-14 09:35:00",
+                "2026-05-14 09:40:00",
+                "2026-05-14 11:30:00",
+                "2026-05-14 13:05:00",
+                "2026-05-14 13:10:00",
+            ],
+            "open": [10.0, 10.5, 11.0, 20.0, 20.5],
+            "high": [11.0, 12.0, 11.5, 21.0, 22.0],
+            "low": [9.0, 10.0, 10.8, 19.0, 20.0],
+            "close": [10.5, 11.0, 11.2, 20.5, 21.0],
+            "volume": [1000.0, 2000.0, 3000.0, 4000.0, 5000.0],
+            "amount": [10000.0, 22000.0, 33600.0, 82000.0, 105000.0],
         }
     )
 
@@ -288,11 +310,71 @@ class TickFlowProviderTest(unittest.TestCase):
             self.assertEqual(client.klines.intraday_batch_calls[0]["period"], period)
             self.assertEqual(client.klines.intraday_batch_calls[0]["count"], 20)
 
+    def test_normalizes_minute_period_aliases_and_selects_base_period(self) -> None:
+        for alias, expected in [
+            ("1min", "1m"),
+            ("5分钟", "5m"),
+            ("15分", "15m"),
+            ("30minutes", "30m"),
+            ("60MIN", "60m"),
+            ("10min", "10m"),
+            ("7分钟", "7m"),
+        ]:
+            self.assertEqual(normalize_minute_period(alias), expected)
+        self.assertEqual(native_minute_base_period("10min"), "5m")
+        self.assertEqual(native_minute_base_period("7分钟"), "1m")
+        self.assertEqual(native_minute_base_period("45m"), "15m")
+        self.assertEqual(native_minute_base_period("120m"), "60m")
+
     def test_rejects_invalid_period(self) -> None:
         provider = self._provider(FakeClient())
 
         with self.assertRaisesRegex(ValueError, "Unsupported minute K period"):
-            provider.load_realtime_minute_klines(["000001.SZ"], period="10m")
+            provider.load_realtime_minute_klines(["000001.SZ"], period="0m")
+        with self.assertRaisesRegex(ValueError, "Unsupported minute K period"):
+            provider.load_realtime_minute_klines(["000001.SZ"], period="241min")
+        with self.assertRaisesRegex(ValueError, "Unsupported minute K period"):
+            provider.load_realtime_minute_klines(["000001.SZ"], period="1d")
+
+    def test_derived_minute_period_aggregates_from_native_base_period(self) -> None:
+        client = FakeClient(intraday_frame_factory=_ten_minute_source_frame)
+        provider = self._provider(client)
+
+        frame = provider.load_realtime_minute_klines(["000001.SZ"], period="10min")
+
+        self.assertEqual(client.klines.intraday_batch_calls[0]["period"], "5m")
+        self.assertEqual(frame["period"].tolist(), ["10m", "10m", "10m"])
+        self.assertEqual(frame["trade_time"].tolist(), ["2026-05-14 09:40:00", "2026-05-14 11:30:00", "2026-05-14 13:10:00"])
+        first = frame.iloc[0]
+        self.assertEqual(float(first["open"]), 10.0)
+        self.assertEqual(float(first["high"]), 12.0)
+        self.assertEqual(float(first["low"]), 9.0)
+        self.assertEqual(float(first["close"]), 11.0)
+        self.assertEqual(float(first["vol"]), 30.0)
+        self.assertEqual(float(first["amount"]), 32.0)
+        self.assertIn("derived_10m_from_5m", frame.iloc[0]["data_source"])
+
+    def test_aggregate_minute_klines_keeps_lunch_sessions_separate(self) -> None:
+        source = pd.DataFrame(
+            {
+                "ts_code": ["000001.SZ", "000001.SZ"],
+                "period": ["5m", "5m"],
+                "trade_date": ["20260514", "20260514"],
+                "trade_time": ["2026-05-14 11:30:00", "2026-05-14 13:05:00"],
+                "open": [10.0, 20.0],
+                "high": [11.0, 21.0],
+                "low": [9.5, 19.5],
+                "close": [10.5, 20.5],
+                "vol": [100.0, 200.0],
+                "amount": [1000.0, 2000.0],
+                "data_source": ["test", "test"],
+            }
+        )
+
+        frame = aggregate_minute_klines(source, target_period="10m", source_period="5m")
+
+        self.assertEqual(frame["trade_time"].tolist(), ["2026-05-14 11:30:00", "2026-05-14 13:10:00"])
+        self.assertEqual(frame["close"].tolist(), [10.5, 20.5])
 
     def test_batch_requests_are_chunked_by_100_symbols(self) -> None:
         client = FakeClient()
@@ -513,7 +595,7 @@ class TickFlowProviderTest(unittest.TestCase):
         self.assertEqual(client.klines.intraday_calls, [])
         self.assertEqual(sleeps, [2.0, 2.0])
 
-    def test_realtime_quotes_can_load_by_symbols_or_universe(self) -> None:
+    def test_realtime_quotes_use_current_daily_kline_by_symbols_or_universe(self) -> None:
         client = FakeClient()
         provider = self._provider(client)
 
@@ -521,25 +603,27 @@ class TickFlowProviderTest(unittest.TestCase):
             by_symbols = provider.load_realtime_quotes(symbols=["000001"])
             by_universe = provider.load_realtime_quotes(universe_id="CN_Equity_A")
 
-        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_current_1m_quote")
-        self.assertEqual(by_symbols.iloc[0]["close"], 10.1)
+        self.assertEqual(by_symbols.iloc[0]["data_source"], "tickflow_current_1d_quote")
+        self.assertEqual(by_symbols.iloc[0]["close"], 10.5)
         self.assertIn("pre_close", by_symbols.columns)
-        self.assertEqual(client.klines.intraday_batch_calls[0]["symbols"], ["000001.SZ"])
-        self.assertEqual(client.klines.intraday_batch_calls[0]["period"], "1m")
-        self.assertEqual(client.klines.intraday_batch_calls[0]["count"], 1)
+        self.assertEqual(client.klines.batch_calls[0]["symbols"], ["000001.SZ"])
+        self.assertEqual(client.klines.batch_calls[0]["period"], "1d")
+        self.assertEqual(client.klines.batch_calls[0]["count"], 1)
+        self.assertEqual(client.klines.intraday_batch_calls, [])
         self.assertEqual(by_universe["ts_code"].tolist(), ["000001.SZ", "600519.SH"])
         self.assertEqual(client.quotes.get_by_symbols_calls, [])
 
     def test_realtime_quotes_do_not_fall_back_to_quote_endpoint(self) -> None:
-        client = FakeClient(intraday_batch_failures=[TimeoutError("offline")] * 4)
+        client = FakeClient(batch_failures=[TimeoutError("offline")] * 4)
         provider = self._provider(client)
 
         with (
             patch("sats.data.tickflow_provider._today_shanghai", return_value="20260514"),
-            self.assertRaisesRegex(ValueError, "当日 1m K线批量获取失败"),
+            self.assertRaisesRegex(ValueError, "当日 1d K线批量获取失败"),
         ):
             provider.load_realtime_quotes(symbols=["000001.SZ"])
 
+        self.assertEqual(client.klines.intraday_batch_calls, [])
         self.assertEqual(client.quotes.get_by_symbols_calls, [])
 
     def test_intraday_timeshare_uses_200_symbol_batches_and_alias_source(self) -> None:

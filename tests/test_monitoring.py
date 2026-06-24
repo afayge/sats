@@ -4,7 +4,7 @@ import io
 import json
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -985,11 +985,13 @@ def _settings(storage: DuckDBStorage):
 
 
 def _plan_payload(*, action: str = "notify") -> dict:
+    now = datetime.now(ZoneInfo("Asia/Shanghai"))
+    end_date = (now + timedelta(days=1)).strftime("%Y%m%d")
     return {
         "schema_version": 1,
         "name": "测试计划",
         "start_date": "20260619",
-        "end_date": "20260620",
+        "end_date": end_date,
         "active_windows": [{"start": "09:30", "end": "11:30"}],
         "items": [
             {

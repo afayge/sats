@@ -1,5 +1,7 @@
 # SATS 工程结构详解
 
+> 历史结构快照：命令、工具、Skills 和数据接口请以 `sats catalog --json` 与 `docs/AGENT_CAPABILITIES.md` 为准。
+
 > 生成日期：2026-05-31  
 > 版本：v0.1.0  
 > 工程路径：`/Users/elliotge/python/SATS`

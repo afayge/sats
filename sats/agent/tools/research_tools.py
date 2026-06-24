@@ -132,6 +132,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 {
                     "query": {"type": "string"},
                     "theme": {"type": "string"},
+                    "symbols": {"type": "array", "items": {"type": "string"}},
                     "trade_date": {"type": "string"},
                     "period": {"type": "string"},
                     "limit": {"type": "integer"},
@@ -376,6 +377,7 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
     theme = str(arguments.get("theme") or "").strip()
     trade_date = str(arguments.get("trade_date") or "").strip() or agent_today()
     period = str(arguments.get("period") or "").strip()
+    focus_symbols = normalize_symbols(arguments.get("symbols") or [], required=False)
     limit = _positive_int(arguments.get("limit"), default=THEME_STOCK_RETURN_LIMIT, maximum=THEME_STOCK_RETURN_LIMIT)
     provider = AStockDataProvider(context.settings)
     stock_basic = _load_stock_basic_for_theme_returns(provider=provider, storage=context.storage)
@@ -387,7 +389,8 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
         settings=context.settings,
     )
     warnings: list[str] = []
-    candidates = _candidates_from_web_search(web_payload)
+    candidates = _candidates_from_symbols(focus_symbols, stock_basic=stock_basic)
+    candidates.extend(_candidates_from_web_search(web_payload))
     try:
         universe = resolve_theme_universe(
             f"{theme or query} 相关股票",
@@ -451,6 +454,7 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
         for item in stocks
         if isinstance(item.get("period_returns"), dict) and item.get("period_returns")
     ]
+    ranking = _theme_return_ranking(stocks, period_requests[0].key if period_requests else period or "6m")
     payload = {
         "status": "ok",
         "theme_stock_returns": _drop_empty(
@@ -459,8 +463,10 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
                 "theme": theme or _clean_theme_label(query),
                 "period": period_requests[0].key if period_requests else period or "6m",
                 "trade_date": trade_date,
+                "focus_symbols": focus_symbols,
                 "candidate_count": len(validated),
                 "stocks": stocks,
+                "ranking": ranking,
                 "coverage": {
                     "requested_count": len(requested_symbols),
                     "returned_count": len(returned_symbols),
@@ -989,6 +995,27 @@ def _candidates_from_theme_universe(universe: Any) -> list[dict[str, Any]]:
     return rows
 
 
+def _candidates_from_symbols(symbols: list[str], *, stock_basic: pd.DataFrame) -> list[dict[str, Any]]:
+    if not symbols:
+        return []
+    basic = _clean_stock_basic(stock_basic)
+    by_code = {str(row["ts_code"]): row for _, row in basic.iterrows()} if not basic.empty else {}
+    rows: list[dict[str, Any]] = []
+    for symbol in normalize_symbols(symbols, required=False):
+        basic_row = by_code.get(symbol, {})
+        rows.append(
+            _drop_empty(
+                {
+                    "ts_code": symbol,
+                    "name": str(basic_row.get("name") or ""),
+                    "reason": "用户关注股票",
+                    "source": "requested_symbol",
+                }
+            )
+        )
+    return rows
+
+
 def _validate_theme_return_candidates(candidates: list[dict[str, Any]], *, stock_basic: pd.DataFrame, limit: int) -> tuple[list[dict[str, Any]], list[str]]:
     basic = _clean_stock_basic(stock_basic)
     by_code = {str(row["ts_code"]): row for _, row in basic.iterrows()} if not basic.empty else {}
@@ -1032,6 +1059,57 @@ def _validate_theme_return_candidates(candidates: list[dict[str, Any]], *, stock
         if len(result) >= limit:
             break
     return [_drop_empty(item) for item in result], warnings
+
+
+def _theme_return_ranking(stocks: list[dict[str, Any]], period: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in stocks:
+        if not isinstance(item, dict):
+            continue
+        selected = _selected_period_return(item.get("period_returns"), period)
+        pct_change = _safe_float(selected.get("pct_change"))
+        if pct_change is None:
+            continue
+        rows.append(
+            _drop_empty(
+                {
+                    "ts_code": item.get("ts_code"),
+                    "name": item.get("name"),
+                    "period": period,
+                    "start_trade_date": selected.get("start_trade_date"),
+                    "end_trade_date": selected.get("end_trade_date"),
+                    "pct_change": pct_change,
+                }
+            )
+        )
+    rows.sort(key=lambda row: float(row.get("pct_change") or 0), reverse=True)
+    peer_count = len(rows)
+    for index, row in enumerate(rows, start=1):
+        row["rank"] = index
+        row["peer_count"] = peer_count
+        row["is_bottom"] = index == peer_count
+    return rows
+
+
+def _selected_period_return(period_returns: Any, period: str) -> dict[str, Any]:
+    if not isinstance(period_returns, dict):
+        return {}
+    selected = period_returns.get(period) if isinstance(period_returns.get(period), dict) else {}
+    if selected:
+        return selected
+    for value in period_returns.values():
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _load_stock_basic_for_theme_returns(*, provider: Any, storage: Any) -> pd.DataFrame:

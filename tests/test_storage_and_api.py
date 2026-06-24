@@ -436,7 +436,7 @@ class StorageAndApiTest(unittest.TestCase):
             with patch("sats.api.app.AStockDataProvider", FakeTickFlowProvider):
                 response = client.get(
                     "/api/market/minute-k",
-                    params={"symbols": "000001", "period": "5m", "mode": "history"},
+                    params={"symbols": "000001", "period": "5min", "mode": "history"},
                 )
 
             self.assertEqual(response.status_code, 200, response.text)

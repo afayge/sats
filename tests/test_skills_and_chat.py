@@ -18,6 +18,7 @@ from sats.chat import (
     _collections_for_plan,
     build_chat_messages,
 )
+from sats.chat_components import ChatEvidenceBundle, ChatRequestRoute, _chat_evidence_digest
 from sats.chat_planner import build_chat_plan
 from sats.chat_preprocessor import ChatPreprocessResult
 from sats.chat_reference import ChatReferenceContext
@@ -1174,6 +1175,49 @@ class ChatSessionTest(unittest.TestCase):
             sum(estimate_llm_message_tokens(message["content"]) for message in messages),
             llm_context_input_budget_tokens(settings),
         )
+
+    def test_chat_evidence_digest_keeps_ten_opportunity_candidates_without_truncated_json(self) -> None:
+        candidates = [
+            {
+                "ts_code": f"300{i:03d}.SZ",
+                "name": f"候选{i}",
+                "trade_date": "20260609",
+                "ranking_score": 100 - i,
+                "events": [{"label": "短线买入信号", "side": "buy", "reason": "技术分析详情" * 120}],
+                "indicator": {
+                    "technical": {"ma5": 10 + i, "ma20": 9 + i, "macd": "金叉"},
+                    "factor": {"profile": "balanced", "score": 1.2, "factor_values": {"alpha": "大字段" * 200}},
+                },
+            }
+            for i in range(1, 11)
+        ]
+        opportunity_context = SimpleNamespace(
+            to_llm_context=lambda: {
+                "query": "选取10支明天大概率上涨的股票",
+                "opportunity_discovery": {
+                    "trade_date": "20260609",
+                    "signals": "short_up",
+                    "candidates": candidates,
+                    "candidate_count": 10,
+                    "scanned_count": 5000,
+                },
+            }
+        )
+        evidence = ChatEvidenceBundle(
+            route=ChatRequestRoute(route_kind="opportunity_discovery", intent="opportunity_discovery"),
+            opportunity_context=opportunity_context,
+        )
+
+        digest = _chat_evidence_digest(evidence)
+        payload = json.dumps(digest["opportunity_context"], ensure_ascii=False)
+
+        self.assertEqual(len(digest["opportunity_context"]["candidates"]), 10)
+        self.assertEqual(digest["opportunity_context"]["candidate_summary"]["omitted_count"], 0)
+        self.assertNotIn("truncated_json", payload)
+        self.assertNotIn("factor_values", payload)
+        for i in range(1, 11):
+            self.assertIn(f"300{i:03d}.SZ", payload)
+            self.assertIn(f"候选{i}", payload)
 
     def test_chat_session_passes_requested_limit_and_tomorrow_horizon_to_stock_picking_agent(self) -> None:
         FakeLLM.instances = []

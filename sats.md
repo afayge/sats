@@ -1,5 +1,7 @@
 # SATS 项目结构与功能详细解析
 
+> 历史结构快照：命令、工具、Skills 和数据接口请以 `sats catalog --json` 与 `docs/AGENT_CAPABILITIES.md` 为准。
+
 ## 一、项目概述
 
 **SATS (Stock Automated Trading System)** 是一个 Python 3.12+ 的 A 股（中国股市）选股、分析与交易辅助系统。集成了 LLM 驱动的分析、DuckDB 持久化存储、多数据源提供商（TickFlow / Tushare / AkShare）、FastAPI HTTP 服务、CLI 命令行、REPL 交互终端、定时调度器、自主 Agent 框架、实时监控、因子研究、深度分析、交易委员会等能力。

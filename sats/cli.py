@@ -35,6 +35,7 @@ from sats.analysis.opportunity_discovery import (
 from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_llm_context import ensure_stock_analysis_data
 from sats.analysis.trading_committee import run_trading_committee
+from sats.catalog import CATALOG_SECTIONS, build_capability_catalog, format_capability_catalog
 from sats.chat import ChatResult, format_chat_result, render_chat_result, run_chat_once
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import init_env_file, load_settings
@@ -74,6 +75,7 @@ from sats.monitoring import (
     validate_monitor_plan,
 )
 from sats.output_names import SecurityNameOutput, SecurityNameResolver
+from sats.portfolio import DailyPortfolioAgent, PortfolioConfig, PortfolioStore
 from sats.progress import create_progress
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.rag.knowledge import KnowledgeStore, format_knowledge_list, format_search_results
@@ -653,6 +655,7 @@ def build_parser() -> argparse.ArgumentParser:
     schedule_freq = schedule_add.add_mutually_exclusive_group()
     schedule_freq.add_argument("--daily", action="store_true", help="Run every day")
     schedule_freq.add_argument("--weekly", action="store_true", help="Run every week on --days")
+    schedule_freq.add_argument("--trading-day", action="store_true", help="Run on A-share trading days")
     schedule_add.add_argument("--days", default="", help="Weekly weekdays, e.g. mon,wed,fri")
     schedule_add.add_argument("--time", required=True, help="Run time HH:MM")
     schedule_add.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
@@ -709,6 +712,79 @@ def build_parser() -> argparse.ArgumentParser:
     qmt_cancel = qmt_sub.add_parser("cancel", help="Cancel QMT order")
     qmt_cancel.add_argument("--order-id", required=True)
     qmt_cancel.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    portfolio = sub.add_parser("portfolio", help="Run the intraday 10-to-5 portfolio agent")
+    portfolio_sub = portfolio.add_subparsers(dest="portfolio_command")
+    portfolio_run = portfolio_sub.add_parser("run", help="Run one portfolio workflow phase")
+    portfolio_run.add_argument(
+        "--phase",
+        choices=[
+            "scan",
+            "close",
+            "morning",
+            "morning-final",
+            "review",
+            "afternoon-scan",
+            "afternoon-buy",
+            "plan-finalize",
+            "recheck",
+            "report",
+        ],
+        default="afternoon-buy",
+    )
+    portfolio_run.add_argument("--mode", choices=["paper", "live"], default="paper")
+    portfolio_run.add_argument("--trade-date", help="交易日 YYYYMMDD; defaults to today")
+    portfolio_run.add_argument("--no-llm", action="store_true", help="Skip LLM debate and use deterministic fallback")
+    portfolio_run.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    for command_name in ("status", "account", "positions", "trades"):
+        command = portfolio_sub.add_parser(command_name, help=f"Show portfolio {command_name}")
+        command.add_argument("--mode", choices=["paper", "live"], default="paper")
+        command.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    portfolio_candidates = portfolio_sub.add_parser("candidates", help="List portfolio candidates")
+    portfolio_candidates.add_argument("--trade-date")
+    portfolio_candidates.add_argument("--selected", action="store_true")
+    portfolio_candidates.add_argument("--limit", type=int, default=50)
+    portfolio_candidates.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    portfolio_history = portfolio_sub.add_parser("history", help="List portfolio runs")
+    portfolio_history.add_argument("--limit", type=int, default=50)
+    portfolio_history.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    portfolio_plans = portfolio_sub.add_parser("plans", help="Manage portfolio plans")
+    portfolio_plans_sub = portfolio_plans.add_subparsers(dest="portfolio_plans_command")
+    for command_name in ("show", "activate", "disable"):
+        command = portfolio_plans_sub.add_parser(command_name, help=f"{command_name} a portfolio plan")
+        command.add_argument("--plan-id", required=True)
+        command.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    portfolio_orders = portfolio_sub.add_parser("orders", help="List or approve portfolio orders")
+    portfolio_orders_sub = portfolio_orders.add_subparsers(dest="portfolio_orders_command")
+    portfolio_orders_list = portfolio_orders_sub.add_parser("list", help="List paper orders or live intents")
+    portfolio_orders_list.add_argument("--mode", choices=["paper", "live"], default="paper")
+    portfolio_orders_list.add_argument("--status")
+    portfolio_orders_list.add_argument("--limit", type=int, default=100)
+    portfolio_orders_list.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    for command_name in ("approve", "reject"):
+        command = portfolio_orders_sub.add_parser(command_name, help=f"{command_name} a live intent")
+        command.add_argument("--intent-id", required=True)
+        command.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    portfolio_schedule = portfolio_sub.add_parser("schedule", help="Install or remove portfolio schedules")
+    portfolio_schedule_sub = portfolio_schedule.add_subparsers(dest="portfolio_schedule_command")
+    portfolio_schedule_install = portfolio_schedule_sub.add_parser("install", help="Install trading-day portfolio tasks")
+    portfolio_schedule_install.add_argument("--mode", choices=["paper", "live"], default="paper")
+    portfolio_schedule_install.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+    for command_name in ("remove", "status"):
+        command = portfolio_schedule_sub.add_parser(command_name, help=f"{command_name} portfolio tasks")
+        command.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
+
+    catalog = sub.add_parser("catalog", help="Inspect the unified SATS capability catalog")
+    catalog.add_argument("--section", choices=CATALOG_SECTIONS, default="summary")
+    catalog.add_argument("--provider", choices=["astock", "tickflow", "tushare", "akshare"])
+    catalog.add_argument("--query", default="")
+    catalog.add_argument("--category", default="")
+    catalog.add_argument("--realtime", action=argparse.BooleanOptionalAction, default=None)
+    catalog.add_argument("--writes-db", action=argparse.BooleanOptionalAction, default=None)
+    catalog.add_argument("--limit", type=int, default=50)
+    catalog.add_argument("--offset", type=int, default=0)
+    catalog.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+    catalog.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     serve = sub.add_parser("serve", help="Start FastAPI server")
     serve.add_argument("--host", default="127.0.0.1")
@@ -803,6 +879,10 @@ def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser)
         return cmd_schedule(args)
     if args.command == "qmt":
         return cmd_qmt(args)
+    if args.command == "portfolio":
+        return cmd_portfolio(args)
+    if args.command == "catalog":
+        return cmd_catalog(args)
     if args.command == "serve":
         return cmd_serve(args)
     parser.print_help()
@@ -2904,7 +2984,7 @@ def cmd_schedule(args: argparse.Namespace) -> int:
 
 
 def _cmd_schedule_add(args: argparse.Namespace, storage: DuckDBStorage) -> int:
-    schedule_kind = "weekly" if args.weekly else "daily"
+    schedule_kind = "trading_day" if getattr(args, "trading_day", False) else ("weekly" if args.weekly else "daily")
     try:
         time_of_day = validate_time_of_day(args.time)
         days = parse_schedule_days(args.days) if schedule_kind == "weekly" else ()
@@ -3015,6 +3095,196 @@ def _cmd_schedule_stop(storage: DuckDBStorage) -> int:
         params=runtime.get("params", {}),
     )
     print("定时调度已停止")
+    return 0
+
+
+def cmd_portfolio(args: argparse.Namespace) -> int:
+    if args.portfolio_command is None:
+        raise SystemExit("portfolio requires subcommand")
+    settings = load_settings()
+    db_path = Path(getattr(args, "db", None) or settings.db_path)
+    settings = _settings_with_db_path(settings, db_path)
+    storage = DuckDBStorage(db_path)
+    store = PortfolioStore(storage)
+    agent = DailyPortfolioAgent(settings=settings, storage=storage)
+    command = args.portfolio_command
+    if command == "run":
+        progress = _progress_for_args(args)
+        try:
+            result = agent.run(
+                phase=args.phase,
+                trade_date=args.trade_date,
+                config=PortfolioConfig(
+                    trading_mode=args.mode,
+                    llm_enabled=not args.no_llm,
+                ),
+                progress=progress,
+            )
+        finally:
+            progress.close()
+        print(_format_portfolio_result(result.to_dict()))
+        return 0
+    if command == "status":
+        print(json.dumps(agent.status(mode=args.mode), ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "candidates":
+        rows = store.list_candidates(
+            trade_date=args.trade_date,
+            selected=True if args.selected else None,
+            limit=args.limit,
+        )
+        print(_format_portfolio_candidates(rows))
+        return 0
+    if command == "history":
+        print(_format_portfolio_runs(store.list_runs(limit=args.limit)))
+        return 0
+    if command == "plans":
+        return _cmd_portfolio_plans(args, store)
+    if command == "orders":
+        return _cmd_portfolio_orders(args, agent, store)
+    if command == "account":
+        if args.mode == "paper":
+            store.ensure_paper_account("default", PortfolioConfig().paper_initial_cash)
+            payload = store.paper_account("default")
+        else:
+            payload = broker_from_settings(settings).asset().to_dict()
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "positions":
+        if args.mode == "paper":
+            rows = store.paper_positions("default")
+        else:
+            rows = [item.to_dict() for item in broker_from_settings(settings).positions()]
+        print(_format_portfolio_positions(rows))
+        return 0
+    if command == "trades":
+        if args.mode == "paper":
+            rows = store.paper_trades("default")
+        else:
+            rows = [item.to_dict() for item in broker_from_settings(settings).trades(limit=100)]
+        print(_format_portfolio_trades(rows))
+        return 0
+    if command == "schedule":
+        return _cmd_portfolio_schedule(args, storage)
+    raise SystemExit(f"unknown portfolio command: {command}")
+
+
+def _cmd_portfolio_plans(args: argparse.Namespace, store: PortfolioStore) -> int:
+    command = args.portfolio_plans_command
+    if command == "show":
+        plan = store.get_plan(args.plan_id)
+        if not plan:
+            raise SystemExit(f"未找到组合计划: {args.plan_id}")
+        print(json.dumps(plan, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command in {"activate", "disable"}:
+        status = "active" if command == "activate" else "disabled"
+        if not store.set_plan_status(args.plan_id, status):
+            raise SystemExit(f"未找到组合计划: {args.plan_id}")
+        print(f"组合计划已{('启用' if command == 'activate' else '停用')}: {args.plan_id}")
+        return 0
+    raise SystemExit("portfolio plans requires show, activate or disable")
+
+
+def _cmd_portfolio_orders(
+    args: argparse.Namespace,
+    agent: DailyPortfolioAgent,
+    store: PortfolioStore,
+) -> int:
+    command = args.portfolio_orders_command
+    if command == "list":
+        rows = (
+            store.paper_orders("default", limit=args.limit)
+            if args.mode == "paper"
+            else store.list_pending_intents(status=args.status, limit=args.limit)
+        )
+        print(json.dumps(rows, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "approve":
+        print(json.dumps(agent.approve_live_intent(args.intent_id), ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "reject":
+        print(json.dumps(agent.reject_live_intent(args.intent_id), ensure_ascii=False, indent=2, default=str))
+        return 0
+    raise SystemExit("portfolio orders requires list, approve or reject")
+
+
+def _cmd_portfolio_schedule(args: argparse.Namespace, storage: DuckDBStorage) -> int:
+    command = args.portfolio_schedule_command
+    prefix = "portfolio-"
+    if command == "install":
+        mode = args.mode
+        specifications = [
+            ("morning-0935", "09:35", "morning"),
+            ("morning-final-0950", "09:50", "morning-final"),
+            ("review-1030", "10:30", "review"),
+            ("review-1300", "13:00", "review"),
+            ("afternoon-scan-1410", "14:10", "afternoon-scan"),
+            ("afternoon-buy-1425", "14:25", "afternoon-buy"),
+            ("plan-finalize-1440", "14:40", "plan-finalize"),
+            ("report-1600", "16:00", "report"),
+        ]
+        created = []
+        for suffix, time_of_day, phase in specifications:
+            name = f"{prefix}{mode}-{suffix}"
+            if storage.get_scheduled_task(name):
+                continue
+            next_run_at = compute_next_run(
+                datetime.now(SHANGHAI_TZ),
+                schedule_kind="trading_day",
+                days=(),
+                time_of_day=time_of_day,
+            )
+            storage.insert_scheduled_task(
+                {
+                    "name": name,
+                    "task_type": "cli",
+                    "text": (
+                        f"portfolio run --phase {phase} --mode {mode} "
+                        f"--db {shlex.quote(str(storage.db_path))}"
+                    ),
+                    "schedule_kind": "trading_day",
+                    "days": (),
+                    "time_of_day": time_of_day,
+                    "timezone": "Asia/Shanghai",
+                    "enabled": True,
+                    "next_run_at": next_run_at,
+                }
+            )
+            created.append(name)
+        print(f"组合调度已安装: 新增 {len(created)} 个任务")
+        return 0
+    tasks = [row for row in storage.list_scheduled_tasks() if str(row.get("name") or "").startswith(prefix)]
+    if command == "status":
+        print(_format_scheduled_tasks(tasks))
+        return 0
+    if command == "remove":
+        for task in tasks:
+            storage.delete_scheduled_task(str(task["name"]))
+        print(f"组合调度已移除: {len(tasks)} 个任务")
+        return 0
+    raise SystemExit("portfolio schedule requires install, remove or status")
+
+
+def cmd_catalog(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    db_path = Path(getattr(args, "db", None) or settings.db_path)
+    settings = _settings_with_db_path(settings, db_path)
+    catalog = build_capability_catalog(
+        settings=settings,
+        section=args.section,
+        provider=args.provider,
+        query=args.query or None,
+        category=args.category or None,
+        realtime=args.realtime,
+        writes_db=args.writes_db,
+        limit=args.limit,
+        offset=args.offset,
+    )
+    if args.json:
+        print(json.dumps(catalog, ensure_ascii=False, indent=2, default=str))
+    else:
+        print(format_capability_catalog(catalog))
     return 0
 
 
@@ -3611,6 +3881,101 @@ def _format_monitor_runtime(row: dict) -> str:
     error = row.get("last_error") or ""
     suffix = f" 错误: {error}" if error else ""
     return f"状态: {status} PID: {pid} 心跳: {heartbeat}{suffix}".strip()
+
+
+def _format_portfolio_result(payload: dict) -> str:
+    regime = payload.get("market_regime") or {}
+    lines = [
+        str(payload.get("message") or "组合 Agent 执行完成"),
+        (
+            f"运行: {payload.get('run_id')} 交易日: {payload.get('trade_date')} "
+            f"阶段: {payload.get('phase')} 模式: {payload.get('trading_mode')}"
+        ),
+        (
+            f"大盘评分: {float(regime.get('score') or 0):.1f} "
+            f"仓位上限: {float(regime.get('exposure_limit') or 0):.0%} "
+            f"允许买入: {'是' if regime.get('buy_allowed') else '否'}"
+        ),
+    ]
+    selected = [row for row in payload.get("candidates") or [] if row.get("selected")]
+    if selected:
+        lines.append("入选股票:")
+        for row in selected:
+            lines.append(
+                f"- {row.get('ts_code')} {row.get('name')} 评分 {float(row.get('total_score') or 0):.2f} "
+                f"入场 {float(row.get('entry_price') or 0):.2f} 止损 {float(row.get('stop_loss') or 0):.2f} "
+                f"止盈 {float(row.get('take_profit_1') or 0):.2f}/{float(row.get('take_profit_2') or 0):.2f}"
+            )
+    actions = payload.get("actions") or []
+    if actions:
+        lines.append("交易动作:")
+        for row in actions:
+            lines.append(
+                f"- {row.get('ts_code')} {row.get('name')} {row.get('side')} "
+                f"{row.get('quantity')}股 @{row.get('price')} {row.get('status')} "
+                f"{row.get('reason') or ''}".rstrip()
+            )
+    if payload.get("report_path"):
+        lines.append(f"报告: {payload.get('report_path')}")
+    return "\n".join(lines)
+
+
+def _format_portfolio_candidates(rows: list[dict]) -> str:
+    if not rows:
+        return "无结果"
+    return "\n".join(
+        (
+            f"{index}. {row.get('ts_code')} {row.get('name')} "
+            f"行业={row.get('industry') or '-'} 排名={row.get('rank_no')} "
+            f"评分={float(row.get('total_score') or 0):.2f} "
+            f"状态={row.get('status')} 入选={'是' if row.get('selected') else '否'} "
+            f"生效={row.get('effective_trade_date') or '-'} 有效至={row.get('valid_until') or '-'}"
+        )
+        for index, row in enumerate(rows, start=1)
+    )
+
+
+def _format_portfolio_runs(rows: list[dict]) -> str:
+    if not rows:
+        return "无结果"
+    return "\n".join(
+        (
+            f"{index}. {row.get('run_id')} {row.get('trade_date')} {row.get('phase')} "
+            f"{row.get('trading_mode')} {row.get('status')} "
+            f"大盘={float(row.get('market_score') or 0):.1f} "
+            f"候选={row.get('candidate_count')} 入选={row.get('selected_count')} "
+            f"{row.get('summary') or ''}"
+        ).rstrip()
+        for index, row in enumerate(rows, start=1)
+    )
+
+
+def _format_portfolio_positions(rows: list[dict]) -> str:
+    if not rows:
+        return "无结果"
+    return "\n".join(
+        (
+            f"{index}. {row.get('ts_code')} {row.get('name')} "
+            f"数量={row.get('quantity')} 可用={row.get('available_quantity')} "
+            f"成本={row.get('cost_price')} 现价={row.get('price')} "
+            f"盈亏={row.get('pnl')} 盈亏比={row.get('pnl_pct')}%"
+        )
+        for index, row in enumerate(rows, start=1)
+    )
+
+
+def _format_portfolio_trades(rows: list[dict]) -> str:
+    if not rows:
+        return "无结果"
+    return "\n".join(
+        (
+            f"{index}. {row.get('ts_code')} {row.get('name')} {row.get('side')} "
+            f"数量={row.get('quantity')} 价格={row.get('price')} "
+            f"已实现盈亏={row.get('realized_pnl', 0)} 时间={row.get('trade_time') or ''} "
+            f"{row.get('reason') or ''}"
+        ).rstrip()
+        for index, row in enumerate(rows, start=1)
+    )
 
 
 def _cmd_qmt_order(args: argparse.Namespace, storage: DuckDBStorage, client, *, settings=None, side: str) -> int:

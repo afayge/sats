@@ -1465,6 +1465,7 @@ def _build_synthesis_messages(
                 "【...】、章节标题、策略标签、风险标签、分组名不是股票；没有代码的文本标签只能放到分类/风险说明/限制里，不能作为股票条目。"
                 "如果 evidence_digest 中有 period_returns，应直接使用其中的 start_trade_date、end_trade_date 和 pct_change 回答模糊时间段涨跌幅；"
                 "不要因为用户的自然日端点不是交易日而说区间涨跌幅缺失。"
+                "对于 opportunity_context 候选，candidate_summary.omitted_count=0 时不得声称排名靠后的原始发现结果或技术数据被截断。"
                 "若缺少真实数据或对应组件未命中，明确写“数据缺失/未命中”。"
             ),
         }
@@ -1649,7 +1650,130 @@ def _market_context_digest(context: Any | None) -> dict[str, Any]:
 
 def _opportunity_digest(context: Any | None) -> dict[str, Any]:
     payload = _context_payload_for_llm(context) if context is not None else {}
-    return _trim_payload(payload, max_chars=9000) if payload else {}
+    return _chat_discovery_digest(payload) if payload else {}
+
+
+def _chat_discovery_digest(payload: dict[str, Any], *, candidate_limit: int = 10) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        return {}
+    compact_message = str(payload.get("system_message_for_llm") or "").strip()
+    system_message = str(payload.get("system_message") or "").strip()
+    discovery = payload.get("opportunity_discovery") if isinstance(payload.get("opportunity_discovery"), dict) else payload
+    raw_candidates = _list_items(discovery.get("candidates"))
+    if not raw_candidates and (compact_message or system_message):
+        return {"system_message_for_llm": compact_message or _truncate_text(system_message, 9000)}
+    candidates = [
+        _compact_chat_discovery_candidate(item, rank=index)
+        for index, item in enumerate(raw_candidates[:candidate_limit], start=1)
+    ]
+    candidates = [item for item in candidates if item]
+    omitted_count = max(0, len(raw_candidates) - len(candidates))
+    return _drop_empty(
+        {
+            "query": payload.get("query"),
+            "trade_date": discovery.get("trade_date"),
+            "signals": discovery.get("signals"),
+            "candidate_count": discovery.get("candidate_count"),
+            "scanned_count": discovery.get("scanned_count"),
+            "llm_pool_count": discovery.get("llm_pool_count"),
+            "llm_unavailable": payload.get("llm_unavailable") or discovery.get("llm_unavailable"),
+            "report_path": discovery.get("report_path") or payload.get("report_path"),
+            "message": discovery.get("message"),
+            "candidate_summary": {
+                "returned_count": len(raw_candidates),
+                "included_count": len(candidates),
+                "omitted_count": omitted_count,
+                "policy": (
+                    "candidates contains compact technical details for every included row; "
+                    "when omitted_count is 0, do not claim later-ranked candidates or original discovery data were truncated."
+                ),
+            },
+            "candidates": candidates,
+            "missing_fields": _list_items(discovery.get("missing_fields"))[:20],
+            "data_policy": discovery.get("data_policy") or payload.get("data_policy"),
+        }
+    )
+
+
+def _compact_chat_discovery_candidate(value: Any, *, rank: int) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    return _drop_empty(
+        {
+            "rank": rank,
+            "ts_code": value.get("ts_code"),
+            "name": value.get("name"),
+            "trade_date": value.get("trade_date"),
+            "ranking_score": value.get("ranking_score") or value.get("score"),
+            "local_score": value.get("local_score"),
+            "close": value.get("close"),
+            "decision": value.get("decision"),
+            "trend": value.get("trend"),
+            "events": [_compact_chat_discovery_event(item) for item in _list_items(value.get("events"))[:3]],
+            "key_levels": value.get("key_levels"),
+            "indicator": _compact_chat_discovery_indicator(value.get("indicator")),
+            "hot_sectors": [_compact_chat_hot_sector(item) for item in _list_items(value.get("hot_sectors"))[:3]],
+            "entry_trigger": _truncate_text(value.get("entry_trigger"), 140),
+            "invalidation": _truncate_text(value.get("invalidation"), 140),
+            "risk": _truncate_text(value.get("risk"), 180),
+        }
+    )
+
+
+def _compact_chat_discovery_event(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {"label": _truncate_text(value, 80)}
+    return _drop_empty(
+        {
+            "signal_id": value.get("signal_id"),
+            "label": value.get("label"),
+            "category": value.get("category"),
+            "side": value.get("side"),
+            "confidence": value.get("confidence"),
+            "score": value.get("score"),
+            "reason": _truncate_text(value.get("reason"), 180),
+            "risk_flags": [_truncate_text(item, 80) for item in _list_items(value.get("risk_flags"))[:4]],
+        }
+    )
+
+
+def _compact_chat_discovery_indicator(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    result = _drop_empty(
+        {
+            "technical": value.get("technical"),
+            "volume": value.get("volume"),
+            "support_resistance": value.get("support_resistance"),
+            "moneyflow": value.get("moneyflow"),
+            "fundamentals": value.get("fundamentals"),
+            "data_sources": value.get("data_sources"),
+        }
+    )
+    factor = value.get("factor")
+    if isinstance(factor, dict):
+        result["factor"] = _drop_empty(
+            {
+                "profile": factor.get("profile"),
+                "score": factor.get("score"),
+                "coverage": factor.get("coverage"),
+                "missing_factors": _list_items(factor.get("missing_factors"))[:8],
+            }
+        )
+    return result
+
+
+def _compact_chat_hot_sector(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {"name": _truncate_text(value, 60)}
+    return _drop_empty(
+        {
+            "name": value.get("name"),
+            "sector_type": value.get("sector_type") or value.get("type"),
+            "latest_pct_chg": value.get("latest_pct_chg") or value.get("pct_chg"),
+            "heat_score": value.get("heat_score") or value.get("score"),
+        }
+    )
 
 
 def _chan_context_digest(context: ChanChatContext | None) -> dict[str, Any]:
@@ -1971,6 +2095,15 @@ def _pick_fields(value: dict[str, Any], fields: tuple[str, ...]) -> dict[str, An
     if not isinstance(value, dict):
         return {}
     return _drop_empty({field: value.get(field) for field in fields})
+
+
+def _list_items(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _truncate_text(value: Any, limit: int) -> str:
+    text = str(value or "").strip().replace("\n", " ")
+    return text if len(text) <= limit else text[:limit] + "..."
 
 
 def _trim_payload(value: Any, *, max_chars: int = 18000) -> Any:

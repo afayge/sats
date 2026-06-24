@@ -34,6 +34,8 @@ SATS_COMMANDS = (
     "monitor-display",
     "schedule",
     "qmt",
+    "portfolio",
+    "catalog",
     "serve",
 )
 

@@ -11,9 +11,18 @@ from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_ts_code
 
 
-MONITOR_PLAN_SCHEMA_VERSION = 1
+MONITOR_PLAN_SCHEMA_VERSION = 2
+SUPPORTED_MONITOR_PLAN_SCHEMA_VERSIONS = {1, 2}
 MONITOR_PLAN_ACTIONS = {"notify", "buy", "sell"}
-MONITOR_PLAN_METRICS = {"latest_price", "change_points", "pct_change"}
+MONITOR_PLAN_METRICS = {
+    "latest_price",
+    "change_points",
+    "pct_change",
+    "market_regime_score",
+    "position_pnl_pct",
+    "holding_trade_days",
+    "peak_drawdown_pct",
+}
 MONITOR_PLAN_OPERATORS = {">=", ">", "<=", "<"}
 MONITOR_PLAN_SIZING_MODES = {"default", "amount", "shares", "position_pct"}
 SUPPORTED_MONITOR_INDEX_CODES = {
@@ -30,7 +39,7 @@ MONITOR_PLAN_JSON_SCHEMA: dict[str, Any] = {
     "additionalProperties": False,
     "required": ["schema_version", "name", "start_date", "end_date", "active_windows", "items"],
     "properties": {
-        "schema_version": {"const": MONITOR_PLAN_SCHEMA_VERSION},
+        "schema_version": {"enum": sorted(SUPPORTED_MONITOR_PLAN_SCHEMA_VERSIONS)},
         "name": {"type": "string", "minLength": 1},
         "start_date": {"type": "string", "pattern": "^[0-9]{8}$"},
         "end_date": {"type": "string", "pattern": "^[0-9]{8}$"},
@@ -95,7 +104,7 @@ MONITOR_PLAN_JSON_SCHEMA: dict[str, Any] = {
                     "additionalProperties": False,
                     "required": ["type"],
                     "properties": {
-                        "type": {"enum": ["stock", "index"]},
+                        "type": {"enum": ["stock", "index", "market", "position"]},
                         "symbol": {"type": "string"},
                     },
                 },
@@ -138,8 +147,12 @@ def validate_monitor_plan(payload: dict[str, Any]) -> dict[str, Any]:
         raise MonitorPlanValidationError("计划 JSON 顶层必须是对象")
     _reject_unknown(payload, {"schema_version", "name", "start_date", "end_date", "active_windows", "items"}, "计划")
     _require_keys(payload, ("schema_version", "name", "start_date", "end_date", "active_windows", "items"), "计划")
-    if payload.get("schema_version") != MONITOR_PLAN_SCHEMA_VERSION:
-        raise MonitorPlanValidationError(f"schema_version 必须为 {MONITOR_PLAN_SCHEMA_VERSION}")
+    schema_version = int(payload.get("schema_version") or 0)
+    if schema_version not in SUPPORTED_MONITOR_PLAN_SCHEMA_VERSIONS:
+        raise MonitorPlanValidationError(
+            f"schema_version 必须为 {min(SUPPORTED_MONITOR_PLAN_SCHEMA_VERSIONS)} "
+            f"或 {max(SUPPORTED_MONITOR_PLAN_SCHEMA_VERSIONS)}"
+        )
 
     name = _required_text(payload.get("name"), "name")
     start_date = _date(payload.get("start_date"), "start_date")
@@ -157,7 +170,7 @@ def validate_monitor_plan(payload: dict[str, Any]) -> dict[str, Any]:
         raise MonitorPlanValidationError("items 中股票代码不能重复")
 
     return {
-        "schema_version": MONITOR_PLAN_SCHEMA_VERSION,
+        "schema_version": schema_version,
         "name": name,
         "start_date": start_date,
         "end_date": end_date,
@@ -265,11 +278,21 @@ def _condition(raw: Any, *, item_symbol: str, path: str) -> dict[str, Any]:
         subject_symbol = normalize_ts_code(subject.get("symbol"))
         if subject_symbol not in SUPPORTED_MONITOR_INDEX_CODES:
             raise MonitorPlanValidationError(f"{path}.subject.symbol 不是首版支持的指数代码")
+    elif subject_type == "position":
+        subject_symbol = normalize_ts_code(subject.get("symbol") or item_symbol)
+        if subject_symbol != item_symbol:
+            raise MonitorPlanValidationError(f"{path}.subject.symbol 必须与计划股票一致")
+    elif subject_type == "market":
+        subject_symbol = ""
     else:
-        raise MonitorPlanValidationError(f"{path}.subject.type 必须是 stock 或 index")
+        raise MonitorPlanValidationError(f"{path}.subject.type 必须是 stock、index、market 或 position")
     metric = str(raw.get("metric") or "").strip()
     if metric not in MONITOR_PLAN_METRICS:
         raise MonitorPlanValidationError(f"{path}.metric 不受支持")
+    if metric == "market_regime_score" and subject_type != "market":
+        raise MonitorPlanValidationError(f"{path}.metric market_regime_score 仅支持 market 对象")
+    if metric in {"position_pnl_pct", "holding_trade_days", "peak_drawdown_pct"} and subject_type != "position":
+        raise MonitorPlanValidationError(f"{path}.metric {metric} 仅支持 position 对象")
     operator = str(raw.get("operator") or "").strip()
     if operator not in MONITOR_PLAN_OPERATORS:
         raise MonitorPlanValidationError(f"{path}.operator 不受支持")

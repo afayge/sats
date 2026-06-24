@@ -14,6 +14,9 @@ import pandas as pd
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.llm import ChatLLM, build_light_fallback_llm
+from sats.portfolio.execution import PaperBroker
+from sats.portfolio.models import PortfolioConfig
+from sats.portfolio.storage import PortfolioStore
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.screening.base import ScreeningInput
 from sats.screening.registry import get_rule
@@ -40,6 +43,7 @@ class MonitorConfig:
     max_order_value: float = 20000.0
     max_position_pct: float = 0.2
     sell_ratio: float = 1.0
+    portfolio_recheck: bool = True
 
 
 class MonitorService:
@@ -71,6 +75,7 @@ class MonitorService:
             "llm_review": config.llm_review,
             "broker": config.broker,
             "auto_trade": list(config.auto_trade),
+            "portfolio_recheck": config.portfolio_recheck,
         }
         self.storage.upsert_monitor_runtime(
             service_name="monitor",
@@ -105,7 +110,9 @@ class MonitorService:
         if "positions" in {str(item).strip() for item in config.lists}:
             self._position_sync_service().sync()
         targets = self._load_targets(config.lists)
-        if not targets and not plan_groups:
+        portfolio_store = PortfolioStore(self.storage)
+        portfolio_positions = portfolio_store.paper_positions(PortfolioConfig().account_id) if config.portfolio_recheck else []
+        if not targets and not plan_groups and not portfolio_positions:
             self.storage.upsert_monitor_runtime(
                 service_name="monitor",
                 status="running",
@@ -118,6 +125,7 @@ class MonitorService:
         quote_symbols = sorted(
             {
                 *target_symbols,
+                *(str(row.get("ts_code") or "") for row in portfolio_positions),
                 *(str(group.get("ts_code") or "") for group in plan_groups),
                 *(
                     str(condition.get("subject", {}).get("symbol") or "")
@@ -197,7 +205,7 @@ class MonitorService:
                     stock_basic={**stock_basic.get(ts_code, {}), "name": target.get("name") or stock_basic.get(ts_code, {}).get("name", "")},
                     metadata={
                         "data_source": str(
-                            quote_lookup.get(ts_code, {}).get("data_source") or "tickflow_current_1m_quote"
+                            quote_lookup.get(ts_code, {}).get("data_source") or "tickflow_current_1d_quote"
                         ),
                         "minute_30m": minute_groups.get(ts_code, pd.DataFrame()),
                         "minute_30m_source": "tickflow_realtime",
@@ -223,22 +231,215 @@ class MonitorService:
                 rule_step.update(target_index)
         if rule_step is not None and not rule_step.done:
             rule_step.complete()
-        written.extend(
-            self._evaluate_monitor_plans(
-                config=config,
-                plan_groups=plan_groups,
+        plan_events = self._evaluate_monitor_plans(
+            config=config,
+            plan_groups=plan_groups,
+            quote_lookup=quote_lookup,
+            now=now,
+        )
+        written.extend(plan_events)
+        portfolio_recheck_created = False
+        if config.portfolio_recheck:
+            for event in written:
+                portfolio_recheck_created = (
+                    self._enqueue_portfolio_review_from_event(event, trade_date=trade_date)
+                    or portfolio_recheck_created
+                )
+            portfolio_events = self._evaluate_portfolio_triggers(
+                positions=portfolio_positions,
                 quote_lookup=quote_lookup,
+                trade_date=trade_date,
                 now=now,
             )
-        )
+            written.extend(portfolio_events)
+            portfolio_recheck_created = (
+                any((event.get("metrics") or {}).get("portfolio_review_request_created") for event in portfolio_events)
+                or portfolio_recheck_created
+            )
+            if portfolio_recheck_created:
+                self._run_portfolio_recheck(trade_date)
 
         self.storage.upsert_monitor_runtime(
             service_name="monitor",
             status="running",
-            params={"rules": list(config.rules), "lists": list(config.lists), "interval": config.interval_seconds},
+            params={
+                "rules": list(config.rules),
+                "lists": list(config.lists),
+                "interval": config.interval_seconds,
+                "portfolio_recheck": config.portfolio_recheck,
+            },
             heartbeat=True,
         )
         return written
+
+    def _enqueue_portfolio_review_from_event(self, event: dict, *, trade_date: str) -> bool:
+        side = str(event.get("side") or "")
+        if side not in {"sell", "cash"}:
+            return False
+        ts_code = str(event.get("ts_code") or "")
+        if not ts_code:
+            return False
+        store = PortfolioStore(self.storage)
+        position = next((row for row in store.paper_positions(PortfolioConfig().account_id) if row["ts_code"] == ts_code), None)
+        if not position:
+            return False
+        plan_id = str(position.get("plan_id") or "")
+        result = store.enqueue_review_request(
+            {
+                "request_id": _stable_id(f"portfolio-review:{event.get('event_id')}:{trade_date}"),
+                "trade_date": trade_date,
+                "ts_code": ts_code,
+                "name": str(event.get("name") or position.get("name") or ""),
+                "plan_id": plan_id,
+                "source_event_id": str(event.get("event_id") or ""),
+                "reason": str(event.get("message") or "Monitor 风险信号触发 Portfolio 复核"),
+                "trigger_type": "monitor_signal",
+                "priority": 5,
+                "price": event.get("price"),
+                "snapshot": {"event": event},
+                "requested_at": _now(),
+            }
+        )
+        return bool(result.get("created"))
+
+    def _evaluate_portfolio_triggers(
+        self,
+        *,
+        positions: list[dict],
+        quote_lookup: dict[str, dict],
+        trade_date: str,
+        now: datetime,
+    ) -> list[dict]:
+        if not positions:
+            return []
+        store = PortfolioStore(self.storage)
+        broker = PaperBroker(
+            store,
+            account_id=PortfolioConfig().account_id,
+            initial_cash=PortfolioConfig().paper_initial_cash,
+        )
+        broker.refresh(quote_lookup, trade_date=trade_date)
+        written: list[dict] = []
+        for position in store.paper_positions(PortfolioConfig().account_id):
+            plan = store.get_plan(str(position.get("plan_id") or "")) or store.latest_plan_for_symbol(str(position.get("ts_code") or ""))
+            if not plan:
+                continue
+            ts_code = str(position.get("ts_code") or "")
+            quote = quote_lookup.get(ts_code) or {}
+            price = _first_num(quote, ("price", "last_price", "latest_price", "close"))
+            stop_loss = _optional_num(plan.get("stop_loss"))
+            if price is None or stop_loss is None or price > stop_loss:
+                continue
+            event_id = _stable_id(f"portfolio-hard-stop:{plan.get('plan_id')}:{trade_date}")
+            message = f"{ts_code} {position.get('name') or plan.get('name') or ''} 跌破 Portfolio 止损线 {stop_loss:.2f}"
+            review = store.enqueue_review_request(
+                {
+                    "request_id": _stable_id(f"portfolio-hard-stop-review:{plan.get('plan_id')}:{trade_date}"),
+                    "trade_date": trade_date,
+                    "ts_code": ts_code,
+                    "name": str(position.get("name") or plan.get("name") or ""),
+                    "plan_id": str(plan.get("plan_id") or ""),
+                    "source_event_id": event_id,
+                    "reason": "Monitor 触发 Portfolio 硬止损",
+                    "trigger_type": "hard_stop_loss",
+                    "priority": 10,
+                    "price": price,
+                    "snapshot": {"position": position, "plan": plan, "quote": quote},
+                    "requested_at": now,
+                }
+            )
+            if not review.get("created"):
+                continue
+            available = int(position.get("available_quantity") or 0)
+            action: dict[str, Any] | None = None
+            if available > 0:
+                action = broker.place_order(
+                    plan_id=str(plan.get("plan_id") or ""),
+                    source_run_id=str(event_id),
+                    ts_code=ts_code,
+                    name=str(position.get("name") or plan.get("name") or ""),
+                    side="sell",
+                    quantity=available,
+                    price=float(price),
+                    trade_date=trade_date,
+                    trade_time=now.strftime("%Y-%m-%d %H:%M:%S"),
+                    reason="Monitor 触发 Portfolio 硬止损",
+                    quote=quote,
+                )
+            else:
+                action = {
+                    "status": "rejected",
+                    "ts_code": ts_code,
+                    "name": str(position.get("name") or plan.get("name") or ""),
+                    "side": "sell",
+                    "quantity": 0,
+                    "price": float(price),
+                    "reason": "Monitor 触发 Portfolio 硬止损，但无可卖数量或受 T+1 限制",
+                }
+            event = {
+                "event_id": event_id,
+                "event_key": event_id,
+                "ts_code": ts_code,
+                "name": str(position.get("name") or plan.get("name") or ""),
+                "source_list": "portfolio",
+                "rule_name": "portfolio_plan",
+                "signal_name": "hard_stop_loss",
+                "signal_label": "Portfolio 硬止损",
+                "side": "sell",
+                "score": None,
+                "price": float(price),
+                "trade_time": now.strftime("%Y-%m-%d %H:%M:%S"),
+                "message": message,
+                "watch_levels": {"stop_loss": stop_loss},
+                "risk_flags": ["hard_stop_loss"],
+                "metrics": {
+                    "plan_id": plan.get("plan_id"),
+                    "action": action,
+                    "portfolio_review_request": review,
+                    "portfolio_review_request_created": bool(review.get("created")),
+                },
+            }
+            if self.storage.insert_monitor_event(event):
+                written.append(event)
+                self.storage.insert_monitor_trade_event(
+                    {
+                        "trade_event_id": _stable_id(f"portfolio-trade:{event_id}"),
+                        "event_id": event_id,
+                        "ts_code": ts_code,
+                        "name": event["name"],
+                        "action": "sell",
+                        "side": "sell",
+                        "price": price,
+                        "quantity": action.get("quantity"),
+                        "status": action.get("status"),
+                        "message": action.get("reason"),
+                        "metrics": {"source_event": event, "paper_action": action},
+                    }
+                )
+        return written
+
+    def _run_portfolio_recheck(self, trade_date: str) -> None:
+        from sats.portfolio import DailyPortfolioAgent
+
+        try:
+            DailyPortfolioAgent(
+                settings=self.settings,
+                storage=self.storage,
+                provider=self.provider,
+                market_loader=_portfolio_recheck_market_context,
+                now=_now,
+            ).run(
+                phase="recheck",
+                trade_date=trade_date,
+                config=PortfolioConfig(trading_mode="paper", llm_enabled=False),
+            )
+        except Exception as exc:
+            self.storage.upsert_monitor_runtime(
+                service_name="monitor",
+                status="running",
+                last_error=f"Portfolio recheck failed: {exc}",
+                heartbeat=True,
+            )
 
     def _evaluate_monitor_plans(
         self,
@@ -254,7 +455,12 @@ class MonitorService:
             if not _inside_active_windows(now, group.get("active_windows") or []):
                 continue
             evaluations = [
-                _evaluate_plan_condition(condition, quote_lookup)
+                _evaluate_plan_condition(
+                    condition,
+                    quote_lookup,
+                    storage=self.storage,
+                    trade_date=trade_date,
+                )
                 for condition in group.get("conditions") or []
             ]
             result = _condition_group_result(evaluations)
@@ -558,12 +764,24 @@ def _latest_trade_time(frame: pd.DataFrame) -> str:
     return max(values) if values else ""
 
 
-def _evaluate_plan_condition(condition: dict, quote_lookup: dict[str, dict]) -> dict:
+def _evaluate_plan_condition(
+    condition: dict,
+    quote_lookup: dict[str, dict],
+    *,
+    storage: DuckDBStorage | None = None,
+    trade_date: str = "",
+) -> dict:
     subject = condition.get("subject") or {}
     symbol = str(subject.get("symbol") or "")
+    subject_type = str(subject.get("type") or "")
     quote = quote_lookup.get(symbol) or {}
     metric = str(condition.get("metric") or "")
-    actual = _plan_metric_value(metric, quote)
+    if metric == "market_regime_score":
+        actual = _market_regime_score(storage, trade_date)
+    elif metric in {"position_pnl_pct", "holding_trade_days", "peak_drawdown_pct"}:
+        actual = _position_metric_value(storage, symbol, metric=metric, trade_date=trade_date)
+    else:
+        actual = _plan_metric_value(metric, quote)
     operator = str(condition.get("operator") or "")
     target = _optional_num(condition.get("value"))
     if actual is None or target is None:
@@ -573,14 +791,18 @@ def _evaluate_plan_condition(condition: dict, quote_lookup: dict[str, dict]) -> 
         matched = _compare(actual, operator, target)
         status = "true" if matched else "false"
     return {
-        "subject": {"type": str(subject.get("type") or ""), "symbol": symbol},
+        "subject": {"type": subject_type, "symbol": symbol},
         "metric": metric,
         "operator": operator,
         "target": target,
         "actual": actual,
         "status": status,
         "matched": matched,
-        "data_source": str(quote.get("data_source") or ""),
+        "data_source": (
+            "portfolio_state"
+            if metric in {"market_regime_score", "position_pnl_pct", "holding_trade_days", "peak_drawdown_pct"}
+            else str(quote.get("data_source") or "")
+        ),
         "trade_time": str(quote.get("trade_time") or quote.get("as_of_time") or ""),
     }
 
@@ -658,6 +880,96 @@ def _plan_metric_value(metric: str, quote: dict) -> float | None:
         pre_close = _first_num(quote, ("pre_close", "prev_close"))
         return price - pre_close if price is not None and pre_close is not None else None
     return None
+
+
+def _market_regime_score(storage: DuckDBStorage | None, trade_date: str) -> float | None:
+    if storage is None:
+        return None
+    storage.initialize()
+    with storage.connect() as con:
+        row = con.execute(
+            """
+            SELECT score
+            FROM market_regime_snapshots
+            WHERE trade_date = ?
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            [trade_date],
+        ).fetchone()
+    return _optional_num(row[0]) if row else None
+
+
+def _portfolio_recheck_market_context(**kwargs: Any) -> dict[str, Any]:
+    trade_date = str(kwargs.get("trade_date") or _today())
+    return {
+        "trade_date": trade_date,
+        "indices": [],
+        "market_breadth": {},
+        "limit_sentiment": {},
+        "hot_sector_context": {},
+        "data_sources": {"portfolio_recheck": "monitor"},
+        "missing_fields": [],
+    }
+
+
+def _position_metric_value(
+    storage: DuckDBStorage | None,
+    symbol: str,
+    *,
+    metric: str,
+    trade_date: str,
+) -> float | None:
+    if storage is None:
+        return None
+    storage.initialize()
+    with storage.connect() as con:
+        paper = con.execute(
+            """
+            SELECT pnl_pct, price, peak_price, opened_trade_date
+            FROM paper_positions
+            WHERE ts_code = ? AND quantity > 0
+            ORDER BY updated_at DESC
+            LIMIT 1
+            """,
+            [symbol],
+        ).fetchone()
+        if paper:
+            if metric == "position_pnl_pct":
+                return _optional_num(paper[0])
+            if metric == "peak_drawdown_pct":
+                price = _optional_num(paper[1])
+                peak = _optional_num(paper[2])
+                return ((price / peak - 1.0) * 100.0) if price is not None and peak not in {None, 0.0} else None
+            if metric == "holding_trade_days":
+                return float(_weekday_distance(str(paper[3] or ""), trade_date))
+        broker = con.execute(
+            """
+            SELECT pnl_pct
+            FROM broker_positions
+            WHERE ts_code = ?
+            ORDER BY updated_at DESC
+            LIMIT 1
+            """,
+            [symbol],
+        ).fetchone()
+    if metric == "position_pnl_pct" and broker:
+        return _optional_num(broker[0])
+    return None
+
+
+def _weekday_distance(start_date: str, end_date: str) -> int:
+    try:
+        start = datetime.strptime(start_date, "%Y%m%d")
+        end = datetime.strptime(end_date, "%Y%m%d")
+    except ValueError:
+        return 0
+    count = 0
+    while start < end:
+        start += timedelta(days=1)
+        if start.weekday() < 5:
+            count += 1
+    return count
 
 
 def _first_num(payload: dict, keys: tuple[str, ...]) -> float | None:

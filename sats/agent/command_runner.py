@@ -86,6 +86,13 @@ class AgentCommandRunner:
         )
 
     def _guard_trading_command(self, argv: list[str]) -> list[str] | CommandRunResult:
+        if len(argv) >= 3 and argv[:3] == ["portfolio", "orders", "approve"]:
+            return CommandRunResult(
+                tuple(argv),
+                2,
+                stderr="portfolio live intent approval requires direct human CLI/REPL confirmation",
+                status="error",
+            )
         if len(argv) < 2 or argv[0] != "qmt":
             return argv
         action = argv[1]

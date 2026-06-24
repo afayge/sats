@@ -11,6 +11,14 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 - Keep `/Users/elliotge/python/SATS/.venv` intact, but do not use it for default installation or verification.
 - The shared parent environment has a known `mootdx` declaration conflict with SATS/Vibe Trading's `httpx>=0.28`; do not downgrade `httpx` or remove shared packages merely to make `pip check` clean.
 
+## 0.1 Agent Capability Discovery
+
+- Treat `sats catalog --json` and the runtime registries as the source of truth for commands, tools, Skills, knowledge bases, rules, signals, factors, API routes, and provider datasets.
+- See `docs/AGENT_CAPABILITIES.md` for the Agent-facing workflow.
+- When a data interface is uncertain, discover it with `data.astock_catalog`, then call the returned operation with `data.astock_fetch`.
+- A-share business data must enter through `AStockDataProvider`; do not invoke arbitrary TickFlow, Tushare, or AkShare methods.
+- Tushare and AkShare calls are limited to registered datasets and declared parameters. Never place API keys, tokens, passwords, or other credentials in Agent tool arguments.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**

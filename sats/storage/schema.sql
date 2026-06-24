@@ -773,6 +773,205 @@ CREATE TABLE IF NOT EXISTS broker_order_events (
     PRIMARY KEY (event_id)
 );
 
+CREATE TABLE IF NOT EXISTS portfolio_runs (
+    run_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    phase TEXT NOT NULL,
+    trading_mode TEXT NOT NULL,
+    status TEXT NOT NULL,
+    market_score DOUBLE,
+    exposure_limit DOUBLE,
+    candidate_count INTEGER NOT NULL DEFAULT 0,
+    selected_count INTEGER NOT NULL DEFAULT 0,
+    replacement_count INTEGER NOT NULL DEFAULT 0,
+    summary TEXT,
+    details_json TEXT NOT NULL DEFAULT '{}',
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP,
+    PRIMARY KEY (run_id)
+);
+
+CREATE TABLE IF NOT EXISTS market_regime_snapshots (
+    snapshot_id TEXT NOT NULL,
+    run_id TEXT,
+    trade_date TEXT NOT NULL,
+    score DOUBLE NOT NULL,
+    exposure_limit DOUBLE NOT NULL,
+    buy_allowed BOOLEAN NOT NULL DEFAULT FALSE,
+    data_source TEXT,
+    details_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (snapshot_id)
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_candidates (
+    candidate_id TEXT NOT NULL,
+    plan_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    effective_trade_date TEXT,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    industry TEXT,
+    rank_no INTEGER NOT NULL,
+    selected BOOLEAN NOT NULL DEFAULT FALSE,
+    status TEXT NOT NULL DEFAULT 'candidate',
+    total_score DOUBLE NOT NULL DEFAULT 0,
+    entry_price DOUBLE,
+    stop_loss DOUBLE,
+    take_profit_1 DOUBLE,
+    take_profit_2 DOUBLE,
+    trailing_stop_pct DOUBLE,
+    valid_until TEXT,
+    score_json TEXT NOT NULL DEFAULT '{}',
+    evidence_json TEXT NOT NULL DEFAULT '{}',
+    outcome_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (candidate_id)
+);
+
+ALTER TABLE portfolio_candidates ADD COLUMN IF NOT EXISTS effective_trade_date TEXT;
+
+CREATE TABLE IF NOT EXISTS paper_accounts (
+    account_id TEXT NOT NULL,
+    initial_cash DOUBLE NOT NULL,
+    cash DOUBLE NOT NULL,
+    available_cash DOUBLE NOT NULL,
+    market_value DOUBLE NOT NULL DEFAULT 0,
+    total_asset DOUBLE NOT NULL,
+    realized_pnl DOUBLE NOT NULL DEFAULT 0,
+    equity_peak DOUBLE NOT NULL DEFAULT 0,
+    max_drawdown_pct DOUBLE NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (account_id)
+);
+
+CREATE TABLE IF NOT EXISTS paper_positions (
+    account_id TEXT NOT NULL,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    quantity DOUBLE NOT NULL,
+    available_quantity DOUBLE NOT NULL DEFAULT 0,
+    cost_price DOUBLE NOT NULL,
+    price DOUBLE NOT NULL,
+    market_value DOUBLE NOT NULL,
+    pnl DOUBLE NOT NULL DEFAULT 0,
+    pnl_pct DOUBLE NOT NULL DEFAULT 0,
+    peak_price DOUBLE NOT NULL,
+    trough_price DOUBLE NOT NULL,
+    opened_trade_date TEXT NOT NULL,
+    last_buy_trade_date TEXT NOT NULL,
+    plan_id TEXT,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (account_id, ts_code)
+);
+
+ALTER TABLE paper_accounts ADD COLUMN IF NOT EXISTS equity_peak DOUBLE;
+ALTER TABLE paper_accounts ADD COLUMN IF NOT EXISTS max_drawdown_pct DOUBLE;
+ALTER TABLE paper_positions ADD COLUMN IF NOT EXISTS trough_price DOUBLE;
+
+CREATE TABLE IF NOT EXISTS paper_orders (
+    order_id TEXT NOT NULL,
+    account_id TEXT NOT NULL,
+    plan_id TEXT,
+    source_run_id TEXT,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    side TEXT NOT NULL,
+    quantity DOUBLE NOT NULL,
+    price DOUBLE NOT NULL,
+    status TEXT NOT NULL,
+    reason TEXT,
+    trade_date TEXT,
+    trade_time TEXT,
+    request_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (order_id)
+);
+
+ALTER TABLE paper_orders ADD COLUMN IF NOT EXISTS trade_date TEXT;
+ALTER TABLE paper_orders ADD COLUMN IF NOT EXISTS trade_time TEXT;
+
+CREATE TABLE IF NOT EXISTS paper_trades (
+    trade_id TEXT NOT NULL,
+    order_id TEXT NOT NULL,
+    account_id TEXT NOT NULL,
+    plan_id TEXT,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    side TEXT NOT NULL,
+    quantity DOUBLE NOT NULL,
+    price DOUBLE NOT NULL,
+    realized_pnl DOUBLE NOT NULL DEFAULT 0,
+    trade_date TEXT NOT NULL,
+    trade_time TEXT NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (trade_id)
+);
+
+CREATE TABLE IF NOT EXISTS pending_trade_intents (
+    intent_id TEXT NOT NULL,
+    plan_id TEXT,
+    source_run_id TEXT,
+    trading_mode TEXT NOT NULL,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    side TEXT NOT NULL,
+    quantity DOUBLE NOT NULL,
+    reference_price DOUBLE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    reason TEXT,
+    market_score DOUBLE,
+    expires_at TIMESTAMP NOT NULL,
+    request_json TEXT NOT NULL DEFAULT '{}',
+    result_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (intent_id)
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_review_requests (
+    request_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    ts_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    plan_id TEXT,
+    source_event_id TEXT,
+    reason TEXT NOT NULL,
+    trigger_type TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    priority INTEGER NOT NULL DEFAULT 0,
+    price DOUBLE,
+    snapshot_json TEXT NOT NULL DEFAULT '{}',
+    result_json TEXT NOT NULL DEFAULT '{}',
+    requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP,
+    PRIMARY KEY (request_id)
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_daily_snapshots (
+    snapshot_id TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    trading_mode TEXT NOT NULL,
+    account_id TEXT NOT NULL,
+    opening_total_asset DOUBLE,
+    closing_total_asset DOUBLE,
+    cash DOUBLE,
+    market_value DOUBLE,
+    realized_pnl DOUBLE,
+    unrealized_pnl DOUBLE,
+    max_drawdown_pct DOUBLE,
+    report_path TEXT,
+    summary_json TEXT NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (snapshot_id),
+    UNIQUE (trade_date, trading_mode, account_id)
+);
+
 CREATE TABLE IF NOT EXISTS scheduled_tasks (
     name TEXT NOT NULL,
     task_type TEXT NOT NULL,

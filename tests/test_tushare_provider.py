@@ -894,6 +894,43 @@ class TushareDataProviderTest(unittest.TestCase):
             self.assertEqual(provider.pro.ths_index_calls, 0)
             self.assertEqual(provider.pro.ths_daily_calls, [])
 
+    def test_signal_discovery_is_internal_data_mode_without_rule_lookup(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = object.__new__(TushareDataProvider)
+            provider.pro = FakeBatchPro()
+            provider._stock_basic_cache = {}
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+
+            with patch(
+                "sats.data.tushare_provider.get_rule",
+                side_effect=AssertionError("must not look up rule"),
+            ) as lookup:
+                inputs = provider.load_all_screening_inputs("20260430", storage=storage, rule_name="signal_discovery")
+
+            lookup.assert_not_called()
+            self.assertEqual(len(inputs), 1)
+            self.assertGreaterEqual(len(inputs[0].daily), 60)
+            self.assertTrue(inputs[0].daily_basic.empty)
+            self.assertEqual(provider.pro.daily_basic_calls, [])
+
+    def test_factor_overlay_is_internal_data_mode_but_keeps_daily_basic(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = object.__new__(TushareDataProvider)
+            provider.pro = FakeBatchPro()
+            provider._stock_basic_cache = {}
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+
+            with patch(
+                "sats.data.tushare_provider.get_rule",
+                side_effect=AssertionError("must not look up rule"),
+            ) as lookup:
+                inputs = provider.load_all_screening_inputs("20260430", storage=storage, rule_name="factor_overlay")
+
+            lookup.assert_not_called()
+            self.assertEqual(len(inputs), 1)
+            self.assertFalse(inputs[0].daily_basic.empty)
+            self.assertEqual(len(provider.pro.daily_basic_calls), len(provider.pro.trade_dates))
+
     def test_load_index_daily_fetches_requested_indices(self) -> None:
         provider = object.__new__(TushareDataProvider)
         provider.pro = FakeBatchPro()

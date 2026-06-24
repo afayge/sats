@@ -2,17 +2,58 @@ from __future__ import annotations
 
 from typing import Any
 
+import pandas as pd
+
 from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSpec, json_content, object_schema, ok
 from sats.data.astock_provider import AStockDataProvider
+from sats.minute_periods import normalize_minute_period
 from sats.data.resolver import require_market_data_provenance
-from sats.symbols import normalize_symbols
+from sats.stock_basic_lookup import match_stock_name
+from sats.symbols import normalize_symbols, normalize_ts_code
 
 
 def data_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
+            name="data.astock_catalog",
+            description="发现 AStockDataProvider、TickFlow、Tushare 和 AkShare 的白名单数据能力；不确定接口时先调用本工具。",
+            category="data_catalog",
+            side_effect="readonly",
+            timeout=20,
+            input_schema=object_schema(
+                {
+                    "provider": {"type": "string", "enum": ["astock", "tickflow", "tushare", "akshare"]},
+                    "query": {"type": "string"},
+                    "category": {"type": "string"},
+                    "realtime": {"type": "boolean"},
+                    "writes_db": {"type": "boolean"},
+                    "limit": {"type": "integer"},
+                    "offset": {"type": "integer"},
+                    "compact": {"type": "boolean"},
+                }
+            ),
+            executor=_astock_catalog,
+        ),
+        AgentToolSpec(
+            name="data.astock_fetch",
+            description="执行 data.astock_catalog 返回的白名单 operation；禁止任意方法名、未登记 dataset 和敏感凭据参数。",
+            category="data",
+            side_effect="write_db",
+            timeout=240,
+            input_schema=object_schema(
+                {
+                    "operation": {"type": "string"},
+                    "params": {"type": "object"},
+                    "fields": {"type": "array", "items": {"type": "string"}},
+                    "limit": {"type": "integer"},
+                },
+                ["operation"],
+            ),
+            executor=_astock_fetch,
+        ),
+        AgentToolSpec(
             name="data.list_provider_capabilities",
-            description="列出 SATS 已接入的 Tushare/TickFlow 数据能力目录，供计划阶段选择真实数据工具。",
+            description="列出 SATS 数据能力兼容目录；新 Agent 优先使用 data.astock_catalog。",
             category="data_catalog",
             side_effect="readonly",
             timeout=20,
@@ -28,11 +69,18 @@ def data_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="data.stock_basic",
-            description="通过 AStockDataProvider 获取 A 股股票基础信息；优先 TickFlow universe/instruments，回退 Tushare，并写回 DuckDB。",
+            description="通过 AStockDataProvider 获取 A 股股票基础信息；支持按 name/query/symbols 安全查询，回退 Tushare 和 DuckDB。",
             category="data",
             side_effect="write_db",
             timeout=60,
-            input_schema=object_schema(),
+            input_schema=object_schema(
+                {
+                    "name": {"type": "string"},
+                    "query": {"type": "string"},
+                    "symbols": {"type": "array", "items": {"type": "string"}},
+                    "limit": {"type": "integer"},
+                }
+            ),
             executor=_stock_basic,
         ),
         AgentToolSpec(
@@ -69,7 +117,7 @@ def data_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="data.stock_minute",
-            description="DuckDB-first 获取 A 股分钟 K；按 ts_code、period、datetime 覆盖补齐。",
+            description="DuckDB-first 获取 A 股分钟 K；支持 15min/15分钟 等别名，非原生整数分钟周期会由更细分钟线派生。",
             category="data",
             side_effect="write_db",
             timeout=60,
@@ -232,6 +280,52 @@ def data_tool_specs() -> list[AgentToolSpec]:
     ]
 
 
+def _astock_catalog(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    payload = provider.list_data_operations(
+        provider=str(arguments.get("provider") or "").strip() or None,
+        query=str(arguments.get("query") or "").strip() or None,
+        category=str(arguments.get("category") or "").strip() or None,
+        realtime=arguments.get("realtime") if isinstance(arguments.get("realtime"), bool) else None,
+        writes_db=arguments.get("writes_db") if isinstance(arguments.get("writes_db"), bool) else None,
+        limit=int(arguments.get("limit") or 50),
+        offset=int(arguments.get("offset") or 0),
+        compact=bool(arguments.get("compact", True)),
+    )
+    return ok(
+        f"listed {payload['returned']} of {payload['total']} AStock capabilities",
+        payload={"astock_catalog": payload},
+        data_names=("AStock capabilities",),
+    )
+
+
+def _astock_fetch(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    provider = AStockDataProvider(context.settings)
+    operation = str(arguments.get("operation") or "").strip()
+    params = arguments.get("params") if isinstance(arguments.get("params"), dict) else {}
+    if operation == "astock.stock_basic" and params:
+        lookup_args = _stock_basic_lookup_arguments(params, limit=arguments.get("limit"))
+        if lookup_args:
+            return _stock_basic(context, lookup_args)
+        return AgentToolResult(
+            status="error",
+            content="astock.stock_basic 是全量加载接口，不接受过滤参数；按名称或代码查询请使用 data.stock_basic。",
+        )
+    payload = _provider_fetch_operation(
+        provider,
+        operation,
+        params,
+        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else (),
+        limit=int(arguments.get("limit") or 200),
+        storage=context.storage,
+    )
+    return ok(
+        f"{payload['operation']}: {payload.get('row_count', 0)} rows",
+        payload={"astock_data": payload},
+        data_names=("AStock data",),
+    )
+
+
 def _list_provider_capabilities(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     provider = AStockDataProvider(context.settings)
     capabilities = provider.load_provider_capabilities(
@@ -250,7 +344,79 @@ def _list_provider_capabilities(context: AgentToolContext, arguments: dict[str, 
 def _stock_basic(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     provider = AStockDataProvider(context.settings)
     frame = provider.load_stock_basic(storage=context.storage)
-    return _frame_result("stock_basic", frame)
+    filtered = _filter_stock_basic_frame(frame, arguments)
+    include_rows = bool(
+        str(arguments.get("name") or "").strip()
+        or str(arguments.get("query") or "").strip()
+        or arguments.get("symbols")
+        or arguments.get("limit")
+    )
+    return _frame_result(
+        "stock_basic",
+        filtered,
+        include_rows=include_rows,
+        sample_limit=_positive_int(arguments.get("limit"), default=20, maximum=500),
+    )
+
+
+def _stock_basic_lookup_arguments(params: dict[str, Any], *, limit: Any = None) -> dict[str, Any]:
+    args: dict[str, Any] = {}
+    name = str(params.get("name") or "").strip()
+    query = str(params.get("query") or "").strip()
+    if name:
+        args["name"] = name
+    if query:
+        args["query"] = query
+    symbols = params.get("symbols") if isinstance(params.get("symbols"), list) else []
+    symbol = str(params.get("symbol") or "").strip()
+    if symbol:
+        symbols = [*symbols, symbol]
+    if symbols:
+        args["symbols"] = [str(item) for item in symbols if str(item or "").strip()]
+    if limit not in (None, ""):
+        args["limit"] = limit
+    return args
+
+
+def _positive_int(value: Any, *, default: int, maximum: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+    if parsed <= 0:
+        return default if default > 0 else 0
+    return min(parsed, maximum)
+
+
+def _filter_stock_basic_frame(frame: Any, arguments: dict[str, Any]) -> Any:
+    if frame is None or not isinstance(frame, pd.DataFrame) or frame.empty:
+        return frame
+    data = frame.copy()
+    selected: list[pd.DataFrame] = []
+    symbols = arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else []
+    clean_symbols = normalize_symbols(symbols, required=False) if symbols else []
+    if clean_symbols and "ts_code" in data.columns:
+        selected.append(data[data["ts_code"].astype(str).map(normalize_ts_code).isin(clean_symbols)])
+    name = str(arguments.get("name") or "").strip()
+    if name:
+        selected.append(match_stock_name(name, data))
+    query = str(arguments.get("query") or "").strip()
+    if query:
+        selected.append(match_stock_name(query, data))
+        searchable = [column for column in ("ts_code", "symbol", "name", "industry", "market", "exchange") if column in data.columns]
+        if searchable:
+            mask = pd.Series(False, index=data.index)
+            for column in searchable:
+                mask = mask | data[column].fillna("").astype(str).str.contains(query, regex=False)
+            selected.append(data[mask])
+    if selected:
+        result = pd.concat(selected, ignore_index=True)
+        result = result.drop_duplicates(subset=["ts_code"]) if "ts_code" in result.columns else result.drop_duplicates()
+    else:
+        result = data
+    result.attrs.update(getattr(frame, "attrs", {}) or {})
+    limit = _positive_int(arguments.get("limit"), default=0, maximum=500)
+    return result.head(limit) if limit else result
 
 
 def _stock_daily(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
@@ -281,7 +447,7 @@ def _stock_minute(context: AgentToolContext, arguments: dict[str, Any]) -> Agent
     symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
     frame = context.resolver.load_stock_minute(
         symbols,
-        period=str(arguments.get("period") or "1m"),
+        period=normalize_minute_period(arguments.get("period") or "1m"),
         start_time=str(arguments.get("start_time") or "") or None,
         end_time=str(arguments.get("end_time") or "") or None,
         count=arguments.get("count"),
@@ -331,11 +497,16 @@ def _list_tushare_datasets(context: AgentToolContext, arguments: dict[str, Any])
 
 def _get_tushare_data(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     provider = AStockDataProvider(context.settings)
-    payload = provider.fetch_tushare_dataset(
-        str(arguments.get("dataset") or "").strip(),
-        arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
-        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+    payload = _provider_fetch_operation(
+        provider,
+        "tushare.dataset.fetch",
+        {
+            "dataset": str(arguments.get("dataset") or "").strip(),
+            "params": arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+        },
+        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else (),
         limit=int(arguments.get("limit") or 200),
+        storage=context.storage,
     )
     return ok("loaded Tushare dataset", payload={"tushare_data": payload}, data_names=("Tushare",))
 
@@ -351,11 +522,16 @@ def _list_tushare_stock_datasets(context: AgentToolContext, arguments: dict[str,
 
 def _get_tushare_stock_data(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     provider = AStockDataProvider(context.settings)
-    payload = provider.fetch_tushare_stock_dataset(
-        str(arguments.get("dataset") or "").strip(),
-        arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
-        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+    payload = _provider_fetch_operation(
+        provider,
+        "tushare.dataset.fetch",
+        {
+            "dataset": str(arguments.get("dataset") or "").strip(),
+            "params": arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+        },
+        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else (),
         limit=int(arguments.get("limit") or 200),
+        storage=context.storage,
     )
     return ok("loaded Tushare stock dataset", payload={"tushare_stock_data": payload}, data_names=("Tushare 股票数据",))
 
@@ -381,13 +557,47 @@ def _describe_akshare_dataset(context: AgentToolContext, arguments: dict[str, An
 
 def _get_akshare_data(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     provider = AStockDataProvider(context.settings)
-    payload = provider.fetch_akshare_dataset(
-        str(arguments.get("dataset") or "").strip(),
-        arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
-        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else None,
+    payload = _provider_fetch_operation(
+        provider,
+        "akshare.dataset.fetch",
+        {
+            "dataset": str(arguments.get("dataset") or "").strip(),
+            "params": arguments.get("params") if isinstance(arguments.get("params"), dict) else {},
+        },
+        fields=arguments.get("fields") if isinstance(arguments.get("fields"), list) else (),
         limit=int(arguments.get("limit") or 200),
+        storage=context.storage,
     )
     return ok("loaded AkShare dataset", payload={"akshare_data": payload}, data_names=("AkShare 数据",))
+
+
+def _provider_fetch_operation(
+    provider: Any,
+    operation: str,
+    params: dict[str, Any],
+    *,
+    fields: list[str] | tuple[str, ...],
+    limit: int,
+    storage: Any,
+) -> dict[str, Any]:
+    if hasattr(provider, "fetch_data_operation"):
+        return provider.fetch_data_operation(
+            operation,
+            params,
+            fields=fields,
+            limit=limit,
+            storage=storage,
+        )
+    from sats.data.astock_operations import execute_astock_operation
+
+    return execute_astock_operation(
+        operation,
+        params,
+        fields=fields,
+        limit=limit,
+        provider=provider,
+        storage=storage,
+    )
 
 
 def _frame_result(

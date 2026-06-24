@@ -1,5 +1,7 @@
 # SATS 详细说明书
 
+> 本文包含历史章节；动态命令、Agent tools、Skills 和 provider 数据接口请以 `sats catalog --json` 与 `docs/AGENT_CAPABILITIES.md` 为准。
+
 > **版本**：0.1.0  
 > **最后更新**：2026-06-07  
 > **适用环境**：Python 3.12+ / macOS / Linux
@@ -439,7 +441,32 @@ sats qmt sell --symbol 000001.SZ --quantity 100 [--dry-run]
 sats qmt cancel --order-id <委托ID>
 ```
 
-### 5.25 `serve` — API 服务
+### 5.25 `portfolio` — 盘中组合 Agent
+
+```bash
+sats portfolio run --phase afternoon-scan --mode paper
+sats portfolio run --phase afternoon-buy --mode paper
+sats portfolio run --phase morning --mode paper
+sats portfolio run --phase review --mode paper
+sats portfolio run --phase report --mode paper
+sats portfolio candidates --selected
+sats portfolio account --mode paper
+sats portfolio positions --mode paper
+sats portfolio trades --mode paper
+sats portfolio schedule install --mode paper
+```
+
+`paper` 为默认模式，自动执行模拟买入、止盈、止损与时间止损。`live` 模式只创建待确认意图：
+
+```bash
+sats portfolio run --phase afternoon-buy --mode live
+sats portfolio orders list --mode live
+sats portfolio orders approve --intent-id trade_intent_xxxxxxxx
+```
+
+常规买入只在 `afternoon-buy` 阶段执行；09:35/09:50 早盘阶段和 10:30/13:00 复核阶段只允许条件卖出。16:00 `report` 会在 `reports/portfolio/YYYYMMDD/` 生成 Markdown 交易日总结。REPL 底部状态栏会追加 `pf:持仓数 仓仓位% 盈收益% 盘大盘分` 的 paper 组合摘要；自动执行能力由 `schedule` 状态体现。实盘批准必须由用户直接完成，Agent 不能代替用户批准。
+
+### 5.26 `serve` — API 服务
 
 ```bash
 sats serve [--host 127.0.0.1] [--port 8000]
@@ -936,6 +963,10 @@ sats schedule list
 sats schedule add --command "screen --rule price_volume_ma --trade-date 20260606" \
                   --time "09:00" --days mon-fri
 
+sats schedule add --name portfolio-afternoon-buy --type cli \
+                  --text "portfolio run --phase afternoon-buy --mode paper" \
+                  --trading-day --time "14:25"
+
 # 管理
 sats schedule remove <任务ID>
 sats schedule run <任务ID>        # 手动执行
@@ -944,6 +975,7 @@ sats schedule stop                # 停止调度器
 ```
 
 调度器以独立进程运行，通过 `SATS_DB_PATH` 共享配置。任务只执行 SATS CLI 命令，不执行任意 shell。
+`--trading-day` 会查询 A 股交易日历，周末和休市日跳过。
 
 ---
 
@@ -1102,6 +1134,7 @@ Agent 可用的工具定义在 `sats/agent/tools/`，包括：
 - 报告生成工具
 - 知识检索工具
 - 筛选工具
+- `workflow.daily_portfolio`：盘中 10 选 5；模拟盘自动执行，实盘只生成待确认意图
 
 ### 17.4 用法
 
@@ -1150,7 +1183,7 @@ curl -X POST http://127.0.0.1:8000/api/screen \
 curl "http://127.0.0.1:8000/api/screen/results?trade_date=20260606&rule=price_volume_ma"
 
 # 分钟K线
-curl "http://127.0.0.1:8000/api/market/minute-k?symbols=000001.SZ&freq=15min&trade_date=20260606"
+curl "http://127.0.0.1:8000/api/market/minute-k?symbols=000001.SZ&period=15min&mode=history&start_date=20260606&end_date=20260606"
 ```
 
 ---

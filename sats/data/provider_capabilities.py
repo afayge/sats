@@ -62,7 +62,9 @@ def list_provider_capabilities(
 
 
 def planner_provider_capabilities() -> list[dict[str, Any]]:
-    return list_provider_capabilities(compact=True)
+    from sats.data.astock_operations import planner_astock_capabilities
+
+    return planner_astock_capabilities()
 
 
 def _tushare_capabilities() -> list[ProviderCapability]:
@@ -130,10 +132,10 @@ def _tickflow_capabilities() -> list[ProviderCapability]:
         ),
         ProviderCapability(
             capability_id="tickflow.realtime_quotes",
-            name="当日 1m K 实时报价",
+            name="当日日 K 实时报价",
             provider="tickflow",
             category="实时行情",
-            use_cases=("从最新当日 1m K 提取实时价格、成交量/额", "交易前 quote 校验"),
+            use_cases=("从 TickFlow 当日日 K 提取实时价格、成交量/额", "交易前 quote 校验"),
             input_fields=("symbols", "universe_id"),
             output_fields=("ts_code", "price", "open", "high", "low", "volume", "amount", "pct_chg", "fetched_at"),
             realtime=True,
@@ -159,7 +161,7 @@ def _tickflow_capabilities() -> list[ProviderCapability]:
             name="当日分钟 K",
             provider="tickflow",
             category="分钟K",
-            use_cases=("盘中 1m/5m/15m/30m/60m K 线", "缠论和日内走势确认"),
+            use_cases=("盘中 1m/5m/15m/30m/60m K 线，支持 15min/15分钟 别名和 10min 等派生周期", "缠论和日内走势确认"),
             input_fields=("symbols", "period", "count"),
             output_fields=("ts_code", "trade_time", "open", "high", "low", "close", "vol", "amount"),
             realtime=True,
@@ -185,7 +187,7 @@ def _tickflow_capabilities() -> list[ProviderCapability]:
             name="历史分钟 K",
             provider="tickflow",
             category="分钟K",
-            use_cases=("历史 1m/5m/15m/30m/60m K 线", "回看日内结构"),
+            use_cases=("历史 1m/5m/15m/30m/60m K 线，支持 15min/15分钟 别名和 10min 等派生周期", "回看日内结构"),
             input_fields=("symbols", "period", "start_time", "end_time", "count"),
             output_fields=("ts_code", "trade_time", "open", "high", "low", "close", "vol", "amount"),
             realtime=False,

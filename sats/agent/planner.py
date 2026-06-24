@@ -19,7 +19,11 @@ from sats.screening.registry import list_rules
 from sats.screening.rule_composer import is_rule_generation_request, parse_rule_generation_confirmation
 from sats.stock_basic_lookup import load_stock_basic_frame, resolve_stock_mentions
 from sats.stock_question import extract_stock_symbols, extract_trade_date
-from sats.agent.tools.workflow_tools import infer_screening_rule, is_screened_stock_analysis_request
+from sats.agent.tools.workflow_tools import (
+    infer_screening_rule,
+    is_daily_portfolio_request,
+    is_screened_stock_analysis_request,
+)
 
 
 SHELL_TOKENS = {";", "&&", "||", "|", ">", ">>", "<", "$(", "`"}
@@ -174,11 +178,13 @@ def _planner_messages(
                 "你是 SATS autonomous agent planner，只能输出一个 JSON 对象。"
                 "你优先规划 tool step，也可以兼容规划受限 Python、交易意图和最终总结。"
                 "市场数据必须由 DuckDB cache 或 AStockDataProvider 经 SATS resolver 获取，不能让 LLM 填价格、成交量、K线或报价。"
-                "需要真实行情、财务、资金流、板块、指数、宏观、新闻公告或 TickFlow 盘口/分钟K时，先查看可用工具里的 data_capabilities，再选择对应工具；"
+                "需要真实行情、财务、资金流、板块、指数、宏观、新闻公告或 TickFlow 盘口/分钟K时，先查看可用工具里的 data_capabilities；"
+                "已知常规能力可直接选择现有 data/research 工具，不确定 operation 或 dataset 时先调用 data.astock_catalog，再用 data.astock_fetch；"
                 "如果目录没有对应能力，只能说明缺口，不能编造 provider 接口。"
                 "TickFlow 已覆盖的 A 股主行情优先使用 TickFlow/SATS resolver；Tushare 白名单数据优先用 Tushare 工具；"
                 "只有需要 TickFlow/Tushare 未覆盖的数据，或用户明确要求 AkShare/数据字典接口时，才用 AkShare catalog 工具。"
-                "AkShare 必须先通过 data.list_akshare_datasets 或 data.describe_akshare_dataset 确认 dataset，再用 data.get_akshare_data 取数；不要编造 AkShare 函数名。"
+                "AkShare 必须先通过 data.astock_catalog、data.list_akshare_datasets 或 data.describe_akshare_dataset 确认 dataset，"
+                "再用 data.astock_fetch 或 data.get_akshare_data 取数；不要编造 AkShare 函数名。"
                 "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.open / web.social_hot / web.hot_mentions；"
                 "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
@@ -291,7 +297,30 @@ def _fallback_plan(
     natural_task = {}
     analysis_mode = ""
     verification_checks: tuple[dict[str, Any], ...] = ()
-    if _is_serenity_screen_request(text):
+    if is_daily_portfolio_request(text):
+        phase = (
+            "report"
+            if any(term in text for term in ("日报", "总结", "收盘总结"))
+            else "review"
+            if any(term in text for term in ("复核", "收盘复核", "收盘检查"))
+            else "afternoon-buy"
+        )
+        trading_mode = "live" if any(term in lowered for term in ("实盘", "live")) else "paper"
+        steps.append(
+            _tool_step(
+                "daily_portfolio",
+                "workflow.daily_portfolio",
+                "运行盘中 10 选 5 组合工作流",
+                {
+                    "phase": phase,
+                    "trading_mode": trading_mode,
+                    "trade_date": extract_trade_date(text) or "",
+                    "llm_enabled": "不使用llm" not in lowered and "no-llm" not in lowered,
+                },
+                side_effect="write_db",
+            )
+        )
+    elif _is_serenity_screen_request(text):
         steps.append(
             _tool_step(
                 "serenity_screen",
@@ -412,7 +441,7 @@ def _fallback_plan(
                 )
             )
     elif _is_theme_stock_return_request(text):
-        steps.append(_theme_stock_returns_step(text))
+        steps.append(_theme_stock_returns_step(text, clean_symbols))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
     elif clean_symbols and _is_company_fundamentals_request(text):
@@ -484,7 +513,8 @@ def _fallback_plan(
         if knowledge_args.get("collections"):
             steps.append(_tool_step("knowledge_context", "research.knowledge_context", "补充知识库上下文", knowledge_args, side_effect="readonly"))
     elif _is_opportunity_request(text):
-        steps.append(_tool_step("discover", "research.discover_opportunities", "运行机会发现", {"query": text, "limit": _top_n(text)}, side_effect="write_artifact"))
+        limit = extract_candidate_limit(text, default=0) or _top_n(text)
+        steps.append(_tool_step("discover", "research.discover_opportunities", "运行机会发现", {"query": text, "limit": limit}, side_effect="write_artifact"))
         if any(term in text for term in ("报告", "保存", "导出")):
             steps.append(_tool_step("write_report", "research.write_report", "保存报告", {"title": "SATS Agent 机会发现报告"}, side_effect="write_artifact"))
     elif any(term in text for term in ("报价", "quote", "实时")) and clean_symbols:
@@ -600,7 +630,7 @@ def _augment_plan(
     reference_context: Any | None = None,
     resolved_symbols: list[str] | None = None,
 ) -> AgentPlan:
-    steps = [_with_resolved_step_symbols(step, resolved_symbols or []) for step in plan.steps]
+    steps = [_rewrite_invalid_stock_basic_fetch_step(_with_resolved_step_symbols(step, resolved_symbols or [])) for step in plan.steps]
     if not steps:
         return plan
     insert_at = _final_index(steps)
@@ -683,7 +713,7 @@ def _augment_plan(
             )
         return replace(plan, steps=tuple(steps))
     if _is_theme_stock_return_request(text):
-        return replace(plan, steps=(_theme_stock_returns_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
+        return replace(plan, steps=(_theme_stock_returns_step(text, symbols), AgentStep(step_id="final", kind="final", title="总结结果")))
     if symbols and _is_company_fundamentals_request(text):
         company_step = _tool_step(
             "company_fundamentals",
@@ -847,16 +877,22 @@ def _hot_sector_context_step(text: str) -> AgentStep:
     )
 
 
-def _theme_stock_returns_step(text: str) -> AgentStep:
+def _theme_stock_returns_step(text: str, symbols: list[str] | None = None) -> AgentStep:
+    arguments: dict[str, Any] = {
+        "query": text,
+        "period": _theme_return_period(text),
+        "limit": 30,
+    }
+    theme = _theme_return_peer_theme(text)
+    if theme:
+        arguments["theme"] = theme
+    if symbols:
+        arguments["symbols"] = symbols
     return _tool_step(
         "theme_stock_returns",
         "research.theme_stock_returns",
         "解析主题股票池并计算区间涨跌幅",
-        {
-            "query": text,
-            "period": _theme_return_period(text),
-            "limit": 30,
-        },
+        arguments,
         side_effect="readonly",
     )
 
@@ -1207,23 +1243,76 @@ def _is_theme_stock_return_request(text: str) -> bool:
     if not value:
         return False
     has_theme_stock = any(term in value for term in ("相关股票", "相关个股", "相关A股", "概念股", "产业链股票", "题材股"))
+    has_peer_theme = bool(_theme_return_peer_theme(value))
     has_period = bool(
         re.search(r"(近|过去|最近|内)?([0-9一二两三四五六七八九十]+)(个)?月", value)
         or "半年" in value
         or re.search(r"([0-9一二两三四五六七八九十]+)(日|天|周|季度|年)", value)
     )
     has_return_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现"))
-    return has_theme_stock and has_period and has_return_metric
+    return (has_theme_stock or has_peer_theme) and has_period and has_return_metric
 
 
 def _theme_return_period(text: str) -> str:
     value = re.sub(r"\s+", "", str(text or "").strip())
+    year = re.search(r"([0-9一二两三四五六七八九十]{1,3})年", value)
+    if year:
+        amount = _small_period_amount(year.group(1))
+        if amount:
+            return f"{amount}y"
     if "半年" in value or re.search(r"(近|过去|最近|内)?6(个)?月", value) or re.search(r"(近|过去|最近|内)?六(个)?月", value):
         return "6m"
     match = re.search(r"([0-9]{1,3})个?月", value)
     if match:
         return f"{match.group(1)}m"
     return "6m"
+
+
+def _theme_return_peer_theme(text: str) -> str:
+    value = re.sub(r"\s+", "", str(text or "").strip())
+    patterns = (
+        r"(?:在|于)(?P<theme>[\u4e00-\u9fffA-Za-z0-9+·/.\-]{2,30}?)(?:中|里|里面|板块|行业|概念)",
+        r"(?P<theme>[\u4e00-\u9fffA-Za-z0-9+·/.\-]{2,30}?)(?:板块|行业|概念)(?:中|里|里面)?",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, value)
+        if not match:
+            continue
+        theme = _clean_peer_theme(match.group("theme"))
+        if theme:
+            return theme
+    return ""
+
+
+def _clean_peer_theme(value: str) -> str:
+    theme = str(value or "").strip(" ，,。？?；;：:")
+    for prefix in ("为什么", "为何", "请问"):
+        if theme.startswith(prefix):
+            theme = theme[len(prefix) :]
+    for suffix in ("相关", "相关股票", "相关个股", "股票", "个股"):
+        if theme.endswith(suffix):
+            theme = theme[: -len(suffix)]
+    return theme.strip()
+
+
+def _small_period_amount(value: str) -> int | None:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text in digits:
+        return digits[text]
+    if text == "十":
+        return 10
+    if text.startswith("十") and len(text) == 2 and text[1] in digits:
+        return 10 + digits[text[1]]
+    if text.endswith("十") and len(text) == 2 and text[0] in digits:
+        return digits[text[0]] * 10
+    if "十" in text:
+        head, tail = text.split("十", 1)
+        if head in digits and tail in digits:
+            return digits[head] * 10 + digits[tail]
+    return None
 
 
 def _is_akshare_data_request(text: str) -> bool:
@@ -1583,6 +1672,19 @@ def _message_may_contain_stock_name(message: str) -> bool:
             "新闻",
             "报价",
             "股价",
+            "涨幅",
+            "涨跌幅",
+            "跌幅",
+            "收益",
+            "表现",
+            "排名",
+            "垫底",
+            "倒数",
+            "同行",
+            "同业",
+            "板块",
+            "行业",
+            "概念",
             "持仓",
             "买入",
             "卖出",
@@ -1590,6 +1692,37 @@ def _message_may_contain_stock_name(message: str) -> bool:
             "DSA",
             "DAS",
         )
+    )
+
+
+def _rewrite_invalid_stock_basic_fetch_step(step: AgentStep) -> AgentStep:
+    if step.kind != "tool" or step.tool_name != "data.astock_fetch":
+        return step
+    arguments = dict(step.arguments or {})
+    if str(arguments.get("operation") or "").strip() != "astock.stock_basic":
+        return step
+    params = arguments.get("params") if isinstance(arguments.get("params"), dict) else {}
+    lookup: dict[str, Any] = {}
+    for key in ("name", "query"):
+        value = str(params.get(key) or "").strip()
+        if value:
+            lookup[key] = value
+    symbols = params.get("symbols") if isinstance(params.get("symbols"), list) else []
+    symbol = str(params.get("symbol") or "").strip()
+    if symbol:
+        symbols = [*symbols, symbol]
+    if symbols:
+        lookup["symbols"] = [str(item) for item in symbols if str(item or "").strip()]
+    if arguments.get("limit") not in (None, ""):
+        lookup["limit"] = arguments.get("limit")
+    if not lookup:
+        return step
+    return replace(
+        step,
+        tool_name="data.stock_basic",
+        title="安全查询股票基础信息",
+        arguments=lookup,
+        side_effect="write_db",
     )
 
 

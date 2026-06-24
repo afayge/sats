@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSpec, object_schema
+from sats.portfolio import DailyPortfolioAgent, PortfolioConfig
 from sats.natural_task import (
     ScreenedAnalysisMode,
     build_screened_natural_task_spec,
@@ -20,6 +21,39 @@ DEFAULT_SCREENED_WORKFLOW_RULE = "ma_volume_relative_strength"
 
 def workflow_tool_specs() -> list[AgentToolSpec]:
     return [
+        AgentToolSpec(
+            name="workflow.daily_portfolio",
+            description=(
+                "运行 Portfolio 分时 10 选 5 组合工作流。paper 模式尾盘自动模拟买入、"
+                "早盘/盘中条件卖出并生成日报；live 模式只创建逐笔待确认委托，不直接调用 QMT。"
+            ),
+            category="workflow",
+            side_effect="write_db",
+            timeout=600,
+            input_schema=object_schema(
+                {
+                    "phase": {
+                        "type": "string",
+                        "enum": [
+                            "morning",
+                            "morning-final",
+                            "review",
+                            "afternoon-scan",
+                            "afternoon-buy",
+                            "plan-finalize",
+                            "recheck",
+                            "report",
+                            "scan",
+                            "close",
+                        ],
+                    },
+                    "trading_mode": {"type": "string", "enum": ["paper", "live"]},
+                    "trade_date": {"type": "string"},
+                    "llm_enabled": {"type": "boolean"},
+                }
+            ),
+            executor=_daily_portfolio,
+        ),
         AgentToolSpec(
             name="workflow.screened_stock_analysis",
             description=(
@@ -42,6 +76,59 @@ def workflow_tool_specs() -> list[AgentToolSpec]:
             executor=_screened_stock_analysis,
         )
     ]
+
+
+def is_daily_portfolio_request(text: str) -> bool:
+    source = str(text or "").lower()
+    return any(
+        term in source
+        for term in (
+            "10选5",
+            "10 选 5",
+            "十选五",
+            "组合agent",
+            "组合 agent",
+            "自动模拟交易",
+            "每日组合",
+            "盘中动态选股",
+            "daily portfolio",
+        )
+    )
+
+
+def _daily_portfolio(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    mode = str(arguments.get("trading_mode") or "paper").strip().lower()
+    result = DailyPortfolioAgent(
+        settings=context.settings,
+        storage=context.storage,
+    ).run(
+        phase=str(arguments.get("phase") or "afternoon-buy"),
+        trade_date=str(arguments.get("trade_date") or "").strip() or None,
+        config=PortfolioConfig(
+            trading_mode=mode,
+            llm_enabled=bool(arguments.get("llm_enabled", True)),
+        ),
+    )
+    payload = result.to_dict()
+    selected = [row for row in payload["candidates"] if row.get("selected")]
+    lines = [
+        result.message,
+        (
+            f"大盘评分 {result.market_regime.score:.1f}，"
+            f"仓位上限 {result.market_regime.exposure_limit:.0%}"
+        ),
+    ]
+    for row in selected:
+        lines.append(
+            f"- {row['ts_code']} {row['name']} 评分 {row['total_score']:.2f} "
+            f"止损 {row['stop_loss']:.2f} 止盈 {row['take_profit_1']:.2f}/{row['take_profit_2']:.2f}"
+        )
+    return AgentToolResult(
+        status="done" if result.status in {"done", "partial", "skipped"} else "error",
+        content="\n".join(lines),
+        payload={"daily_portfolio": payload},
+        data_names=("盘中组合", "模拟交易" if mode == "paper" else "实盘待确认委托"),
+    )
 
 
 def is_screened_stock_analysis_request(text: str) -> bool:

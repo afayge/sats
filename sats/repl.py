@@ -69,6 +69,8 @@ CLI_COMMANDS = [
     "monitor-display",
     "schedule",
     "qmt",
+    "portfolio",
+    "catalog",
     "serve",
 ]
 
@@ -116,6 +118,8 @@ HELP_COMMANDS = [
     ("/monitor-display", "监控信息显示"),
     ("/schedule", "定时任务"),
     ("/qmt", "QMT 实盘交易"),
+    ("/portfolio", "盘中 10 选 5 组合 Agent"),
+    ("/catalog", "统一能力目录"),
     ("/serve", "启动 API 服务"),
 ]
 
@@ -174,6 +178,11 @@ HELP_EXAMPLES = [
     ("/qmt positions", "查看 QMT 持仓"),
     ("/monitor positions list", "同步并查看监控持仓"),
     ("/qmt buy --symbol 000001 --quantity 100 --price-type latest", "QMT 实盘买入"),
+    ("/portfolio run --phase afternoon-buy --mode paper", "尾盘 10 选 5 并自动模拟买入"),
+    ("/portfolio run --phase report --mode paper", "生成交易日 Markdown 总结"),
+    ("/portfolio positions --mode paper", "查看模拟组合持仓"),
+    ("/portfolio orders list --mode live", "查看待人工确认实盘委托"),
+    ("/portfolio schedule install --mode paper", "安装交易日盘中组合任务"),
     ("/model status", "查看当前模型"),
     ("/model ping --timeout 20", "检查主模型连通性"),
     ("/model use XIAOMIMIMO --target light", "切换轻量模型"),
@@ -187,6 +196,7 @@ HELP_EXAMPLES = [
     ("/knowledge search --query 三买 --knowledge chan", "搜索本地知识库"),
     ("/knowledge ingest --knowledge chan --path knowledge/chan/rules", "导入知识库文档"),
     ("/knowledge sync-stock-basic", "同步股票名称代码库"),
+    ("/catalog --section providers --provider tushare --query 资金流 --json", "查询数据接口目录"),
 ]
 
 BANNER_CONTROL_COMMANDS = [
@@ -359,6 +369,11 @@ COMPLETION_DESCRIPTIONS = {
     "--plan-id": "监控计划 ID",
     "--item-id": "监控计划项目 ID",
     "--group-id": "监控触发组 ID",
+    "--section": "能力目录分区",
+    "--provider": "数据提供方",
+    "--query": "搜索关键词",
+    "--offset": "分页偏移",
+    "--writes-db": "筛选写库能力",
     "--select-watchlist": "选择导入关注列表",
     "--no-select-watchlist": "跳过关注列表选择",
     "positions": "QMT 持仓",
@@ -806,16 +821,52 @@ def _runtime_status_bar(settings, state: ReplState) -> str:
         monitor_status = "run" if str(monitor_runtime.get("status") or "").lower() == "running" else "stop"
         tasks = storage.list_scheduled_tasks()
         enabled_count = sum(1 for task in tasks if task.get("enabled"))
-        status = f"monitor:{monitor_status} ｜ schedule:{enabled_count}/{len(tasks)}"
+        status = f"monitor:{monitor_status} ｜ schedule:{enabled_count}/{len(tasks)} ｜ {_portfolio_status_bar(storage)}"
     except Exception:
-        status = "monitor:stop ｜ schedule:0/0"
+        status = "monitor:stop ｜ schedule:0/0 ｜ pf:--"
     state.status_bar_cache = status
     state.status_bar_cache_at = now
     return status
 
 
+def _portfolio_status_bar(storage: DuckDBStorage) -> str:
+    try:
+        from sats.portfolio.storage import PortfolioStore
+
+        store = PortfolioStore(storage)
+        account = store.paper_account("default")
+        if not account:
+            return "pf:--"
+        total_asset = _status_number(account.get("total_asset"))
+        initial_cash = _status_number(account.get("initial_cash"))
+        market_value = _status_number(account.get("market_value"))
+        if total_asset is None or initial_cash is None or total_asset <= 0 or initial_cash <= 0:
+            return "pf:--"
+        positions = store.paper_positions("default")
+        market_regime = store.latest_market_regime()
+        score = _status_number(market_regime.get("score")) if market_regime else None
+        score_text = "--" if score is None else f"{score:.0f}"
+        exposure_pct = market_value / total_asset * 100.0 if market_value is not None else 0.0
+        return_pct = (total_asset / initial_cash - 1.0) * 100.0
+        return f"pf:持{len(positions)} 仓{exposure_pct:.0f}% 盈{return_pct:+.1f}% 盘{score_text}"
+    except Exception:
+        return "pf:--"
+
+
+def _status_number(value) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number:
+        return None
+    return number
+
+
 def _refresh_runtime_status_bar(state: ReplState, command: str) -> None:
-    if command in {"monitor", "schedule"}:
+    if command in {"monitor", "schedule", "portfolio"}:
         state.status_bar_cache = ""
         state.status_bar_cache_at = 0.0
 

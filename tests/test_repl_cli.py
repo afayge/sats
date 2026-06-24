@@ -235,7 +235,7 @@ class ReplCliTest(unittest.TestCase):
             patch("sats.repl.ReplPromptSession") as prompt_session,
             patch("sats.repl.print_formatted_text", side_effect=lambda fragments: formatted.append(list(fragments))),
             patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
-            patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ schedule:0/0"),
+            patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ schedule:0/0 ｜ pf:--"),
             patch("builtins.print") as printer,
         ):
             prompt_session.return_value.prompt.return_value = "/exit"
@@ -257,7 +257,7 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(get_cwidth(separators[0][0][1]), 90)
         self.assertTrue(callable(bottom_toolbar))
         self.assertTrue(bottom_toolbar_text.startswith("  OpenAI:GPT-5.5  ｜  0.0s  ｜  Last：--"))
-        self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+        self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
         self.assertEqual(get_cwidth(bottom_toolbar_text), 90)
         completer = prompt_session.call_args.kwargs["completer"]
         self.assertEqual(completer.meta_dict["/discover"], "短线机会发现")
@@ -321,14 +321,14 @@ class ReplCliTest(unittest.TestCase):
 
         with (
             patch("sats.repl.time.monotonic", side_effect=lambda: clock[0]),
-            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
+            patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=100)),
         ):
             state = ReplState()
             toolbar = _status_toolbar(settings, state)
             toolbar_text = fragment_list_to_text(toolbar())
             self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  0.0s  ｜  Last：--"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
-            self.assertEqual(get_cwidth(toolbar_text), 90)
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertEqual(get_cwidth(toolbar_text), 100)
 
             clock[0] = 10.0
 
@@ -342,8 +342,8 @@ class ReplCliTest(unittest.TestCase):
             self.assertEqual(output, ["results"])
             toolbar_text = fragment_list_to_text(toolbar())
             self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  53.2s  ｜  Last：43.2s"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
-            self.assertEqual(get_cwidth(toolbar_text), 90)
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertEqual(get_cwidth(toolbar_text), 100)
 
     def test_repl_status_toolbar_shows_monitor_and_schedule_counts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -382,20 +382,96 @@ class ReplCliTest(unittest.TestCase):
 
                 toolbar_text = fragment_list_to_text(toolbar())
                 self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  0.0s  ｜  Last：--"))
-                self.assertTrue(toolbar_text.endswith("monitor:run ｜ schedule:1/2  "))
+                self.assertTrue(toolbar_text.endswith("monitor:run ｜ schedule:1/2 ｜ pf:--  "))
                 self.assertEqual(get_cwidth(toolbar_text), 100)
 
-    def test_repl_monitor_and_schedule_commands_refresh_status_cache(self) -> None:
-        state = ReplState(status_bar_cache="monitor:stop ｜ schedule:0/0", status_bar_cache_at=100.0)
+    def test_repl_status_toolbar_shows_empty_portfolio_account(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.initialize()
+            with storage.connect() as con:
+                con.execute(
+                    """
+                    INSERT INTO paper_accounts
+                        (account_id, initial_cash, cash, available_cash, market_value,
+                         total_asset, realized_pnl, equity_peak, max_drawdown_pct)
+                    VALUES ('default', 1000000, 1000000, 1000000, 0, 1000000, 0, 1000000, 0)
+                    """
+                )
+            settings = SimpleNamespace(db_path=db, llm_provider="openai", openai_model="gpt-4o-mini")
+
+            with (
+                patch("sats.repl.time.monotonic", return_value=0.0),
+                patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=110)),
+            ):
+                toolbar_text = fragment_list_to_text(_status_toolbar(settings, ReplState())())
+
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:持0 仓0% 盈+0.0% 盘--  "))
+            self.assertEqual(get_cwidth(toolbar_text), 110)
+
+    def test_repl_status_toolbar_shows_portfolio_position_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.initialize()
+            with storage.connect() as con:
+                con.execute(
+                    """
+                    INSERT INTO paper_accounts
+                        (account_id, initial_cash, cash, available_cash, market_value,
+                         total_asset, realized_pnl, equity_peak, max_drawdown_pct)
+                    VALUES ('default', 1000000, 798000, 798000, 252000, 1050000, 0, 1050000, 0)
+                    """
+                )
+                con.execute(
+                    """
+                    INSERT INTO paper_positions
+                        (account_id, ts_code, name, quantity, available_quantity,
+                         cost_price, price, market_value, pnl, pnl_pct, peak_price,
+                         trough_price, opened_trade_date, last_buy_trade_date, plan_id)
+                    VALUES ('default', '000001.SZ', '平安银行', 100, 100,
+                            2400, 2520, 252000, 12000, 5, 2520, 2400,
+                            '20260623', '20260623', 'portfolio_plan_test')
+                    """
+                )
+                con.execute(
+                    """
+                    INSERT INTO market_regime_snapshots
+                        (snapshot_id, run_id, trade_date, score, exposure_limit,
+                         buy_allowed, data_source, details_json)
+                    VALUES ('market_test', 'run_test', '20260624', 58.7, 0.35,
+                            TRUE, 'test', '{}')
+                    """
+                )
+            settings = SimpleNamespace(db_path=db, llm_provider="openai", openai_model="gpt-4o-mini")
+
+            with (
+                patch("sats.repl.time.monotonic", return_value=0.0),
+                patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=120)),
+            ):
+                toolbar_text = fragment_list_to_text(_status_toolbar(settings, ReplState())())
+
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:持1 仓24% 盈+5.0% 盘59  "))
+            self.assertEqual(get_cwidth(toolbar_text), 120)
+
+    def test_repl_monitor_schedule_and_portfolio_commands_refresh_status_cache(self) -> None:
+        state = ReplState(status_bar_cache="monitor:stop ｜ schedule:0/0 ｜ pf:--", status_bar_cache_at=100.0)
         output: list[str] = []
 
         self.assertTrue(handle_repl_line("/monitor status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertEqual(state.status_bar_cache, "")
         self.assertEqual(state.status_bar_cache_at, 0.0)
 
-        state.status_bar_cache = "monitor:run ｜ schedule:1/1"
+        state.status_bar_cache = "monitor:run ｜ schedule:1/1 ｜ pf:持0 仓0% 盈+0.0% 盘--"
         state.status_bar_cache_at = 100.0
         self.assertTrue(handle_repl_line("/schedule status", runner=lambda argv: 0, printer=output.append, state=state))
+        self.assertEqual(state.status_bar_cache, "")
+        self.assertEqual(state.status_bar_cache_at, 0.0)
+
+        state.status_bar_cache = "monitor:run ｜ schedule:1/1 ｜ pf:持1 仓24% 盈+5.0% 盘59"
+        state.status_bar_cache_at = 100.0
+        self.assertTrue(handle_repl_line("/portfolio status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertEqual(state.status_bar_cache, "")
         self.assertEqual(state.status_bar_cache_at, 0.0)
 
@@ -447,7 +523,7 @@ class ReplCliTest(unittest.TestCase):
             self.assertEqual(output, ["bye"])
             toolbar_text = fragment_list_to_text(toolbar())
             self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  20.0s  ｜  Last：5.0s"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0  "))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
             self.assertEqual(get_cwidth(toolbar_text), 90)
 
     def test_repl_completer_shows_command_descriptions(self) -> None:
