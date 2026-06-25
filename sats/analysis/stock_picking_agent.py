@@ -98,6 +98,26 @@ _GENERIC_SHORT_UP_QUANTIFIERS = (
     "10只",
     "10支",
 )
+_THEME_ALIASES = {
+    "存储": "存储芯片",
+    "内存": "存储芯片",
+    "内存存储": "存储芯片",
+    "内存和存储": "存储芯片",
+    "内存与存储": "存储芯片",
+    "半导体存储": "存储芯片",
+    "存储设备": "存储芯片",
+    "存储器": "存储芯片",
+    "固态硬盘": "存储芯片",
+    "闪存": "存储芯片",
+    "dram": "存储芯片",
+    "nand": "存储芯片",
+    "flash": "存储芯片",
+    "ssd": "存储芯片",
+    "dram/nand": "存储芯片",
+    "dramnand": "存储芯片",
+    "dram和nand": "存储芯片",
+    "dram与nand": "存储芯片",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -518,7 +538,7 @@ def resolve_theme_universe(
     llm_enabled: bool = True,
     max_symbols: int = 30,
 ) -> ThemeUniverse:
-    theme = _extract_theme_from_query(query)
+    theme = _canonical_theme(_extract_theme_from_query(query))
     if not theme:
         return ThemeUniverse()
 
@@ -884,9 +904,19 @@ def _validate_llm_theme_stocks(
         local_name = ""
         if _is_a_share_ts_code(ts_code) and ts_code in by_code:
             if raw_name and _name_conflicts_with_code(raw_name, ts_code, basic):
-                warnings.append(f"llm_stock_{index}: code_name_conflict:{ts_code}:{raw_name}")
-            resolved = ts_code
-            local_name = str(by_code.get(ts_code, {}).get("name") or "").strip()
+                matched = match_stock_name(raw_name, basic)
+                if len(matched) == 1:
+                    candidate = str(matched.iloc[0]["ts_code"])
+                    if _is_a_share_ts_code(candidate):
+                        warnings.append(f"llm_stock_{index}: code_name_conflict:{ts_code}:{raw_name}->resolved_by_name:{candidate}")
+                        resolved = candidate
+                        local_name = str(matched.iloc[0].get("name") or "").strip()
+                if not resolved:
+                    warnings.append(f"llm_stock_{index}: code_name_conflict:{ts_code}:{raw_name}:rejected")
+                    continue
+            else:
+                resolved = ts_code
+                local_name = str(by_code.get(ts_code, {}).get("name") or "").strip()
         elif raw_name:
             matched = match_stock_name(raw_name, basic)
             if len(matched) == 1:
@@ -1013,7 +1043,23 @@ def _clean_theme_candidate(value: str) -> str:
         return ""
     if len(text) > 24:
         return ""
+    canonical = _canonical_theme(text)
+    if canonical:
+        return canonical
     return text.upper() if re.fullmatch(r"[A-Za-z0-9+\-_/]+", text) else text
+
+
+def _canonical_theme(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    alias = _THEME_ALIASES.get(_theme_alias_key(text))
+    return alias or text
+
+
+def _theme_alias_key(value: str) -> str:
+    text = _theme_key(value)
+    return re.sub(r"[，,、\s]+", "", text)
 
 
 def _is_generic_short_up_theme_phrase(value: str) -> bool:

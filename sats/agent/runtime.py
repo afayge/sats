@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -19,6 +20,11 @@ from sats.llm import ChatLLM
 from sats.memory import ChatMemoryStore
 from sats.skills import default_skills_dir, load_skills
 from sats.storage.duckdb import DuckDBStorage
+
+
+_STEP_PLACEHOLDER_RE = re.compile(
+    r"^\$\{(?P<step>[^.\[\]{}]+)\.(?P<path>[A-Za-z_][A-Za-z0-9_.]*)(?:\[(?P<start>\d*):(?P<end>\d*)\])?\}$"
+)
 
 
 def run_agent_once(
@@ -75,7 +81,14 @@ def run_agent_once(
             tool_registry=tool_registry,
             reference_context=reference_context,
         )
-        recorder.emit("plan_ready", item_type="plan", item_name="agent", status="done", content=plan.objective, payload=plan.to_dict())
+        recorder.emit(
+            "plan_ready",
+            item_type="plan",
+            item_name="agent",
+            status="done",
+            content=plan.objective,
+            payload=plan.to_dict(),
+        )
         tool_context = AgentToolContext(
             settings=settings,
             storage=storage,
@@ -94,7 +107,7 @@ def run_agent_once(
         steps = list(plan.steps)
         index = 0
         iteration = 0
-        replanned = False
+        replanned_error_signatures: set[str] = set()
         catalog_replanned = False
         while index < len(steps) and iteration < max(1, policy.max_iterations):
             step = steps[index]
@@ -115,6 +128,16 @@ def run_agent_once(
                 trade_context={"source_step_id": step.step_id},
             )
             observation = _with_step_verification(step, observation)
+            if observation.status == "error" and step.kind != "final":
+                observation = _with_replan_decision(
+                    observation,
+                    _replan_decision(
+                        observation,
+                        previous_observations=observations,
+                        replanned_error_signatures=replanned_error_signatures,
+                        llm_factory=llm_factory,
+                    ),
+                )
             observations.append(observation)
             recorder.complete_item(
                 item_id,
@@ -133,25 +156,33 @@ def run_agent_once(
             )
             if step.kind == "final":
                 break
-            if observation.status == "error" and _is_repeated_error(observations):
-                observations.append(
-                    AgentObservation(
-                        step_id="repeated_error",
-                        kind="runtime",
-                        status="error",
-                        content=f"agent stopped after repeated error: {observation.content}",
+            if observation.status == "error":
+                decision = observation.payload.get("replan_decision") if isinstance(observation.payload, dict) else {}
+                decision = decision if isinstance(decision, dict) else {}
+                if decision.get("repeated"):
+                    observations.append(
+                        AgentObservation(
+                            step_id="repeated_error",
+                            kind="runtime",
+                            status="error",
+                            content=f"agent stopped after repeated error: {observation.content}",
+                            payload={"replan_decision": decision},
+                        )
                     )
-                )
-                break
-            if observation.status == "error" and not replanned and llm_factory is not None:
-                replanned = True
+                    break
+                if not decision.get("should_replan"):
+                    break
+                signature = str(decision.get("error_signature") or "")
+                if signature:
+                    replanned_error_signatures.add(signature)
                 replan = build_agent_plan(
-                    _replan_request(message, observations),
+                    _replan_request(message, observations, decision),
                     settings=settings,
                     policy=policy,
                     llm_factory=llm_factory,
                     tool_registry=tool_registry,
                     policy_message=message,
+                    reference_context=reference_context,
                 )
                 replacement = [item for item in replan.steps if item.kind != "final"]
                 if replacement:
@@ -164,6 +195,17 @@ def run_agent_once(
                         payload=replan.to_dict(),
                     )
                     steps = steps[:index] + replacement + [AgentStep(step_id="final", kind="final", title="总结结果")]
+                    continue
+                observations.append(
+                    AgentObservation(
+                        step_id="replan_unavailable",
+                        kind="runtime",
+                        status="error",
+                        content="agent replan produced no replacement steps",
+                        payload={"replan_decision": decision},
+                    )
+                )
+                break
             if (
                 observation.status == "done"
                 and not catalog_replanned
@@ -178,6 +220,7 @@ def run_agent_once(
                     llm_factory=llm_factory,
                     tool_registry=tool_registry,
                     policy_message=message,
+                    reference_context=reference_context,
                 )
                 replacement = [item for item in replan.steps if item.kind != "final"]
                 if replacement:
@@ -307,7 +350,22 @@ def _execute_step(
     if gated is not None:
         return gated
     if step.kind == "tool":
-        if step.tool_name == "research.write_report" and not str(step.arguments.get("content") or "").strip():
+        raw_arguments = dict(step.arguments or {})
+        arguments, placeholder_error = _resolve_tool_arguments(raw_arguments, observations)
+        argument_payload = _tool_argument_payload(arguments if not placeholder_error else raw_arguments, raw_arguments=raw_arguments)
+        if placeholder_error:
+            return AgentObservation(
+                step_id=step.step_id,
+                kind="tool",
+                status="error",
+                content=placeholder_error,
+                payload={
+                    "tool_name": step.tool_name,
+                    **argument_payload,
+                    "placeholder_error": placeholder_error,
+                },
+            )
+        if step.tool_name == "research.write_report" and not str(arguments.get("content") or "").strip():
             return AgentObservation(
                 step_id=step.step_id,
                 kind="tool",
@@ -315,7 +373,7 @@ def _execute_step(
                 content="报告将在最终分析生成后保存。",
                 payload={
                     "tool_name": step.tool_name,
-                    "arguments": _jsonable(step.arguments),
+                    **argument_payload,
                     "result": {
                         "status": "done",
                         "content": "deferred agent report",
@@ -327,7 +385,7 @@ def _execute_step(
                     "artifacts": [],
                 },
             )
-        result = tool_registry.execute(step.tool_name, step.arguments, tool_context)
+        result = tool_registry.execute(step.tool_name, arguments, tool_context)
         return AgentObservation(
             step_id=step.step_id,
             kind="tool",
@@ -335,7 +393,7 @@ def _execute_step(
             content=result.content,
             payload={
                 "tool_name": step.tool_name,
-                "arguments": _jsonable(step.arguments),
+                **argument_payload,
                 "result": result.to_dict(),
                 "data_names": list(result.data_names),
                 "artifacts": list(result.artifacts),
@@ -377,6 +435,136 @@ def _execute_step(
             payload=audit.to_dict(),
         )
     return AgentObservation(step_id=step.step_id, kind=step.kind, status="done", content=step.title or "done")
+
+
+def _resolve_tool_arguments(arguments: dict[str, Any], observations: list[AgentObservation]) -> tuple[dict[str, Any], str]:
+    resolved, error = _resolve_argument_placeholders(arguments, observations)
+    if error:
+        return arguments, error
+    return dict(resolved) if isinstance(resolved, dict) else arguments, ""
+
+
+def _resolve_argument_placeholders(value: Any, observations: list[AgentObservation]) -> tuple[Any, str]:
+    if isinstance(value, dict):
+        resolved: dict[str, Any] = {}
+        for key, item in value.items():
+            child, error = _resolve_argument_placeholders(item, observations)
+            if error:
+                return value, error
+            resolved[key] = child
+        return resolved, ""
+    if isinstance(value, list):
+        resolved_items: list[Any] = []
+        for item in value:
+            child, error = _resolve_argument_placeholders(item, observations)
+            if error:
+                return value, error
+            if isinstance(item, str) and _STEP_PLACEHOLDER_RE.match(item.strip()) and isinstance(child, list):
+                resolved_items.extend(child)
+            else:
+                resolved_items.append(child)
+        return resolved_items, ""
+    if isinstance(value, tuple):
+        resolved_list, error = _resolve_argument_placeholders(list(value), observations)
+        return (tuple(resolved_list), "") if not error else (value, error)
+    if isinstance(value, str):
+        return _resolve_string_placeholder(value, observations)
+    return value, ""
+
+
+def _resolve_string_placeholder(value: str, observations: list[AgentObservation]) -> tuple[Any, str]:
+    text = value.strip()
+    match = _STEP_PLACEHOLDER_RE.match(text)
+    if not match:
+        return value, ""
+    resolved, error = _placeholder_value(
+        text,
+        observations,
+        step_id=str(match.group("step") or ""),
+        path=str(match.group("path") or ""),
+        start=str(match.group("start") or ""),
+        end=str(match.group("end") or ""),
+    )
+    return (value, error) if error else (resolved, "")
+
+
+def _placeholder_value(
+    placeholder: str,
+    observations: list[AgentObservation],
+    *,
+    step_id: str,
+    path: str,
+    start: str,
+    end: str,
+) -> tuple[Any, str]:
+    observation = next((item for item in observations if item.step_id == step_id), None)
+    if observation is None:
+        return None, f"unresolved agent placeholder {placeholder}: observation {step_id} not found"
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    if path == "symbols":
+        value: Any = _collect_symbol_values(payload)
+        if not value:
+            return None, f"unresolved agent placeholder {placeholder}: no symbols found in observation {step_id}"
+    else:
+        found, value = _lookup_payload_path(payload, path.split("."))
+        if not found:
+            return None, f"unresolved agent placeholder {placeholder}: path {path} not found in observation {step_id}"
+    if start or end:
+        if not isinstance(value, list):
+            return None, f"unresolved agent placeholder {placeholder}: slice requires a list value"
+        value = value[int(start) if start else None : int(end) if end else None]
+    return value, ""
+
+
+def _lookup_payload_path(value: Any, path: list[str]) -> tuple[bool, Any]:
+    current = value
+    for part in path:
+        if isinstance(current, dict) and part in current:
+            current = current[part]
+        else:
+            return False, None
+    return True, current
+
+
+def _collect_symbol_values(value: Any) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+
+    def add(raw: Any) -> None:
+        text = str(raw or "").strip()
+        if text and text not in seen:
+            seen.add(text)
+            result.append(text)
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for key, item in node.items():
+                clean_key = str(key or "")
+                if clean_key == "symbols":
+                    if isinstance(item, (list, tuple, set)):
+                        for symbol in item:
+                            if isinstance(symbol, (dict, list, tuple, set)):
+                                walk(symbol)
+                            else:
+                                add(symbol)
+                    elif not isinstance(item, dict):
+                        add(item)
+                elif clean_key == "ts_code":
+                    add(item)
+                walk(item)
+        elif isinstance(node, (list, tuple, set)):
+            for item in node:
+                walk(item)
+
+    walk(value)
+    return result
+
+
+def _tool_argument_payload(arguments: dict[str, Any], *, raw_arguments: dict[str, Any]) -> dict[str, Any]:
+    payload = {"arguments": _jsonable(arguments)}
+    if arguments != raw_arguments:
+        payload["raw_arguments"] = _jsonable(raw_arguments)
+    return payload
 
 
 def _gated_step_observation(step: Any, *, tool_registry: AgentToolRegistry, policy: AgentExecutionPolicy) -> AgentObservation | None:
@@ -432,6 +620,18 @@ def _with_step_verification(step: Any, observation: AgentObservation) -> AgentOb
     )
 
 
+def _with_replan_decision(observation: AgentObservation, decision: dict[str, Any]) -> AgentObservation:
+    payload = dict(observation.payload or {})
+    payload["replan_decision"] = decision
+    return AgentObservation(
+        step_id=observation.step_id,
+        kind=observation.kind,
+        status=observation.status,
+        content=observation.content,
+        payload=payload,
+    )
+
+
 def _trade_intent(payload: dict[str, Any], *, source_step_id: str) -> TradeIntent:
     return TradeIntent(
         ts_code=str(payload.get("ts_code") or payload.get("symbol") or ""),
@@ -458,25 +658,33 @@ def _with_source(intent: TradeIntent, source_step_id: str) -> TradeIntent:
     )
 
 
-def _replan_request(message: str, observations: list[AgentObservation]) -> str:
+def _replan_request(message: str, observations: list[AgentObservation], decision: dict[str, Any]) -> str:
     return (
-        "这是一次 SATS Agent replan。请基于原目标和已失败/已完成 observations，"
+        "这是一次 SATS Agent error recovery replan。请基于原目标、已完成 observations 和最新失败原因，"
         "输出新的严格 JSON plan，只包含后续替代步骤或 final。不要重复已经成功的步骤。"
-        f"\n原目标：{message}\nobservations={json.dumps([item.to_dict() for item in observations], ensure_ascii=False, default=str)}"
+        "不要规划会再次触发同一错误签名的步骤。不要绕过 confirmation、auto_trade、live_trading 或人工审批限制。"
+        "只能使用 planner 上下文里真实存在的工具、SATS argv 命令和 provider/dataset；不要编造 provider 接口、tool 或 dataset。"
+        f"\n原目标：{message}"
+        f"\nerror_recovery_decision={json.dumps(decision, ensure_ascii=False, default=str)}"
+        f"\nobservations={json.dumps([item.to_dict() for item in observations], ensure_ascii=False, default=str)}"
     )
 
 
 def _catalog_replan_request(message: str, observations: list[AgentObservation]) -> str:
     return (
-        "这是一次 SATS Agent catalog replan。你刚刚拿到了 AkShare 数据字典 observation。"
-        "如果原目标需要真实数据，请从 observation 中选择最匹配的 dataset，规划 data.describe_akshare_dataset 或 data.get_akshare_data；"
-        "如果只是询问接口清单，则直接 final。不要编造未出现在 catalog 的 dataset。"
+        "这是一次 SATS Agent catalog replan。你刚刚拿到了 SATS 数据目录 observation。"
+        "如果 observation 来自 data.astock_catalog 且原目标需要真实数据，请从 astock_catalog.items 中选择最匹配的 operation，"
+        "规划 data.astock_fetch；dataset 类 operation 使用 tushare.dataset.fetch 或 akshare.dataset.fetch，并把 dataset 放入 params.dataset。"
+        "如果 observation 来自旧 AkShare 数据字典，请从 observation 中选择最匹配的 dataset，规划 data.describe_akshare_dataset 或 data.get_akshare_data；"
+        "如果只是询问接口清单，则直接 final。不要编造未出现在 catalog 的 operation 或 dataset。"
         f"\n原目标：{message}\nobservations={json.dumps([item.to_dict() for item in observations], ensure_ascii=False, default=str)}"
     )
 
 
 def _should_replan_after_catalog(message: str, step: AgentStep, remaining_steps: list[AgentStep]) -> bool:
-    if step.kind != "tool" or step.tool_name not in {"data.list_akshare_datasets", "data.describe_akshare_dataset"}:
+    if step.kind != "tool" or step.tool_name not in {"data.astock_catalog", "data.list_akshare_datasets", "data.describe_akshare_dataset"}:
+        return False
+    if step.tool_name == "data.astock_catalog" and any(item.kind == "tool" and item.tool_name == "data.astock_fetch" for item in remaining_steps):
         return False
     if any(item.kind == "tool" and item.tool_name == "data.get_akshare_data" for item in remaining_steps):
         return False
@@ -487,21 +695,91 @@ def _should_replan_after_catalog(message: str, step: AgentStep, remaining_steps:
     return any(term in lowered for term in ("akshare", "ak share")) or any(term in text for term in ("数据", "行情", "指标", "分析", "查询", "获取", "取数"))
 
 
-def _is_repeated_error(observations: list[AgentObservation]) -> bool:
-    if len(observations) < 2:
-        return False
-    current = observations[-1]
-    if current.status != "error":
-        return False
-    signature = _error_signature(current)
-    return bool(signature) and any(_error_signature(item) == signature for item in observations[:-1] if item.status == "error")
+def _replan_decision(
+    observation: AgentObservation,
+    *,
+    previous_observations: list[AgentObservation],
+    replanned_error_signatures: set[str],
+    llm_factory: Callable[..., Any] | None,
+) -> dict[str, Any]:
+    signature = _error_signature(observation)
+    category = _error_category(observation)
+    repeated = bool(signature) and (
+        signature in replanned_error_signatures
+        or any(_error_signature(item) == signature for item in previous_observations if item.status == "error")
+    )
+    decision = {
+        "error_category": category,
+        "error_signature": signature,
+        "should_replan": False,
+        "reason": "",
+        "repeated": repeated,
+    }
+    if repeated:
+        decision["reason"] = "same error signature already failed; stop to avoid retry loop"
+        return decision
+    if category in {"requires_confirmation", "trade_permission", "live_trading_permission", "trade_blocked"}:
+        decision["reason"] = f"{category} requires user authorization or direct action"
+        return decision
+    if llm_factory is None:
+        decision["reason"] = "no LLM planner is available for error recovery"
+        return decision
+    decision["should_replan"] = True
+    decision["reason"] = "recoverable runtime error; ask planner for alternative remaining steps"
+    return decision
 
 
 def _error_signature(observation: AgentObservation) -> str:
-    tool_name = str(observation.payload.get("tool_name") or "")
-    result = observation.payload.get("result") if isinstance(observation.payload.get("result"), dict) else {}
-    content = str(result.get("content") or observation.content or "").strip()
-    return f"{tool_name}:{content}" if content else ""
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    content = _compact_error_text(_error_content(observation))
+    if observation.kind == "command":
+        argv = " ".join(str(item) for item in payload.get("argv") or [])
+        return f"command:{argv}:returncode={payload.get('returncode')}:{content}"
+    if observation.kind == "tool":
+        tool_name = str(payload.get("tool_name") or "")
+        return f"tool:{tool_name}:{content}"
+    if observation.kind == "trade":
+        side = str(payload.get("intent", {}).get("side") if isinstance(payload.get("intent"), dict) else "")
+        return f"trade:{side}:{content}"
+    return f"{observation.kind}:{content}" if content else observation.kind
+
+
+def _error_category(observation: AgentObservation) -> str:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    content = _error_content(observation)
+    lowered = content.lower()
+    if payload.get("requires_confirmation") or "requires confirmation" in lowered or "approval requires direct human" in lowered:
+        return "requires_confirmation"
+    if "requires explicit --auto-trade" in lowered or "auto-trade does not allow" in lowered:
+        return "trade_permission"
+    if "requires --live-trading" in lowered:
+        return "live_trading_permission"
+    if observation.kind == "trade" or str(payload.get("tool_name") or "").startswith("trade."):
+        return "trade_blocked"
+    if "unknown agent tool" in lowered:
+        return "unknown_tool"
+    if "missing required argument" in lowered or "schema" in lowered:
+        return "invalid_arguments"
+    if "market data guard" in lowered or "fabricated field" in lowered:
+        return "market_data_guard"
+    if any(token in lowered for token in ("akshare", "dataset", "provider", "catalog", "operation")):
+        return "data_interface"
+    if observation.kind == "command":
+        return "command_failed"
+    if observation.kind == "python":
+        return "python_error"
+    return "runtime_error"
+
+
+def _error_content(observation: AgentObservation) -> str:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    return str(result.get("content") or observation.content or "").strip()
+
+
+def _compact_error_text(value: str, *, limit: int = 300) -> str:
+    text = " ".join(str(value or "").split())
+    return text[:limit]
 
 
 def _data_names(observations: list[AgentObservation]) -> tuple[str, ...]:

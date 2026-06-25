@@ -1394,6 +1394,7 @@ def _chat_result_from_runtime(result: object) -> ChatResult:
 
 
 def _chat_result_from_agent(result: object) -> ChatResult:
+    pending = getattr(result, "pending_action", None)
     return ChatResult(
         content=str(getattr(result, "content", "") or ""),
         skill_names=tuple(getattr(result, "skill_names", ()) or ()),
@@ -1401,6 +1402,8 @@ def _chat_result_from_agent(result: object) -> ChatResult:
         data_names=tuple(getattr(result, "data_names", ()) or ()),
         artifacts=tuple(getattr(result, "artifacts", ()) or ()),
         sources=tuple(getattr(result, "sources", ()) or ()),
+        requires_confirmation=bool(pending is not None),
+        pending_action_id=str(getattr(pending, "action_id", "") or "") if pending is not None else None,
         turn_id=getattr(result, "turn_id", None),
         session_id=str(getattr(result, "session_id", "") or ""),
     )

@@ -12,13 +12,14 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from sats.agent import AgentExecutionPolicy, AgentObservation, AgentPlan, TradeIntent, run_agent_once
+from sats.agent import AgentExecutionPolicy, AgentObservation, AgentPlan, AgentStep, TradeIntent, run_agent_once
 from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.date_policy import normalize_agent_date, resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.planner import build_agent_plan
+from sats.agent.runtime import _execute_step
 from sats.agent.python_runtime import RestrictedPythonRuntime
 from sats.agent.synthesis import collect_agent_sources, save_agent_report, synthesize_agent_result, _evidence_digest
-from sats.agent.tools import AgentToolContext, build_default_tool_registry
+from sats.agent.tools import AgentToolContext, AgentToolRegistry, AgentToolResult, AgentToolSpec, build_default_tool_registry
 from sats.agent.tools.command_tools import RECURSIVE_SATS_COMMANDS, SATS_COMMANDS
 from sats.agent.trading import AgentTradingExecutor
 from sats.analysis.dsa_native import DsaAnalysisRanking, DsaAnalysisRunResult, DsaStockAnalysis
@@ -119,6 +120,21 @@ class FakeThemeReturnsOldPlanLLM:
                 '"arguments":{"query":"CVD金刚石散热 相关股票","trade_date":"20260620","limit":20}},'
                 '{"step_id":"daily","kind":"tool","title":"daily","tool_name":"data.stock_daily",'
                 '"arguments":{"symbols":"从步骤1输出中提取的股票代码列表","start_date":"20251220","end_date":"20260618"}},'
+                '{"step_id":"final","kind":"final","title":"summary"}]}'
+            )
+        )
+
+
+class FakeThemeListOldPlanLLM:
+    def __init__(self, *args, **kwargs) -> None:
+        pass
+
+    def chat(self, messages, timeout=None):
+        return LLMResponse(
+            content=(
+                '{"objective":"theme list","steps":['
+                '{"step_id":"discover","kind":"tool","title":"discover","tool_name":"research.discover_opportunities",'
+                '"arguments":{"query":"内存和存储相关A股股票","limit":20}},'
                 '{"step_id":"final","kind":"final","title":"summary"}]}'
             )
         )
@@ -1318,6 +1334,18 @@ class AgentTest(unittest.TestCase):
         )
         self.assertEqual(analyze_step.arguments["signals"], "chan")
 
+    def test_chan_planner_passes_explicit_minute_periods(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan("用缠论 15分钟线 分析 002119", settings=settings, policy=AgentExecutionPolicy(), llm_factory=None, tool_registry=registry)
+        stock_step = next(step for step in plan.steps if step.tool_name == "research.stock_context")
+        internal_steps = [step for step in plan.steps if step.tool_name == "research.internal_analysis"]
+
+        self.assertEqual(stock_step.arguments["minute_periods"], ["15m"])
+        self.assertTrue(internal_steps)
+        self.assertTrue(all(step.arguments.get("minute_periods") == ["15m"] for step in internal_steps))
+
     def test_fallback_planner_routes_rule_generation_to_shared_tool(self) -> None:
         registry = build_default_tool_registry()
         settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
@@ -1490,6 +1518,54 @@ class AgentTest(unittest.TestCase):
         step = next(step for step in plan.steps if step.tool_name == "research.discover_opportunities")
 
         self.assertEqual(step.arguments["limit"], 10)
+
+    def test_fallback_planner_routes_theme_stock_list_without_opportunity_prediction(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+        message = "A股中和内存，存储相关的股票。列出相关股票，以及简单信息，不用进行短期机会预测"
+
+        plan = build_agent_plan(
+            message,
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+        )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.theme_stock_list"])
+        self.assertNotIn("research.discover_opportunities", [step.tool_name for step in tool_steps])
+
+    def test_planner_keeps_explicit_opportunity_prediction_on_discover(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan(
+            "内存和存储相关A股，未来几天有上涨潜力的股票",
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+        )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.discover_opportunities"])
+
+    def test_llm_planner_theme_list_misroute_is_rewritten_to_theme_stock_list(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+        message = "A股中和内存，存储相关的股票。列出相关股票，以及简单信息，不用进行短期机会预测"
+
+        plan = build_agent_plan(
+            message,
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=FakeThemeListOldPlanLLM,
+            tool_registry=registry,
+        )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.theme_stock_list"])
 
     def test_agent_report_writes_final_synthesis_content(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1687,6 +1763,57 @@ class AgentTest(unittest.TestCase):
         self.assertEqual([item["ts_code"] for item in payload["stocks"]], ["600172.SH", "301071.SZ", "002046.SZ", "000519.SZ", "688028.SH"])
         self.assertTrue(all(item["period_returns"]["6m"]["pct_change"] == 12.3 for item in payload["stocks"]))
         self.assertEqual(payload["coverage"]["returned_count"], 5)
+
+    def test_theme_stock_list_returns_basic_info_without_short_up_discovery(self) -> None:
+        registry = build_default_tool_registry()
+        stock_basic = pd.DataFrame(
+            [
+                {"ts_code": "603986.SH", "symbol": "603986", "name": "兆易创新", "industry": "半导体", "market": "主板", "exchange": "SSE"},
+                {"ts_code": "688525.SH", "symbol": "688525", "name": "佰维存储", "industry": "半导体", "market": "科创板", "exchange": "SSE"},
+            ]
+        )
+        theme_universe = SimpleNamespace(
+            theme="存储芯片",
+            source="ths_sector",
+            matched_sector="存储芯片",
+            count=2,
+            stocks=(
+                SimpleNamespace(ts_code="603986.SH", name="兆易创新", relation_type="ths_member", source="ths_sector", reason=""),
+                SimpleNamespace(ts_code="688525.SH", name="佰维存储", relation_type="ths_member", source="ths_sector", reason=""),
+            ),
+            warnings=(),
+        )
+        context = AgentToolContext(
+            settings=SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb")),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            llm_factory=None,
+            message="A股中和内存，存储相关的股票。列出相关股票，以及简单信息，不用进行短期机会预测",
+        )
+
+        with (
+            patch("sats.agent.tools.research_tools.AStockDataProvider", return_value=SimpleNamespace(load_stock_basic=lambda storage=None: stock_basic)),
+            patch("sats.agent.tools.research_tools.resolve_theme_universe", return_value=theme_universe) as resolver,
+        ):
+            result = registry.execute(
+                "research.theme_stock_list",
+                {"query": context.message, "limit": 50},
+                context,
+            )
+
+        self.assertEqual(result.status, "done")
+        resolver.assert_called_once()
+        payload = result.payload["theme_stock_list"]
+        self.assertEqual(payload["theme"], "存储芯片")
+        self.assertEqual(payload["source"], "ths_sector")
+        self.assertEqual(payload["matched_sector"], "存储芯片")
+        self.assertEqual(payload["theme_universe_count"], 2)
+        self.assertEqual([item["ts_code"] for item in payload["stocks"]], ["603986.SH", "688525.SH"])
+        self.assertEqual(payload["stocks"][0]["industry"], "半导体")
+        self.assertIn("未运行 short_up", payload["policy"])
 
     def test_theme_stock_returns_includes_focus_symbol_and_ranking(self) -> None:
         registry = build_default_tool_registry()
@@ -1977,6 +2104,40 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(result.status, "done")
         self.assertEqual(result.payload["analysis"]["kind"], "analyze_signals")
 
+    def test_signal_input_from_context_preserves_explicit_minute_curve_metadata(self) -> None:
+        from sats.agent.tools.research_tools import _signal_input_from_context
+
+        signal_input = _signal_input_from_context(
+            {
+                "ts_code": "002119.SZ",
+                "name": "康强电子",
+                "trade_date": "20260625",
+                "daily_tail": [{"trade_date": "20260625", "open": 1.0, "high": 2.0, "low": 1.0, "close": 2.0, "vol": 100}],
+                "chan_minute_period": "15m",
+                "minute_curves": {
+                    "15m": {
+                        "period": "15m",
+                        "source": "tickflow_history",
+                        "rows": [
+                            {
+                                "trade_time": "2026-06-25 10:00:00",
+                                "open": 1.0,
+                                "high": 2.0,
+                                "low": 1.0,
+                                "close": 2.0,
+                                "vol": 100,
+                            }
+                        ],
+                    }
+                },
+            }
+        )
+
+        self.assertEqual(signal_input.metadata["chan_minute_period"], "15m")
+        self.assertIn("minute_15m", signal_input.metadata)
+        self.assertEqual(signal_input.metadata["minute_15m"]["period"].unique().tolist(), ["15m"])
+        self.assertEqual(signal_input.metadata["minute_15m_source"], "tickflow_history")
+
     def test_research_internal_analysis_native_dsa_returns_structured_payload_without_report(self) -> None:
         registry = build_default_tool_registry()
         with tempfile.TemporaryDirectory() as tmp:
@@ -2221,6 +2382,33 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(float(frame.iloc[0]["vol"]), 300.0)
         self.assertTrue(frame.attrs.get("market_data_provenance"))
 
+    def test_astock_provider_labels_native_minute_period_when_backend_omits_column(self) -> None:
+        class TickFlowMinuteBackend:
+            def load_historical_minute_klines(self, symbols, *, period="1m", start_time=None, end_time=None, count=None):
+                return pd.DataFrame(
+                    [
+                        {
+                            "ts_code": "000001.SZ",
+                            "trade_date": "20260514",
+                            "trade_time": "2026-05-14 10:00:00",
+                            "open": 10.0,
+                            "high": 10.5,
+                            "low": 9.8,
+                            "close": 10.2,
+                            "vol": 100.0,
+                            "amount": 1000.0,
+                        }
+                    ]
+                )
+
+        settings = SimpleNamespace(db_path=Path("data/sats.duckdb"))
+        provider = AStockDataProvider(settings, tickflow_provider=TickFlowMinuteBackend(), tushare_provider=SimpleNamespace(), akshare_provider=SimpleNamespace())
+
+        frame = provider.load_historical_minute_klines(["000001"], period="15m")
+
+        self.assertEqual(frame["period"].unique().tolist(), ["15m"])
+        self.assertEqual(frame.iloc[0]["datetime"], "2026-05-14 10:00:00")
+
     def test_synthesis_uses_data_index_daily_rows_when_market_context_omits_indices(self) -> None:
         observations = (
             AgentObservation(
@@ -2450,6 +2638,103 @@ class AgentTest(unittest.TestCase):
             self.assertIn("skills output", result.content)
             self.assertNotIn("[done]", result.content)
 
+    def test_agent_runtime_resolves_step_symbols_placeholder(self) -> None:
+        symbols = ["600172.SH", "301071.SZ", "002046.SZ", "000519.SZ", "688028.SH", "300373.SZ"]
+        captured: dict[str, dict[str, object]] = {}
+
+        def executor(context, arguments):
+            captured["arguments"] = dict(arguments)
+            return AgentToolResult(status="done", content="ok", payload={"status": "ok"}, data_names=("stock_context",))
+
+        registry = AgentToolRegistry(
+            [
+                AgentToolSpec(
+                    name="research.stock_context",
+                    description="test stock context",
+                    executor=executor,
+                )
+            ]
+        )
+        previous = AgentObservation(
+            step_id="step_2",
+            kind="tool",
+            status="done",
+            content="candidates",
+            payload={"result": {"payload": {"stocks": [{"ts_code": symbol} for symbol in symbols]}}},
+        )
+        step = AgentStep(
+            step_id="stock_context",
+            kind="tool",
+            tool_name="research.stock_context",
+            arguments={"symbols": ["${step_2.symbols[0:5]}"], "trade_date": "20260624"},
+        )
+
+        observation = _execute_step(
+            step,
+            message="获取前五个候选股票上下文",
+            command_runner=AgentCommandRunner(policy=AgentExecutionPolicy()),
+            python_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            tool_registry=registry,
+            tool_context=AgentToolContext(
+                settings=SimpleNamespace(),
+                storage=SimpleNamespace(),
+                resolver=SimpleNamespace(),
+                policy=AgentExecutionPolicy(),
+                command_runner=SimpleNamespace(),
+                trader=SimpleNamespace(),
+                message="获取前五个候选股票上下文",
+            ),
+            observations=[previous],
+            trade_context={},
+        )
+
+        self.assertEqual(observation.status, "done")
+        self.assertEqual(captured["arguments"]["symbols"], symbols[:5])
+        self.assertEqual(observation.payload["arguments"]["symbols"], symbols[:5])
+        self.assertEqual(observation.payload["raw_arguments"]["symbols"], ["${step_2.symbols[0:5]}"])
+
+    def test_agent_runtime_rejects_unresolved_step_placeholder_before_tool_execution(self) -> None:
+        called = False
+
+        def executor(context, arguments):
+            nonlocal called
+            called = True
+            return AgentToolResult(status="done", content="ok")
+
+        registry = AgentToolRegistry([AgentToolSpec(name="research.stock_context", description="test stock context", executor=executor)])
+        step = AgentStep(
+            step_id="stock_context",
+            kind="tool",
+            tool_name="research.stock_context",
+            arguments={"symbols": ["${missing.symbols[0:5]}"], "trade_date": "20260624"},
+        )
+
+        observation = _execute_step(
+            step,
+            message="获取前五个候选股票上下文",
+            command_runner=AgentCommandRunner(policy=AgentExecutionPolicy()),
+            python_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            tool_registry=registry,
+            tool_context=AgentToolContext(
+                settings=SimpleNamespace(),
+                storage=SimpleNamespace(),
+                resolver=SimpleNamespace(),
+                policy=AgentExecutionPolicy(),
+                command_runner=SimpleNamespace(),
+                trader=SimpleNamespace(),
+                message="获取前五个候选股票上下文",
+            ),
+            observations=[],
+            trade_context={},
+        )
+
+        self.assertFalse(called)
+        self.assertEqual(observation.status, "error")
+        self.assertIn("unresolved agent placeholder", observation.content)
+        self.assertIn("observation missing not found", observation.content)
+
     def test_agent_runtime_replans_once_after_failed_step(self) -> None:
         class ReplanLLM:
             calls = 0
@@ -2480,10 +2765,153 @@ class AgentTest(unittest.TestCase):
             result = run_agent_once("列出 skills", settings=settings, llm_factory=ReplanLLM, cli_main=fake_cli)
 
             self.assertEqual(calls, [["bad"], ["skills"]])
+            self.assertTrue(result.observations[0].payload["replan_decision"]["should_replan"])
+            self.assertEqual(result.observations[0].payload["replan_decision"]["error_category"], "command_failed")
             self.assertIn("sats bad", result.content)
             self.assertIn("returncode=1", result.content)
             self.assertIn("sats skills", result.content)
             self.assertNotIn("[done]", result.content)
+
+    def test_agent_runtime_replans_multiple_distinct_errors_until_success(self) -> None:
+        class MultiReplanLLM:
+            planner_calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                prompt = "\n".join(str(item.get("content") or "") for item in messages)
+                if "steps 每项字段" not in prompt:
+                    return LLMResponse(content="最终恢复总结")
+                MultiReplanLLM.planner_calls += 1
+                command = ["bad_one", "bad_two", "skills"][MultiReplanLLM.planner_calls - 1]
+                return LLMResponse(
+                    content=(
+                        '{"objective":"recover command","steps":['
+                        f'{{"step_id":"cmd_{command}","kind":"command","title":"{command}","command":["{command}"]}},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            MultiReplanLLM.planner_calls = 0
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp), openai_model="m", llm_timeout_seconds=10)
+            calls = []
+
+            def fake_cli(argv):
+                calls.append(argv)
+                return 0 if argv == ["skills"] else 1
+
+            result = run_agent_once(
+                "列出 skills",
+                settings=settings,
+                policy=AgentExecutionPolicy(max_iterations=5),
+                llm_factory=MultiReplanLLM,
+                cli_main=fake_cli,
+            )
+
+            self.assertEqual(calls, [["bad_one"], ["bad_two"], ["skills"]])
+            self.assertEqual(MultiReplanLLM.planner_calls, 3)
+            decisions = [
+                item.payload["replan_decision"]
+                for item in result.observations
+                if item.status == "error" and "replan_decision" in item.payload
+            ]
+            self.assertEqual(len(decisions), 2)
+            self.assertTrue(all(item["should_replan"] for item in decisions))
+            self.assertEqual([item["error_category"] for item in decisions], ["command_failed", "command_failed"])
+
+    def test_agent_runtime_stops_after_repeated_replanned_error(self) -> None:
+        class RepeatErrorLLM:
+            planner_calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                prompt = "\n".join(str(item.get("content") or "") for item in messages)
+                if "steps 每项字段" not in prompt:
+                    return LLMResponse(content="重复错误总结")
+                RepeatErrorLLM.planner_calls += 1
+                return LLMResponse(
+                    content=(
+                        '{"objective":"recover command","steps":['
+                        '{"step_id":"cmd_bad","kind":"command","title":"bad","command":["bad"]},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            RepeatErrorLLM.planner_calls = 0
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp), openai_model="m", llm_timeout_seconds=10)
+            calls = []
+
+            def fake_cli(argv):
+                calls.append(argv)
+                return 1
+
+            result = run_agent_once("列出 skills", settings=settings, llm_factory=RepeatErrorLLM, cli_main=fake_cli)
+
+            self.assertEqual(calls, [["bad"], ["bad"]])
+            self.assertIn("repeated_error", [item.step_id for item in result.observations])
+            decisions = [
+                item.payload["replan_decision"]
+                for item in result.observations
+                if item.kind == "command" and item.status == "error"
+            ]
+            self.assertTrue(decisions[0]["should_replan"])
+            self.assertFalse(decisions[1]["should_replan"])
+            self.assertTrue(decisions[1]["repeated"])
+
+    def test_agent_runtime_does_not_replan_confirmation_or_trade_permission_errors(self) -> None:
+        class BlockingLLM:
+            planner_calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                prompt = "\n".join(str(item.get("content") or "") for item in messages)
+                if "steps 每项字段" not in prompt:
+                    return LLMResponse(content="阻断总结")
+                BlockingLLM.planner_calls += 1
+                if "用户目标：交易 买入 000001" in prompt:
+                    return LLMResponse(
+                        content=(
+                            '{"objective":"trade","steps":['
+                            '{"step_id":"trade","kind":"trade","title":"buy",'
+                            '"trade":{"ts_code":"000001.SZ","side":"buy","quantity":100}},'
+                            '{"step_id":"final","kind":"final","title":"summary"}]}'
+                        )
+                    )
+                return LLMResponse(
+                    content=(
+                        '{"objective":"confirm","steps":['
+                        '{"step_id":"confirm","kind":"command","title":"needs confirm","command":["skills"],"requires_confirmation":true},'
+                        '{"step_id":"final","kind":"final","title":"summary"}]}'
+                    )
+                )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            BlockingLLM.planner_calls = 0
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp), openai_model="m", llm_timeout_seconds=10)
+            calls = []
+
+            def fake_cli(argv):
+                calls.append(argv)
+                return 0
+
+            confirmation = run_agent_once("需要确认后列出 skills", settings=settings, llm_factory=BlockingLLM, cli_main=fake_cli)
+            trade = run_agent_once("交易 买入 000001", settings=settings, llm_factory=BlockingLLM, cli_main=fake_cli)
+
+            self.assertEqual(calls, [])
+            self.assertEqual(BlockingLLM.planner_calls, 2)
+            confirm_decision = confirmation.observations[0].payload["replan_decision"]
+            trade_decision = trade.observations[0].payload["replan_decision"]
+            self.assertEqual(confirm_decision["error_category"], "requires_confirmation")
+            self.assertEqual(trade_decision["error_category"], "trade_permission")
+            self.assertFalse(confirm_decision["should_replan"])
+            self.assertFalse(trade_decision["should_replan"])
 
     def test_agent_runtime_replans_after_akshare_catalog_lookup(self) -> None:
         class CatalogReplanLLM:

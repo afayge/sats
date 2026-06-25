@@ -14,6 +14,10 @@ _NATIVE_MINUTES = tuple(int(period[:-1]) for period in NATIVE_MINUTE_PERIODS)
 _MINUTE_PERIOD_RE = re.compile(r"^\s*(?P<amount>\d+)\s*(?P<unit>m|min|mins|minute|minutes|分钟|分)\s*$", re.IGNORECASE)
 _LOWER_M_RE = re.compile(r"^\s*\d+\s*m\s*$")
 _MINUTE_ALIAS_RE = re.compile(r"^\s*\d+\s*(?:min|mins|minute|minutes|分钟|分)\s*$", re.IGNORECASE)
+_MINUTE_PERIOD_SCAN_RE = re.compile(
+    r"(?P<amount>\d{1,3})\s*(?P<unit>m|min|mins|minute|minutes|分钟|分)(?:\s*(?:K|k|线|级别|周期))?",
+    re.IGNORECASE,
+)
 
 
 def looks_like_minute_period(value: Any) -> bool:
@@ -32,6 +36,39 @@ def normalize_minute_period(value: Any) -> str:
     if minutes < 1 or minutes > MAX_MINUTE_PERIOD_MINUTES:
         raise ValueError(_unsupported_period_message(value))
     return f"{minutes}m"
+
+
+def extract_minute_periods(text: Any) -> tuple[str, ...]:
+    periods: list[str] = []
+    seen: set[str] = set()
+    for match in _MINUTE_PERIOD_SCAN_RE.finditer(str(text or "")):
+        try:
+            period = normalize_minute_period(match.group(0))
+        except ValueError:
+            try:
+                period = normalize_minute_period(f"{match.group('amount')}{match.group('unit')}")
+            except ValueError:
+                continue
+        if period not in seen:
+            seen.add(period)
+            periods.append(period)
+    return tuple(periods)
+
+
+def normalize_minute_periods(values: Any) -> tuple[str, ...]:
+    if isinstance(values, str):
+        values = (values,)
+    periods: list[str] = []
+    seen: set[str] = set()
+    for value in values or ():
+        try:
+            period = normalize_minute_period(value)
+        except ValueError:
+            continue
+        if period not in seen:
+            seen.add(period)
+            periods.append(period)
+    return tuple(periods)
 
 
 def minute_period_minutes(value: Any) -> int:
@@ -57,9 +94,26 @@ def native_minute_count_for(count: int | None, *, target_period: str, base_perio
 def tail_minute_klines(frame: pd.DataFrame, count: int | None) -> pd.DataFrame:
     if frame is None or frame.empty or count is None or "ts_code" not in frame.columns:
         return frame
+    attrs = dict(frame.attrs)
     sort_column = "trade_time" if "trade_time" in frame.columns else "datetime" if "datetime" in frame.columns else None
     data = frame.sort_values(["ts_code", sort_column]) if sort_column else frame
-    return data.groupby("ts_code", group_keys=False).tail(max(1, int(count))).reset_index(drop=True)
+    result = data.groupby("ts_code", group_keys=False).tail(max(1, int(count))).reset_index(drop=True)
+    result.attrs.update(attrs)
+    return result
+
+
+def ensure_minute_frame_period(frame: pd.DataFrame, *, period: str) -> pd.DataFrame:
+    if frame is None or frame.empty:
+        return frame.copy() if isinstance(frame, pd.DataFrame) else pd.DataFrame()
+    target = normalize_minute_period(period)
+    data = frame.copy()
+    data.attrs.update(frame.attrs)
+    data["period"] = target
+    if "trade_time" not in data.columns and "datetime" in data.columns:
+        data["trade_time"] = data["datetime"]
+    if "datetime" not in data.columns and "trade_time" in data.columns:
+        data["datetime"] = data["trade_time"]
+    return data
 
 
 def aggregate_minute_klines(frame: pd.DataFrame, *, target_period: str, source_period: str | None = None) -> pd.DataFrame:
@@ -68,10 +122,7 @@ def aggregate_minute_klines(frame: pd.DataFrame, *, target_period: str, source_p
     if frame is None or frame.empty:
         return frame.copy() if isinstance(frame, pd.DataFrame) else pd.DataFrame()
     if target == source:
-        data = frame.copy()
-        if "period" in data.columns:
-            data["period"] = target
-        return data
+        return ensure_minute_frame_period(frame, period=target)
 
     data = frame.copy()
     time_column = "trade_time" if "trade_time" in data.columns else "datetime" if "datetime" in data.columns else ""

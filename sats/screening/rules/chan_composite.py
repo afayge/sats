@@ -8,10 +8,12 @@ import pandas as pd
 from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
 from sats.screening.rules.chan_third_buy import (
     ChanThirdBuyRule,
+    _chan_minute_period,
     _is_bse_stock,
     _is_st_stock,
     _latest_trade_date,
     _macd_histogram,
+    _minute_metadata_key,
     _num,
     _prepare_daily,
     _prepare_minute,
@@ -111,10 +113,14 @@ class ChanCompositeRule(ScreeningRule):
         matched_labels = [CHAN_RULE_LABELS[name] for name in matched_rule_names]
         failed_rule_names = [name for name in CHAN_RULE_LABELS if not sub_rules[name]["passed"]]
         common_failed_conditions = [name for name, passed in common_checks.items() if not passed]
+        minute_period = _chan_minute_period(data)
+        minute_key = _minute_metadata_key(minute_period)
         metrics = {
             **common_metrics,
             "daily_basic_source": data.metadata.get("daily_basic_source", ""),
             "minute_30m_source": data.metadata.get("minute_30m_source", ""),
+            "chan_minute_period": minute_period,
+            f"{minute_key}_source": data.metadata.get(f"{minute_key}_source", ""),
             "chan_daily_candidates": data.metadata.get("chan_daily_candidates", []),
             "matched_chan_rules": matched_labels,
             "matched_chan_rule_names": matched_rule_names,
@@ -446,16 +452,18 @@ def _evaluate_repair_minute(
 ) -> dict[str, Any]:
     checks: dict[str, bool] = {}
     metrics: dict[str, Any] = {}
-    minute = _prepare_minute(data.metadata.get("minute_30m"), trade_date=data.trade_date)
-    metrics[f"{metric_prefix}_minute_30m_rows"] = len(minute)
+    minute_period = _chan_minute_period(data)
+    minute_key = _minute_metadata_key(minute_period)
+    minute = _prepare_minute(data.metadata.get(minute_key), trade_date=data.trade_date, period=minute_period)
+    metrics[f"{metric_prefix}_{minute_key}_rows"] = len(minute)
     metrics[f"{metric_prefix}_latest_minute_trade_date"] = _latest_trade_date(minute)
-    checks[f"{metric_prefix}_minute_30m_available"] = len(minute) >= thresholds.minute_min_rows
-    if not checks[f"{metric_prefix}_minute_30m_available"]:
-        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": ["缺少足够30分钟K线确认数据"]}
+    checks[f"{metric_prefix}_{minute_key}_available"] = len(minute) >= thresholds.minute_min_rows
+    if not checks[f"{metric_prefix}_{minute_key}_available"]:
+        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": [f"缺少足够{minute_period}分钟K线确认数据"]}
 
-    checks[f"{metric_prefix}_minute_30m_trade_date_current"] = metrics[f"{metric_prefix}_latest_minute_trade_date"] == data.trade_date
-    if not checks[f"{metric_prefix}_minute_30m_trade_date_current"]:
-        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": ["最新30分钟K线不是请求交易日"]}
+    checks[f"{metric_prefix}_{minute_key}_trade_date_current"] = metrics[f"{metric_prefix}_latest_minute_trade_date"] == data.trade_date
+    if not checks[f"{metric_prefix}_{minute_key}_trade_date_current"]:
+        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": [f"最新{minute_period}分钟K线不是请求交易日"]}
 
     minute = minute.copy()
     close = pd.to_numeric(minute["close"], errors="coerce")
@@ -471,11 +479,11 @@ def _evaluate_repair_minute(
     latest_hist = _num(latest.get("macd_hist"))
     metrics.update(
         {
-            f"{metric_prefix}_minute_30m_low": minute_low,
-            f"{metric_prefix}_minute_30m_latest_close": latest_close,
-            f"{metric_prefix}_minute_30m_ma5": latest_ma5,
-            f"{metric_prefix}_minute_30m_macd_hist_low": low_hist,
-            f"{metric_prefix}_minute_30m_macd_hist_latest": latest_hist,
+            f"{metric_prefix}_{minute_key}_low": minute_low,
+            f"{metric_prefix}_{minute_key}_latest_close": latest_close,
+            f"{metric_prefix}_{minute_key}_ma5": latest_ma5,
+            f"{metric_prefix}_{minute_key}_macd_hist_low": low_hist,
+            f"{metric_prefix}_{minute_key}_macd_hist_latest": latest_hist,
         }
     )
     checks[f"{metric_prefix}_minute_close_above_ma5"] = latest_ma5 > 0 and latest_close > latest_ma5

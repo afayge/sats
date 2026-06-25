@@ -6,6 +6,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+import pandas as pd
+
 from sats.analysis.chan_chat_context import ChanChatContext, build_chan_chat_context
 from sats.analysis.market_llm_context import (
     build_market_llm_context,
@@ -18,7 +20,7 @@ from sats.analysis.opportunity_discovery import (
     is_llm_context_length_error,
 )
 from sats.analysis.quote_llm_context import build_stock_quote_llm_context
-from sats.analysis.stock_llm_context import StockLLMContext, build_stock_llm_context
+from sats.analysis.stock_llm_context import StockLLMContext, build_stock_llm_context, minute_curve_metadata
 from sats.analysis.stock_picking_agent import format_stock_picking_agent_result, run_stock_picking_agent
 from sats.analysis.stock_research_context import StockResearchContext, build_stock_research_context
 from sats.chat_planner import ChatPlan, build_chat_plan
@@ -27,6 +29,7 @@ from sats.chat_reference import ChatReferenceContext
 from sats.config import Settings
 from sats.llm import ChatLLM, LLMResponse, build_light_fallback_llm, build_standard_llm
 from sats.memory import ChatMemoryStore, MemoryRecord
+from sats.minute_periods import extract_minute_periods, normalize_minute_periods
 from sats.screening.registry import list_rules
 from sats.screening.rule_composer import (
     GeneratedRuleResult,
@@ -736,10 +739,21 @@ def _normalize_tool_chat_result(
     return response, tool_count, meta
 
 
-def build_stock_context_component(message: str, *, settings: Settings, question: StockQuestion) -> StockLLMContext | None:
+def build_stock_context_component(
+    message: str,
+    *,
+    settings: Settings,
+    question: StockQuestion,
+    minute_periods: tuple[str, ...] = (),
+) -> StockLLMContext | None:
     from sats import chat as chat_module
 
     builder = getattr(chat_module, "build_stock_llm_context", build_stock_llm_context)
+    if minute_periods:
+        try:
+            return builder(message, settings=settings, question=question, minute_periods=minute_periods)
+        except TypeError:
+            return builder(message, settings=settings, question=question)
     return builder(message, settings=settings, question=question)
 
 
@@ -845,6 +859,8 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
         raise ValueError(f"unsupported internal analysis kind: {kind}")
     symbols = normalize_symbols(arguments.get("symbols") if isinstance(arguments.get("symbols"), list) else [], required=True)
     trade_date = str(arguments.get("trade_date") or "").strip() or extract_trade_date(" ".join(symbols))
+    message = str(arguments.get("_message") or arguments.get("message") or " ".join(symbols))
+    minute_periods = normalize_minute_periods(arguments.get("minute_periods") or ()) or extract_minute_periods(message)
     if kind == "company_fundamentals":
         storage = DuckDBStorage(getattr(settings, "db_path", None) or "data/sats.duckdb")
         provider_cls = getattr(chat_module, "AStockDataProvider", AStockDataProvider)
@@ -913,9 +929,10 @@ def run_internal_analysis_component(settings: Settings, arguments: dict[str, Any
             "snapshot": snapshot_payload,
         }
     stock_context = build_stock_context_component(
-        str(arguments.get("_message") or arguments.get("message") or " ".join(symbols)),
+        message,
         settings=settings,
         question=StockQuestion(symbols=symbols, trade_date=trade_date or None, has_stock_question=True),
+        minute_periods=minute_periods,
     )
     if stock_context is None:
         raise ValueError("stock context unavailable")
@@ -2036,35 +2053,15 @@ def _build_quote_context(message: str, *, settings: Settings, symbols: list[str]
 def _signal_input_from_stock_payload(item: dict[str, Any]):
     from sats.signals import SignalInput
 
-    indicator_result = item.get("indicator_result") or {}
     return SignalInput(
         ts_code=str(item.get("ts_code") or ""),
-        name=str(item.get("name") or ""),
         trade_date=str(item.get("trade_date") or ""),
-        close=float(indicator_result.get("close") or 0.0),
-        ma5=float(indicator_result.get("ma5") or 0.0),
-        ma10=float(indicator_result.get("ma10") or 0.0),
-        ma20=float(indicator_result.get("ma20") or 0.0),
-        ma60=float(indicator_result.get("ma60") or 0.0),
-        macd=float(indicator_result.get("macd") or 0.0),
-        macd_dif=float(indicator_result.get("macd_dif") or 0.0),
-        macd_dea=float(indicator_result.get("macd_dea") or 0.0),
-        rsi6=float(indicator_result.get("rsi6") or 0.0),
-        rsi12=float(indicator_result.get("rsi12") or 0.0),
-        rsi24=float(indicator_result.get("rsi24") or 0.0),
-        kdj_k=float(indicator_result.get("kdj_k") or 0.0),
-        kdj_d=float(indicator_result.get("kdj_d") or 0.0),
-        kdj_j=float(indicator_result.get("kdj_j") or 0.0),
-        boll_upper=float(indicator_result.get("boll_upper") or 0.0),
-        boll_mid=float(indicator_result.get("boll_mid") or 0.0),
-        boll_lower=float(indicator_result.get("boll_lower") or 0.0),
-        pct_chg=float((item.get("price_context") or {}).get("pct_chg") or 0.0),
-        volume_ratio=float(indicator_result.get("volume_ratio") or 0.0),
-        turnover_rate=float(indicator_result.get("turnover_rate") or 0.0),
-        amount=float((item.get("price_context") or {}).get("amount") or 0.0),
-        limit_up=bool((item.get("price_context") or {}).get("limit_up")),
-        limit_down=bool((item.get("price_context") or {}).get("limit_down")),
-        minute_curves=item.get("minute_curves") or {},
+        daily=pd.DataFrame(item.get("daily_tail") or []),
+        stock_basic={"name": item.get("name") or ""},
+        metadata=minute_curve_metadata(
+            item.get("minute_curves") or {},
+            preferred_period=str(item.get("chan_minute_period") or ""),
+        ),
     )
 
 

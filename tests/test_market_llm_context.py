@@ -141,6 +141,8 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertEqual(payload["requested_horizons"], ["today", "tomorrow", "next_week"])
         self.assertEqual(payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
         self.assertEqual(payload["indices"][0]["ts_code"], "000001.SH")
+        self.assertEqual(payload["indices"][0]["latest"]["pct_chg"], 0.2)
+        self.assertEqual(payload["indices"][0]["quote"]["pct_chg"], 0.88)
         self.assertIn("399330.SZ", payload["requested_indices"])
         self.assertIn("ma60", payload["indices"][0]["technical"]["ma"])
         self.assertEqual(payload["indices"][0]["weekly"]["trading_days"], 4)

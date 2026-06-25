@@ -30,8 +30,10 @@ from sats.screening.rules.chan_composite import (
 )
 from sats.screening.rules.chan_third_buy import (
     ChanThirdBuyRule,
+    _chan_minute_period,
     _latest_trade_date,
     _macd_histogram,
+    _minute_metadata_key,
     _num,
     _prepare_minute,
     is_chan_daily_candidate,
@@ -664,15 +666,17 @@ def _evaluate_sell_minute(
 ) -> dict[str, Any]:
     checks: dict[str, bool] = {}
     metrics: dict[str, Any] = {}
-    minute = _prepare_minute(data.metadata.get("minute_30m"), trade_date=data.trade_date)
-    metrics[f"{metric_prefix}_minute_30m_rows"] = len(minute)
+    minute_period = _chan_minute_period(data)
+    minute_key = _minute_metadata_key(minute_period)
+    minute = _prepare_minute(data.metadata.get(minute_key), trade_date=data.trade_date, period=minute_period)
+    metrics[f"{metric_prefix}_{minute_key}_rows"] = len(minute)
     metrics[f"{metric_prefix}_latest_minute_trade_date"] = _latest_trade_date(minute)
-    checks[f"{metric_prefix}_minute_30m_available"] = len(minute) >= thresholds.minute_min_rows
-    if not checks[f"{metric_prefix}_minute_30m_available"]:
-        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": ["缺少足够30分钟K线确认数据"]}
-    checks[f"{metric_prefix}_minute_30m_trade_date_current"] = metrics[f"{metric_prefix}_latest_minute_trade_date"] == data.trade_date
-    if not checks[f"{metric_prefix}_minute_30m_trade_date_current"]:
-        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": ["最新30分钟K线不是请求交易日"]}
+    checks[f"{metric_prefix}_{minute_key}_available"] = len(minute) >= thresholds.minute_min_rows
+    if not checks[f"{metric_prefix}_{minute_key}_available"]:
+        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": [f"缺少足够{minute_period}分钟K线确认数据"]}
+    checks[f"{metric_prefix}_{minute_key}_trade_date_current"] = metrics[f"{metric_prefix}_latest_minute_trade_date"] == data.trade_date
+    if not checks[f"{metric_prefix}_{minute_key}_trade_date_current"]:
+        return {"checks": checks, "metrics": metrics, "passed": False, "risk_flags": [f"最新{minute_period}分钟K线不是请求交易日"]}
 
     minute = minute.copy()
     close = pd.to_numeric(minute["close"], errors="coerce")
@@ -688,11 +692,11 @@ def _evaluate_sell_minute(
     latest_hist = _num(latest.get("macd_hist"))
     metrics.update(
         {
-            f"{metric_prefix}_minute_30m_high": minute_high,
-            f"{metric_prefix}_minute_30m_latest_close": latest_close,
-            f"{metric_prefix}_minute_30m_ma5": latest_ma5,
-            f"{metric_prefix}_minute_30m_macd_hist_high": high_hist,
-            f"{metric_prefix}_minute_30m_macd_hist_latest": latest_hist,
+            f"{metric_prefix}_{minute_key}_high": minute_high,
+            f"{metric_prefix}_{minute_key}_latest_close": latest_close,
+            f"{metric_prefix}_{minute_key}_ma5": latest_ma5,
+            f"{metric_prefix}_{minute_key}_macd_hist_high": high_hist,
+            f"{metric_prefix}_{minute_key}_macd_hist_latest": latest_hist,
         }
     )
     checks[f"{metric_prefix}_minute_close_below_ma5"] = latest_ma5 > 0 and latest_close < latest_ma5

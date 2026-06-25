@@ -16,6 +16,7 @@ from sats.data.astock_provider import AStockDataProvider
 from sats.factors.profiles import DEFAULT_FACTOR_PROFILE
 from sats.factors.service import snapshot_from_screening_inputs
 from sats.indicators import IndicatorCalculator, IndicatorInput, IndicatorResult
+from sats.minute_periods import extract_minute_periods, normalize_minute_period, normalize_minute_periods
 from sats.stock_question import StockQuestion, parse_stock_question
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols
@@ -23,6 +24,8 @@ from sats.symbols import normalize_symbols
 
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 MINUTE_PERIOD_LIMITS = {"15m": 160, "30m": 120}
+DEFAULT_MINUTE_PERIOD_LIMIT = 120
+CHAN_MINUTE_REQUIRED_ROWS = 35
 _PERIOD_RETURN_RE = re.compile(
     r"(?P<prefix>近|最近|过去)?\s*"
     r"(?P<amount>\d+|[一二两三四五六七八九十]+)\s*"
@@ -56,6 +59,7 @@ def build_stock_llm_context(
     question: StockQuestion | None = None,
     lookback_days: int = 180,
     minute_lookback_days: int = 30,
+    minute_periods: tuple[str, ...] = (),
 ) -> StockLLMContext | None:
     question = question or parse_stock_question(message)
     if not question.has_stock_question:
@@ -64,6 +68,7 @@ def build_stock_llm_context(
     requested_trade_date = question.trade_date or _resolve_trade_date()
     period_requests = extract_period_return_requests(message)
     lookback_days = _period_lookback_days(requested_trade_date, period_requests, default=lookback_days)
+    requested_minute_periods = normalize_minute_periods(minute_periods) or extract_minute_periods(message)
     symbols = question.symbols
     if not symbols:
         return None
@@ -76,6 +81,7 @@ def build_stock_llm_context(
         as_of_time=question.as_of_time,
         lookback_days=lookback_days,
         minute_lookback_days=minute_lookback_days,
+        periods=requested_minute_periods or ("15m", "30m"),
         period_requests=period_requests,
     )
     trade_date = _context_trade_date(stock_contexts, requested_trade_date)
@@ -114,6 +120,7 @@ def ensure_stock_analysis_data(
     clean_symbols = normalize_symbols(symbols, required=False)
     if not clean_symbols:
         return {}
+    periods = normalize_minute_periods(periods)
     requested_trade_date = str(trade_date)
     provider = astock_provider or AStockDataProvider(settings)
     trade_date = _resolve_effective_trade_date(provider, requested_trade_date)
@@ -246,18 +253,12 @@ def _build_stock_contexts(
                 "pct_chg",
             ]),
             "minute_curves": {
-                period: {
-                    "source": str(frame.attrs.get("data_source") or frame.attrs.get("tickflow_source") or ""),
-                    "rows": _records_tail(
-                        _filter_symbol_minute(frame, symbol),
-                        limit=MINUTE_PERIOD_LIMITS.get(period, 120),
-                        columns=["trade_time", "open", "high", "low", "close", "vol", "amount"],
-                    ),
-                }
+                period: _minute_curve_payload(frame, symbol, period)
                 for period, frame in minute_frames.items()
             },
+            "chan_minute_period": _chan_minute_period(minute_frames),
             "data_sources": _data_sources(item, minute_frames, quotes.get(symbol, {})),
-            "missing_fields": _missing_fields(item, quotes.get(symbol, {})),
+            "missing_fields": _missing_fields(item, quotes.get(symbol, {}), minute_frames=minute_frames, symbol=symbol),
             "factor_summary": factor_summary.get(symbol, {}),
         }
     return contexts
@@ -300,6 +301,7 @@ def _load_minute_frame(
     start_time = _days_before(trade_date, minute_lookback_days)
     end_time = _as_of_trade_time(trade_date, question.as_of_time) or trade_date
     use_realtime = _use_realtime(trade_date, question)
+    period = normalize_minute_period(period)
     try:
         if use_realtime:
             history = astock_provider.load_historical_minute_klines(
@@ -311,7 +313,7 @@ def _load_minute_frame(
             realtime = astock_provider.load_realtime_minute_klines(
                 symbols,
                 period=period,
-                count=MINUTE_PERIOD_LIMITS[period],
+                count=MINUTE_PERIOD_LIMITS.get(period, DEFAULT_MINUTE_PERIOD_LIMIT),
             )
             frame = _combine_minute_frames([history, realtime])
             frame.attrs["data_source"] = "tickflow_history+realtime"
@@ -628,6 +630,79 @@ def _filter_symbol_minute(frame: pd.DataFrame, symbol: str) -> pd.DataFrame:
     return frame[frame["ts_code"].astype(str) == symbol].copy()
 
 
+def minute_curve_metadata(minute_curves: Any, *, preferred_period: str | None = None) -> dict[str, Any]:
+    if not isinstance(minute_curves, dict):
+        return {}
+    metadata: dict[str, Any] = {}
+    available_periods: list[str] = []
+    for key, curve in minute_curves.items():
+        try:
+            period = normalize_minute_period(curve.get("period") if isinstance(curve, dict) else key)
+        except ValueError:
+            continue
+        frame = _minute_curve_frame(curve, period=period)
+        if not frame.empty:
+            metadata[f"minute_{period}"] = frame
+        source = str(curve.get("source") or "") if isinstance(curve, dict) else ""
+        if source:
+            metadata[f"minute_{period}_source"] = source
+        available_periods.append(period)
+    preferred = ""
+    if preferred_period:
+        try:
+            preferred = normalize_minute_period(preferred_period)
+        except ValueError:
+            preferred = ""
+    if not preferred or f"minute_{preferred}" not in metadata:
+        preferred = "30m" if "minute_30m" in metadata else next((period for period in available_periods if f"minute_{period}" in metadata), "")
+    if preferred:
+        metadata["chan_minute_period"] = preferred
+    return metadata
+
+
+def _minute_curve_frame(curve: Any, *, period: str) -> pd.DataFrame:
+    rows = curve.get("rows") if isinstance(curve, dict) else curve
+    frame = pd.DataFrame(rows or [])
+    if frame.empty:
+        return frame
+    frame["period"] = period
+    if "trade_time" not in frame.columns and "datetime" in frame.columns:
+        frame["trade_time"] = frame["datetime"]
+    if "trade_date" not in frame.columns and "trade_time" in frame.columns:
+        frame["trade_date"] = frame["trade_time"].astype(str).str.replace("-", "", regex=False).str[:8]
+    return frame
+
+
+def _minute_curve_payload(frame: pd.DataFrame, symbol: str, period: str) -> dict[str, Any]:
+    period = normalize_minute_period(period)
+    source = str(frame.attrs.get("data_source") or frame.attrs.get("tickflow_source") or "")
+    data = _filter_symbol_minute(frame, symbol)
+    limit = MINUTE_PERIOD_LIMITS.get(period, DEFAULT_MINUTE_PERIOD_LIMIT)
+    required = CHAN_MINUTE_REQUIRED_ROWS
+    trade_times = data["trade_time"].astype(str) if not data.empty and "trade_time" in data.columns else pd.Series(dtype=str)
+    return {
+        "period": period,
+        "source": source,
+        "row_count": int(len(data)),
+        "start_trade_time": str(trade_times.min()) if not trade_times.empty else "",
+        "end_trade_time": str(trade_times.max()) if not trade_times.empty else "",
+        "display_limit": limit,
+        "required_min_rows": required,
+        "is_sufficient": int(len(data)) >= required,
+        "rows": _records_tail(
+            data,
+            limit=limit,
+            columns=["period", "trade_date", "trade_time", "open", "high", "low", "close", "vol", "amount"],
+        ),
+    }
+
+
+def _chan_minute_period(minute_frames: dict[str, pd.DataFrame]) -> str:
+    if "30m" in minute_frames:
+        return "30m"
+    return next(iter(minute_frames), "30m")
+
+
 def _filter_minute_as_of(frame: pd.DataFrame, trade_date: str, as_of_time: str | None) -> pd.DataFrame:
     if frame is None or frame.empty:
         return pd.DataFrame()
@@ -677,13 +752,17 @@ def _data_sources(item: IndicatorInput, minute_frames: dict[str, pd.DataFrame], 
     return sources
 
 
-def _missing_fields(item: IndicatorInput, quote: dict[str, Any]) -> list[str]:
+def _missing_fields(item: IndicatorInput, quote: dict[str, Any], *, minute_frames: dict[str, pd.DataFrame], symbol: str) -> list[str]:
     missing = []
     for key, value in (item.data_sources or {}).items():
         if not value or value == "unavailable":
             missing.append(key)
     if quote == {}:
         missing.append("realtime_quote")
+    for period, frame in minute_frames.items():
+        rows = len(_filter_symbol_minute(frame, symbol))
+        if rows < CHAN_MINUTE_REQUIRED_ROWS:
+            missing.append(f"minute_{normalize_minute_period(period)}_insufficient_rows")
     return missing
 
 

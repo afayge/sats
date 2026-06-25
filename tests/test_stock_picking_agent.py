@@ -763,6 +763,67 @@ class StockPickingAgentTest(unittest.TestCase):
         self.assertIn("主要信号", formatted)
         self.assertIn("详情:", formatted)
 
+    def test_storage_theme_alias_hits_ths_storage_chip_sector_without_llm(self) -> None:
+        sector_basic = pd.DataFrame(
+            [
+                {"sector_code": "886042.TI", "name": "存储芯片", "sector_type": "concept"},
+            ]
+        )
+        sector_members = pd.DataFrame(
+            [
+                {"sector_code": "886042.TI", "ts_code": "603986.SH", "name": "兆易创新"},
+                {"sector_code": "886042.TI", "ts_code": "688525.SH", "name": "佰维存储"},
+            ]
+        )
+        provider = _ThemeDiscoveryProvider(sector_basic=sector_basic, sector_members=sector_members)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            universe = resolve_theme_universe(
+                "A股中和内存，存储相关的股票",
+                provider,
+                DuckDBStorage(Path(tmp) / "sats.duckdb"),
+                None,
+                llm_enabled=False,
+            )
+
+        self.assertEqual(universe.source, "ths_sector")
+        self.assertEqual(universe.theme, "存储芯片")
+        self.assertEqual(universe.matched_sector, "存储芯片")
+        self.assertEqual(universe.symbols, ("603986.SH", "688525.SH"))
+        self.assertEqual(provider.ths_member_calls, [["886042.TI"]])
+
+    def test_llm_theme_universe_resolves_code_name_conflict_by_name(self) -> None:
+        class StorageProvider(_ThemeDiscoveryProvider):
+            def __init__(self) -> None:
+                super().__init__()
+                self.stock_basic_frame = pd.DataFrame(
+                    [
+                        {"ts_code": "300667.SZ", "symbol": "300667", "name": "必创科技", "industry": "电器仪表"},
+                        {"ts_code": "688525.SH", "symbol": "688525", "name": "佰维存储", "industry": "半导体"},
+                    ]
+                )
+
+        llm = _ThemeUniverseLLM(
+            [
+                {"ts_code": "300667.SZ", "name": "佰维存储", "reason": "存储芯片封测和模组", "confidence": 0.8},
+            ],
+            theme="存储芯片",
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            universe = resolve_theme_universe(
+                "存储芯片相关股票",
+                StorageProvider(),
+                DuckDBStorage(Path(tmp) / "sats.duckdb"),
+                lambda: llm,
+                settings=SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="deepseek-v4-pro"),
+            )
+
+        self.assertEqual(universe.source, "llm_theme_universe")
+        self.assertEqual(universe.symbols, ("688525.SH",))
+        self.assertEqual(universe.stocks[0].name, "佰维存储")
+        self.assertTrue(any("code_name_conflict:300667.SZ:佰维存储->resolved_by_name:688525.SH" in item for item in universe.warnings))
+
     def test_mlcc_theme_universe_keeps_full_pool_when_only_some_pass_short_term_signals(self) -> None:
         llm = _ThemeUniverseLLM(_mlcc_theme_stocks())
         bullish = {"300408.SZ", "000636.SZ", "002138.SZ", "300319.SZ"}
@@ -948,11 +1009,12 @@ class StockPickingAgentTest(unittest.TestCase):
             )
 
         self.assertEqual(universe.source, "llm_theme_universe")
-        self.assertEqual(universe.symbols, ("300408.SZ", "000636.SZ", "600519.SH"))
-        self.assertEqual(universe.stocks[0].name, "三环集团")
+        self.assertEqual(universe.symbols, ("000636.SZ", "600519.SH"))
+        self.assertEqual(universe.stocks[0].name, "风华高科")
         self.assertEqual(universe.stocks[-1].confidence, 0.2)
         warnings = "\n".join(universe.warnings)
-        self.assertIn("code_name_conflict", warnings)
+        self.assertIn("code_name_conflict:300408.SZ:风华高科->resolved_by_name:000636.SZ", warnings)
+        self.assertIn("duplicate:000636.SZ", warnings)
         self.assertIn("unrecognized:00700.HK", warnings)
         self.assertIn("low_confidence", warnings)
 

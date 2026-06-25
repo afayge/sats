@@ -194,6 +194,35 @@ class StockLLMContextTest(unittest.TestCase):
                 tables = con.execute("SHOW TABLES").fetchdf()["name"].tolist()
             self.assertNotIn("stock_minute", tables)
 
+    def test_explicit_minute_period_returns_diagnostics_for_requested_period(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")
+            storage = DuckDBStorage(settings.db_path)
+
+            with (
+                patch("sats.data.astock_provider.TickFlowDataProvider", _FakeTickFlowProvider),
+                patch("sats.data.astock_provider.TushareDataProvider", _EmptyTushareProvider),
+            ):
+                contexts = ensure_stock_analysis_data(
+                    ["002436"],
+                    "20260515",
+                    settings=settings,
+                    storage=storage,
+                    periods=("15分钟",),
+                )
+
+            stock = contexts["002436.SZ"]
+            self.assertEqual(stock["chan_minute_period"], "15m")
+            self.assertEqual(set(stock["minute_curves"]), {"15m"})
+            curve = stock["minute_curves"]["15m"]
+            self.assertEqual(curve["period"], "15m")
+            self.assertEqual(curve["row_count"], 2)
+            self.assertEqual(curve["start_trade_time"], "2026-05-15 10:15:00")
+            self.assertEqual(curve["end_trade_time"], "2026-05-15 10:45:00")
+            self.assertEqual(curve["required_min_rows"], 35)
+            self.assertFalse(curve["is_sufficient"])
+            self.assertIn("minute_15m_insufficient_rows", stock["missing_fields"])
+
     def test_context_does_not_fallback_to_minute_cache_after_tickflow_failure(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb")

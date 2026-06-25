@@ -344,8 +344,8 @@ def _index_payloads(
         data = daily[daily["ts_code"].astype(str) == symbol].sort_values("trade_date") if not daily.empty else pd.DataFrame()
         quote = quote_lookup.get(symbol, {})
         latest = data.tail(1).iloc[0].dropna().to_dict() if not data.empty else {}
-        close = _safe_float(quote.get("close")) or _safe_float(latest.get("close"))
-        pct_chg = _safe_float(quote.get("pct_chg")) or _safe_float(latest.get("pct_chg"))
+        close = _first_not_none(_safe_float(quote.get("close")), _safe_float(latest.get("close")))
+        pct_chg = _first_not_none(_safe_float(latest.get("pct_chg")), _safe_float(quote.get("pct_chg")))
         payloads.append(
             {
                 "ts_code": symbol,
@@ -354,8 +354,8 @@ def _index_payloads(
                 "latest": {
                     "close": close,
                     "pct_chg": pct_chg,
-                    "amount": _safe_float(quote.get("amount")) or _safe_float(latest.get("amount")),
-                    "vol": _safe_float(quote.get("vol")) or _safe_float(latest.get("vol")),
+                    "amount": _first_not_none(_safe_float(quote.get("amount")), _safe_float(latest.get("amount"))),
+                    "vol": _first_not_none(_safe_float(quote.get("vol")), _safe_float(latest.get("vol"))),
                 },
                 "technical": _technical_metrics(data),
                 "weekly": _weekly_metrics(data),
@@ -600,6 +600,13 @@ def _safe_float(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _first_not_none(*values: Any) -> Any:
+    for value in values:
+        if value is not None:
+            return value
+    return None
 
 
 def _build_optional(factory):

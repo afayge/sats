@@ -13,6 +13,7 @@ from sats.agent.tools import AgentToolRegistry
 from sats.chat_reference import is_reference_question
 from sats.config import Settings
 from sats.llm import ChatLLM, build_light_fallback_llm, build_standard_llm, extract_json_object
+from sats.minute_periods import extract_minute_periods
 from sats.natural_task import build_screened_natural_task_spec, extract_candidate_limit, requested_screened_analysis_mode
 from sats.rag.knowledge import infer_stock_collections
 from sats.screening.registry import list_rules
@@ -204,7 +205,8 @@ def _planner_messages(
                 "大盘问题 -> research.market_context；"
                 "research.market_context 的 dimensions 只使用 core_indices、market_breadth、limit_sentiment、hot_sectors；"
                 "Serenity、供应链卡位/卡脖子/瓶颈筛选，或 AI 科技主题选股 -> research.serenity_screen；"
-                "选股问题 -> research.discover_opportunities；"
+                "主题相关股票列表、概念股有哪些、列出相关股票或简单信息 -> research.theme_stock_list；"
+                "只有用户明确要求短线、上涨潜力、预测走势、明天/未来几天、大概率上涨、机会或候选排序时，选股问题才 -> research.discover_opportunities；"
                 "缠论问题 -> research.chan_context；"
                 "规则生成 -> research.rule_generation。"
                 "除非用户明确要求，否则不要默认追加 factor_summary、analyze_signals、knowledge_context 或额外 data.* 取数步骤。"
@@ -442,6 +444,8 @@ def _fallback_plan(
             )
     elif _is_theme_stock_return_request(text):
         steps.append(_theme_stock_returns_step(text, clean_symbols))
+    elif _is_theme_stock_list_request(text):
+        steps.append(_theme_stock_list_step(text))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
     elif clean_symbols and _is_company_fundamentals_request(text):
@@ -635,6 +639,7 @@ def _augment_plan(
         return plan
     insert_at = _final_index(steps)
     text = str(message or "")
+    steps = [_with_explicit_minute_periods(step, text) for step in steps]
     symbols = (
         list(resolved_symbols or ())
         or _plan_stock_symbols(steps)
@@ -714,6 +719,8 @@ def _augment_plan(
         return replace(plan, steps=tuple(steps))
     if _is_theme_stock_return_request(text):
         return replace(plan, steps=(_theme_stock_returns_step(text, symbols), AgentStep(step_id="final", kind="final", title="总结结果")))
+    if _is_theme_stock_list_request(text):
+        return replace(plan, steps=(_theme_stock_list_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if symbols and _is_company_fundamentals_request(text):
         company_step = _tool_step(
             "company_fundamentals",
@@ -831,7 +838,7 @@ def _augment_plan(
         objective=plan.objective,
         success_criteria=plan.success_criteria,
         assumptions=plan.assumptions,
-        steps=tuple(steps),
+        steps=tuple(_with_explicit_minute_periods(step, text) for step in steps),
         risk_level=plan.risk_level,
         requires_live_trading=plan.requires_live_trading,
         natural_task=plan.natural_task,
@@ -849,6 +856,20 @@ def _tool_step(step_id: str, tool_name: str, title: str, arguments: dict[str, An
         arguments=arguments,
         side_effect=side_effect,
     )
+
+
+def _with_explicit_minute_periods(step: AgentStep, text: str) -> AgentStep:
+    periods = list(extract_minute_periods(text))
+    if not periods or step.kind != "tool":
+        return step
+    if step.arguments.get("minute_periods"):
+        return step
+    applies = step.tool_name == "research.stock_context"
+    if step.tool_name == "research.internal_analysis":
+        applies = str(step.arguments.get("kind") or "") in {"indicators", "analyze_signals", "native_dsa"}
+    if not applies:
+        return step
+    return replace(step, arguments={**step.arguments, "minute_periods": periods})
 
 
 def _analyze_signals_step(symbols: list[str], trade_date: str, text: str) -> AgentStep:
@@ -893,6 +914,16 @@ def _theme_stock_returns_step(text: str, symbols: list[str] | None = None) -> Ag
         "research.theme_stock_returns",
         "解析主题股票池并计算区间涨跌幅",
         arguments,
+        side_effect="readonly",
+    )
+
+
+def _theme_stock_list_step(text: str) -> AgentStep:
+    return _tool_step(
+        "theme_stock_list",
+        "research.theme_stock_list",
+        "解析主题相关股票池",
+        {"query": text, "limit": 50},
         side_effect="readonly",
     )
 
@@ -1051,10 +1082,33 @@ def _factor_id(text: str) -> str:
 
 
 def _is_market_analysis_request(text: str) -> bool:
+    if _is_hot_sector_lookup_request(text):
+        return True
     lowered = text.lower()
-    market_terms = ("大盘", "指数", "市场", "上证", "沪指", "深成指", "创业板", "沪深300", "中证500", "科创50", "a股")
-    analysis_terms = ("分析", "走势", "预测", "行情", "涨跌", "怎么看", "怎么走", "本周", "下周", "明天")
+    market_terms = ("大盘", "指数", "市场", "板块", "行业", "上证", "沪指", "深成指", "创业板", "沪深300", "中证500", "科创50", "a股")
+    analysis_terms = ("分析", "走势", "预测", "行情", "涨跌", "怎么看", "怎么走", "本周", "下周", "明天", "有哪些", "哪些", "排名", "排行")
     return any(term in lowered or term in text for term in market_terms) and any(term in text for term in analysis_terms)
+
+
+def _is_hot_sector_lookup_request(text: str) -> bool:
+    value = _compact_theme_request_text(text)
+    if not value:
+        return False
+    if _is_hot_sector_opportunity_request(text):
+        return False
+    stock_terms = ("相关股票", "相关个股", "相关a股", "概念股", "产业链股票", "题材股", "哪些股票", "哪些个股", "有哪些股票", "有哪些个股")
+    if any(term in value for term in stock_terms):
+        return False
+    hot_terms = ("热点板块", "热门板块", "热点行业", "热门行业", "热点题材", "领涨板块", "领涨行业", "强势板块", "强势行业")
+    lookup_terms = ("有哪些", "哪些", "哪个", "排名", "排行", "榜", "领涨", "最强")
+    return any(term in value for term in hot_terms) and any(term in value for term in lookup_terms)
+
+
+def _is_hot_sector_opportunity_request(text: str) -> bool:
+    value = _compact_theme_request_text(text)
+    hot_terms = ("热点板块", "热门板块", "热点题材", "强势板块", "领涨板块")
+    opportunity_terms = ("机会", "上涨潜力", "大概率上涨", "候选", "推荐", "选股", "明天可能涨", "未来几天可能涨")
+    return any(term in value for term in hot_terms) and any(term in value for term in opportunity_terms)
 
 
 def _is_stock_analysis_request(text: str) -> bool:
@@ -1251,6 +1305,46 @@ def _is_theme_stock_return_request(text: str) -> bool:
     )
     has_return_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现"))
     return (has_theme_stock or has_peer_theme) and has_period and has_return_metric
+
+
+def _is_theme_stock_list_request(text: str) -> bool:
+    value = _compact_theme_request_text(text)
+    if not value:
+        return False
+    if _is_hot_sector_lookup_request(text) or _is_hot_sector_opportunity_request(text):
+        return False
+    has_stock_topic = any(term in value for term in ("相关股票", "相关个股", "相关a股", "概念股", "产业链股票", "题材股"))
+    has_list_intent = any(term in value for term in ("有哪些", "列出", "名单", "简单信息", "主营", "行业", "股票池"))
+    has_market_subject = any(term in value for term in ("股票", "个股", "a股", "概念", "板块", "行业", "题材", "产业链", "内存", "存储", "芯片", "半导体", "dram", "nand", "flash", "ssd"))
+    if not (has_stock_topic or (has_list_intent and has_market_subject)):
+        return False
+    has_forecast_or_pick = any(term in value for term in ("短线", "上涨潜力", "大概率上涨", "预测", "明天", "未来几天", "未来几日", "机会发现", "候选排序", "推荐候选"))
+    if has_forecast_or_pick and not _negates_short_opportunity_prediction(value):
+        return False
+    return True
+
+
+def _compact_theme_request_text(text: str) -> str:
+    return re.sub(r"[\s的]+", "", str(text or "").strip().lower())
+
+
+def _negates_short_opportunity_prediction(value: str) -> bool:
+    return any(
+        phrase in value
+        for phrase in (
+            "不用进行短期机会预测",
+            "不用短期机会预测",
+            "不用机会预测",
+            "不进行短期机会预测",
+            "不做短期机会预测",
+            "不要短期机会预测",
+            "无需短期机会预测",
+            "不用预测",
+            "不预测",
+            "不要预测",
+            "无需预测",
+        )
+    )
 
 
 def _theme_return_period(text: str) -> str:

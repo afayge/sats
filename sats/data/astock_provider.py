@@ -11,6 +11,7 @@ from sats.data.base import MarketDataProvider
 from sats.data.limit_sentiment import build_limit_sentiment_payload, build_quote_limit_sentiment_payload
 from sats.minute_periods import (
     aggregate_minute_klines,
+    ensure_minute_frame_period,
     looks_like_minute_period,
     native_minute_base_period,
     native_minute_count_for,
@@ -1359,6 +1360,8 @@ def _finalize_minute_period_frame(
     data = frame
     if target_period != base_period:
         data = aggregate_minute_klines(data, target_period=target_period, source_period=base_period)
+    else:
+        data = ensure_minute_frame_period(data, period=target_period)
     return tail_minute_klines(data, count)
 
 

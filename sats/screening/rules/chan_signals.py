@@ -3,7 +3,7 @@ from __future__ import annotations
 from sats.chan.engine import chan_signal_daily_candidates
 from sats.chan.engine import evaluate_chan_signals
 from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
-from sats.screening.rules.chan_third_buy import _latest_trade_date, _prepare_daily
+from sats.screening.rules.chan_third_buy import _chan_minute_period, _latest_trade_date, _minute_metadata_key, _prepare_daily
 
 
 class ChanSignalsRule(ScreeningRule):
@@ -36,10 +36,14 @@ class ChanSignalsRule(ScreeningRule):
             conflict_flags.append("buy_sell_signal_conflict")
 
         daily = _prepare_daily(data.daily, trade_date=data.trade_date)
+        minute_period = _chan_minute_period(data)
+        minute_key = _minute_metadata_key(minute_period)
         metrics = {
             "data_source": data.metadata.get("data_source", "unknown"),
             "daily_basic_source": data.metadata.get("daily_basic_source", ""),
             "minute_30m_source": data.metadata.get("minute_30m_source", ""),
+            "chan_minute_period": minute_period,
+            f"{minute_key}_source": data.metadata.get(f"{minute_key}_source", ""),
             "daily_rows": len(daily),
             "latest_daily_trade_date": _latest_trade_date(daily),
             "chan_daily_candidates": data.metadata.get("chan_daily_candidates", []),

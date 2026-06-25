@@ -28,6 +28,7 @@ SYNTHESIS_SYSTEM_PROMPT = (
     "如果明确请求的股票未出现在摘要中，只能说明摘要未展开/未纳入摘要；只有 missing_fields、空指标 payload 或工具错误才可写成数据缺失/未命中。"
     "对于 discovery 候选，candidate_summary.omitted_count=0 时不得声称排名靠后的原始发现结果或技术数据被截断。"
     "如果 stock_context 或 indicators 中有 period_returns，应直接使用其中的交易日起止和 pct_change 回答模糊时间段涨跌幅，不要因为自然日端点不是交易日而说缺失。"
+    "如果 theme_stock_list 中有 stocks，应逐行列出主题相关股票基础信息，不要写成短线候选、上涨预测或机会发现结果。"
     "如果 theme_stock_returns 中有 stocks，应逐行列出全部股票候选及其 period_returns，不要按短线候选或摘要上限压缩。"
     "对投资相关判断必须说明仅供研究，不构成投资建议。"
     "回答要像排版清晰的研究分析正文，而不是工具执行日志；不要输出 step id、[done]、原始 JSON 大段内容。"
@@ -210,6 +211,8 @@ def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) ->
     text = str(message or "")
     if "research.theme_stock_returns" in tools:
         return "theme_returns"
+    if "research.theme_stock_list" in tools:
+        return "theme_stock_list"
     if "research.serenity_screen" in tools:
         return "discovery"
     if "research.discover_opportunities" in tools or any(term in text for term in ("推荐", "筛选", "候选", "短线机会")):
@@ -290,6 +293,13 @@ def _style_guide(style: str) -> dict[str, Any]:
             "sections": ["数据截止与免责声明", "核心结论", "主题股票池涨跌幅表", "候选来源", "风险与限制", "下一步"],
             "table_hints": ["逐股票涨跌幅表必须覆盖 theme_stock_returns.stocks 的全部候选；列出代码、名称、区间起止交易日、区间涨跌幅、数据状态"],
         }
+    if style == "theme_stock_list":
+        return {
+            **common,
+            "title": "用主题相关 A股股票列表写 H1 标题。",
+            "sections": ["数据截止与免责声明", "核心结论", "主题股票池基础信息表", "候选来源", "风险与限制", "下一步"],
+            "table_hints": ["主题股票池基础信息表必须覆盖 theme_stock_list.stocks；列出代码、名称、行业、市场、交易所、主题来源和关联说明"],
+        }
     if style == "backtest":
         return {
             **common,
@@ -323,6 +333,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "native_dsa": {},
         "factor_summary": {},
         "company_fundamentals": {},
+        "theme_stock_list": {},
         "theme_stock_returns": {},
         "discovery": {},
         "chan_context": {},
@@ -398,6 +409,9 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         elif tool_name == "research.theme_stock_returns":
             context = payload.get("theme_stock_returns") if isinstance(payload.get("theme_stock_returns"), dict) else payload
             digest["theme_stock_returns"] = _trim_payload(context, max_chars=14000)
+        elif tool_name == "research.theme_stock_list":
+            context = payload.get("theme_stock_list") if isinstance(payload.get("theme_stock_list"), dict) else payload
+            digest["theme_stock_list"] = _trim_payload(context, max_chars=14000)
         elif tool_name == "research.discover_opportunities":
             digest["discovery"] = _discovery_digest(payload)
         elif tool_name == "research.backtest":
@@ -1294,6 +1308,8 @@ def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...]
         _append_discovery_fallback(lines, digest)
     elif style == "theme_returns":
         _append_theme_returns_fallback(lines, digest)
+    elif style == "theme_stock_list":
+        _append_theme_stock_list_fallback(lines, digest)
     elif style == "backtest":
         _append_backtest_fallback(lines, digest)
     _append_web_fallback(lines, digest)
@@ -1321,6 +1337,10 @@ def _fallback_title(style: str, objective: str) -> str:
         return "A股大盘走势研究报告"
     if style == "discovery":
         return "短线机会发现报告"
+    if style == "theme_stock_list":
+        return "主题相关 A股股票列表"
+    if style == "theme_returns":
+        return "主题股票池区间表现"
     if style == "backtest":
         return "策略回测研究报告"
     return str(objective or "SATS Agent 分析结果")
@@ -1613,6 +1633,48 @@ def _append_theme_returns_fallback(lines: list[str], digest: dict[str, Any]) -> 
     lines.extend(_markdown_table(rows, ("代码", "名称", "起始交易日", "结束交易日", "区间涨跌幅", "数据状态")) or ["主题股票池或区间涨跌幅数据缺失。"])
     coverage = payload.get("coverage") if isinstance(payload.get("coverage"), dict) else {}
     lines.extend(["", "## 候选来源", "", _compact_json_line({"theme": payload.get("theme"), "candidate_count": payload.get("candidate_count"), "coverage": coverage, "web_search": payload.get("web_search")})])
+    warnings = payload.get("warnings") if isinstance(payload.get("warnings"), list) else []
+    if warnings:
+        lines.extend(["", "## 风险与限制", ""])
+        lines.extend(f"- {item}" for item in warnings[:8])
+        lines.append("")
+
+
+def _append_theme_stock_list_fallback(lines: list[str], digest: dict[str, Any]) -> None:
+    payload = digest.get("theme_stock_list") if isinstance(digest.get("theme_stock_list"), dict) else {}
+    stocks = payload.get("stocks") if isinstance(payload.get("stocks"), list) else []
+    rows = [
+        {
+            "代码": item.get("ts_code"),
+            "名称": item.get("name"),
+            "行业": item.get("industry"),
+            "市场": item.get("market"),
+            "交易所": item.get("exchange"),
+            "来源": item.get("source"),
+            "关联说明": item.get("reason") or item.get("relation_type"),
+        }
+        for item in stocks
+        if isinstance(item, dict)
+    ]
+    lines.extend(["## 主题股票池基础信息表", ""])
+    lines.extend(_markdown_table(rows, ("代码", "名称", "行业", "市场", "交易所", "来源", "关联说明")) or ["主题股票池未命中相关 A 股。"])
+    lines.extend(
+        [
+            "",
+            "## 候选来源",
+            "",
+            _compact_json_line(
+                {
+                    "theme": payload.get("theme"),
+                    "source": payload.get("source"),
+                    "matched_sector": payload.get("matched_sector"),
+                    "theme_universe_count": payload.get("theme_universe_count"),
+                    "returned_count": payload.get("returned_count"),
+                    "policy": payload.get("policy"),
+                }
+            ),
+        ]
+    )
     warnings = payload.get("warnings") if isinstance(payload.get("warnings"), list) else []
     if warnings:
         lines.extend(["", "## 风险与限制", ""])

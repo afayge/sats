@@ -69,6 +69,27 @@ class ChanSignalsRuleTest(unittest.TestCase):
         self.assertTrue(result.failed_conditions)
         self.assertIn("risk_flags", result.metrics)
 
+    def test_explicit_15m_minute_data_is_not_filtered_as_30m(self) -> None:
+        minute = make_chan_minute_30m().assign(period="15m")
+        data = ScreeningInput(
+            ts_code="000001.SZ",
+            trade_date="20260430",
+            daily=make_chan_daily(),
+            daily_basic=make_daily_basic(),
+            stock_basic={"name": "平安银行", "market": "主板", "exchange": "SZSE"},
+            metadata={
+                "chan_minute_period": "15m",
+                "minute_15m": minute,
+                "minute_15m_source": "tickflow_history",
+            },
+        )
+
+        result = self.rule.evaluate(data)
+
+        self.assertTrue(result.passed, result.failed_conditions)
+        self.assertEqual(result.metrics["chan_minute_period"], "15m")
+        self.assertIn("三买", result.metrics["matched_chan_rules"])
+
     def test_buy_sell_conflict_is_marked(self) -> None:
         fake_signals = [
             _fake_signal("chan_first_buy", "一买", "buy"),

@@ -11,7 +11,7 @@ import pandas as pd
 from sats.agent.date_policy import agent_today, is_forecast_without_intraday, resolve_agent_time_context
 from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSpec, object_schema, ok
 from sats.analysis.market_llm_context import SUPPORTED_MARKET_DIMENSIONS
-from sats.analysis.stock_llm_context import ensure_stock_analysis_data, extract_period_return_requests
+from sats.analysis.stock_llm_context import ensure_stock_analysis_data, extract_period_return_requests, minute_curve_metadata
 from sats.analysis.stock_picking_agent import resolve_theme_universe
 from sats.backtesting.service import format_backtest_report, run_strategy_backtest
 from sats.backtesting.strategy_spec import strategy_draft_python, strategy_spec_from_request, validate_strategy_spec
@@ -28,6 +28,7 @@ from sats.chat_artifacts import save_json_artifact, save_markdown_artifact
 from sats.data.astock_provider import AStockDataProvider
 from sats.deep_analysis import run_deep_analysis
 from sats.memory import ChatMemoryStore
+from sats.minute_periods import extract_minute_periods, normalize_minute_periods
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.serenity import run_serenity_screen
 from sats.signals import SignalInput, analyze_signal_inputs
@@ -38,6 +39,7 @@ from sats.web import search as web_search
 
 
 THEME_STOCK_RETURN_LIMIT = 30
+THEME_STOCK_LIST_LIMIT = 80
 
 
 def research_tool_specs() -> list[AgentToolSpec]:
@@ -73,6 +75,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                     "symbols": {"type": "array", "items": {"type": "string"}},
                     "trade_date": {"type": "string"},
                     "horizons": {"type": "array", "items": {"type": "string"}},
+                    "minute_periods": {"type": "array", "items": {"type": "string"}},
                 },
                 ["symbols"],
             ),
@@ -101,6 +104,23 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 }
             ),
             executor=_serenity_screen,
+        ),
+        AgentToolSpec(
+            name="research.theme_stock_list",
+            description="解析主题相关 A 股股票池并返回代码、名称、行业、市场和主题关联说明；不做短线机会筛选或预测。",
+            category="research",
+            side_effect="readonly",
+            timeout=90,
+            input_schema=object_schema(
+                {
+                    "query": {"type": "string"},
+                    "theme": {"type": "string"},
+                    "trade_date": {"type": "string"},
+                    "limit": {"type": "integer"},
+                },
+                ["query"],
+            ),
+            executor=_theme_stock_list,
         ),
         AgentToolSpec(
             name="research.discover_opportunities",
@@ -156,6 +176,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                     "profile": {"type": "string"},
                     "lookback_days": {"type": "integer"},
                     "horizons": {"type": "array", "items": {"type": "string"}},
+                    "minute_periods": {"type": "array", "items": {"type": "string"}},
                 },
                 ["kind", "symbols"],
             ),
@@ -319,6 +340,54 @@ def _discover_opportunities(context: AgentToolContext, arguments: dict[str, Any]
         payload=result_payload,
         data_names=("opportunity_discovery",),
         artifacts=tuple(artifacts),
+    )
+
+
+def _theme_stock_list(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    query = str(arguments.get("query") or context.message or "").strip()
+    theme = str(arguments.get("theme") or "").strip()
+    trade_date = str(arguments.get("trade_date") or "").strip() or agent_today()
+    limit = _positive_int(arguments.get("limit"), default=50, maximum=THEME_STOCK_LIST_LIMIT)
+    provider = AStockDataProvider(context.settings)
+    stock_basic = _load_stock_basic_for_theme_returns(provider=provider, storage=context.storage)
+    warnings: list[str] = []
+    try:
+        universe = resolve_theme_universe(
+            f"{theme or query} 相关股票",
+            provider,
+            context.storage,
+            context.llm_factory,
+            settings=context.settings,
+            trade_date=trade_date,
+            llm_enabled=context.llm_factory is not None,
+            max_symbols=limit,
+        )
+        warnings.extend(str(item) for item in (getattr(universe, "warnings", ()) or ()))
+    except Exception as exc:
+        universe = None
+        warnings.append(f"theme_universe: {exc}")
+    stocks = _theme_stock_list_rows(universe, stock_basic=stock_basic)
+    payload = {
+        "status": "ok",
+        "theme_stock_list": _drop_empty(
+            {
+                "query": query,
+                "theme": str(getattr(universe, "theme", "") or theme or _clean_theme_label(query)) if universe is not None else theme or _clean_theme_label(query),
+                "source": str(getattr(universe, "source", "") or "none") if universe is not None else "none",
+                "matched_sector": str(getattr(universe, "matched_sector", "") or "") if universe is not None else "",
+                "theme_universe_count": int(getattr(universe, "count", 0) or 0) if universe is not None else 0,
+                "returned_count": len(stocks),
+                "stocks": stocks,
+                "warnings": _dedupe(warnings),
+                "policy": "仅返回主题相关股票池和基础信息；未运行 short_up、Analyze 信号筛选或短期机会预测。",
+            }
+        ),
+    }
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(payload, ensure_ascii=False, default=str),
+        payload=payload,
+        data_names=("theme_stock_list",),
     )
 
 
@@ -493,6 +562,7 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
 
 
 def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    minute_periods = _minute_periods_from_arguments(arguments, context.message)
     if not is_forecast_without_intraday(context.message, arguments):
         symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
         stock_context = build_stock_context_component(
@@ -503,6 +573,7 @@ def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> Agen
                 trade_date=str(arguments.get("trade_date") or "").strip() or None,
                 has_stock_question=True,
             ),
+            minute_periods=minute_periods,
         )
         payload = _context_payload(stock_context)
         result_payload = {"status": "ok", "stock_context": payload}
@@ -766,12 +837,20 @@ def _effective_stock_context_trade_date(stock_contexts: dict[str, dict[str, Any]
     return max(dates) if dates else fallback
 
 
+def _minute_periods_from_arguments(arguments: dict[str, Any], message: str) -> tuple[str, ...]:
+    return normalize_minute_periods(arguments.get("minute_periods") or ()) or extract_minute_periods(message)
+
+
 def _signal_input_from_context(context: dict[str, Any]) -> SignalInput:
     return SignalInput(
         ts_code=str(context.get("ts_code") or ""),
         trade_date=str(context.get("trade_date") or ""),
         daily=pd.DataFrame(context.get("daily_tail") or []),
         stock_basic={"name": context.get("name") or ""},
+        metadata=minute_curve_metadata(
+            context.get("minute_curves") or {},
+            preferred_period=str(context.get("chan_minute_period") or ""),
+        ),
     )
 
 
@@ -989,6 +1068,34 @@ def _candidates_from_theme_universe(universe: Any) -> list[dict[str, Any]]:
                     "name": getattr(stock, "name", ""),
                     "reason": getattr(stock, "reason", ""),
                     "source": getattr(stock, "source", "") or "theme_universe",
+                }
+            )
+        )
+    return rows
+
+
+def _theme_stock_list_rows(universe: Any, *, stock_basic: pd.DataFrame) -> list[dict[str, Any]]:
+    if universe is None:
+        return []
+    basic = _clean_stock_basic(stock_basic)
+    by_code = {str(row["ts_code"]): row for _, row in basic.iterrows()} if not basic.empty else {}
+    rows: list[dict[str, Any]] = []
+    for stock in getattr(universe, "stocks", ()) or ():
+        ts_code = normalize_ts_code(str(getattr(stock, "ts_code", "") or ""))
+        if not _is_a_share_ts_code(ts_code):
+            continue
+        basic_row = by_code.get(ts_code, {})
+        rows.append(
+            _drop_empty(
+                {
+                    "ts_code": ts_code,
+                    "name": str(getattr(stock, "name", "") or basic_row.get("name") or "").strip(),
+                    "industry": str(basic_row.get("industry") or "").strip(),
+                    "market": str(basic_row.get("market") or "").strip(),
+                    "exchange": str(basic_row.get("exchange") or "").strip(),
+                    "relation_type": str(getattr(stock, "relation_type", "") or "").strip(),
+                    "source": str(getattr(stock, "source", "") or getattr(universe, "source", "") or "").strip(),
+                    "reason": str(getattr(stock, "reason", "") or "").strip(),
                 }
             )
         )

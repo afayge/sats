@@ -5,6 +5,7 @@ from typing import Any
 
 import pandas as pd
 
+from sats.minute_periods import normalize_minute_period
 from sats.screening.base import IntradayKlineRequirement, ScreeningInput, ScreeningResult, ScreeningRule
 
 
@@ -49,13 +50,18 @@ class ChanThirdBuyRule(ScreeningRule):
         if _has_failed_daily_checks(checks):
             return self._build_result(data, checks=checks, metrics=metrics)
 
+        minute_period = _chan_minute_period(data)
+        minute_key = _minute_metadata_key(minute_period)
         minute_checks, minute_metrics = evaluate_chan_minute_confirmation(
-            data.metadata.get("minute_30m"),
+            data.metadata.get(minute_key),
             trade_date=data.trade_date,
             box_high=_num(metrics.get("box_high")),
             breakout_trade_date=str(metrics.get("breakout_trade_date") or ""),
             thresholds=self.thresholds,
+            period=minute_period,
         )
+        minute_metrics["chan_minute_period"] = minute_period
+        minute_metrics[f"{minute_key}_source"] = data.metadata.get(f"{minute_key}_source", "")
         checks.update(minute_checks)
         metrics.update(minute_metrics)
         return self._build_result(data, checks=checks, metrics=metrics)
@@ -142,22 +148,25 @@ def evaluate_chan_minute_confirmation(
     box_high: float,
     breakout_trade_date: str,
     thresholds: ChanThirdBuyThresholds | None = None,
+    period: str = "30m",
 ) -> tuple[dict[str, bool], dict[str, Any]]:
     config = thresholds or ChanThirdBuyThresholds()
+    period = normalize_minute_period(period)
+    metric_key = _minute_metadata_key(period)
     checks: dict[str, bool] = {}
     metrics: dict[str, Any] = {}
-    minute = _prepare_minute(minute_frame, trade_date=trade_date)
-    metrics["minute_30m_rows"] = len(minute)
+    minute = _prepare_minute(minute_frame, trade_date=trade_date, period=period)
+    metrics[f"{metric_key}_rows"] = len(minute)
     metrics["latest_minute_trade_date"] = _latest_trade_date(minute)
 
-    checks["minute_30m_available"] = len(minute) >= config.minute_min_rows
-    if not checks["minute_30m_available"]:
-        metrics["reason"] = "缺少足够30分钟K线确认数据"
+    checks[f"{metric_key}_available"] = len(minute) >= config.minute_min_rows
+    if not checks[f"{metric_key}_available"]:
+        metrics["reason"] = f"缺少足够{period}分钟K线确认数据"
         return checks, metrics
 
-    checks["minute_30m_trade_date_current"] = metrics["latest_minute_trade_date"] == trade_date
-    if not checks["minute_30m_trade_date_current"]:
-        metrics["reason"] = "最新30分钟K线不是请求交易日"
+    checks[f"{metric_key}_trade_date_current"] = metrics["latest_minute_trade_date"] == trade_date
+    if not checks[f"{metric_key}_trade_date_current"]:
+        metrics["reason"] = f"最新{period}分钟K线不是请求交易日"
         return checks, metrics
 
     minute = minute.copy()
@@ -179,15 +188,24 @@ def evaluate_chan_minute_confirmation(
     low_macd_hist = _num(minute.loc[low_index, "macd_hist"])
     latest_macd_hist = _num(latest.get("macd_hist"))
 
-    metrics.update(
-        {
-            "minute_30m_pullback_low": minute_pullback_low,
-            "minute_30m_latest_close": latest_close,
-            "minute_30m_ma5": latest_ma5,
-            "minute_30m_macd_hist_pullback_low": low_macd_hist,
-            "minute_30m_macd_hist_latest": latest_macd_hist,
-        }
-    )
+    minute_metrics = {
+        f"{metric_key}_pullback_low": minute_pullback_low,
+        f"{metric_key}_latest_close": latest_close,
+        f"{metric_key}_ma5": latest_ma5,
+        f"{metric_key}_macd_hist_pullback_low": low_macd_hist,
+        f"{metric_key}_macd_hist_latest": latest_macd_hist,
+    }
+    if period == "30m":
+        minute_metrics.update(
+            {
+                "minute_30m_pullback_low": minute_pullback_low,
+                "minute_30m_latest_close": latest_close,
+                "minute_30m_ma5": latest_ma5,
+                "minute_30m_macd_hist_pullback_low": low_macd_hist,
+                "minute_30m_macd_hist_latest": latest_macd_hist,
+            }
+        )
+    metrics.update(minute_metrics)
     checks["minute_pullback_holds_box"] = minute_pullback_low >= box_high * (1.0 - config.box_tolerance)
     checks["minute_close_above_ma5"] = latest_ma5 > 0 and latest_close > latest_ma5
     checks["minute_macd_hist_improving"] = latest_macd_hist > low_macd_hist
@@ -280,12 +298,13 @@ def _prepare_daily(frame: pd.DataFrame, *, trade_date: str) -> pd.DataFrame:
     return data.sort_values("trade_date").reset_index(drop=True)
 
 
-def _prepare_minute(frame: Any, *, trade_date: str) -> pd.DataFrame:
+def _prepare_minute(frame: Any, *, trade_date: str, period: str = "30m") -> pd.DataFrame:
     if not isinstance(frame, pd.DataFrame) or frame.empty:
         return pd.DataFrame()
+    period = normalize_minute_period(period)
     data = frame.copy()
     if "period" in data.columns:
-        data = data[data["period"].astype(str) == "30m"]
+        data = data[data["period"].astype(str) == period]
     if "trade_date" in data.columns:
         data["trade_date"] = data["trade_date"].astype(str)
         data = data[data["trade_date"] <= str(trade_date)]
@@ -381,7 +400,7 @@ def _score(metrics: dict[str, Any], matched: list[str], failed: list[str]) -> fl
         score += 10.0
     volume_ratio = _num(metrics.get("breakout_volume_ratio"))
     ma20_bias = _num(metrics.get("ma20_bias"))
-    macd_delta = _num(metrics.get("minute_30m_macd_hist_latest")) - _num(metrics.get("minute_30m_macd_hist_pullback_low"))
+    macd_delta = _num(_minute_metric(metrics, "macd_hist_latest")) - _num(_minute_metric(metrics, "macd_hist_pullback_low"))
     if volume_ratio >= 1.5:
         score += 6.0
     elif volume_ratio >= 1.2:
@@ -392,3 +411,25 @@ def _score(metrics: dict[str, Any], matched: list[str], failed: list[str]) -> fl
         score += min(8.0, macd_delta * 10.0)
     score -= min(len(failed) * 5.0, 35.0)
     return round(max(0.0, min(score, 100.0)), 2)
+
+
+def _chan_minute_period(data: ScreeningInput) -> str:
+    try:
+        return normalize_minute_period(data.metadata.get("chan_minute_period") or "30m")
+    except ValueError:
+        return "30m"
+
+
+def _minute_metadata_key(period: str) -> str:
+    return f"minute_{normalize_minute_period(period)}"
+
+
+def _minute_metric(metrics: dict[str, Any], suffix: str) -> Any:
+    static_key = f"minute_30m_{suffix}"
+    if static_key in metrics:
+        return metrics.get(static_key)
+    for key, value in metrics.items():
+        text = str(key)
+        if text.startswith("minute_") and text.endswith(suffix):
+            return value
+    return 0.0
