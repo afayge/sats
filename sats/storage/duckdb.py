@@ -16,9 +16,11 @@ except ImportError as exc:  # pragma: no cover - dependency guard
 else:
     _DUCKDB_IMPORT_ERROR = None
 
+from sats.market_clock import current_shanghai_trade_date, is_current_trading_session_date
 from sats.screening.base import ScreeningResult
 
 _DATE_CACHE_TABLES = {"stock_daily", "stock_daily_basic"}
+_PID_UNSET = object()
 
 
 class DuckDBStorage:
@@ -46,6 +48,7 @@ class DuckDBStorage:
     def upsert_stock_daily(self, frame: pd.DataFrame) -> int:
         columns = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount", "pct_chg", "data_source", "fetched_at"]
         data = _prepare_frame(_with_cache_metadata(frame), columns, required=["ts_code", "trade_date"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("stock_daily", columns, data)
 
     def upsert_stock_daily_basic(self, frame: pd.DataFrame) -> int:
@@ -66,11 +69,13 @@ class DuckDBStorage:
             "fetched_at",
         ]
         data = _prepare_frame(_with_cache_metadata(frame), columns, required=["ts_code", "trade_date"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("stock_daily_basic", columns, data)
 
     def upsert_stock_moneyflow(self, frame: pd.DataFrame) -> int:
         columns = ["ts_code", "trade_date", "main_net_amount", "data_source"]
         data = _prepare_frame(frame, columns, required=["ts_code", "trade_date"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("stock_moneyflow", columns, data)
 
     def upsert_stock_fundamentals(self, frame: pd.DataFrame) -> int:
@@ -131,6 +136,7 @@ class DuckDBStorage:
         data["index_code"] = data["index_code"].fillna(index_code).astype(str)
         columns = ["index_code", "trade_date", "close", "open", "high", "low", "vol", "amount", "pct_chg", "data_source", "fetched_at"]
         data = _prepare_frame(data, columns, required=["index_code", "trade_date"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("industry_daily", columns, data)
 
     def upsert_stock_minute_cache(self, frame: pd.DataFrame, *, period: str = "1m") -> int:
@@ -147,6 +153,7 @@ class DuckDBStorage:
         data["period"] = str(period or "1m")
         columns = ["ts_code", "period", "datetime", "trade_date", "open", "high", "low", "close", "vol", "amount", "data_source", "fetched_at"]
         data = _prepare_frame(data, columns, required=["ts_code", "period", "datetime"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("stock_minute_cache", columns, data)
 
     def upsert_realtime_quote_cache(self, frame: pd.DataFrame) -> int:
@@ -175,6 +182,7 @@ class DuckDBStorage:
             "fetched_at",
         ]
         data = _prepare_frame(_normalize_quote_columns(data), columns, required=["ts_code"])
+        data = _drop_current_trading_session_rows(data, "as_of_time")
         return self._upsert_frame("realtime_quote_cache", columns, data)
 
     def upsert_sector_basic(self, frame: pd.DataFrame) -> int:
@@ -197,8 +205,9 @@ class DuckDBStorage:
         return len(data)
 
     def upsert_sector_daily(self, frame: pd.DataFrame) -> int:
-        columns = ["sector_code", "trade_date", "open", "high", "low", "close", "pct_chg", "vol", "amount", "data_source"]
-        data = _prepare_frame(frame, columns, required=["sector_code", "trade_date"])
+        columns = ["sector_code", "trade_date", "open", "high", "low", "close", "pct_chg", "vol", "amount", "data_source", "fetched_at"]
+        data = _prepare_frame(_with_cache_metadata(frame), columns, required=["sector_code", "trade_date"])
+        data = _drop_current_trading_session_rows(data, "trade_date")
         return self._upsert_frame("sector_daily", columns, data)
 
     def upsert_sector_members(self, frame: pd.DataFrame) -> int:
@@ -508,7 +517,7 @@ class DuckDBStorage:
             ).fetchdf()
 
     def get_sector_daily(self, sector_codes: list[str], *, trade_dates: list[str]) -> pd.DataFrame:
-        columns = ["sector_code", "trade_date", "open", "high", "low", "close", "pct_chg", "vol", "amount", "data_source"]
+        columns = ["sector_code", "trade_date", "open", "high", "low", "close", "pct_chg", "vol", "amount", "data_source", "fetched_at"]
         codes = [str(code).strip() for code in sector_codes if str(code).strip()]
         dates = [str(date).strip() for date in trade_dates if str(date).strip()]
         if not codes or not dates:
@@ -1513,11 +1522,13 @@ class DuckDBStorage:
         *,
         service_name: str,
         status: str,
-        pid: int | None = None,
+        pid: int | None | object = _PID_UNSET,
         params: dict | None = None,
         last_error: str | None = None,
         heartbeat: bool = False,
     ) -> None:
+        pid_provided = pid is not _PID_UNSET
+        pid_value = None if not pid_provided else pid
         self.initialize()
         with self.connect() as con:
             con.execute(
@@ -1526,7 +1537,8 @@ class DuckDBStorage:
                     (service_name, status, pid, heartbeat_at, started_at, stopped_at,
                      params_json, last_error, updated_at)
                 VALUES (
-                    ?, ?, ?,
+                    ?, ?,
+                    CASE WHEN ? THEN ? ELSE (SELECT pid FROM monitor_runtime WHERE service_name = ?) END,
                     CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE (SELECT heartbeat_at FROM monitor_runtime WHERE service_name = ?) END,
                     COALESCE((SELECT started_at FROM monitor_runtime WHERE service_name = ?), CURRENT_TIMESTAMP),
                     CASE WHEN ? = 'stopped' THEN CURRENT_TIMESTAMP ELSE (SELECT stopped_at FROM monitor_runtime WHERE service_name = ?) END,
@@ -1536,7 +1548,9 @@ class DuckDBStorage:
                 [
                     service_name,
                     status,
-                    pid,
+                    pid_provided,
+                    pid_value,
+                    service_name,
                     heartbeat,
                     service_name,
                     service_name,
@@ -2127,6 +2141,31 @@ def _prepare_frame(frame: pd.DataFrame, columns: list[str], *, required: list[st
     if "trade_date" in data.columns:
         data["trade_date"] = data["trade_date"].astype(str).str.strip()
     return data.drop_duplicates(subset=required, keep="last").reset_index(drop=True)
+
+
+def _drop_current_trading_session_rows(data: pd.DataFrame, date_column: str) -> pd.DataFrame:
+    if data.empty or date_column not in data.columns:
+        return data
+    today = current_shanghai_trade_date()
+    if not is_current_trading_session_date(today):
+        return data
+    dates = data[date_column].map(_cache_date_from_value)
+    return data[dates != today].reset_index(drop=True)
+
+
+def _cache_date_from_value(value: Any) -> str:
+    if value is None:
+        return current_shanghai_trade_date()
+    try:
+        if pd.isna(value):
+            return current_shanghai_trade_date()
+    except (TypeError, ValueError):
+        pass
+    text = str(value).strip()
+    if not text:
+        return current_shanghai_trade_date()
+    digits = "".join(char for char in text if char.isdigit())
+    return digits[:8] if len(digits) >= 8 else current_shanghai_trade_date()
 
 
 def _with_cache_metadata(frame: pd.DataFrame) -> pd.DataFrame:

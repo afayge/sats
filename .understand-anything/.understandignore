@@ -1,0 +1,54 @@
+# .understandignore — patterns for files/dirs to exclude from analysis
+# Syntax: same as .gitignore (globs, # comments, ! negation, trailing / for dirs)
+# Lines below are suggestions — uncomment to activate.
+# Use ! prefix to force-include something excluded by defaults.
+#
+# Built-in defaults (always excluded unless negated):
+#   node_modules/, .git/, dist/, build/, obj/, *.lock, *.min.js, etc.
+#
+
+# --- From .gitignore (uncomment to exclude) ---
+
+# .env
+# .DS_Store
+# *.pyc
+# sats.egg-info/
+# data/
+# !sats/data/
+# sats/data/*
+# !sats/data/akshare_datasets.py
+# !sats/data/astock_provider.py
+# !sats/data/akshare_provider.py
+# !sats/data/provider_capabilities.py
+# !sats/data/resolver.py
+# !sats/data/tushare_provider.py
+# !sats/data/tushare_stock_datasets.py
+# reports/
+# runtime/
+# tmp/
+# *.duckdb
+
+# --- Detected directories (uncomment to exclude) ---
+
+# docs/
+# scripts/
+# tests/
+
+# --- Test file patterns (uncomment to exclude) ---
+
+# JS / TS
+# *.test.*
+# *.spec.*
+# *.snap
+# C# / .NET
+# **/*Tests.cs
+# **/*Test.cs
+# **/*Fixture.cs
+# **/*.Tests.csproj
+# Java / Kotlin
+# **/src/test/**
+# **/*Test.java
+# **/*IT.java
+# **/*Spec.kt
+# Go
+# **/*_test.go

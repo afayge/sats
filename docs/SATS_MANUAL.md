@@ -328,8 +328,9 @@ sats discover 新能源板块有哪些机会
 ### 5.11 `chat` — LLM 聊天
 
 ```bash
-sats chat <消息>                # 单次聊天
-sats chat --no-agent <消息>     # 不启用 Agent 计划
+sats chat <消息>                # 默认 conversation 对话
+sats chat --engine legacy <消息> # 使用旧聊天引擎
+sats chat --agent <消息>        # 显式启用 Agent runtime
 sats chat --trace <turn_id>     # 查看历史 turn 详情
 sats chat --confirm <action_id> # 确认待执行动作
 sats chat --reject <action_id>  # 拒绝待执行动作

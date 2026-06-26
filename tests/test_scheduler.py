@@ -180,6 +180,14 @@ class SchedulerCliTest(unittest.TestCase):
             popen.assert_called_once()
             self.assertIn("PID 2468", printer.call_args.args[0])
 
+            with patch("sats.runtime_status.os.kill", return_value=None), patch("builtins.print") as printer:
+                self.assertEqual(main(["schedule", "status", "--db", str(db)]), 0)
+            self.assertIn("状态: running PID: 2468", printer.call_args.args[0])
+
+            with patch("sats.runtime_status.os.kill", side_effect=ProcessLookupError), patch("builtins.print") as printer:
+                self.assertEqual(main(["schedule", "status", "--db", str(db)]), 0)
+            self.assertIn("状态: stale PID: 2468", printer.call_args.args[0])
+
 
 if __name__ == "__main__":
     unittest.main()

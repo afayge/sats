@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from sats.chat_components import (
     CHAT_ROUTE_CHAN,
@@ -20,6 +22,7 @@ from sats.chat_components import (
     COMPONENT_RULE_GENERATION,
     COMPONENT_STOCK_CONTEXT,
     build_chat_request_route,
+    execute_chat_tool,
     resolve_stock_question_from_preprocess,
     _chat_evidence_digest,
     _build_synthesis_messages,
@@ -71,6 +74,71 @@ class ChatComponentsRouteTest(unittest.TestCase):
 
         self.assertEqual(route.route_kind, CHAT_ROUTE_MARKET)
         self.assertEqual(route.required_components, (COMPONENT_MARKET_CONTEXT, COMPONENT_KNOWLEDGE_CONTEXT))
+
+    def test_market_turnover_policy_reaches_chat_synthesis(self) -> None:
+        route = ChatRequestRoute(
+            route_kind=CHAT_ROUTE_MARKET,
+            intent="market_analysis",
+            required_components=(COMPONENT_MARKET_CONTEXT,),
+        )
+        context = SimpleNamespace(
+            payload={
+                "trade_date": "20260521",
+                "market_breadth": {
+                    "total_amount": 370.0,
+                    "amount_basis": "intraday_cumulative",
+                    "session_progress": 0.5,
+                    "projected_full_day_amount": 740.0,
+                    "turnover_comparison": {
+                        "status": "ok",
+                        "basis": "projected_full_day_vs_previous_full_day",
+                        "pct_change": 48.0,
+                    },
+                },
+            }
+        )
+        evidence = ChatEvidenceBundle(route=route, market_context=context)
+
+        digest = _chat_evidence_digest(evidence)
+        messages = _build_synthesis_messages(
+            "今天早上大盘走势评价",
+            route=route,
+            evidence=evidence,
+            skills=[],
+            history=[{"role": "assistant", "content": "旧回答：上证指数 4043.02"}],
+            memories=[],
+            session_summary="旧摘要：上证指数 4043.02",
+        )
+        message_text = "\n".join(str(item.get("content") or "") for item in messages)
+
+        self.assertEqual(digest["market_context"]["market_breadth"]["amount_basis"], "intraday_cumulative")
+        self.assertEqual(digest["market_context"]["market_breadth"]["turnover_comparison"]["status"], "ok")
+        self.assertIn("禁止盘中累计额直接对比前日全天", message_text)
+        self.assertIn("以本轮 SATS 结构化数据为准", message_text)
+
+    def test_market_context_chat_tool_preserves_freshness_payload(self) -> None:
+        with patch(
+            "sats.chat.get_a_share_market_context",
+            return_value={
+                "trade_date": "20260521",
+                "freshness": {
+                    "current_day_refresh_requested": True,
+                    "index_daily": {"source": "astock_provider_cached", "cache_hit": False},
+                },
+            },
+        ):
+            raw = execute_chat_tool(
+                "get_a_share_market_context",
+                {"trade_date": "20260521", "dimensions": ["core_indices"]},
+                skills=[],
+                settings=self.settings,
+            )
+
+        payload = json.loads(raw)
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertTrue(payload["market_context"]["freshness"]["current_day_refresh_requested"])
+        self.assertFalse(payload["market_context"]["freshness"]["index_daily"]["cache_hit"])
 
     def test_opportunity_route_maps_to_discovery_component(self) -> None:
         route = self._route_for("列出10支明天大概率上涨的股票")

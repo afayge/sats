@@ -68,8 +68,22 @@ class _TickFlowBackend:
         if universe_id:
             return pd.DataFrame(
                 [
-                    {"ts_code": "000001.SZ", "close": 10.0, "pct_chg": 1.0, "amount": 100.0},
-                    {"ts_code": "000002.SZ", "close": 9.0, "pct_chg": -0.5, "amount": 80.0},
+                    {
+                        "ts_code": "000001.SZ",
+                        "trade_date": "20260520",
+                        "trade_time": "2026-05-20 11:30:00",
+                        "close": 10.0,
+                        "pct_chg": 1.0,
+                        "amount": 100.0,
+                    },
+                    {
+                        "ts_code": "000002.SZ",
+                        "trade_date": "20260520",
+                        "trade_time": "2026-05-20 11:30:00",
+                        "close": 9.0,
+                        "pct_chg": -0.5,
+                        "amount": 80.0,
+                    },
                 ]
             )
         frame = pd.DataFrame(
@@ -487,6 +501,21 @@ class AStockDataProviderTest(unittest.TestCase):
             self.assertEqual(breadth["advancing_count"], 2)
             self.assertEqual(breadth["declining_count"], 1)
             self.assertEqual(breadth["up_count"], breadth["advancing_count"])
+
+    def test_market_breadth_keeps_live_quote_time_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            provider = AStockDataProvider(
+                _settings(Path(tmp) / "sats.duckdb"),
+                tickflow_provider=_TickFlowBackend(),
+                tushare_provider=_TushareBackend(),
+            )
+
+            breadth, source = provider.load_market_breadth()
+
+            self.assertEqual(source, "tickflow_current_1d_quote")
+            self.assertEqual(breadth["trade_date"], "20260520")
+            self.assertEqual(breadth["latest_trade_time"], "2026-05-20 11:30:00")
+            self.assertEqual(breadth["total_amount"], 180.0)
 
     def test_hot_sector_context_delegates_to_tushare(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

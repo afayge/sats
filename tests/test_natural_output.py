@@ -41,6 +41,19 @@ class NaturalOutputTest(unittest.TestCase):
         self.assertIn("## 风险与限制", markdown)
         self.assertIn("## 下一步", markdown)
 
+    def test_normalize_fills_empty_standard_sections_without_duplicate_headings(self) -> None:
+        markdown = normalize_natural_markdown(
+            "# 大盘分析\n\n## 结论摘要\n\n## 下一步\n",
+            data_names=("Conversation", "market_context"),
+        )
+
+        self.assertEqual(markdown.count("## 结论摘要"), 1)
+        self.assertEqual(markdown.count("## 下一步"), 1)
+        summary = markdown.split("## 结论摘要", 1)[1].split("## 下一步", 1)[0]
+        next_section = markdown.split("## 下一步", 1)[1]
+        self.assertIn("- ", summary)
+        self.assertIn("- ", next_section)
+
     def test_render_non_tty_returns_plain_markdown(self) -> None:
         markdown = "# 标题\n\n> 结论\n"
 

@@ -9,6 +9,8 @@ sats catalog --section all --json
 
 不要根据本文中的数量猜测当前能力；接口、Skills、规则、信号和因子会随代码变化，`sats catalog` 会动态读取当前注册表。
 
+当前自然语言默认入口是 Codex-style conversation 工具循环：`sats chat ...`、REPL 普通输入和 `/chat ...` 默认进入 conversation 引擎，由模型逐轮输出 `call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`，再由 SATS runtime 调用注册工具、记录 observation、执行权限门控和 trace。只有显式 `sats agent ...` 或 `sats chat --agent ...` 才进入 autonomous Agent runtime。旧聊天路径通过 `sats chat --engine legacy ...` 保留。
+
 ## 推荐发现流程
 
 Agent 应按以下顺序工作：
@@ -174,7 +176,7 @@ section, filters, counts, data, consistency
 ## 副作用与交易
 
 - `readonly`：目录、知识检索和不落库的数据读取。
-- `write_db`：可能刷新 DuckDB 行情或基础数据缓存。
+- `write_db`：可能刷新 DuckDB 行情或基础数据缓存；交易时段获取的当天行情只用于本次计算，不写入 DuckDB。
 - `write_artifact`：生成报告、策略或回测产物。
 - `long_running`：训练或长时间任务。
 - `live_trade`：真实交易；必须同时具备显式 auto-trade side、QMT broker 和 live-trading 权限。

@@ -1536,7 +1536,18 @@ def _breadth_metrics(frame: pd.DataFrame) -> dict[str, Any]:
         "average_pct_chg": _safe_float(pct.mean()),
         "total_amount": _safe_float(amount.sum()),
         "valid_price_count": int((close > 0).sum()),
+        "trade_date": _latest_text(data, "trade_date"),
+        "latest_trade_time": _latest_text(data, "trade_time"),
     }
+
+
+def _latest_text(frame: pd.DataFrame, column: str) -> str:
+    if frame is None or frame.empty or column not in frame.columns:
+        return ""
+    values = frame[column].dropna().astype(str)
+    if values.empty:
+        return ""
+    return str(values.max() or "")
 
 
 def _calendar_dates(trade_date: str, calendar_days: int) -> list[str]:

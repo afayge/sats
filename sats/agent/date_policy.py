@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import Any, Mapping
 from zoneinfo import ZoneInfo
 
+from sats.stock_question import extract_natural_trade_date
+
 
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 DATE_FIELD_NAMES = {"trade_date", "start_date", "end_date", "ann_date", "cal_date"}
@@ -51,11 +53,12 @@ def normalize_agent_date(value: Any) -> str:
 
 def resolve_agent_time_context(message: str, *, today: str | None = None, arguments: Mapping[str, Any] | None = None) -> AgentTimeContext:
     text = str(message or "")
+    resolved_today = today or agent_today()
     horizons = _forecast_horizons(text)
-    explicit_dates = _explicit_dates(text)
+    explicit_dates = _explicit_dates(text, today=resolved_today)
     requires_intraday = _requires_intraday_text(text) or _requires_intraday_arguments(arguments or {})
     return AgentTimeContext(
-        today=today or agent_today(),
+        today=resolved_today,
         explicit_dates=explicit_dates,
         horizons=horizons,
         is_forecast=bool(horizons),
@@ -151,7 +154,7 @@ def _normalize_date_fields(value: Any, changes: list[str], *, key: str = "") -> 
     return value
 
 
-def _explicit_dates(text: str) -> tuple[str, ...]:
+def _explicit_dates(text: str, *, today: str | None = None) -> tuple[str, ...]:
     dates: list[str] = []
     seen: set[str] = set()
     for match in DATE_FIND_RE.finditer(str(text or "")):
@@ -162,7 +165,13 @@ def _explicit_dates(text: str) -> tuple[str, ...]:
         if normalized not in seen:
             seen.add(normalized)
             dates.append(normalized)
-    return tuple(dates)
+    if dates:
+        return tuple(dates)
+    try:
+        natural = extract_natural_trade_date(text, today=today)
+    except ValueError:
+        natural = None
+    return (natural,) if natural else ()
 
 
 def _forecast_horizons(text: str) -> tuple[str, ...]:

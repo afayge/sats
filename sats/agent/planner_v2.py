@@ -432,11 +432,26 @@ def _merge_entities(local: dict[str, Any], llm_entities: dict[str, Any]) -> dict
 
 
 def _tool_capability_summary(tool_registry: AgentToolRegistry | None) -> str:
-    names = ("research.market_context", "research.theme_stock_list", "research.discover_opportunities", "data.astock_catalog", "data.astock_fetch", "web.search", "web.social_hot", "web.hot_mentions")
+    names = (
+        "research.market_context",
+        "research.sector_return_ranking",
+        "research.theme_stock_list",
+        "research.theme_stock_returns",
+        "research.discover_opportunities",
+        "analysis.python_program",
+        "data.astock_catalog",
+        "data.astock_fetch",
+        "web.search",
+        "web.social_hot",
+        "web.hot_mentions",
+    )
     defaults = {
         "research.market_context": "获取真实 A 股大盘指数、市场宽度、涨跌停情绪、热点板块上下文。",
+        "research.sector_return_ranking": "枚举概念/行业板块指数并计算区间涨跌幅排行。",
         "research.theme_stock_list": "解析主题相关 A 股股票池；不做短线机会筛选或预测。",
+        "research.theme_stock_returns": "解析主题相关 A 股股票池并计算个股区间涨跌幅。",
         "research.discover_opportunities": "运行自然语言 A 股机会发现，返回候选排序。",
+        "analysis.python_program": "没有合适现成工具时执行只读受限 Python 分析程序。",
         "web.search": "搜索公开网页证据；不能替代行情数据。",
         "web.social_hot": "获取公开社交热榜。",
         "web.hot_mentions": "按主题词在社交热榜中查命中。",
@@ -671,6 +686,65 @@ def _semantic_grounded_plan(intent: PlannerV2Intent, *, policy: AgentExecutionPo
                 side_effect="readonly",
             ),
             success_criteria=("返回主题相关股票池；不做短线机会预测。",),
+        )
+    if task == "sector_return_ranking":
+        return _single_tool_plan(
+            intent,
+            policy=policy,
+            step=AgentStep(
+                step_id="sector_return_ranking",
+                kind="tool",
+                title="计算板块指数区间涨跌幅排行",
+                tool_name="research.sector_return_ranking",
+                arguments={
+                    "query": text,
+                    "source": _sector_ranking_source_text(text),
+                    "sector_type": _sector_ranking_type_text(text),
+                    "period": _sector_ranking_period_text(text),
+                    "direction": _sector_ranking_direction_text(text),
+                    "limit": max(1, int(intent.entities.get("requested_limit") or 10)),
+                },
+                side_effect="readonly",
+            ),
+            success_criteria=("返回板块指数区间涨跌幅排行；不使用主题股票池个股表现替代。",),
+        )
+    if task == "auto_program":
+        return AgentPlan(
+            objective=intent.objective,
+            success_criteria=("先发现可用数据接口，再用只读受限程序做有界计算。",),
+            assumptions=tuple(intent.assumptions),
+            steps=(
+                AgentStep(
+                    step_id="astock_catalog",
+                    kind="tool",
+                    title="发现可用数据接口",
+                    tool_name="data.astock_catalog",
+                    arguments={"query": _catalog_query_text(text), "limit": 20, "compact": True},
+                    side_effect="readonly",
+                ),
+                AgentStep(
+                    step_id="python_program",
+                    kind="tool",
+                    title="运行受限只读程序",
+                    tool_name="analysis.python_program",
+                    arguments={
+                        "task": text,
+                        "code": _default_python_program_code(),
+                        "expected_schema": {"type": "object"},
+                        "observation_refs": ["astock_catalog"],
+                        "resolver_methods": [],
+                        "timeout_seconds": 30,
+                        "row_limit": 200,
+                    },
+                    side_effect="readonly",
+                ),
+                AgentStep(step_id="final", kind="final", title="总结结果"),
+            ),
+            risk_level=intent.risk_level,
+            phase="planner_v2",
+            model_policy="local",
+            model_profile="local",
+            model_name="local",
         )
     if task == "opportunity_discovery":
         limit = int(intent.entities.get("requested_limit") or 0)
@@ -932,8 +1006,12 @@ def _semantic_classification(message: str, *, symbols: tuple[str, ...]) -> tuple
         return "market", "opportunity_discovery", "opportunity_discovery"
     if _is_hot_sector_lookup_text(text):
         return "market", "hot_sector_lookup", "market_analysis"
+    if _is_sector_return_ranking_text(text):
+        return "market", "sector_return_ranking", "market_analysis"
     if _is_theme_stock_list_text(text):
         return "theme", "theme_stock_list", "theme_stock_list"
+    if _is_auto_program_text(text):
+        return "analysis", "auto_program", "data_lookup"
     if symbols and _is_stock_analysis_like(text):
         return "stock", "stock_analysis", "stock_analysis"
     if "筛选" in text:
@@ -966,6 +1044,87 @@ def _is_hot_sector_lookup_text(message: str) -> bool:
     has_sector_subject = any(term in value for term in ("热点板块", "热门板块", "热点行业", "热门行业", "热点题材", "领涨板块", "领涨行业", "强势板块", "强势行业"))
     has_lookup_intent = any(term in value for term in ("有哪些", "哪个", "哪些", "排名", "榜", "排行", "领涨", "最强"))
     return has_sector_subject and has_lookup_intent
+
+
+def _is_sector_return_ranking_text(message: str) -> bool:
+    value = re.sub(r"[\s的]+", "", str(message or "").strip().lower())
+    if not value:
+        return False
+    if any(term in value for term in ("相关股票", "相关个股", "相关a股", "概念股", "股票池", "个股")):
+        return False
+    has_sector_subject = any(term in value for term in ("概念板块", "行业板块", "板块", "行业", "概念指数", "板块指数"))
+    has_period = any(term in value for term in ("一年", "半年", "近年", "过去", "最近", "近")) or bool(
+        re.search(r"[0-9一二两三四五六七八九十]+(个)?(月|年|周|天|日)", value)
+    )
+    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现"))
+    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌"))
+    return has_sector_subject and has_period and has_metric and has_ranking
+
+
+def _sector_ranking_source_text(message: str) -> str:
+    lowered = str(message or "").lower()
+    return "em" if any(term in lowered for term in ("东方财富", "东财", "eastmoney", " em")) else "ths"
+
+
+def _sector_ranking_type_text(message: str) -> str:
+    text = str(message or "")
+    return "industry" if "行业" in text and "概念" not in text else "concept"
+
+
+def _sector_ranking_direction_text(message: str) -> str:
+    text = str(message or "")
+    return "top" if any(term in text for term in ("涨幅最大", "涨幅最高", "领涨", "最强", "最好")) else "bottom"
+
+
+def _sector_ranking_period_text(message: str) -> str:
+    text = str(message or "")
+    if "半年" in text:
+        return "6m"
+    if "一年" in text or "1年" in text or "近年" in text:
+        return "1y"
+    match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", text)
+    if not match:
+        return "1y"
+    amount = _chinese_number_text(match.group(1))
+    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+    return f"{amount}{suffix}" if amount else "1y"
+
+
+def _chinese_number_text(value: str) -> int:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text == "十":
+        return 10
+    if "十" in text:
+        left, _, right = text.partition("十")
+        return (digits.get(left, 1) * 10) + digits.get(right, 0)
+    return digits.get(text, 0)
+
+
+def _is_auto_program_text(message: str) -> bool:
+    return any(term in str(message or "") for term in ("找不到现成工具", "没有现成工具", "没有合适工具", "自己编程", "编写程序", "自定义指标"))
+
+
+def _catalog_query_text(message: str) -> str:
+    value = re.sub(r"(找不到现成工具|没有现成工具|没有合适工具|自己编程|编写程序|自定义指标)", " ", str(message or ""))
+    return " ".join(value.split())[:80] or "A股 数据"
+
+
+def _default_python_program_code() -> str:
+    return (
+        "def run(context):\n"
+        "    observations = context.get('observations') or []\n"
+        "    return {\n"
+        "        'summary': '未命中专用工具，已进入受限只读程序通道；需要后续程序基于 resolver 或 observations 补充具体计算。',\n"
+        "        'observation_count': len(observations),\n"
+        "        'rows': [],\n"
+        "        'provenance': [],\n"
+        "        'data_sources': {},\n"
+        "        'missing_fields': ['custom_program_not_specialized'],\n"
+        "    }\n"
+    )
 
 
 def _is_theme_stock_list_text(message: str) -> bool:

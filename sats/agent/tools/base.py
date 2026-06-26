@@ -41,8 +41,20 @@ class AgentToolSpec:
     requires_trade_permission: bool = False
     timeout: int = 30
     executor: ToolExecutor | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def summary(self) -> dict[str, Any]:
+        metadata = {
+            "domain": self.category,
+            "subject_grain": "unknown",
+            "metric_grain": "unknown",
+            "time_scope": "unknown",
+            "output_shape": "unknown",
+            "enumerates_universe": False,
+            "requires_symbols": _schema_requires_symbols(self.input_schema),
+            "writes_db": self.side_effect == "write_db",
+        }
+        metadata.update(dict(self.metadata or {}))
         return {
             "name": self.name,
             "description": self.description,
@@ -52,6 +64,7 @@ class AgentToolSpec:
             "requires_confirmation": self.requires_confirmation,
             "requires_trade_permission": self.requires_trade_permission,
             "timeout": self.timeout,
+            "metadata": metadata,
         }
 
 
@@ -182,6 +195,13 @@ def _looks_like_security_code(value: Any) -> bool:
         and text[6] == "."
         and text[7:] in {"SH", "SZ", "BJ"}
     )
+
+
+def _schema_requires_symbols(schema: Mapping[str, Any] | None) -> bool:
+    if not isinstance(schema, Mapping):
+        return False
+    required = schema.get("required") if isinstance(schema.get("required"), list) else []
+    return "symbols" in required
 
 
 def validate_tool_arguments(spec: AgentToolSpec, arguments: Mapping[str, Any]) -> str:

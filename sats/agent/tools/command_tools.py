@@ -21,6 +21,7 @@ SATS_COMMANDS = (
     "analyze-chan",
     "chan-kb",
     "discover",
+    "threads",
     "web",
     "model",
     "memory",

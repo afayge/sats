@@ -35,6 +35,16 @@ def _event_key(event: Any) -> str:
     event_type = str(getattr(event, "event_type", "") or "")
     item_name = str(getattr(event, "item_name", "") or "")
     item_type = str(getattr(event, "item_type", "") or "")
+    payload = _as_mapping(getattr(event, "payload", {}) or {})
+    if item_type == "conversation_action":
+        iteration = payload.get("iteration")
+        if iteration in (None, ""):
+            action = _as_mapping(payload.get("action"))
+            iteration = action.get("iteration")
+        if iteration not in (None, ""):
+            return f"step:iteration_{iteration}"
+        if item_name:
+            return f"step:{item_name}"
     if event_type in {"runtime_iteration_started", "tool_completed"} and item_name:
         return f"step:{item_name}"
     if item_name in {"final_synthesis", "agent_report"}:
@@ -55,6 +65,8 @@ def _event_label(event: Any) -> str:
         tool_name = payload["tool_name"]
     if not tool_name and isinstance(payload, dict):
         tool_name = str(payload.get("tool_name") or payload.get("tool") or "")
+    if item_type == "conversation_action":
+        return "决定下一步"
     if item_name == "final_synthesis":
         return "生成分析"
     if item_name == "agent_report" or tool_name == "research.write_report":
@@ -102,6 +114,8 @@ def _event_detail(event: Any) -> str:
         return _skills_detail(payload, content)
     if event_type == "plan_ready":
         return _plan_detail(payload, content)
+    if item_type == "conversation_action":
+        return _conversation_action_detail(payload, content, status=status, event_type=event_type)
 
     detail = _agent_step_detail(payload, content, status=status)
     if detail:
@@ -136,6 +150,31 @@ def _agent_step_detail(payload: Mapping[str, Any], content: str, *, status: str)
     if kind or title:
         return _short_text(" ".join(part for part in (kind, title) if part))
     return ""
+
+
+def _conversation_action_detail(payload: Mapping[str, Any], content: str, *, status: str, event_type: str) -> str:
+    if event_type == "runtime_iteration_started" or status == "running":
+        iteration = payload.get("iteration")
+        if iteration not in (None, ""):
+            return _short_text(f"第 {iteration} 轮：根据已获取数据选择工具、澄清或总结")
+        return "根据已获取数据选择工具、澄清或总结"
+    if status == "error":
+        return _short_text(content or _clean_text(payload.get("message")) or "动作被阻断")
+    action = _as_mapping(payload.get("action"))
+    action_type = str(action.get("action") or payload.get("action") or "")
+    tool_name = str(action.get("tool_name") or action.get("tool") or "")
+    arguments = _as_mapping(action.get("arguments"))
+    if action_type == "call_tool":
+        args = _arguments_summary(arguments)
+        return _short_text(f"决定调用 {tool_name}{(' ' + args) if args else ''}")
+    if action_type == "request_confirmation":
+        args = _arguments_summary(arguments)
+        return _short_text(f"请求确认 {tool_name}{(' ' + args) if args else ''}")
+    if action_type == "ask_clarification":
+        return _short_text(str(action.get("question") or content or "需要补充信息后继续"))
+    if action_type == "final_answer":
+        return "进入最终分析合成"
+    return _short_text(content or action_type or "动作完成")
 
 
 def _tool_name(payload: Mapping[str, Any]) -> str:

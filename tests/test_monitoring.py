@@ -62,6 +62,10 @@ class MonitoringStorageTest(unittest.TestCase):
             self.assertEqual(storage.list_monitor_events()[0]["event_id"], event["event_id"])
             self.assertEqual(storage.list_monitor_trade_events()[0]["trade_event_id"], "trade-1")
             self.assertEqual(storage.get_monitor_runtime("monitor")["pid"], 123)
+            storage.upsert_monitor_runtime(service_name="monitor", status="running", heartbeat=True)
+            self.assertEqual(storage.get_monitor_runtime("monitor")["pid"], 123)
+            storage.upsert_monitor_runtime(service_name="monitor", status="stopped", pid=None)
+            self.assertIsNone(storage.get_monitor_runtime("monitor")["pid"])
             with storage.connect() as con:
                 tables = {row[0] for row in con.execute("SHOW TABLES").fetchall()}
             self.assertNotIn("monitor_quotes", tables)
@@ -832,6 +836,10 @@ class MonitorCliTest(unittest.TestCase):
                 self.assertEqual(main(["monitor", "start", "--db", str(db)]), 0)
             popen.assert_called_once()
             self.assertIn("PID 4321", printer.call_args.args[0])
+
+            with patch("sats.runtime_status.os.kill", side_effect=ProcessLookupError), patch("builtins.print") as printer:
+                self.assertEqual(main(["monitor", "status", "--db", str(db)]), 0)
+            self.assertIn("状态: stale PID: 4321", printer.call_args.args[0])
 
             with patch("os.kill") as kill, patch("builtins.print"):
                 self.assertEqual(main(["monitor", "stop", "--db", str(db)]), 0)

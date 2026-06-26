@@ -15,7 +15,7 @@ from sats.analysis.opportunity_discovery import OpportunityDiscoveryResult
 from sats.agent.progress import _event_detail, _event_label, agent_progress_event_sink
 from sats.llm import LLMResponse
 from sats.cli import main
-from sats.progress import FILLED_BLOCK, EMPTY_BLOCK, create_progress
+from sats.progress import create_progress
 
 
 def _strip_control(value: str) -> str:
@@ -64,7 +64,7 @@ class ProgressReporterTest(unittest.TestCase):
         }
         self.assertIn("unknown knowledge base: missing", _event_detail(failed))
 
-    def test_tty_progress_renders_vibe_style_panel_with_ascii_bar(self) -> None:
+    def test_tty_progress_renders_codex_style_lines(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=10, request="sats screen --trade-date 20260520")
 
@@ -72,20 +72,19 @@ class ProgressReporterTest(unittest.TestCase):
             step.update(42)
 
         output = stream.getvalue()
-        self.assertIn("SATS", output)
-        self.assertIn("Running agent", output)
-        self.assertIn("Request: sats screen --trade-date 20260520", output)
-        self.assertIn("Current", output)
-        self.assertIn("State", output)
-        self.assertIn("Tool", output)
-        self.assertIn("Time", output)
-        self.assertIn("Detail", output)
-        self.assertIn("running", output)
+        self.assertIn("→ Tushare 股票数据", output)
+        self.assertIn("· Tushare 股票数据", output)
+        self.assertIn("✓ Tushare 股票数据", output)
         self.assertIn("Tushare 股票数据", output)
-        self.assertIn(FILLED_BLOCK, output)
-        self.assertIn(EMPTY_BLOCK, output)
-        self.assertNotIn("█", output)
-        self.assertNotIn("░", output)
+        self.assertIn("42/100", output)
+        self.assertIn("100/100", output)
+        self.assertNotIn("Running agent", output)
+        self.assertNotIn("Current", output)
+        self.assertNotIn("State", output)
+        self.assertNotIn("Tool", output)
+        self.assertNotIn("Detail", output)
+        self.assertNotIn("┌", output)
+        self.assertNotIn("└", output)
 
     def test_non_tty_and_json_progress_are_silent(self) -> None:
         non_tty = io.StringIO()
@@ -109,11 +108,10 @@ class ProgressReporterTest(unittest.TestCase):
         step.complete()
 
         output = stream.getvalue()
-        self.assertIn("running", output)
-        self.assertIn("ok", output)
-        self.assertIn("1/1", output)
-        self.assertIn(FILLED_BLOCK, output)
-        self.assertIn(EMPTY_BLOCK, output)
+        self.assertIn("→ deepseek-v4-pro", output)
+        self.assertIn("✓ deepseek-v4-pro", output)
+        self.assertNotIn("running", output)
+        self.assertNotIn("ok", output)
 
     def test_failed_step_records_error_detail(self) -> None:
         stream = _TtyStringIO()
@@ -123,10 +121,11 @@ class ProgressReporterTest(unittest.TestCase):
         step.fail(message="exit_code=1")
 
         output = stream.getvalue()
-        self.assertIn("error", output)
+        self.assertIn("→ bash", output)
+        self.assertIn("✗ bash", output)
         self.assertIn("exit_code=1", output)
 
-    def test_repeated_updates_clear_previous_panel_before_redraw(self) -> None:
+    def test_repeated_updates_append_lines_without_redraw(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=8, request="sats dsa --from-screened")
 
@@ -136,11 +135,15 @@ class ProgressReporterTest(unittest.TestCase):
             step.complete(message="done")
 
         output = stream.getvalue()
-        self.assertIn("\033[J", output)
-        self.assertIn("\033[", output)
-        self.assertIn("A", output)
+        self.assertIn("→ Tushare 股票数据", output)
+        self.assertIn("10/100", output)
+        self.assertIn("20/100", output)
+        self.assertIn("✓ Tushare 股票数据", output)
+        self.assertIn("done", output)
+        self.assertNotIn("\033[J", output)
+        self.assertNotIn("\033[A", output)
 
-    def test_panel_lines_fit_chinese_text_in_narrow_terminal(self) -> None:
+    def test_progress_lines_fit_chinese_text_in_narrow_terminal(self) -> None:
         stream = _TtyStringIO()
         with patch("sats.progress.shutil.get_terminal_size", return_value=os.terminal_size((54, 24))):
             progress = create_progress(
@@ -154,11 +157,10 @@ class ProgressReporterTest(unittest.TestCase):
             lines = progress._panel_lines()
 
         self.assertTrue(lines)
-        widths = {get_cwidth(_strip_control(line)) for line in lines}
-        self.assertEqual(len(widths), 1)
+        widths = [get_cwidth(_strip_control(line)) for line in lines]
         self.assertLessEqual(max(widths), 53)
 
-    def test_recent_step_details_use_bottom_panel_area(self) -> None:
+    def test_completed_steps_remain_as_lines(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=8, request="demo")
 
@@ -167,12 +169,15 @@ class ProgressReporterTest(unittest.TestCase):
         progress.step("生成分析").complete(message="最终分析完成")
 
         output = _strip_control("\n".join(progress._panel_lines()))
-        self.assertIn("Recent details", output)
-        self.assertIn("全市场数据: 5300 只", output)
-        self.assertIn("机会发现: Tushare timeout", output)
-        self.assertIn("生成分析: 最终分析完成", output)
+        self.assertIn("✓ 全市场数据", output)
+        self.assertIn("5300 只", output)
+        self.assertIn("✗ 机会发现", output)
+        self.assertIn("Tushare timeout", output)
+        self.assertIn("✓ 生成分析", output)
+        self.assertIn("最终分析完成", output)
+        self.assertNotIn("Recent details", output)
 
-    def test_many_steps_are_folded_to_fixed_height(self) -> None:
+    def test_many_steps_are_kept_as_append_only_history(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=8)
 
@@ -182,11 +187,11 @@ class ProgressReporterTest(unittest.TestCase):
 
         lines = progress._panel_lines()
         output = "\n".join(lines)
-        self.assertIn("older steps", output)
-        self.assertNotIn("step-0", output)
+        self.assertIn("step-0", output)
         self.assertIn("step-9", output)
-        self.assertIn("Recent details", output)
-        self.assertEqual(len(lines), 22)
+        self.assertNotIn("older steps", output)
+        self.assertNotIn("Recent details", output)
+        self.assertEqual(len(lines), 20)
 
     def test_agent_progress_event_sink_summarizes_step_details(self) -> None:
         stream = _TtyStringIO()
@@ -249,7 +254,7 @@ class ProgressReporterTest(unittest.TestCase):
             )
 
             output = _strip_control("\n".join(progress._panel_lines()))
-        self.assertIn("Recent details", output)
+        self.assertNotIn("Recent details", output)
         self.assertIn("research.discover_opportunities", output)
         self.assertIn("query=给出一些上涨机会", output)
         self.assertIn("Tushare timeout", output)
@@ -257,7 +262,50 @@ class ProgressReporterTest(unittest.TestCase):
         self.assertIn("skills=2", output)
 
 
-    def test_cli_chat_can_show_forced_progress_blocks(self) -> None:
+    def test_conversation_action_progress_shows_decision_detail(self) -> None:
+        stream = _TtyStringIO()
+        with patch("sats.progress.shutil.get_terminal_size", return_value=os.terminal_size((140, 24))):
+            progress = create_progress(stream=stream, force=True, width=8, request="预测下周大盘走势")
+            sink = agent_progress_event_sink(progress)
+            assert sink is not None
+
+            sink(
+                SimpleNamespace(
+                    event_type="runtime_iteration_started",
+                    item_type="conversation_action",
+                    item_name="iteration_1",
+                    status="running",
+                    content="",
+                    payload={"iteration": 1, "max_iterations": 6, "title": "决定下一步"},
+                )
+            )
+            sink(
+                SimpleNamespace(
+                    event_type="llm_completed",
+                    item_type="conversation_action",
+                    item_name="iteration_1",
+                    status="done",
+                    content="决定调用 research.market_context",
+                    payload={
+                        "iteration": 1,
+                        "action": {
+                            "action": "call_tool",
+                            "tool_name": "research.market_context",
+                            "arguments": {"horizons": ["next_week"], "dimensions": ["core_indices", "market_breadth"]},
+                        },
+                    },
+                )
+            )
+
+            output = _strip_control("\n".join(progress._panel_lines()))
+
+        self.assertIn("决定下一步", output)
+        self.assertIn("research.market_context", output)
+        self.assertIn("horizons=[next_week]", output)
+        self.assertNotIn("iteration_1 0.0s  iteration_1", output)
+
+
+    def test_cli_chat_can_show_forced_progress_lines(self) -> None:
         progress_stream = _TtyStringIO()
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
 
@@ -283,9 +331,11 @@ class ProgressReporterTest(unittest.TestCase):
         ):
             self.assertEqual(main(["chat", "--no-agent", "分析大盘"]), 0)
 
-        self.assertIn(FILLED_BLOCK, progress_stream.getvalue())
         self.assertIn("deepseek-v4-pro", progress_stream.getvalue())
-        self.assertIn("Request: sats chat", progress_stream.getvalue())
+        self.assertIn("→", progress_stream.getvalue())
+        self.assertIn("✓", progress_stream.getvalue())
+        self.assertNotIn("Running agent", progress_stream.getvalue())
+        self.assertNotIn("Request: sats chat", progress_stream.getvalue())
 
     def test_discover_json_keeps_stdout_parseable_when_progress_requested(self) -> None:
         progress_stream = _TtyStringIO()

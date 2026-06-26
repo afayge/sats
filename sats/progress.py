@@ -18,8 +18,10 @@ FILLED_BLOCK = "#"
 EMPTY_BLOCK = "-"
 DEFAULT_WIDTH = 20
 DEFAULT_PANEL_WIDTH = 96
-MAX_VISIBLE_ROWS = 8
-DETAIL_VISIBLE_ROWS = 3
+START_MARK = "→"
+UPDATE_MARK = "·"
+OK_MARK = "✓"
+ERROR_MARK = "✗"
 
 
 class NoOpProgressReporter:
@@ -61,6 +63,7 @@ class _StepRecord:
     detail: str = ""
     started_at: float = 0.0
     ended_at: float | None = None
+    last_detail_line: str = ""
 
     @property
     def elapsed(self) -> float:
@@ -86,7 +89,7 @@ class ConsoleProgressReporter:
         self.request = str(request or "").strip()
         self.title = str(title or "SATS").strip() or "SATS"
         self._records: list[_StepRecord] = []
-        self._rendered_lines = 0
+        self._lines: list[str] = []
         self._closed = False
         self._started_at = time.monotonic()
 
@@ -98,171 +101,48 @@ class ConsoleProgressReporter:
         )
         self._records.append(record)
         step = ConsoleProgressStep(self, record=record)
-        step.update(0 if total is not None else None)
+        self._emit(record, state="running")
         return step
 
     def render(self) -> None:
-        if self._closed:
-            return
-        lines = self._panel_lines()
-        if self._rendered_lines:
-            self.stream.write(f"\033[{self._rendered_lines}A")
-            self.stream.write("\033[J")
-        self.stream.write("\n".join(lines))
-        self.stream.write("\n")
-        self.stream.flush()
-        self._rendered_lines = len(lines)
+        return None
 
     def close(self) -> None:
+        self._closed = True
+
+    def _emit(self, record: _StepRecord, *, state: str, detail: str = "") -> None:
         if self._closed:
             return
-        if self._records:
-            self.render()
-        self._closed = True
-        self._rendered_lines = 0
+        line = self._line(record, state=state, detail=detail)
+        self._lines.append(line)
+        self.stream.write(line)
+        self.stream.write("\n")
+        self.stream.flush()
+
+    def _line(self, record: _StepRecord, *, state: str, detail: str = "") -> str:
+        mark = {
+            "running": START_MARK,
+            "update": UPDATE_MARK,
+            "ok": OK_MARK,
+            "error": ERROR_MARK,
+        }.get(state, UPDATE_MARK)
+        label = _compact_space(record.label)
+        if state == "running":
+            text = f"{_style(mark, 'running', self.color)} {label}"
+        else:
+            parts = [f"{_style(mark, state, self.color)} {label}", _format_elapsed(record.elapsed)]
+            compact_detail = _compact_space(detail or record.detail)
+            if compact_detail:
+                parts.append(compact_detail)
+            text = f"{parts[0]} {parts[1]}" + (f"  {parts[2]}" if len(parts) > 2 else "")
+        return _truncate_ansi(text, self._line_width())
+
+    def _line_width(self) -> int:
+        columns = shutil.get_terminal_size((DEFAULT_PANEL_WIDTH, 24)).columns
+        return min(160, max(20, columns - 1))
 
     def _panel_lines(self) -> list[str]:
-        panel_width = self._panel_width()
-        inner_width = panel_width - 2
-        title = f" {self.title} "
-        title_width = _display_width(title)
-        left = max(0, (inner_width - title_width) // 2)
-        right = max(0, inner_width - title_width - left)
-        top = f"┌{'─' * left}{title}{'─' * right}┐"
-        bottom = f"└{'─' * inner_width}┘"
-        header = self._fit_line(
-            _style("Running agent", "title", self.color),
-            self._progress_summary(),
-            inner_width,
-        )
-        request = f"Request: {self.request}" if self.request else "Request:"
-        current = self._current_record()
-        current_text = "Current"
-        if current is not None:
-            detail = f" {current.detail}" if current.detail else ""
-            current_text = f"Current  {current.label}{detail}"
-        rows = [
-            top,
-            self._body(header, inner_width),
-            self._body(_muted(request, self.color), inner_width),
-            self._body("", inner_width),
-            self._body(_muted(current_text, self.color), inner_width),
-            self._body("", inner_width),
-            self._body(self._table_header(inner_width), inner_width),
-            self._body("  " + "─" * max(0, inner_width - 2), inner_width),
-        ]
-        for record in self._visible_records():
-            if isinstance(record, str):
-                rows.append(self._body(_muted(record, self.color), inner_width))
-            else:
-                rows.append(self._body(self._table_row(record, inner_width), inner_width))
-        rows.extend(self._detail_section(inner_width))
-        rows.append(bottom)
-        return rows
-
-    def _panel_width(self) -> int:
-        columns = shutil.get_terminal_size((DEFAULT_PANEL_WIDTH, 24)).columns
-        available = max(20, columns - 1)
-        return min(160, available)
-
-    def _body(self, text: str, inner_width: int) -> str:
-        plain_len = _display_width(text)
-        if plain_len > inner_width:
-            text = _truncate_ansi(text, inner_width)
-            plain_len = _display_width(text)
-        return f"│{text}{' ' * max(0, inner_width - plain_len)}│"
-
-    def _fit_line(self, left: str, right: str, width: int) -> str:
-        right_width = _display_width(right)
-        if right_width >= width:
-            return _truncate_ansi(right, width)
-        left_width = _display_width(left)
-        if left_width + right_width + 2 > width:
-            left = _truncate_ansi(left, max(0, width - right_width - 2))
-            left_width = _display_width(left)
-        return f"{left}{' ' * max(1, width - left_width - right_width)}{right}"
-
-    def _progress_summary(self) -> str:
-        total = max(1, len(self._records))
-        done = sum(1 for record in self._records if record.state in {"ok", "error"})
-        ratio = done / total
-        elapsed = _format_elapsed(time.monotonic() - self._started_at)
-        return f"{elapsed}  {self._bar(ratio)}  {done}/{total}"
-
-    def _bar(self, ratio: float) -> str:
-        ratio = min(1.0, max(0.0, float(ratio)))
-        filled = int(round(self.width * ratio))
-        return f"{FILLED_BLOCK * filled}{EMPTY_BLOCK * (self.width - filled)}"
-
-    def _current_record(self) -> _StepRecord | None:
-        for record in reversed(self._records):
-            if record.state == "running":
-                return record
-        return self._records[-1] if self._records else None
-
-    def _visible_records(self) -> list[_StepRecord | str]:
-        records: list[_StepRecord | str]
-        if len(self._records) > MAX_VISIBLE_ROWS:
-            recent_count = MAX_VISIBLE_ROWS - 1
-            hidden_count = len(self._records) - recent_count
-            records = [f"... {hidden_count} older steps", *self._records[-recent_count:]]
-        else:
-            records = list(self._records)
-        return records
-
-    def _detail_section(self, inner_width: int) -> list[str]:
-        rows = [
-            self._body("  " + "─" * max(0, inner_width - 2), inner_width),
-            self._body(_muted("  Recent details", self.color), inner_width),
-        ]
-        for line in self._recent_detail_lines():
-            rows.append(self._body(line, inner_width))
-        return rows
-
-    def _recent_detail_lines(self) -> list[str]:
-        records: list[_StepRecord] = []
-        for record in reversed(self._records):
-            if str(record.detail or "").strip():
-                records.append(record)
-            if len(records) >= DETAIL_VISIBLE_ROWS:
-                break
-        lines = [self._detail_row(record) for record in reversed(records)]
-        while len(lines) < DETAIL_VISIBLE_ROWS:
-            lines.append("")
-        return lines
-
-    def _table_widths(self, inner_width: int) -> tuple[int, int, int, int]:
-        state_width = min(8, max(3, inner_width // 5))
-        time_width = min(8, max(3, inner_width // 6))
-        fixed_width = 2 + state_width + 2 + 2 + time_width + 2
-        remaining = max(0, inner_width - fixed_width)
-        tool_width = min(22, max(0, remaining // 2))
-        detail_width = max(0, remaining - tool_width)
-        return state_width, tool_width, time_width, detail_width
-
-    def _table_header(self, inner_width: int) -> str:
-        state_width, tool_width, time_width, detail_width = self._table_widths(inner_width)
-        text = (
-            f"  {_pad_display('State', state_width)}"
-            f"  {_pad_display('Tool', tool_width)}"
-            f"  {_pad_display('Time', time_width, align='right')}"
-            f"  {_truncate_plain('Detail', detail_width)}"
-        )
-        return _muted(text, self.color)
-
-    def _table_row(self, record: _StepRecord, inner_width: int) -> str:
-        state_width, tool_width, time_width, detail_width = self._table_widths(inner_width)
-        state = _style(_pad_display(record.state, state_width), record.state, self.color)
-        tool = _pad_display(_truncate_plain(record.label, tool_width), tool_width)
-        elapsed = _format_elapsed(record.elapsed)
-        detail = _truncate_plain(record.detail, detail_width)
-        return f"  {state}  {tool}  {_pad_display(elapsed, time_width, align='right')}  {detail}"
-
-    def _detail_row(self, record: _StepRecord) -> str:
-        state = _style(record.state, record.state, self.color)
-        label = _truncate_plain(record.label, 24)
-        detail = _compact_space(record.detail)
-        return f"  {state}  {label}: {detail}"
+        return list(self._lines)
 
 
 @dataclass
@@ -281,7 +161,10 @@ class ConsoleProgressStep:
             self.record.detail = str(message)
         elif self.record.total is not None:
             self.record.detail = f"{max(0, self.record.current)}/{max(0, int(self.record.total))}"
-        self.reporter.render()
+        detail = _compact_space(self.record.detail)
+        if detail and detail != self.record.last_detail_line:
+            self.record.last_detail_line = detail
+            self.reporter._emit(self.record, state="update", detail=detail)
 
     def advance(self, amount: int = 1, *, message: str = "") -> None:
         self.update(self.record.current + int(amount), message=message)
@@ -295,14 +178,14 @@ class ConsoleProgressStep:
             self.record.detail = f"{max(0, self.record.current)}/{max(0, int(self.record.total))}"
         self.record.state = "ok"
         self.record.ended_at = time.monotonic()
-        self.reporter.render()
+        self.reporter._emit(self.record, state="ok", detail=self.record.detail)
 
     def fail(self, *, message: str = "") -> None:
         if message:
             self.record.detail = str(message)
         self.record.state = "error"
         self.record.ended_at = time.monotonic()
-        self.reporter.render()
+        self.reporter._emit(self.record, state="error", detail=self.record.detail)
 
     def __enter__(self) -> "ConsoleProgressStep":
         return self
@@ -357,17 +240,12 @@ def _style(text: str, kind: str, color: bool) -> str:
     colors = {
         "title": "36;1",
         "running": "36",
+        "update": "36",
         "ok": "32",
         "error": "31",
     }
     code = colors.get(kind, "37")
     return f"\033[{code}m{text}\033[0m"
-
-
-def _muted(text: str, color: bool) -> str:
-    if not color:
-        return text
-    return f"\033[90m{text}\033[0m"
 
 
 def _format_elapsed(seconds: float) -> str:
@@ -416,14 +294,6 @@ def _slice_display(value: str, width: int) -> str:
         chars.append(char)
         used += char_width
     return "".join(chars)
-
-
-def _pad_display(value: str, width: int, *, align: str = "left") -> str:
-    text = _truncate_plain(value, width)
-    padding = max(0, width - _display_width(text))
-    if align == "right":
-        return f"{' ' * padding}{text}"
-    return f"{text}{' ' * padding}"
 
 
 def _strip_ansi(value: str) -> str:

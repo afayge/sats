@@ -369,8 +369,13 @@ def _augment_structured_markdown(
         output.append("")
     output.extend(rest)
     augmented = "\n".join(output).strip()
-    if not _has_heading(augmented, SUMMARY_ALIASES):
-        augmented += "\n\n## 结论摘要\n\n" + "\n".join(f"- {item}" for item in _summary_bullets(content))
+    if not _has_section_body(augmented, SUMMARY_ALIASES):
+        augmented = _ensure_section_body(
+            augmented,
+            SUMMARY_ALIASES,
+            "结论摘要",
+            [f"- {item}" for item in _summary_bullets(content)],
+        )
     if not _has_heading(augmented, CHART_ALIASES):
         augmented += "\n\n## 文字图表\n\n" + "\n".join(
             f"- {item}" for item in _chart_lines(data_names=data_names, skill_names=skill_names, artifacts=artifacts, pending_action_id=pending_action_id)
@@ -379,8 +384,13 @@ def _augment_structured_markdown(
         augmented += "\n\n## 风险与限制\n\n" + "\n".join(
             f"- {item}" for item in _risk_lines(data_names=data_names, requires_confirmation=requires_confirmation)
         )
-    if not _has_heading(augmented, NEXT_ALIASES):
-        augmented += "\n\n## 下一步\n\n" + "\n".join(f"- {item}" for item in _next_lines(artifacts=artifacts, pending_action_id=pending_action_id))
+    if not _has_section_body(augmented, NEXT_ALIASES):
+        augmented = _ensure_section_body(
+            augmented,
+            NEXT_ALIASES,
+            "下一步",
+            [f"- {item}" for item in _next_lines(artifacts=artifacts, pending_action_id=pending_action_id)],
+        )
     elif artifacts and not any(str(item.get("path") or "").strip() and str(item.get("path") or "").strip() in augmented for item in artifacts):
         artifact_lines = [f"- {item}" for item in _artifact_lines(artifacts)]
         if artifact_lines:
@@ -554,6 +564,43 @@ def _has_heading(content: str, aliases: tuple[str, ...]) -> bool:
         if heading in aliases:
             return True
     return False
+
+
+def _has_section_body(content: str, aliases: tuple[str, ...]) -> bool:
+    lines = str(content or "").splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith("## "):
+            continue
+        if stripped[3:].strip() not in aliases:
+            continue
+        for body in lines[index + 1 :]:
+            body_text = body.strip()
+            if body_text.startswith("## "):
+                break
+            if body_text:
+                return True
+    return False
+
+
+def _ensure_section_body(content: str, aliases: tuple[str, ...], heading: str, body_lines: list[str]) -> str:
+    body = [line for line in body_lines if str(line or "").strip()]
+    if not body:
+        return content
+    lines = str(content or "").splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith("## ") or stripped[3:].strip() not in aliases:
+            continue
+        insert_at = index + 1
+        while insert_at < len(lines) and not lines[insert_at].strip():
+            insert_at += 1
+        if insert_at < len(lines) and not lines[insert_at].strip().startswith("## "):
+            return content
+        replacement = lines[: index + 1] + ["", *body, ""] + lines[insert_at:]
+        return "\n".join(replacement).strip()
+    suffix = "\n\n" if str(content or "").strip() else ""
+    return (str(content or "").strip() + f"{suffix}## {heading}\n\n" + "\n".join(body)).strip()
 
 
 def _has_blockquote(content: str) -> bool:

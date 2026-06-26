@@ -235,7 +235,7 @@ class ReplCliTest(unittest.TestCase):
             patch("sats.repl.ReplPromptSession") as prompt_session,
             patch("sats.repl.print_formatted_text", side_effect=lambda fragments: formatted.append(list(fragments))),
             patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=90)),
-            patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ schedule:0/0 ｜ pf:--"),
+            patch("sats.repl._runtime_status_bar", return_value="monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--"),
             patch("builtins.print") as printer,
         ):
             prompt_session.return_value.prompt.return_value = "/exit"
@@ -256,8 +256,8 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(len(separators), 1)
         self.assertEqual(get_cwidth(separators[0][0][1]), 90)
         self.assertTrue(callable(bottom_toolbar))
-        self.assertTrue(bottom_toolbar_text.startswith("  OpenAI:GPT-5.5  ｜  0.0s  ｜  Last：--"))
-        self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+        self.assertTrue(bottom_toolbar_text.startswith("  OpenAI:GPT-5.5"))
+        self.assertTrue(bottom_toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--  "))
         self.assertEqual(get_cwidth(bottom_toolbar_text), 90)
         completer = prompt_session.call_args.kwargs["completer"]
         self.assertEqual(completer.meta_dict["/discover"], "短线机会发现")
@@ -266,22 +266,40 @@ class ReplCliTest(unittest.TestCase):
         self.assertIsInstance(processors[0], InputSeparatorProcessor)
 
     def test_input_separator_processor_places_separator_on_next_terminal_row(self) -> None:
+        prompt = {"text": "sats> "}
+        processor = InputSeparatorProcessor(prompt_width=lambda: get_cwidth(prompt["text"]))
+
+        for prompt_text in ("sats> ", "clarify> "):
+            prompt["text"] = prompt_text
+            for text in ("", "results", "分析贵州茅台", "x" * 85):
+                with self.subTest(prompt=prompt_text, text=text):
+                    fragments = FormattedText([("", text)])
+                    transformation_input = SimpleNamespace(
+                        lineno=0,
+                        document=SimpleNamespace(line_count=1),
+                        width=40,
+                        fragments=fragments,
+                    )
+                    rendered = fragment_list_to_text(processor.apply_transformation(transformation_input).fragments)
+                    before_separator, separator = rendered.rsplit("─" * 40, 1)
+
+                    self.assertEqual(separator, "")
+                    self.assertEqual((get_cwidth(prompt_text) + get_cwidth(before_separator)) % 40, 0)
+
+    def test_input_separator_processor_accepts_static_prompt_width(self) -> None:
         processor = InputSeparatorProcessor(prompt_width=get_cwidth("sats> "))
+        fragments = FormattedText([("", "results")])
+        transformation_input = SimpleNamespace(
+            lineno=0,
+            document=SimpleNamespace(line_count=1),
+            width=40,
+            fragments=fragments,
+        )
+        rendered = fragment_list_to_text(processor.apply_transformation(transformation_input).fragments)
+        before_separator, separator = rendered.rsplit("─" * 40, 1)
 
-        for text in ("", "results", "分析贵州茅台", "x" * 85):
-            with self.subTest(text=text):
-                fragments = FormattedText([("", text)])
-                transformation_input = SimpleNamespace(
-                    lineno=0,
-                    document=SimpleNamespace(line_count=1),
-                    width=40,
-                    fragments=fragments,
-                )
-                rendered = fragment_list_to_text(processor.apply_transformation(transformation_input).fragments)
-                before_separator, separator = rendered.rsplit("─" * 40, 1)
-
-                self.assertEqual(separator, "")
-                self.assertEqual((get_cwidth("sats> ") + get_cwidth(before_separator)) % 40, 0)
+        self.assertEqual(separator, "")
+        self.assertEqual((get_cwidth("sats> ") + get_cwidth(before_separator)) % 40, 0)
 
     def test_repl_prompt_session_offsets_completion_menu_below_separator(self) -> None:
         session = ReplPromptSession(input=DummyInput(), output=DummyOutput())
@@ -326,8 +344,8 @@ class ReplCliTest(unittest.TestCase):
             state = ReplState()
             toolbar = _status_toolbar(settings, state)
             toolbar_text = fragment_list_to_text(toolbar())
-            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  0.0s  ｜  Last：--"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--  "))
             self.assertEqual(get_cwidth(toolbar_text), 100)
 
             clock[0] = 10.0
@@ -341,8 +359,8 @@ class ReplCliTest(unittest.TestCase):
 
             self.assertEqual(output, ["results"])
             toolbar_text = fragment_list_to_text(toolbar())
-            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro  ｜  53.2s  ｜  Last：43.2s"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertTrue(toolbar_text.startswith("  DeepSeek:deepseek-v4-pro"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--  "))
             self.assertEqual(get_cwidth(toolbar_text), 100)
 
     def test_repl_status_toolbar_shows_monitor_and_schedule_counts(self) -> None:
@@ -350,6 +368,7 @@ class ReplCliTest(unittest.TestCase):
             db = Path(tmp) / "sats.duckdb"
             storage = DuckDBStorage(db)
             storage.upsert_monitor_runtime(service_name="monitor", status="running", pid=1234, heartbeat=True)
+            storage.upsert_monitor_runtime(service_name="scheduler", status="running", pid=5678, heartbeat=True)
             storage.insert_scheduled_task(
                 {
                     "name": "enabled-task",
@@ -377,13 +396,32 @@ class ReplCliTest(unittest.TestCase):
             with (
                 patch("sats.repl.time.monotonic", return_value=0.0),
                 patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=100)),
+                patch("sats.runtime_status.os.kill", return_value=None),
             ):
                 toolbar = _status_toolbar(settings, ReplState())
 
                 toolbar_text = fragment_list_to_text(toolbar())
                 self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  0.0s  ｜  Last：--"))
-                self.assertTrue(toolbar_text.endswith("monitor:run ｜ schedule:1/2 ｜ pf:--  "))
+                self.assertTrue(toolbar_text.endswith("monitor:run ｜ scheduler:run ｜ schedule:1/2 ｜ pf:--  "))
                 self.assertEqual(get_cwidth(toolbar_text), 100)
+
+    def test_repl_status_toolbar_marks_stale_runtime_as_stopped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "sats.duckdb"
+            storage = DuckDBStorage(db)
+            storage.upsert_monitor_runtime(service_name="monitor", status="running", pid=None, heartbeat=True)
+            storage.upsert_monitor_runtime(service_name="scheduler", status="running", pid=99999999, heartbeat=True)
+            settings = SimpleNamespace(db_path=db, llm_provider="openai", openai_model="gpt-4o-mini")
+
+            with (
+                patch("sats.repl.time.monotonic", return_value=0.0),
+                patch("sats.repl.shutil.get_terminal_size", return_value=SimpleNamespace(columns=100)),
+                patch("sats.runtime_status.os.kill", side_effect=ProcessLookupError),
+            ):
+                toolbar_text = fragment_list_to_text(_status_toolbar(settings, ReplState())())
+
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertEqual(get_cwidth(toolbar_text), 100)
 
     def test_repl_status_toolbar_shows_empty_portfolio_account(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -407,7 +445,7 @@ class ReplCliTest(unittest.TestCase):
             ):
                 toolbar_text = fragment_list_to_text(_status_toolbar(settings, ReplState())())
 
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:持0 仓0% 盈+0.0% 盘--  "))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:持0 仓0% 盈+0.0% 盘--  "))
             self.assertEqual(get_cwidth(toolbar_text), 110)
 
     def test_repl_status_toolbar_shows_portfolio_position_summary(self) -> None:
@@ -452,24 +490,24 @@ class ReplCliTest(unittest.TestCase):
             ):
                 toolbar_text = fragment_list_to_text(_status_toolbar(settings, ReplState())())
 
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:持1 仓24% 盈+5.0% 盘59  "))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:持1 仓24% 盈+5.0% 盘59  "))
             self.assertEqual(get_cwidth(toolbar_text), 120)
 
     def test_repl_monitor_schedule_and_portfolio_commands_refresh_status_cache(self) -> None:
-        state = ReplState(status_bar_cache="monitor:stop ｜ schedule:0/0 ｜ pf:--", status_bar_cache_at=100.0)
+        state = ReplState(status_bar_cache="monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--", status_bar_cache_at=100.0)
         output: list[str] = []
 
         self.assertTrue(handle_repl_line("/monitor status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertEqual(state.status_bar_cache, "")
         self.assertEqual(state.status_bar_cache_at, 0.0)
 
-        state.status_bar_cache = "monitor:run ｜ schedule:1/1 ｜ pf:持0 仓0% 盈+0.0% 盘--"
+        state.status_bar_cache = "monitor:run ｜ scheduler:run ｜ schedule:1/1 ｜ pf:持0 仓0% 盈+0.0% 盘--"
         state.status_bar_cache_at = 100.0
         self.assertTrue(handle_repl_line("/schedule status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertEqual(state.status_bar_cache, "")
         self.assertEqual(state.status_bar_cache_at, 0.0)
 
-        state.status_bar_cache = "monitor:run ｜ schedule:1/1 ｜ pf:持1 仓24% 盈+5.0% 盘59"
+        state.status_bar_cache = "monitor:run ｜ scheduler:run ｜ schedule:1/1 ｜ pf:持1 仓24% 盈+5.0% 盘59"
         state.status_bar_cache_at = 100.0
         self.assertTrue(handle_repl_line("/portfolio status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertEqual(state.status_bar_cache, "")
@@ -522,8 +560,8 @@ class ReplCliTest(unittest.TestCase):
 
             self.assertEqual(output, ["bye"])
             toolbar_text = fragment_list_to_text(toolbar())
-            self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini  ｜  20.0s  ｜  Last：5.0s"))
-            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ schedule:0/0 ｜ pf:--  "))
+            self.assertTrue(toolbar_text.startswith("  OpenAI:gpt-4o-mini"))
+            self.assertTrue(toolbar_text.endswith("monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--  "))
             self.assertEqual(get_cwidth(toolbar_text), 90)
 
     def test_repl_completer_shows_command_descriptions(self) -> None:
@@ -616,17 +654,19 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, [["results", "--passed"]])
         self.assertEqual(output, [])
 
-    def test_repl_plan_runs_agent_plan_only(self) -> None:
+    def test_repl_plan_prints_conversation_plan_by_default(self) -> None:
         calls: list[list[str]] = []
+        output: list[str] = []
 
         keep_running = handle_repl_line(
             "/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划",
             runner=lambda argv: calls.append(argv) or 0,
-            printer=lambda line: None,
+            printer=output.append,
         )
 
         self.assertTrue(keep_running)
-        self.assertEqual(calls, [["agent", "--plan-only", "用", "price_volume_ma", "筛选并对筛选股票制定明天交易计划"]])
+        self.assertEqual(calls, [])
+        self.assertIn("SATS Conversation Plan", "\n".join(output))
 
     def test_repl_allows_analyze_dsa_command(self) -> None:
         calls: list[list[str]] = []
@@ -990,6 +1030,111 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("# SATS 自然对话输出", output[0])
         self.assertIn("> 回答", output[0])
 
+    def test_repl_conversation_clarification_answer_continues_pending_turn(self) -> None:
+        state = ReplState()
+        output: list[str] = []
+        clarification = SimpleNamespace(
+            content="需要先补充信息",
+            tool_call_count=0,
+            data_names=("Conversation",),
+            artifacts=(),
+            sources=(),
+            requires_confirmation=False,
+            pending_action_id="",
+            requires_clarification=True,
+            clarification_id="act_clarify",
+            clarification_prompt="请直接输入股票代码",
+            missing_fields=("symbols",),
+            turn_id="turn_1",
+            session_id="repl",
+        )
+        completed = SimpleNamespace(
+            content="已继续分析",
+            tool_call_count=1,
+            data_names=("Conversation",),
+            artifacts=(),
+            sources=(),
+            requires_confirmation=False,
+            pending_action_id="",
+            requires_clarification=False,
+            clarification_id="",
+            clarification_prompt="",
+            missing_fields=(),
+            turn_id="turn_2",
+            session_id="repl",
+        )
+        closed: list[str] = []
+        first_progress = SimpleNamespace(enabled=True, close=lambda: closed.append("first"))
+        clarify_progress = SimpleNamespace(enabled=True, close=lambda: closed.append("clarify"))
+        first_sink = object()
+        clarify_sink = object()
+
+        with (
+            patch("sats.repl.run_conversation_once", return_value=clarification) as run_conversation,
+            patch("sats.repl.continue_conversation_after_clarification", return_value=completed) as resume,
+            patch("sats.repl.load_settings", return_value=SimpleNamespace(db_path=Path("sats.duckdb"))),
+            patch("sats.repl.create_progress", side_effect=[first_progress, clarify_progress]),
+            patch("sats.repl.agent_progress_event_sink", side_effect=[first_sink, clarify_sink]),
+        ):
+            self.assertTrue(handle_repl_line("分析走势", printer=output.append, state=state))
+            self.assertEqual(state.pending_clarification_id, "act_clarify")
+            self.assertTrue(handle_repl_line("002436", printer=output.append, state=state))
+
+        run_conversation.assert_called_once()
+        resume.assert_called_once()
+        self.assertEqual(resume.call_args.args[:2], ("act_clarify", "002436"))
+        self.assertIs(resume.call_args.kwargs["event_sink"], clarify_sink)
+        self.assertEqual(state.pending_clarification_id, "")
+        self.assertEqual(closed, ["first", "clarify"])
+        self.assertIn("> 已继续分析", output[-1])
+
+    def test_repl_answer_builtin_continues_pending_clarification_with_progress(self) -> None:
+        state = ReplState(pending_clarification_id="act_clarify", pending_clarification_prompt="请补充")
+        output: list[str] = []
+        completed = SimpleNamespace(
+            content="已继续分析",
+            tool_call_count=1,
+            data_names=("Conversation",),
+            artifacts=(),
+            sources=(),
+            requires_confirmation=False,
+            pending_action_id="",
+            requires_clarification=False,
+            clarification_id="",
+            clarification_prompt="",
+            missing_fields=(),
+            turn_id="turn_2",
+            session_id="repl",
+        )
+        closed: list[str] = []
+        progress = SimpleNamespace(enabled=True, close=lambda: closed.append("answer"))
+        sink = object()
+
+        with (
+            patch("sats.repl.continue_conversation_after_clarification", return_value=completed) as resume,
+            patch("sats.repl.load_settings", return_value=SimpleNamespace(db_path=Path("sats.duckdb"))),
+            patch("sats.repl.create_progress", return_value=progress),
+            patch("sats.repl.agent_progress_event_sink", return_value=sink),
+        ):
+            self.assertTrue(handle_repl_line("/answer 002436", printer=output.append, state=state))
+
+        resume.assert_called_once()
+        self.assertEqual(resume.call_args.args[:2], ("act_clarify", "002436"))
+        self.assertIs(resume.call_args.kwargs["event_sink"], sink)
+        self.assertEqual(state.pending_clarification_id, "")
+        self.assertEqual(closed, ["answer"])
+        self.assertIn("> 已继续分析", output[-1])
+
+    def test_repl_new_clears_pending_clarification(self) -> None:
+        state = ReplState(pending_clarification_id="act_clarify", pending_clarification_prompt="请补充")
+        output: list[str] = []
+
+        with patch("sats.repl._handle_new_chat_session", side_effect=lambda *_args, **_kwargs: output.append("新对话")):
+            self.assertTrue(handle_repl_line("/new", printer=output.append, state=state))
+
+        self.assertEqual(state.pending_clarification_id, "")
+        self.assertEqual(state.pending_clarification_prompt, "")
+
     def test_repl_chat_slash_command_can_disable_memory(self) -> None:
         output: list[str] = []
         calls: list[tuple[str, bool | None]] = []
@@ -1181,24 +1326,24 @@ class ReplCliTest(unittest.TestCase):
             fake_result = SimpleNamespace(
                 content="DSA完成",
                 tool_call_count=1,
-                data_names=("Agent",),
+                data_names=("Conversation",),
                 skill_names=(),
                 artifacts=(),
                 sources=({"id": "S1", "title": "公告", "url": "https://www.sse.com.cn/a"},),
                 turn_id="turn",
-                session_id="agent",
+                session_id="conversation",
             )
             output: list[str] = []
 
             with (
                 patch("sats.repl.build_chat_reference_context", return_value=reference_context) as reference_builder,
-                patch("sats.repl.run_agent_once", return_value=fake_result) as run_agent,
+                patch("sats.repl.run_conversation_once", return_value=fake_result) as run_conversation,
             ):
                 self.assertTrue(handle_repl_line("上面2个股票用DSA进行分析", printer=output.append, state=state))
 
             reference_builder.assert_called_once()
-            run_agent.assert_called_once()
-            self.assertIs(run_agent.call_args.kwargs.get("reference_context"), reference_context)
+            run_conversation.assert_called_once()
+            self.assertIs(run_conversation.call_args.kwargs.get("reference_context"), reference_context)
             self.assertIn("DSA完成", output[-1])
             self.assertIn("## 来源", output[-1])
 
@@ -1224,11 +1369,11 @@ class ReplCliTest(unittest.TestCase):
             fake_result = SimpleNamespace(
                 content="需要明确股票",
                 tool_call_count=0,
-                data_names=("Agent",),
+                data_names=("Conversation",),
                 skill_names=(),
                 artifacts=(),
                 turn_id="turn",
-                session_id="agent",
+                session_id="conversation",
             )
 
             self.assertTrue(handle_repl_line("/new", chat_session=current, printer=output.append, state=state))
@@ -1237,13 +1382,13 @@ class ReplCliTest(unittest.TestCase):
 
             with (
                 patch("sats.repl.build_chat_reference_context", return_value=None) as reference_builder,
-                patch("sats.repl.run_agent_once", return_value=fake_result) as run_agent,
+                patch("sats.repl.run_conversation_once", return_value=fake_result) as run_conversation,
             ):
                 self.assertTrue(handle_repl_line("上面2个股票用DSA进行分析", printer=output.append, state=state))
 
             reference_builder.assert_called_once()
             self.assertIsNone(reference_builder.call_args.args[1])
-            self.assertIsNone(run_agent.call_args.kwargs.get("reference_context"))
+            self.assertIsNone(run_conversation.call_args.kwargs.get("reference_context"))
 
     def test_repl_allows_memory_command(self) -> None:
         calls: list[list[str]] = []

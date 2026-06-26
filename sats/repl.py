@@ -32,10 +32,19 @@ from sats.natural_output import build_output_semantic_lexicon, render_natural_ou
 from sats.chat_reference import build_chat_reference_context
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import load_settings
+from sats.conversation import (
+    confirm_pending_conversation_action,
+    continue_conversation_after_clarification,
+    format_conversation_plan,
+    reject_pending_conversation_action,
+    run_conversation_once,
+)
 from sats.history import InteractionHistoryStore
 from sats.memory import ChatMemoryStore
 from sats.output_saver import CapturedOutput, SaveRequest, extract_report_path, parse_save_request, save_captured_output
 from sats.progress import create_progress
+from sats.runtime_status import runtime_is_running
+from sats.scheduler import SCHEDULER_SERVICE_NAME
 from sats.storage import DuckDBStorage
 from sats.stock_question import extract_stock_symbols
 
@@ -71,10 +80,11 @@ CLI_COMMANDS = [
     "qmt",
     "portfolio",
     "catalog",
+    "threads",
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "trace", "goal", "plan"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "answer", "trace", "goal", "plan", "engine"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 
 HELP_COMMANDS = [
@@ -82,8 +92,10 @@ HELP_COMMANDS = [
     ("/new", "开启新对话"),
     ("/confirm", "确认运行待执行动作"),
     ("/reject", "取消待执行动作"),
+    ("/answer", "回答澄清问题并继续"),
     ("/trace", "查看对话 turn trace"),
-    ("/plan", "只生成 Agent 计划"),
+    ("/plan", "只生成 Conversation 计划"),
+    ("/engine", "切换自然语言引擎"),
     ("/clear", "清屏"),
     ("/save", "保存上一条输出"),
     ("/exit", "退出"),
@@ -120,6 +132,7 @@ HELP_COMMANDS = [
     ("/qmt", "QMT 实盘交易"),
     ("/portfolio", "盘中 10 选 5 组合 Agent"),
     ("/catalog", "统一能力目录"),
+    ("/threads", "管理对话线程"),
     ("/serve", "启动 API 服务"),
 ]
 
@@ -357,7 +370,9 @@ COMPLETION_DESCRIPTIONS = {
     "--max-iterations": "Agent 最大步骤数",
     "--command-timeout": "Agent 命令超时秒数",
     "--python-timeout": "Agent Python 超时秒数",
-    "--plan-only": "只生成 Agent 计划",
+    "--plan-only": "只生成计划",
+    "--engine": "对话引擎",
+    "--agent": "显式启用 Agent",
     "--dry-run": "跳过高风险副作用",
     "--lists": "列表名称",
     "--llm-review": "启用 LLM 复核",
@@ -438,6 +453,7 @@ COMPLETION_WORDS = list(COMPLETION_DESCRIPTIONS)
 
 PROMPT_STYLE = "fg:#7dd3fc"
 PROMPT_MESSAGE = FormattedText([(PROMPT_STYLE, "sats> ")])
+CLARIFY_PROMPT_MESSAGE = FormattedText([(PROMPT_STYLE, "clarify> ")])
 MUTED_STYLE = "fg:#9ca3af"
 COMMAND_STYLE = "fg:#f5f5f5"
 DESC_STYLE = COMMAND_STYLE
@@ -459,14 +475,14 @@ REPL_STYLE = Style.from_dict(
 
 
 class InputSeparatorProcessor(Processor):
-    def __init__(self, prompt_width: int) -> None:
+    def __init__(self, prompt_width: int | Callable[[], int]) -> None:
         self.prompt_width = prompt_width
 
     def apply_transformation(self, ti: TransformationInput) -> Transformation:
         if ti.lineno != ti.document.line_count - 1 or ti.width <= 0:
             return Transformation(ti.fragments)
 
-        prefix_width = self.prompt_width if ti.lineno == 0 else 0
+        prefix_width = self._prompt_width() if ti.lineno == 0 else 0
         input_width = get_cwidth(fragment_list_to_text(ti.fragments))
         current_column = (prefix_width + input_width) % ti.width
         padding = (ti.width - current_column) % ti.width
@@ -477,6 +493,10 @@ class InputSeparatorProcessor(Processor):
                 (SEPARATOR_STYLE, "─" * ti.width),
             ]
         )
+
+    def _prompt_width(self) -> int:
+        width = self.prompt_width() if callable(self.prompt_width) else self.prompt_width
+        return max(0, int(width or 0))
 
 
 class ReplPromptSession(ToolkitPromptSession):
@@ -505,6 +525,9 @@ class ReplState:
     history_store: InteractionHistoryStore | None = None
     chat_session: ChatSession | None = None
     agent_goal: str = ""
+    engine: str = "conversation"
+    pending_clarification_id: str = ""
+    pending_clarification_prompt: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -531,14 +554,14 @@ def run_repl() -> int:
         history=_history(),
         completer=build_repl_completer(),
         complete_while_typing=True,
-        input_processors=[InputSeparatorProcessor(_display_width(fragment_list_to_text(PROMPT_MESSAGE)))],
+        input_processors=[InputSeparatorProcessor(lambda: _display_width(fragment_list_to_text(_prompt_message(state))))],
         bottom_toolbar=_status_toolbar(settings, state),
         style=REPL_STYLE,
     )
     while True:
         try:
             _print_input_separator()
-            line = session.prompt(PROMPT_MESSAGE)
+            line = session.prompt(_prompt_message(state))
         except KeyboardInterrupt:
             print("^C")
             continue
@@ -547,6 +570,10 @@ def run_repl() -> int:
             return 0
         if not handle_repl_line(line, printer=print, chat_session=chat_session, state=state):
             return 0
+
+
+def _prompt_message(state: ReplState) -> FormattedText:
+    return CLARIFY_PROMPT_MESSAGE if str(state.pending_clarification_id or "").strip() else PROMPT_MESSAGE
 
 
 def build_repl_completer() -> WordCompleter:
@@ -808,7 +835,13 @@ def _align_status_toolbar(left: str, right: str, *, terminal_width: int) -> str:
     gap = terminal_width - get_cwidth(left) - get_cwidth(right)
     if gap >= 1:
         return f"{left}{' ' * gap}{right}"
-    return f"{left}  ｜  {right}"
+    separator = "  ｜  "
+    right_width = get_cwidth(right)
+    available_left = terminal_width - right_width - get_cwidth(separator)
+    if available_left > 0:
+        left = _truncate_to_width(left, available_left)
+        return f"{left}{separator}{right}"
+    return _truncate_to_width(right, terminal_width)
 
 
 def _runtime_status_bar(settings, state: ReplState) -> str:
@@ -818,12 +851,17 @@ def _runtime_status_bar(settings, state: ReplState) -> str:
     try:
         storage = DuckDBStorage(getattr(settings, "db_path"))
         monitor_runtime = storage.get_monitor_runtime("monitor")
-        monitor_status = "run" if str(monitor_runtime.get("status") or "").lower() == "running" else "stop"
+        monitor_status = "run" if runtime_is_running(monitor_runtime) else "stop"
+        scheduler_runtime = storage.get_monitor_runtime(SCHEDULER_SERVICE_NAME)
+        scheduler_status = "run" if runtime_is_running(scheduler_runtime) else "stop"
         tasks = storage.list_scheduled_tasks()
         enabled_count = sum(1 for task in tasks if task.get("enabled"))
-        status = f"monitor:{monitor_status} ｜ schedule:{enabled_count}/{len(tasks)} ｜ {_portfolio_status_bar(storage)}"
+        status = (
+            f"monitor:{monitor_status} ｜ scheduler:{scheduler_status} ｜ "
+            f"schedule:{enabled_count}/{len(tasks)} ｜ {_portfolio_status_bar(storage)}"
+        )
     except Exception:
-        status = "monitor:stop ｜ schedule:0/0 ｜ pf:--"
+        status = "monitor:stop ｜ scheduler:stop ｜ schedule:0/0 ｜ pf:--"
     state.status_bar_cache = status
     state.status_bar_cache_at = now
     return status
@@ -996,6 +1034,11 @@ def handle_repl_line(
 ) -> bool:
     state = state or ReplState()
     text = str(line or "").strip()
+    if not text and str(state.pending_clarification_id or "").strip():
+        output, status = _reject_pending_repl_clarification(current_session=_active_chat_session(chat_session, state), state=state)
+        printer(output)
+        _remember_output(state, output, request="", source="/reject")
+        return True
     if not text:
         return True
     started_at = time.monotonic()
@@ -1003,6 +1046,16 @@ def handle_repl_line(
     interrupted_record: ReplExecutionRecord | None = None
     try:
         if not text.startswith("/"):
+            if str(state.pending_clarification_id or "").strip():
+                record = _handle_clarification_answer(
+                    text,
+                    chat_session=chat_session,
+                    printer=printer,
+                    formatted_printer=formatted_printer,
+                    state=state,
+                )
+                _record_interaction_history(record, state=state, started_at=started_at)
+                return True
             interrupted_record = ReplExecutionRecord(
                 kind="chat",
                 request=text,
@@ -1058,6 +1111,7 @@ def handle_repl_line(
                 state=state,
                 printer=printer,
             )
+            _clear_pending_clarification(state)
             return True
         if command == "goal":
             subcommand = str(argv[1]).lower() if len(argv) > 1 else "status"
@@ -1076,10 +1130,74 @@ def handle_repl_line(
             argv = ["agent", *argv[1:]]
             command = "agent"
         if command == "plan":
-            argv = ["agent", "--plan-only", *argv[1:]]
-            command = "agent"
+            message = " ".join(argv[1:]).strip()
+            if not message:
+                output = "错误: plan message is required"
+            elif state.engine == "agent":
+                argv = ["agent", "--plan-only", *argv[1:]]
+                command = "agent"
+            else:
+                settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
+                output = format_conversation_plan(message, settings=settings)
+                printer(output)
+                _remember_output(state, output, request=text, source="/plan")
+                _record_interaction_history(
+                    ReplExecutionRecord(
+                        kind="chat",
+                        request=text,
+                        source="/plan",
+                        output=output,
+                        status="done",
+                        session_id=state.session_id,
+                    ),
+                    state=state,
+                    started_at=started_at,
+                )
+                return True
+            if command != "agent":
+                printer(output)
+                return True
+        if command == "engine":
+            requested = str(argv[1]).lower() if len(argv) > 1 else "status"
+            if requested == "status":
+                output = f"当前自然语言引擎: {state.engine}"
+            elif requested in {"conversation", "legacy", "agent"}:
+                state.engine = requested
+                output = f"已切换自然语言引擎: {state.engine}"
+            else:
+                output = "错误: engine 只支持 conversation, legacy 或 agent"
+            printer(output)
+            _remember_output(state, output, request=text, source="/engine")
+            return True
         if command == "clear":
             printer("\033[2J\033[H")
+            return True
+        if command == "answer":
+            output, status = _handle_answer_builtin(
+                argv[1:],
+                current_session=_active_chat_session(chat_session, state),
+                state=state,
+            )
+            current_settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
+            _print_natural_output(
+                output,
+                printer=printer,
+                formatted_printer=formatted_printer,
+                db_path=getattr(current_settings, "db_path", None),
+            )
+            _remember_output(state, output, request=text, source="/answer")
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="chat",
+                    request=text,
+                    source="/answer",
+                    output=output,
+                    status=status,
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
             return True
         if command in {"confirm", "reject", "trace"}:
             output, status = _handle_runtime_builtin(
@@ -1118,12 +1236,18 @@ def handle_repl_line(
         if command == "chat":
             chat_args = list(argv[1:])
             use_memory = None
-            agent_enabled = True
+            engine = state.engine
             if chat_args and chat_args[0] == "--no-memory":
                 use_memory = False
                 chat_args = chat_args[1:]
+            if len(chat_args) >= 2 and chat_args[0] == "--engine":
+                engine = chat_args[1]
+                chat_args = chat_args[2:]
+            if chat_args and chat_args[0] == "--agent":
+                engine = "agent"
+                chat_args = chat_args[1:]
             if chat_args and chat_args[0] == "--no-agent":
-                agent_enabled = False
+                engine = "legacy"
                 chat_args = chat_args[1:]
             message = " ".join(chat_args).strip()
             if not message:
@@ -1157,7 +1281,7 @@ def handle_repl_line(
                 formatted_printer=formatted_printer,
                 use_memory=use_memory,
                 state=state,
-                agent_enabled=agent_enabled,
+                engine=engine,
             )
             _record_interaction_history(record, state=state, started_at=started_at)
             return True
@@ -1268,7 +1392,7 @@ def _handle_chat(
     formatted_printer: Callable[[FormattedText], None] | None = None,
     use_memory: bool | None = None,
     state: ReplState | None = None,
-    agent_enabled: bool = True,
+    engine: str | None = None,
 ) -> ReplExecutionRecord | None:
     state = state or ReplState()
     save_request = parse_save_request(message)
@@ -1280,7 +1404,9 @@ def _handle_chat(
     session = active_session if active_session is not None else ChatSession()
     if isinstance(session, ChatSession):
         state.chat_session = session
-    agent_enabled = agent_enabled and type(session) is ChatSession
+    active_engine = str(engine or state.engine or "conversation")
+    if type(session) is not ChatSession and active_engine != "agent":
+        active_engine = "legacy"
     session_id = _record_session_id(session, state)
     progress = create_progress(request=chat_message)
     try:
@@ -1293,7 +1419,7 @@ def _handle_chat(
             kwargs["reference_context"] = reference_context
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
-        if agent_enabled:
+        if active_engine == "agent":
             agent_result = run_agent_once(
                 chat_message,
                 settings=settings,
@@ -1303,6 +1429,17 @@ def _handle_chat(
                 reference_context=reference_context,
             )
             result = _chat_result_from_agent(agent_result)
+        elif active_engine == "conversation":
+            conversation_result = run_conversation_once(
+                chat_message,
+                settings=settings,
+                policy=AgentExecutionPolicy(),
+                session_id=session_id or "repl",
+                event_sink=agent_progress_event_sink(progress),
+                reference_context=reference_context,
+            )
+            _update_pending_clarification_state(state, conversation_result)
+            result = _chat_result_from_conversation(conversation_result)
         else:
             if isinstance(session, ChatSession):
                 kwargs["defer_memory_updates"] = True
@@ -1340,7 +1477,7 @@ def _handle_chat(
         formatted_printer=formatted_printer,
         db_path=getattr(settings, "db_path", None),
     )
-    source = "agent" if agent_enabled else "chat"
+    source = "agent" if active_engine == "agent" else "conversation" if active_engine == "conversation" else "chat"
     captured = _remember_output(state, output, request=chat_message, source=source)
     if save_request is not None:
         _save_output(captured, save_request, printer=printer)
@@ -1353,6 +1490,121 @@ def _handle_chat(
         report_path=str(captured.report_path or ""),
         session_id=session_id,
     )
+
+
+def _handle_clarification_answer(
+    answer: str,
+    *,
+    chat_session: ChatSession | None,
+    printer: Callable[[str], None],
+    formatted_printer: Callable[[FormattedText], None] | None = None,
+    state: ReplState,
+) -> ReplExecutionRecord:
+    active_session = _active_chat_session(chat_session, state)
+    settings = getattr(active_session, "settings", None) or load_settings()
+    session_id = _record_session_id(active_session, state)
+    clarification_id = str(state.pending_clarification_id or "").strip()
+    progress = create_progress(request=answer)
+    try:
+        result = continue_conversation_after_clarification(
+            clarification_id,
+            answer,
+            settings=settings,
+            store=ChatMemoryStore(settings.db_path),
+            event_sink=agent_progress_event_sink(progress),
+        )
+    except Exception as exc:
+        output = f"错误: {exc}"
+        printer(output)
+        return ReplExecutionRecord(kind="chat", request=answer, source="clarification", output=output, status="error", session_id=session_id)
+    finally:
+        progress.close()
+    _update_pending_clarification_state(state, result)
+    chat_result = _chat_result_from_conversation(result)
+    output = format_chat_result(chat_result)
+    _print_chat_result(
+        chat_result,
+        printer=printer,
+        formatted_printer=formatted_printer,
+        db_path=getattr(settings, "db_path", None),
+    )
+    captured = _remember_output(state, output, request=answer, source="clarification")
+    return ReplExecutionRecord(
+        kind="chat",
+        request=answer,
+        source="clarification",
+        output=output,
+        status="done",
+        report_path=str(captured.report_path or ""),
+        session_id=session_id,
+    )
+
+
+def _handle_answer_builtin(
+    args: list[str],
+    *,
+    current_session: object | None,
+    state: ReplState,
+) -> tuple[str, str]:
+    settings = getattr(current_session, "settings", None) or load_settings()
+    if not args:
+        return "错误: /answer CLARIFICATION_ID ANSWER", "error"
+    clarification_id = args[0]
+    answer_parts = args[1:]
+    if str(state.pending_clarification_id or "").strip() and not str(clarification_id).startswith("act_"):
+        clarification_id = state.pending_clarification_id
+        answer_parts = args
+    answer = " ".join(answer_parts).strip()
+    if not answer:
+        return "错误: /answer CLARIFICATION_ID ANSWER", "error"
+    progress = create_progress(request=answer)
+    try:
+        result = continue_conversation_after_clarification(
+            clarification_id,
+            answer,
+            settings=settings,
+            store=ChatMemoryStore(settings.db_path),
+            event_sink=agent_progress_event_sink(progress),
+        )
+    except Exception as exc:
+        return f"错误: {exc}", "error"
+    finally:
+        progress.close()
+    _update_pending_clarification_state(state, result)
+    return format_chat_result(_chat_result_from_conversation(result)), "done"
+
+
+def _reject_pending_repl_clarification(*, current_session: object | None, state: ReplState) -> tuple[str, str]:
+    clarification_id = str(state.pending_clarification_id or "").strip()
+    if not clarification_id:
+        return "当前没有待澄清问题。", "done"
+    settings = getattr(current_session, "settings", None) or load_settings()
+    try:
+        result = reject_pending_conversation_action(
+            clarification_id,
+            settings=settings,
+            store=ChatMemoryStore(settings.db_path),
+        )
+        output = format_chat_result(_chat_result_from_conversation(result))
+    except Exception as exc:
+        output = f"错误: {exc}"
+        _clear_pending_clarification(state)
+        return output, "error"
+    _clear_pending_clarification(state)
+    return output, "done"
+
+
+def _update_pending_clarification_state(state: ReplState, result: object) -> None:
+    if bool(getattr(result, "requires_clarification", False)):
+        state.pending_clarification_id = str(getattr(result, "clarification_id", "") or "")
+        state.pending_clarification_prompt = str(getattr(result, "clarification_prompt", "") or "")
+        return
+    _clear_pending_clarification(state)
+
+
+def _clear_pending_clarification(state: ReplState) -> None:
+    state.pending_clarification_id = ""
+    state.pending_clarification_prompt = ""
 
 
 def _handle_runtime_builtin(
@@ -1369,8 +1621,19 @@ def _handle_runtime_builtin(
             turn_id = args[0] if args else ""
             return format_runtime_trace(store, turn_id=turn_id, session_id=state.session_id), "done"
         if not args:
+            if command == "reject" and str(state.pending_clarification_id or "").strip():
+                return _reject_pending_repl_clarification(current_session=current_session, state=state)
             return f"错误: /{command} ACTION_ID", "error"
         action_id = args[0]
+        action = store.get_pending_action(action_id)
+        if command == "confirm" and action and str(action.get("action_type") or "") == "conversation_tool":
+            result = confirm_pending_conversation_action(action_id, settings=settings, store=store)
+            return format_chat_result(_chat_result_from_conversation(result)), "done"
+        if command == "reject" and action and str(action.get("action_type") or "") in {"conversation_tool", "conversation_clarification"}:
+            result = reject_pending_conversation_action(action_id, settings=settings, store=store)
+            if str(action.get("action_type") or "") == "conversation_clarification" and action_id == state.pending_clarification_id:
+                _clear_pending_clarification(state)
+            return format_chat_result(_chat_result_from_conversation(result)), "done"
         if command == "confirm":
             result = confirm_pending_runtime_action(action_id, settings=settings, store=store)
         else:
@@ -1404,6 +1667,21 @@ def _chat_result_from_agent(result: object) -> ChatResult:
         sources=tuple(getattr(result, "sources", ()) or ()),
         requires_confirmation=bool(pending is not None),
         pending_action_id=str(getattr(pending, "action_id", "") or "") if pending is not None else None,
+        turn_id=getattr(result, "turn_id", None),
+        session_id=str(getattr(result, "session_id", "") or ""),
+    )
+
+
+def _chat_result_from_conversation(result: object) -> ChatResult:
+    return ChatResult(
+        content=str(getattr(result, "content", "") or ""),
+        skill_names=tuple(getattr(result, "skill_names", ()) or ()),
+        tool_call_count=int(getattr(result, "tool_call_count", 0) or 0),
+        data_names=tuple(getattr(result, "data_names", ()) or ()),
+        artifacts=tuple(getattr(result, "artifacts", ()) or ()),
+        sources=tuple(getattr(result, "sources", ()) or ()),
+        requires_confirmation=bool(getattr(result, "requires_confirmation", False)),
+        pending_action_id=str(getattr(result, "pending_action_id", "") or "") or None,
         turn_id=getattr(result, "turn_id", None),
         session_id=str(getattr(result, "session_id", "") or ""),
     )

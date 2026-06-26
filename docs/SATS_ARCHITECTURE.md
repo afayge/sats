@@ -270,30 +270,25 @@ flowchart TD
 
 ### 当前自然语言处理流程
 
-当前 SATS 的自然语言链路，不是“用户一句话直接丢给主模型回答”，而是先做本地编排，再把真实数据交给主模型分析。核心目标是避免模型凭空编造行情、指标、财务或筛选结果。
+当前 SATS 的默认自然语言链路，不是“用户一句话直接丢给主模型回答”，而是一个 SATS-native 的 Codex-style 工具循环。核心目标是让模型只决定下一步受控动作，由 SATS runtime 调用注册工具、记录 observation、执行权限门控，最后基于真实数据回答，避免模型凭空编造行情、指标、财务或筛选结果。
 
 主流程：
 
 1. 用户从三类入口进入：`sats chat "..."`、REPL 普通输入、REPL `/chat ...`。
 2. REPL 会先检查这轮输入是否引用“上面/上述/刚才/这些股票/列表/结果”等上文；如果命中，就从上一条输出里提取股票代码、筛选结果或报告路径，构造 `ChatReferenceContext`。
-3. `ChatSession.ask()` 先处理优先级更高的特殊流程，例如自然语言创建筛选规则；这类请求不会直接进入普通问答。
-4. 轻量模型预处理 `chat_preprocessor` 运行短超时 LLM，把自然语言先整理成结构化任务：`intent`、`symbols`、`stock_names`、`trade_date`、`market_indices`、`market_dimensions`、`market_horizons`、`skill_hints`、是否需要个股/大盘/机会发现/实时报价等。
-5. 本地规则会覆盖和校验轻量模型输出：显式股票代码优先，上文引用其次，股票名称最后通过 DuckDB `stock_basic` 和 `AStockDataProvider` 做解析；无法唯一匹配的名称才会进入澄清，而不是让模型猜代码。
-6. `chat_planner` 把预处理结果和规则式识别合并成 `ChatPlan`，决定本轮需要哪些真实上下文、skills 和内部分析动作。
-7. `skills_for_plan()` 与 `match_skills()` 选出要加载的 skill 文本，只作为领域提示，不代替真实数据。
-8. 根据 `ChatPlan` 执行真实取数和内部分析：
-   - 个股问题：`build_stock_llm_context()`，内部复用 `IndicatorCalculator` 计算 MA、RSI、MACD、量能等。
-   - 报价问题：`build_stock_quote_llm_context()`。
-   - 大盘问题：`build_market_llm_context()`，可按预处理规划的指数池、市场维度和 horizon 取数。
-   - 自然语言选股：选股 Agent 先理解用户约束并加载 skills/RAG；若用户指定主题，先解析 THS/LLM 主题股票池并校验 `stock_basic`，再调用 `run_opportunity_discovery()` 做限定或全市场 Analyze 信号筛选、热点板块加权和候选增强，最后交给主模型排序。
-   - 缠论问题：`build_chan_chat_context()`。
-9. 主模型只在“真实上下文已经准备好”的前提下回答；消息里会注入系统提示、skills 摘要、预处理结果、计划结果、上文引用上下文和结构化市场/个股数据。
-10. 回答完成后，REPL 会记录本轮输出，供下一轮“分析上面股票”“输出为 PDF”“查看上面结果”继续复用；记忆提取和会话摘要则走轻量模型。
+3. `run_conversation_once()` 创建 turn trace、加载 `AgentExecutionPolicy`、skills、`AgentToolRegistry` 和初始 legacy `build_agent_plan()` 预览；`--plan-only` 只输出这份预览，不执行工具。
+4. 默认 conversation loop 每轮要求模型只输出一个 JSON action：`call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`。
+5. SATS runtime 校验 action：工具名必须来自 registry，参数必须满足 schema 和业务 guard；不确定 A 股数据接口时必须先 `data.astock_catalog`，再 `data.astock_fetch`。
+6. `readonly` 和 `write_artifact` 工具自动执行；`write_db`、`long_running`、`command`、`live_trade` 会创建 pending action，等待 `sats chat --confirm` 或 REPL `/confirm`。
+7. 每次工具调用都会生成 observation，写入 `chat_turn_items` / `chat_turn_events`，并回填给下一轮模型决策；工具错误可继续让模型选择替代工具或最终说明。
+8. 缺少股票、日期、检索词或 operation 等关键参数时，loop 返回澄清请求；用户通过 `sats chat --answer` 或 REPL `/answer` 补充后继续。
+9. 模型输出 `final_answer` 时直接形成最终回答；若没有可用 final，则使用 `synthesize_agent_result()` 基于 observations 做兜底综合。
+10. 回答完成后，REPL 会记录本轮输出，供下一轮“分析上面股票”“输出为 PDF”“查看上面结果”继续复用；trace、artifact 和 pending action 均可通过 `/trace`、`/confirm`、`/reject` 查看或处理。
 
 关键约束：
 
-- 主模型不直接执行任意命令，不直接访问第三方数据源。
-- A 股真实数据统一通过 `AStockDataProvider` 获取。
+- 主模型不直接执行任意命令，不直接访问第三方数据源，只能选择 SATS 注册工具。
+- A 股真实数据统一通过 `AStockDataProvider`、白名单 `data.*` 工具和 `data.astock_catalog` / `data.astock_fetch` 边界获取。
 - 核心行情数据缺失时停止分析；辅助字段缺失时保留 `missing_fields`，不编造。
 - 自然语言里的“上面/上述/上一条”优先触发上文继承，而不是重新要求用户输入股票代码。
 
@@ -301,36 +296,21 @@ flowchart TD
 flowchart TD
   A["用户输入<br/>REPL / /chat / sats chat"] --> B{"是否引用上文<br/>上面 / 上述 / 刚才 / 这些股票"}
   B -- 是 --> C["repl.py<br/>build_chat_reference_context()<br/>提取 symbols / 筛选结果 / 报告路径"]
-  B -- 否 --> D["ChatSession.ask()"]
+  B -- 否 --> D["run_conversation_once()"]
   C --> D
 
-  D --> E{"是否命中特殊流程<br/>规则生成 / 纯保存请求"}
-  E -- 是 --> F["特殊处理分支<br/>rule_composer / output_saver"]
-  E -- 否 --> G["chat_preprocessor.py<br/>轻量模型预处理 + 本地 fallback"]
-
-  G --> H["本地校验与实体补全<br/>显式代码 > 上文 symbols > 名称解析"]
-  H --> I["chat_planner.py<br/>生成 ChatPlan"]
-  I --> J["skills_for_plan() / match_skills()<br/>加载 skill 摘要"]
-
-  I --> K{"需要什么上下文或动作"}
-  K --> L["个股上下文<br/>build_stock_llm_context()<br/>含指标计算"]
-  K --> M["实时报价<br/>build_stock_quote_llm_context()"]
-  K --> N["大盘上下文<br/>build_market_llm_context()<br/>指数池/宽度/情绪/热点"]
-  K --> O["机会发现<br/>run_opportunity_discovery()<br/>信号筛选 + 热点 + LLM 排名"]
-  K --> P["缠论上下文<br/>build_chan_chat_context()"]
-
-  L --> Q["主模型 ChatLLM"]
-  M --> Q
-  N --> Q
-  O --> Q
-  P --> Q
-  J --> Q
-  H --> Q
-  I --> Q
-
-  Q --> R["生成最终回答<br/>使用 skill / 数据来源 / 投资免责声明"]
-  R --> S["记忆提取与摘要<br/>MemoryExtractor(light)"]
-  R --> T["REPL 保存 last_output<br/>供下一轮继续引用或导出 MD/PDF"]
+  D --> E["加载工具注册表<br/>catalog / data / research / factor / web / workflow / trade"]
+  E --> F["模型输出一个 JSON action"]
+  F --> G{"action 类型"}
+  G -- call_tool --> H["校验工具名 / 参数 / 数据边界"]
+  H --> I{"side_effect"}
+  I -- readonly / 产物 --> J["执行工具并记录 observation"]
+  I -- 写库/长任务/命令/交易 --> K["pending action<br/>/confirm 或 --confirm"]
+  G -- ask_clarification --> L["创建澄清 action<br/>/answer 或 --answer"]
+  G -- request_confirmation --> H
+  J --> F
+  G -- final_answer --> M["生成最终回答"]
+  M --> N["保存消息 / trace / artifacts / last_output"]
 ```
 
 ### 输出保存

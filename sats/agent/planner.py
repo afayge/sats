@@ -19,7 +19,7 @@ from sats.rag.knowledge import infer_stock_collections
 from sats.screening.registry import list_rules
 from sats.screening.rule_composer import is_rule_generation_request, parse_rule_generation_confirmation
 from sats.stock_basic_lookup import load_stock_basic_frame, resolve_stock_mentions
-from sats.stock_question import extract_stock_symbols, extract_trade_date
+from sats.stock_question import extract_natural_trade_date, extract_stock_symbols
 from sats.agent.tools.workflow_tools import (
     infer_screening_rule,
     is_daily_portfolio_request,
@@ -205,8 +205,11 @@ def _planner_messages(
                 "大盘问题 -> research.market_context；"
                 "research.market_context 的 dimensions 只使用 core_indices、market_breadth、limit_sentiment、hot_sectors；"
                 "Serenity、供应链卡位/卡脖子/瓶颈筛选，或 AI 科技主题选股 -> research.serenity_screen；"
+                "概念板块/行业板块本身的涨跌幅、跌幅、涨幅、排行、Top/Bottom -> research.sector_return_ranking；"
                 "主题相关股票列表、概念股有哪些、列出相关股票或简单信息 -> research.theme_stock_list；"
+                "主题相关股票/概念股/相关个股的区间涨跌幅 -> research.theme_stock_returns；"
                 "只有用户明确要求短线、上涨潜力、预测走势、明天/未来几天、大概率上涨、机会或候选排序时，选股问题才 -> research.discover_opportunities；"
+                "找不到合适现成工具且任务是只读分析/数据整理时，先 data.astock_catalog 发现接口，再用 analysis.python_program 做受限程序计算；"
                 "缠论问题 -> research.chan_context；"
                 "规则生成 -> research.rule_generation。"
                 "除非用户明确要求，否则不要默认追加 factor_summary、analyze_signals、knowledge_context 或额外 data.* 取数步骤。"
@@ -316,7 +319,7 @@ def _fallback_plan(
                 {
                     "phase": phase,
                     "trading_mode": trading_mode,
-                    "trade_date": extract_trade_date(text) or "",
+                    "trade_date": extract_natural_trade_date(text) or "",
                     "llm_enabled": "不使用llm" not in lowered and "no-llm" not in lowered,
                 },
                 side_effect="write_db",
@@ -345,7 +348,7 @@ def _fallback_plan(
                 {
                     "message": text,
                     "rule": infer_screening_rule(text),
-                    "trade_date": extract_trade_date(text) or "",
+                    "trade_date": extract_natural_trade_date(text) or "",
                     "candidate_limit": extract_candidate_limit(text, default=0),
                     "analysis_mode": requested_screened_analysis_mode(text).value,
                     "run_screen": True,
@@ -442,10 +445,14 @@ def _fallback_plan(
                     side_effect="readonly",
                 )
             )
+    elif _is_sector_return_ranking_request(text):
+        steps.append(_sector_return_ranking_step(text))
     elif _is_theme_stock_return_request(text):
         steps.append(_theme_stock_returns_step(text, clean_symbols))
     elif _is_theme_stock_list_request(text):
         steps.append(_theme_stock_list_step(text))
+    elif _is_auto_program_request(text):
+        steps.extend(_auto_program_steps(text))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
     elif clean_symbols and _is_company_fundamentals_request(text):
@@ -676,7 +683,7 @@ def _augment_plan(
                     {
                         "message": text,
                         "rule": infer_screening_rule(text),
-                        "trade_date": extract_trade_date(text) or "",
+                        "trade_date": extract_natural_trade_date(text) or "",
                         "candidate_limit": extract_candidate_limit(text, default=0),
                         "analysis_mode": requested_screened_analysis_mode(text).value,
                         "run_screen": True,
@@ -717,10 +724,14 @@ def _augment_plan(
                 ),
             )
         return replace(plan, steps=tuple(steps))
+    if _is_sector_return_ranking_request(text):
+        return replace(plan, steps=(_sector_return_ranking_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_theme_stock_return_request(text):
         return replace(plan, steps=(_theme_stock_returns_step(text, symbols), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_theme_stock_list_request(text):
         return replace(plan, steps=(_theme_stock_list_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
+    if _is_auto_program_request(text):
+        return replace(plan, steps=tuple([*_auto_program_steps(text), AgentStep(step_id="final", kind="final", title="总结结果")]))
     if symbols and _is_company_fundamentals_request(text):
         company_step = _tool_step(
             "company_fundamentals",
@@ -916,6 +927,62 @@ def _theme_stock_returns_step(text: str, symbols: list[str] | None = None) -> Ag
         arguments,
         side_effect="readonly",
     )
+
+
+def _sector_return_ranking_step(text: str) -> AgentStep:
+    return _tool_step(
+        "sector_return_ranking",
+        "research.sector_return_ranking",
+        "计算板块指数区间涨跌幅排行",
+        {
+            "query": text,
+            "source": _sector_ranking_source(text),
+            "sector_type": _sector_ranking_type(text),
+            "period": _sector_ranking_period(text),
+            "direction": _sector_ranking_direction(text),
+            "limit": _sector_ranking_limit(text),
+        },
+        side_effect="readonly",
+    )
+
+
+def _auto_program_steps(text: str) -> list[AgentStep]:
+    code = (
+        "def run(context):\n"
+        "    observations = context.get('observations') or []\n"
+        "    return {\n"
+        "        'summary': '未命中专用工具，已进入受限只读程序通道；需要后续程序基于 resolver 或 observations 补充具体计算。',\n"
+        "        'observation_count': len(observations),\n"
+        "        'rows': [],\n"
+        "        'provenance': [],\n"
+        "        'data_sources': {},\n"
+        "        'missing_fields': ['custom_program_not_specialized'],\n"
+        "    }\n"
+    )
+    return [
+        _tool_step(
+            "astock_catalog",
+            "data.astock_catalog",
+            "发现可用数据接口",
+            {"query": _catalog_query_for_program(text), "limit": 20, "compact": True},
+            side_effect="readonly",
+        ),
+        _tool_step(
+            "python_program",
+            "analysis.python_program",
+            "运行受限只读程序",
+            {
+                "task": text,
+                "code": code,
+                "expected_schema": {"type": "object"},
+                "observation_refs": ["astock_catalog"],
+                "resolver_methods": [],
+                "timeout_seconds": 30,
+                "row_limit": 200,
+            },
+            side_effect="readonly",
+        ),
+    ]
 
 
 def _theme_stock_list_step(text: str) -> AgentStep:
@@ -1220,7 +1287,7 @@ def _serenity_screen_args(text: str, symbols: list[str]) -> dict[str, Any]:
         "query": text,
         "theme": "",
         "symbols": symbols,
-        "trade_date": extract_trade_date(text) or agent_today(),
+        "trade_date": extract_natural_trade_date(text) or agent_today(),
         "limit": limit,
         "candidate_limit": max(30, limit),
         "lookback_days": 180,
@@ -1271,7 +1338,7 @@ def _knowledge_context_args(text: str) -> dict[str, Any]:
     return {"message": text, "collections": list(dict.fromkeys(collections))}
 
 
-def _market_horizons(text: str) -> list[str]:
+def _market_horizons(text: str, *, default_today: bool = True) -> list[str]:
     horizons = []
     if any(term in text for term in ("今天", "今日", "本周", "这周", "当前", "现在")):
         horizons.append("today")
@@ -1281,20 +1348,115 @@ def _market_horizons(text: str) -> list[str]:
         horizons.append("day_after_tomorrow")
     if "下周" in text or "未来一周" in text:
         horizons.append("next_week")
-    return horizons or ["today"]
+    if horizons:
+        return horizons
+    return ["today"] if default_today else []
 
 
 def _market_context_args(text: str) -> dict[str, Any]:
-    return {"horizons": _market_horizons(text), "dimensions": list(DEFAULT_MARKET_DIMENSIONS)}
+    args: dict[str, Any] = {"dimensions": list(DEFAULT_MARKET_DIMENSIONS)}
+    trade_date = extract_natural_trade_date(text)
+    horizons = _market_horizons(text, default_today=False)
+    if trade_date:
+        args["trade_date"] = trade_date
+        horizons = [item for item in horizons if item != "today"]
+    if horizons:
+        args["horizons"] = horizons
+    return args
 
 
 def _needs_web_evidence(text: str) -> bool:
     return _needs_web_search(text) or _needs_social_hot(text)
 
 
+def _is_sector_return_ranking_request(text: str) -> bool:
+    value = re.sub(r"\s+", "", str(text or "").strip().lower())
+    if not value:
+        return False
+    if any(term in value for term in ("相关股票", "相关个股", "相关a股", "概念股", "股票池", "个股")):
+        return False
+    has_sector_subject = any(term in value for term in ("概念板块", "行业板块", "板块", "行业", "概念指数", "板块指数"))
+    has_period = any(term in value for term in ("一年", "半年", "近年", "过去", "最近", "近")) or bool(
+        re.search(r"[0-9一二两三四五六七八九十]+(个)?(月|年|周|天|日)", value)
+    )
+    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "上涨", "下跌", "涨得", "跌得", "收益", "表现"))
+    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "最多", "最少", "最好", "最差", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌"))
+    return has_sector_subject and has_period and has_metric and has_ranking
+
+
+def _sector_ranking_source(text: str) -> str:
+    lowered = str(text or "").lower()
+    if any(term in lowered for term in ("东方财富", "东财", "eastmoney", " em")):
+        return "em"
+    return "ths"
+
+
+def _sector_ranking_type(text: str) -> str:
+    value = str(text or "")
+    if "行业" in value and "概念" not in value:
+        return "industry"
+    return "concept"
+
+
+def _sector_ranking_direction(text: str) -> str:
+    value = str(text or "")
+    if any(term in value for term in ("涨幅最大", "涨幅最高", "上涨最多", "涨得最多", "涨最多", "领涨", "最强", "最好", "表现最好")):
+        return "top"
+    return "bottom"
+
+
+def _sector_ranking_period(text: str) -> str:
+    value = str(text or "")
+    if "半年" in value:
+        return "6m"
+    if "一年" in value or "1年" in value or "近年" in value:
+        return "1y"
+    match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", value)
+    if not match:
+        return "1y"
+    amount = _chinese_number_value(match.group(1))
+    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+    return f"{amount}{suffix}" if amount else "1y"
+
+
+def _sector_ranking_limit(text: str) -> int:
+    value = str(text or "")
+    match = re.search(r"(?:top|前)\s*(\d{1,3})", value, flags=re.IGNORECASE)
+    if not match:
+        match = re.search(r"(\d{1,3})\s*个?(?:板块|行业|概念)", value)
+    if not match:
+        return 10
+    return max(1, min(50, int(match.group(1))))
+
+
+def _chinese_number_value(value: str) -> int:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text == "十":
+        return 10
+    if "十" in text:
+        left, _, right = text.partition("十")
+        return (digits.get(left, 1) * 10) + digits.get(right, 0)
+    return digits.get(text, 0)
+
+
+def _is_auto_program_request(text: str) -> bool:
+    value = str(text or "")
+    return any(term in value for term in ("找不到现成工具", "没有现成工具", "没有合适工具", "自己编程", "编写程序", "自定义指标"))
+
+
+def _catalog_query_for_program(text: str) -> str:
+    value = re.sub(r"(找不到现成工具|没有现成工具|没有合适工具|自己编程|编写程序|自定义指标)", " ", str(text or ""))
+    return " ".join(value.split())[:80] or "A股 数据"
+
+
 def _is_theme_stock_return_request(text: str) -> bool:
     value = re.sub(r"\s+", "", str(text or "").strip())
     if not value:
+        return False
+    if _is_sector_return_ranking_request(text):
         return False
     has_theme_stock = any(term in value for term in ("相关股票", "相关个股", "相关A股", "概念股", "产业链股票", "题材股"))
     has_peer_theme = bool(_theme_return_peer_theme(value))
@@ -1595,7 +1757,7 @@ def _with_default_market_dimensions(step: AgentStep) -> AgentStep:
 
 def _analysis_trade_date(text: str, reference_context: Any | None = None) -> str:
     try:
-        return extract_trade_date(text) or _reference_trade_date(reference_context) or agent_today()
+        return extract_natural_trade_date(text) or _reference_trade_date(reference_context) or agent_today()
     except ValueError:
         return _reference_trade_date(reference_context) or agent_today()
 

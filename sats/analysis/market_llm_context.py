@@ -11,9 +11,9 @@ import pandas as pd
 
 from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
-from sats.data.resolver import MARKET_BREADTH_MIN_COUNT, MarketDataResolver
+from sats.data.resolver import MARKET_BREADTH_MIN_COUNT, MarketDataResolver, should_refresh_current_day
 from sats.storage.duckdb import DuckDBStorage
-from sats.stock_question import extract_trade_date
+from sats.stock_question import extract_natural_trade_date
 from sats.symbols import normalize_ts_code
 
 
@@ -108,9 +108,10 @@ def build_market_llm_context(
 ) -> MarketLLMContext | None:
     if not force and not is_market_question(message):
         return None
+    resolved_trade_date = trade_date or extract_natural_trade_date(message) or _today()
     payload = get_a_share_market_context(
         settings=settings,
-        trade_date=trade_date or extract_trade_date(message) or _today(),
+        trade_date=resolved_trade_date,
         horizons=horizons or extract_market_horizons(message),
         indices=indices,
         dimensions=dimensions,
@@ -152,6 +153,7 @@ def get_a_share_market_context(
     lookback_days: int = MARKET_LOOKBACK_DAYS,
     astock_provider: Any | None = None,
     market_data_resolver: Any | None = None,
+    refresh_current_day: bool = True,
     tickflow_provider: Any | None = None,
     tushare_provider: Any | None = None,
     akshare_provider: Any | None = None,
@@ -184,7 +186,12 @@ def get_a_share_market_context(
     if "core_indices" in requested_dimensions:
         start_date = _days_before(trade_date, max(lookback_days * 2, 180))
         daily = _market_index_daily_frame(
-            resolver.load_index_daily(symbols, start_date=start_date, end_date=trade_date)
+            resolver.load_index_daily(
+                symbols,
+                start_date=start_date,
+                end_date=trade_date,
+                refresh_current_day=refresh_current_day,
+            )
         )
         daily_source = str(daily.attrs.get("data_source") or "unavailable") if not daily.empty else "unavailable"
         if daily.empty:
@@ -230,6 +237,15 @@ def get_a_share_market_context(
             "limit_sentiment": limit_sentiment_source,
             "hot_sector_context": hot_sector_source,
         },
+        "freshness": _freshness_payload(
+            requested_date=trade_date,
+            effective_trade_date=effective_trade_date,
+            refresh_current_day=refresh_current_day,
+            index_daily=daily,
+            index_quote=quotes,
+            market_breadth=breadth,
+            hot_sector_context=hot_sector_context,
+        ),
         "missing_fields": _missing_fields(
             symbols,
             daily,
@@ -247,7 +263,7 @@ def get_a_share_market_context(
 def extract_market_horizons(message: str) -> tuple[str, ...]:
     text = str(message or "")
     horizons: list[str] = []
-    if any(term in text for term in ("今天", "今日", "当前", "现在", "盘中", "盘后")):
+    if any(term in text for term in ("今天", "今日", "当前", "现在", "盘中", "盘后", "这几天", "最近几天", "近几天", "近几日")):
         horizons.append("today")
     if any(term in text for term in ("明后天", "明后", "明天后天", "未来两天")):
         horizons.extend(["tomorrow", "day_after_tomorrow"])
@@ -500,9 +516,13 @@ def _index_missing_fields(symbol: str, daily: pd.DataFrame, quote: dict[str, Any
 def _system_message(payload: dict[str, Any]) -> str:
     return (
         "以下是 SATS 在调用 LLM 前获取的真实 A 股大盘结构化数据。你只能基于这些数据回答；"
+        "当这些结构化数据与用户粘贴数据、历史消息或会话摘要冲突时，以本次 SATS 结构化数据为准。"
         "不得编造价格、涨跌幅、成交量、新闻、政策、公告、题材或资金数据。"
         "limit_sentiment 来自涨停、跌停、炸板统计；若相关字段缺失，不得补猜炸板数或情绪阶段。"
         "hot_sector_context 来自同花顺行业/概念热点；若缺失，不得补猜热点板块。"
+        "market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额；"
+        "只有 turnover_comparison.status=ok 时，才能基于 turnover_comparison 写放量、缩量、成交萎缩或成交放大。"
+        "不得把盘中累计成交额直接与前一交易日全天成交额比较。"
         "requested_indices、requested_dimensions 和 requested_horizons 代表本次大盘研究篮子与分析范围。"
         "如果字段在 missing_fields 中，必须说明该数据缺失。"
         "对明天、后天或下周走势只能使用情景、概率、关键点位和失效条件表达，不得断言必然走势。"
@@ -538,6 +558,68 @@ def _market_index_daily_frame(frame: pd.DataFrame) -> pd.DataFrame:
     data.attrs["data_source"] = source
     data.attrs["market_data_provenance"] = provenance
     return data
+
+
+def _freshness_payload(
+    *,
+    requested_date: str,
+    effective_trade_date: str,
+    refresh_current_day: bool,
+    index_daily: pd.DataFrame,
+    index_quote: pd.DataFrame,
+    market_breadth: dict[str, Any],
+    hot_sector_context: dict[str, Any],
+) -> dict[str, Any]:
+    refresh_requested = should_refresh_current_day(str(requested_date), refresh_current_day=refresh_current_day)
+    warnings = []
+    index_daily_freshness = _frame_freshness(index_daily, refresh_requested=refresh_requested)
+    if refresh_requested and index_daily_freshness.get("cache_fallback"):
+        warnings.append("index_daily:stale_cache_after_refresh_failure")
+    hot_freshness = _hot_sector_freshness(hot_sector_context)
+    if hot_freshness.get("cache_fallback"):
+        warnings.append("hot_sector_context:cache_fallback")
+    return {
+        "requested_as_of_date": str(requested_date),
+        "effective_trade_date": str(effective_trade_date),
+        "refresh_current_day": bool(refresh_current_day),
+        "current_day_refresh_requested": bool(refresh_requested),
+        "index_daily": index_daily_freshness,
+        "index_quote": _frame_freshness(index_quote, refresh_requested=True),
+        "market_breadth": {
+            "source": str(market_breadth.get("data_source") or ""),
+            "is_fallback": bool(market_breadth.get("is_fallback", False)) if market_breadth else False,
+            "trade_date": str(market_breadth.get("trade_date") or "") if market_breadth else "",
+        },
+        "hot_sector_context": hot_freshness,
+        "warnings": warnings,
+    }
+
+
+def _frame_freshness(frame: pd.DataFrame, *, refresh_requested: bool) -> dict[str, Any]:
+    source = str(frame.attrs.get("data_source") or "unavailable") if frame is not None and not frame.empty else "unavailable"
+    provenance = frame.attrs.get("market_data_provenance") if frame is not None else None
+    item = provenance[0] if isinstance(provenance, list) and provenance else {}
+    fetched_at = str(item.get("fetched_at") or "") if isinstance(item, dict) else ""
+    cache_hit = bool(item.get("cache_hit", False)) if isinstance(item, dict) else False
+    return {
+        "source": source,
+        "refresh_requested": bool(refresh_requested),
+        "cache_hit": cache_hit,
+        "cache_fallback": source == "duckdb_cache_stale_current_day",
+        "fetched_at": fetched_at,
+    }
+
+
+def _hot_sector_freshness(payload: dict[str, Any]) -> dict[str, Any]:
+    source = _hot_sector_source(payload)
+    data_sources = payload.get("data_sources") if isinstance(payload, dict) else {}
+    fetched_at = payload.get("fetched_at") if isinstance(payload, dict) else ""
+    return {
+        "source": source,
+        "cache_fallback": "duckdb_cache_or_unavailable" in source,
+        "fetched_at": str(fetched_at or ""),
+        "data_sources": data_sources if isinstance(data_sources, dict) else {},
+    }
 
 
 def _market_periods(requested_date: str, effective_trade_date: str) -> dict[str, Any]:

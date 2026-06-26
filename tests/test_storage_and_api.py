@@ -15,6 +15,7 @@ from prompt_toolkit.utils import get_cwidth
 from sats.cli import build_parser, cmd_result_rules, cmd_results, cmd_screen, main
 from sats.cli import cmd_analyze_chan
 from sats.api.app import create_app
+from sats.data.resolver import MarketDataResolver
 from sats.screening.base import ScreeningInput, ScreeningResult
 from sats.screening.service import evaluate_and_store
 from sats.storage.duckdb import DuckDBStorage
@@ -124,6 +125,61 @@ class FakeTickFlowProvider:
         return _minute_k_frame(symbols[0], period=period, trade_time="2026-05-13 10:00:00")
 
 
+class FakeResolverMarketProvider:
+    def load_historical_daily_klines(self, symbols, *, start_date=None, end_date=None, storage=None):
+        frame = pd.DataFrame(
+            [
+                {
+                    "ts_code": symbols[0],
+                    "trade_date": str(end_date),
+                    "open": 10.0,
+                    "high": 11.0,
+                    "low": 9.9,
+                    "close": 10.8,
+                    "vol": 1000.0,
+                    "amount": 10800.0,
+                    "pct_chg": 1.0,
+                }
+            ]
+        )
+        frame.attrs["data_source"] = "fake_daily"
+        return frame
+
+    def load_index_daily(self, index_codes, *, start_date, end_date):
+        frame = pd.DataFrame(
+            [
+                {
+                    "index_code": index_codes[0],
+                    "trade_date": str(end_date),
+                    "open": 3000.0,
+                    "high": 3030.0,
+                    "low": 2990.0,
+                    "close": 3020.0,
+                    "vol": 1000.0,
+                    "amount": 10000.0,
+                    "pct_chg": 0.5,
+                }
+            ]
+        )
+        frame.attrs["data_source"] = "fake_index"
+        return frame
+
+    def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+        frame = pd.DataFrame(
+            [
+                {
+                    "ts_code": symbols[0],
+                    "as_of_time": "2026-05-14 10:00:00",
+                    "price": 12.3,
+                    "volume": 1000.0,
+                    "amount": 12300.0,
+                }
+            ]
+        )
+        frame.attrs["data_source"] = "fake_quote"
+        return frame
+
+
 def _minute_k_frame(symbol: str, *, period: str, trade_time: str) -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -207,6 +263,160 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertTrue(readonly.read_only)
             self.assertEqual(rows.iloc[0]["ts_code"], "000001.SZ")
 
+    def test_trading_session_today_market_cache_rows_are_not_written(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "sats.storage.duckdb.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.storage.duckdb.is_current_trading_session_date", return_value=True):
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+
+            daily_rows = pd.DataFrame(
+                [
+                    {"ts_code": "000001.SZ", "trade_date": "20260513", "close": 10.1},
+                    {"ts_code": "000001.SZ", "trade_date": "20260514", "close": 10.2},
+                ]
+            )
+            self.assertEqual(storage.upsert_stock_daily(daily_rows), 1)
+            self.assertEqual(storage.get_stock_daily(["20260513", "20260514"])["trade_date"].tolist(), ["20260513"])
+
+            basic_rows = pd.DataFrame(
+                [
+                    {"ts_code": "000001.SZ", "trade_date": "20260513", "turnover_rate": 1.1},
+                    {"ts_code": "000001.SZ", "trade_date": "20260514", "turnover_rate": 1.2},
+                ]
+            )
+            self.assertEqual(storage.upsert_stock_daily_basic(basic_rows), 1)
+            self.assertEqual(storage.get_stock_daily_basic(["20260513", "20260514"])["trade_date"].tolist(), ["20260513"])
+
+            self.assertEqual(
+                storage.upsert_stock_moneyflow(
+                    pd.DataFrame(
+                        [
+                            {"ts_code": "000001.SZ", "trade_date": "20260513", "main_net_amount": 10.0},
+                            {"ts_code": "000001.SZ", "trade_date": "20260514", "main_net_amount": 20.0},
+                        ]
+                    )
+                ),
+                1,
+            )
+            self.assertEqual(
+                storage.get_stock_moneyflow(["000001.SZ"], start_date="20260513", end_date="20260514")["trade_date"].tolist(),
+                ["20260513"],
+            )
+
+            index_rows = pd.DataFrame(
+                [
+                    {"index_code": "000001.SH", "trade_date": "20260513", "close": 3000.0},
+                    {"index_code": "000001.SH", "trade_date": "20260514", "close": 3010.0},
+                ]
+            )
+            self.assertEqual(storage.upsert_industry_daily("000001.SH", index_rows), 1)
+            self.assertEqual(storage.get_industry_daily("000001.SH", ["20260513", "20260514"])["trade_date"].tolist(), ["20260513"])
+
+            sector_rows = pd.DataFrame(
+                [
+                    {"sector_code": "885001.TI", "trade_date": "20260513", "close": 10.0},
+                    {"sector_code": "885001.TI", "trade_date": "20260514", "close": 10.5},
+                ]
+            )
+            self.assertEqual(storage.upsert_sector_daily(sector_rows), 1)
+            self.assertEqual(storage.get_sector_daily(["885001.TI"], trade_dates=["20260513", "20260514"])["trade_date"].tolist(), ["20260513"])
+
+            minute_rows = pd.DataFrame(
+                [
+                    {"ts_code": "000001.SZ", "trade_time": "2026-05-13 10:00:00", "close": 10.1},
+                    {"ts_code": "000001.SZ", "trade_time": "2026-05-14 10:00:00", "close": 10.2},
+                ]
+            )
+            self.assertEqual(storage.upsert_stock_minute_cache(minute_rows, period="1m"), 1)
+            self.assertEqual(storage.get_stock_minute_cache(["000001.SZ"], period="1m")["trade_date"].tolist(), ["20260513"])
+
+            quote_rows = pd.DataFrame(
+                [
+                    {"ts_code": "000001.SZ", "as_of_time": "2026-05-14 10:00:00", "price": 10.2},
+                    {"ts_code": "000002.SZ", "as_of_time": "2026-05-13 10:00:00", "price": 9.8},
+                ]
+            )
+            self.assertEqual(storage.upsert_realtime_quote_cache(quote_rows), 1)
+            self.assertEqual(storage.get_realtime_quote_cache(["000001.SZ", "000002.SZ"])["ts_code"].tolist(), ["000002.SZ"])
+
+    def test_today_market_cache_rows_are_written_outside_trading_session(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "sats.storage.duckdb.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.storage.duckdb.is_current_trading_session_date", return_value=False):
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+
+            self.assertEqual(
+                storage.upsert_stock_daily(pd.DataFrame([{"ts_code": "000001.SZ", "trade_date": "20260514", "close": 10.2}])),
+                1,
+            )
+
+            rows = storage.get_stock_daily(["20260514"])
+            self.assertEqual(rows["trade_date"].tolist(), ["20260514"])
+
+    def test_resolver_returns_trading_session_daily_without_caching_today(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "sats.data.resolver.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.data.resolver.is_a_share_trading_time_now", return_value=True), patch(
+            "sats.storage.duckdb.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.storage.duckdb.is_current_trading_session_date", return_value=True):
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            storage.upsert_stock_daily(pd.DataFrame([{"ts_code": "000001.SZ", "trade_date": "20260513", "close": 10.1}]))
+            resolver = MarketDataResolver(
+                SimpleNamespace(db_path=Path(tmp) / "sats.duckdb"),
+                storage=storage,
+                provider=FakeResolverMarketProvider(),
+            )
+
+            frame = resolver.load_stock_daily(["000001"], start_date="20260513", end_date="20260514", refresh_current_day=True)
+
+            self.assertEqual(frame["trade_date"].astype(str).tolist(), ["20260513", "20260514"])
+            self.assertEqual(storage.get_stock_daily(["20260514"]).empty, True)
+
+    def test_resolver_returns_trading_session_index_without_caching_today(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "sats.data.resolver.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.data.resolver.is_a_share_trading_time_now", return_value=True), patch(
+            "sats.storage.duckdb.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.storage.duckdb.is_current_trading_session_date", return_value=True):
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            storage.upsert_industry_daily(
+                "000001.SH",
+                pd.DataFrame([{"index_code": "000001.SH", "trade_date": "20260513", "close": 3000.0}]),
+            )
+            resolver = MarketDataResolver(
+                SimpleNamespace(db_path=Path(tmp) / "sats.duckdb"),
+                storage=storage,
+                provider=FakeResolverMarketProvider(),
+            )
+
+            frame = resolver.load_index_daily(["000001.SH"], start_date="20260513", end_date="20260514", refresh_current_day=True)
+
+            self.assertEqual(frame["trade_date"].astype(str).tolist(), ["20260513", "20260514"])
+            self.assertEqual(storage.get_industry_daily("000001.SH", ["20260514"]).empty, True)
+
+    def test_resolver_returns_realtime_quote_without_caching_trading_session_today(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "sats.storage.duckdb.current_shanghai_trade_date",
+            return_value="20260514",
+        ), patch("sats.storage.duckdb.is_current_trading_session_date", return_value=True):
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            resolver = MarketDataResolver(
+                SimpleNamespace(db_path=Path(tmp) / "sats.duckdb"),
+                storage=storage,
+                provider=FakeResolverMarketProvider(),
+            )
+
+            frame = resolver.load_realtime_quotes(["000001"])
+
+            self.assertEqual(float(frame.iloc[0]["price"]), 12.3)
+            self.assertTrue(storage.get_realtime_quote_cache(["000001.SZ"]).empty)
+
     def test_sector_cache_roundtrip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
@@ -284,7 +494,43 @@ class StorageAndApiTest(unittest.TestCase):
             self.assertEqual(concepts["sector_code"].tolist(), ["885001.TI"])
             self.assertEqual(concepts.iloc[0]["name"], "AI算力")
             self.assertEqual(daily.iloc[0]["close"], 10.8)
+            self.assertIn("fetched_at", daily.columns)
+            self.assertTrue(str(daily.iloc[0]["fetched_at"]))
             self.assertEqual(members.iloc[0]["ts_code"], "000938.SZ")
+
+    def test_sector_daily_old_schema_migrates_fetched_at(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            storage = DuckDBStorage(Path(tmp) / "sats.duckdb")
+            with storage.connect() as con:
+                con.execute(
+                    """
+                    CREATE TABLE sector_daily (
+                        sector_code TEXT NOT NULL,
+                        trade_date TEXT NOT NULL,
+                        open DOUBLE,
+                        high DOUBLE,
+                        low DOUBLE,
+                        close DOUBLE,
+                        pct_chg DOUBLE,
+                        vol DOUBLE,
+                        amount DOUBLE,
+                        data_source TEXT,
+                        PRIMARY KEY (sector_code, trade_date)
+                    )
+                    """
+                )
+                con.execute(
+                    """
+                    INSERT INTO sector_daily
+                        (sector_code, trade_date, open, high, low, close, pct_chg, vol, amount, data_source)
+                    VALUES ('885001.TI', '20260520', 10, 11, 9, 10.8, 2.5, 1000, 10000, 'old_cache')
+                    """
+                )
+
+            daily = storage.get_sector_daily(["885001.TI"], trade_dates=["20260520"])
+
+            self.assertIn("fetched_at", daily.columns)
+            self.assertEqual(daily.iloc[0]["sector_code"], "885001.TI")
 
     def test_api_screen_defaults_to_all_a_shares(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

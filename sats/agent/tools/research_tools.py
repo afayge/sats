@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import replace
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,7 @@ from sats.web import search as web_search
 
 THEME_STOCK_RETURN_LIMIT = 30
 THEME_STOCK_LIST_LIMIT = 80
+SECTOR_RETURN_RANKING_LIMIT = 50
 
 
 def research_tool_specs() -> list[AgentToolSpec]:
@@ -160,6 +162,46 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 ["query"],
             ),
             executor=_theme_stock_returns,
+            metadata={
+                "domain": "market",
+                "subject_grain": "stock",
+                "metric_grain": "stock_period_return",
+                "time_scope": "period",
+                "output_shape": "ranked_stock_table",
+                "enumerates_universe": False,
+                "requires_symbols": False,
+                "writes_db": False,
+            },
+        ),
+        AgentToolSpec(
+            name="research.sector_return_ranking",
+            description="枚举 A 股概念/行业板块指数并计算区间涨跌幅排行；用于“概念板块/行业板块 + 一年/近N月 + 涨幅/跌幅排行”类问题。",
+            category="research",
+            side_effect="readonly",
+            timeout=240,
+            input_schema=object_schema(
+                {
+                    "query": {"type": "string"},
+                    "source": {"type": "string", "enum": ["ths", "em"]},
+                    "sector_type": {"type": "string", "enum": ["concept", "industry"]},
+                    "period": {"type": "string"},
+                    "direction": {"type": "string", "enum": ["bottom", "top"]},
+                    "trade_date": {"type": "string"},
+                    "limit": {"type": "integer"},
+                },
+                ["query"],
+            ),
+            executor=_sector_return_ranking,
+            metadata={
+                "domain": "market",
+                "subject_grain": "sector",
+                "metric_grain": "sector_index_return",
+                "time_scope": "period",
+                "output_shape": "ranked_sector_table",
+                "enumerates_universe": True,
+                "requires_symbols": False,
+                "writes_db": False,
+            },
         ),
         AgentToolSpec(
             name="research.internal_analysis",
@@ -558,6 +600,114 @@ def _theme_stock_returns(context: AgentToolContext, arguments: dict[str, Any]) -
         content=json.dumps(payload, ensure_ascii=False, default=str),
         payload=payload,
         data_names=("theme_stock_returns",),
+    )
+
+
+def _sector_return_ranking(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    query = str(arguments.get("query") or context.message or "").strip()
+    source = _sector_source(arguments.get("source"), query=query)
+    sector_type = _sector_type(arguments.get("sector_type"), query=query)
+    period = str(arguments.get("period") or _sector_period_from_text(query) or "1y").strip()
+    direction = _sector_direction(arguments.get("direction"), query=query)
+    trade_date = str(arguments.get("trade_date") or "").strip() or agent_today()
+    limit = _positive_int(arguments.get("limit"), default=10, maximum=SECTOR_RETURN_RANKING_LIMIT)
+    start_date = _sector_start_date(trade_date, period)
+    provider = AStockDataProvider(context.settings)
+    sectors_payload = _load_sector_index_rows(provider, source=source, sector_type=sector_type, trade_date=trade_date)
+    sector_rows = sectors_payload["rows"]
+    warnings: list[str] = list(sectors_payload.get("warnings") or [])
+    results: list[dict[str, Any]] = []
+    missing: list[dict[str, Any]] = []
+    for sector in sector_rows:
+        sector_code = str(sector.get("sector_code") or sector.get("ts_code") or "").strip().upper()
+        name = str(sector.get("name") or "").strip()
+        if not sector_code:
+            continue
+        daily_payload = _load_sector_daily_rows(
+            provider,
+            source=source,
+            sector_code=sector_code,
+            start_date=start_date,
+            end_date=trade_date,
+        )
+        daily = _sector_daily_frame(daily_payload.get("rows") or [])
+        if daily.empty or len(daily) < 2:
+            missing.append(
+                _drop_empty(
+                    {
+                        "sector_code": sector_code,
+                        "name": name,
+                        "reason": "sector_daily_insufficient",
+                        "data_source": daily_payload.get("data_source"),
+                        "missing_fields": daily_payload.get("missing_fields"),
+                    }
+                )
+            )
+            continue
+        start = daily.iloc[0]
+        end = daily.iloc[-1]
+        start_close = float(start["close"])
+        end_close = float(end["close"])
+        if start_close <= 0:
+            missing.append({"sector_code": sector_code, "name": name, "reason": "invalid_start_close"})
+            continue
+        pct_change = (end_close / start_close - 1.0) * 100.0
+        results.append(
+            {
+                "sector_code": sector_code,
+                "name": name,
+                "source": source,
+                "sector_type": sector_type,
+                "start_trade_date": str(start["trade_date"]),
+                "end_trade_date": str(end["trade_date"]),
+                "start_close": round(start_close, 4),
+                "end_close": round(end_close, 4),
+                "pct_change": round(pct_change, 4),
+                "sample_days": int(len(daily)),
+                "data_source": daily_payload.get("data_source"),
+                "data_status": "ok",
+            }
+        )
+    results = sorted(results, key=lambda item: float(item.get("pct_change") or 0), reverse=direction == "top")
+    ranking = []
+    for rank, row in enumerate(results[:limit], start=1):
+        ranked = dict(row)
+        ranked["rank"] = rank
+        ranking.append(ranked)
+    payload = {
+        "status": "ok",
+        "sector_return_ranking": _drop_empty(
+            {
+                "query": query,
+                "source": source,
+                "sector_type": sector_type,
+                "period": period,
+                "direction": direction,
+                "trade_date": trade_date,
+                "start_date": start_date,
+                "limit": limit,
+                "ranking": ranking,
+                "coverage": {
+                    "sector_count": len(sector_rows),
+                    "computed_count": len(results),
+                    "returned_count": len(ranking),
+                    "missing_count": len(missing),
+                    "policy": "按板块指数窗口内最早/最晚有效收盘价计算区间涨跌幅；不使用股票池个股均值替代板块指数。",
+                },
+                "missing": missing[:50],
+                "warnings": _dedupe(warnings),
+                "data_sources": {
+                    "sector_index": sectors_payload.get("data_source"),
+                    "sector_daily": f"{source}_sector_daily",
+                },
+            }
+        ),
+    }
+    return AgentToolResult(
+        status="done",
+        content=json.dumps(payload, ensure_ascii=False, default=str),
+        payload=payload,
+        data_names=("sector_return_ranking",),
     )
 
 
@@ -1235,6 +1385,192 @@ def _load_stock_basic_for_theme_returns(*, provider: Any, storage: Any) -> pd.Da
         except Exception:
             pass
     return pd.DataFrame()
+
+
+def _sector_source(value: Any, *, query: str) -> str:
+    raw = str(value or "").strip().lower()
+    text = str(query or "").lower()
+    if raw in {"em", "eastmoney", "东方财富", "东财"} or any(term in text for term in ("东方财富", "东财", "eastmoney", " em")):
+        return "em"
+    return "ths"
+
+
+def _sector_type(value: Any, *, query: str) -> str:
+    raw = str(value or "").strip().lower()
+    text = str(query or "")
+    if raw in {"industry", "行业"} or ("行业" in text and "概念" not in text):
+        return "industry"
+    return "concept"
+
+
+def _sector_direction(value: Any, *, query: str) -> str:
+    raw = str(value or "").strip().lower()
+    text = str(query or "")
+    if raw in {"top", "up", "best"} or any(term in text for term in ("涨幅最大", "涨幅最高", "领涨", "最好", "最强")):
+        return "top"
+    return "bottom"
+
+
+def _sector_period_from_text(text: str) -> str:
+    value = str(text or "")
+    if "半年" in value:
+        return "6m"
+    if "一年" in value or "1年" in value or "近年" in value:
+        return "1y"
+    match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", value)
+    if not match:
+        return ""
+    amount = _chinese_number(match.group(1))
+    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+    return f"{amount}{suffix}" if amount > 0 else ""
+
+
+def _sector_start_date(end_date: str, period: str) -> str:
+    clean = str(period or "").strip().lower()
+    match = re.fullmatch(r"(\d+)\s*([ymwd])", clean)
+    if match:
+        amount = int(match.group(1))
+        unit = match.group(2)
+    elif clean in {"half_year", "half-year", "半年"}:
+        amount, unit = 6, "m"
+    else:
+        amount, unit = 1, "y"
+    days = amount
+    if unit == "y":
+        days = amount * 366
+    elif unit == "m":
+        days = amount * 31
+    elif unit == "w":
+        days = amount * 7
+    try:
+        end = datetime.strptime(str(end_date), "%Y%m%d")
+    except ValueError:
+        end = datetime.strptime(agent_today(), "%Y%m%d")
+    return (end - timedelta(days=max(1, days))).strftime("%Y%m%d")
+
+
+def _chinese_number(value: str) -> int:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text == "十":
+        return 10
+    if "十" in text:
+        left, _, right = text.partition("十")
+        return (digits.get(left, 1) * 10) + digits.get(right, 0)
+    return digits.get(text, 0)
+
+
+def _load_sector_index_rows(provider: AStockDataProvider, *, source: str, sector_type: str, trade_date: str) -> dict[str, Any]:
+    warnings: list[str] = []
+    if source == "ths":
+        dataset = "ths_index"
+        params = {"type": "N" if sector_type == "concept" else "I"}
+        fields = ["ts_code", "name", "count", "exchange", "list_date", "type"]
+    else:
+        dataset = "dc_index"
+        params = {"trade_date": trade_date}
+        fields = ["trade_date", "ts_code", "name", "close", "chg_pct", "num", "up_num"]
+        if sector_type == "industry":
+            warnings.append("em_industry_source: 东方财富白名单当前只登记 dc_index 概念板块，industry 口径可能不完整。")
+    payload = _fetch_tushare_stock_dataset(provider, dataset, params=params, fields=fields, limit=6000)
+    rows = _sector_index_records(payload.get("rows") or [], sector_type=sector_type, source=source)
+    if source == "em" and not rows:
+        fallback = _fetch_tushare_stock_dataset(provider, dataset, params={"end_date": trade_date}, fields=fields, limit=6000)
+        rows = _sector_index_records(fallback.get("rows") or [], sector_type=sector_type, source=source)
+        if rows:
+            payload = fallback
+    warnings.extend(str(item) for item in (payload.get("missing_fields") or []))
+    return {"rows": rows, "warnings": _dedupe(warnings), "data_source": payload.get("data_source")}
+
+
+def _sector_index_records(rows: list[Any], *, sector_type: str, source: str) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        code = str(row.get("sector_code") or row.get("ts_code") or "").strip().upper()
+        name = str(row.get("name") or "").strip()
+        if not code or code in seen:
+            continue
+        seen.add(code)
+        records.append({"sector_code": code, "name": name, "sector_type": sector_type, "source": source})
+    return records
+
+
+def _load_sector_daily_rows(
+    provider: AStockDataProvider,
+    *,
+    source: str,
+    sector_code: str,
+    start_date: str,
+    end_date: str,
+) -> dict[str, Any]:
+    dataset = "ths_daily" if source == "ths" else "dc_daily"
+    fields = (
+        ["ts_code", "trade_date", "close", "open", "high", "low", "pct_change", "vol", "turnover_rate"]
+        if source == "ths"
+        else ["ts_code", "trade_date", "name", "close", "open", "high", "low", "pct_change", "vol", "amount"]
+    )
+    return _fetch_tushare_stock_dataset(
+        provider,
+        dataset,
+        params={"ts_code": sector_code, "start_date": start_date, "end_date": end_date},
+        fields=fields,
+        limit=6000,
+    )
+
+
+def _fetch_tushare_stock_dataset(
+    provider: AStockDataProvider,
+    dataset: str,
+    *,
+    params: dict[str, Any],
+    fields: list[str],
+    limit: int,
+) -> dict[str, Any]:
+    try:
+        payload = provider.fetch_tushare_dataset(dataset, params, fields=fields, limit=limit)
+    except Exception as exc:
+        return {"dataset": dataset, "rows": [], "data_source": "unavailable", "missing_fields": [f"{dataset}: {exc}"]}
+    if not isinstance(payload, dict):
+        return {"dataset": dataset, "rows": [], "data_source": "unavailable", "missing_fields": [f"{dataset}: invalid_payload"]}
+    payload.setdefault("rows", [])
+    payload.setdefault("missing_fields", [])
+    return payload
+
+
+def _sector_daily_frame(rows: list[Any]) -> pd.DataFrame:
+    if not rows:
+        return pd.DataFrame(columns=["trade_date", "close"])
+    data = pd.DataFrame([row for row in rows if isinstance(row, dict)])
+    if data.empty:
+        return pd.DataFrame(columns=["trade_date", "close"])
+    date_col = _first_existing_column(data, ("trade_date", "date"))
+    close_col = _first_existing_column(data, ("close", "收盘"))
+    if not date_col or not close_col:
+        return pd.DataFrame(columns=["trade_date", "close"])
+    result = pd.DataFrame(
+        {
+            "trade_date": data[date_col].astype(str).str.replace("-", "", regex=False).str[:8],
+            "close": pd.to_numeric(data[close_col], errors="coerce"),
+        }
+    )
+    return (
+        result.dropna(subset=["trade_date", "close"])
+        .sort_values("trade_date")
+        .drop_duplicates(subset=["trade_date"], keep="last")
+        .reset_index(drop=True)
+    )
+
+
+def _first_existing_column(frame: pd.DataFrame, candidates: tuple[str, ...]) -> str:
+    for column in candidates:
+        if column in frame.columns:
+            return column
+    return ""
 
 
 def _clean_stock_basic(stock_basic: pd.DataFrame) -> pd.DataFrame:

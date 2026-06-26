@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 import warnings
-from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -18,6 +17,10 @@ from sats.data.tushare_stock_datasets import (
     list_tushare_stock_datasets,
 )
 from sats.indicators import IndicatorInput
+from sats.market_clock import (
+    current_shanghai_trade_date,
+    is_a_share_trading_time_now as _market_is_a_share_trading_time_now,
+)
 from sats.screening.base import ScreeningInput
 from sats.screening.registry import get_rule
 from sats.storage.duckdb import DuckDBStorage
@@ -33,7 +36,6 @@ else:
 
 SCREENING_TRADE_DAYS = 80
 TUSHARE_ROW_WARNING_LIMIT = 5900
-SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 PRICE_VOLUME_MA_RULE_NAME = "price_volume_ma"
 CHAN_THIRD_BUY_RULE_NAME = "chan_third_buy"
 CHAN_COMPOSITE_RULE_NAME = "chan_composite"
@@ -435,6 +437,7 @@ class TushareDataProvider(MarketDataProvider):
                 context["missing_fields"].append(f"hot_sector_{sector_type}_daily")
                 continue
             context["data_sources"]["sector_daily"] = str(daily.attrs.get("data_source") or HOT_SECTOR_DATA_SOURCE)
+            _attach_hot_sector_daily_freshness(context, daily)
             scored = _score_hot_sectors(pool, daily, sector_type=sector_type, limit=limit)
             if scored.empty:
                 context["missing_fields"].append(f"hot_sector_{sector_type}_score")
@@ -2138,6 +2141,20 @@ def _sector_records(frame: pd.DataFrame) -> list[dict[str, Any]]:
     ]
 
 
+def _attach_hot_sector_daily_freshness(context: dict[str, Any], daily: pd.DataFrame) -> None:
+    source = str(daily.attrs.get("data_source") or "")
+    if "duckdb_cache_or_unavailable" in source:
+        context["cache_fallback"] = True
+        warnings = context.setdefault("stale_warnings", [])
+        if isinstance(warnings, list) and "sector_daily:cache_fallback" not in warnings:
+            warnings.append("sector_daily:cache_fallback")
+    if "fetched_at" not in daily.columns or daily.empty:
+        return
+    fetched = daily["fetched_at"].dropna().astype(str)
+    if not fetched.empty:
+        context["fetched_at"] = str(fetched.max())
+
+
 def _build_stock_hot_sector_map(hot: pd.DataFrame, members: pd.DataFrame) -> dict[str, list[dict[str, Any]]]:
     hot_lookup = {str(row["sector_code"]): row.to_dict() for _, row in hot.iterrows()}
     result: dict[str, list[dict[str, Any]]] = {}
@@ -2341,7 +2358,7 @@ def _missing_label(daily_missing: bool, basic_missing: bool) -> str:
 
 
 def _is_today_shanghai(trade_date: str) -> bool:
-    return str(trade_date) == datetime.now(SHANGHAI_TZ).strftime("%Y%m%d")
+    return str(trade_date) == current_shanghai_trade_date()
 
 
 def _should_force_realtime(trade_date: str) -> bool:
@@ -2349,15 +2366,7 @@ def _should_force_realtime(trade_date: str) -> bool:
 
 
 def _is_a_share_trading_time_now() -> bool:
-    now = datetime.now(SHANGHAI_TZ)
-    if now.weekday() >= 5:
-        return False
-    minutes = now.hour * 60 + now.minute
-    morning_start = 9 * 60 + 30
-    morning_end = 11 * 60 + 30
-    afternoon_start = 13 * 60
-    afternoon_end = 15 * 60
-    return morning_start <= minutes <= morning_end or afternoon_start <= minutes <= afternoon_end
+    return _market_is_a_share_trading_time_now()
 
 
 def _call_pro(pro: Any, api_name: str, **params: Any) -> pd.DataFrame:

@@ -434,15 +434,16 @@ sats discover --hot-sector-days 3 --limit 15
 
 ---
 
-### 4.16 `chat` — LLM 对话
+### 4.16 `chat` — 自然语言对话
 
-LLM 对话接口，默认走 Agent 路由。
+自然语言对话接口，默认走 Codex-style conversation 引擎；旧聊天路径和 autonomous Agent runtime 需要显式启用。
 
 | 参数 | 类型 | 默认值 | 必填 | 说明 |
 |------|------|--------|------|------|
 | `--no-memory` | flag | False | 否 | 禁用本地聊天记忆 |
 | `--knowledge` | str | None | 否 | 指定知识库名称/ID |
-| `--no-agent` | flag | False | 否 | 禁用 Agent 路由，使用纯 LLM 聊天 |
+| `--engine` | choice | `conversation` | 否 | 对话引擎: `conversation`, `legacy` |
+| `--agent` | flag | False | 否 | 显式启用 autonomous Agent runtime |
 | `--confirm` | str | None | 否 | 确认待处理的运行时动作 |
 | `--reject` | str | None | 否 | 拒绝待处理的运行时动作 |
 | `--trace` | str | None | 否 | 显示聊天轮次追踪 |
@@ -455,14 +456,15 @@ LLM 对话接口，默认走 Agent 路由。
 | `--max-iterations` | int | 6 | 否 | Agent 最大步骤数 |
 | `--command-timeout` | int | 120 | 否 | 单个命令超时秒数 |
 | `--python-timeout` | int | 30 | 否 | Python 执行超时秒数 |
-| `--plan-only` | flag | False | 否 | 仅构建并打印 Agent 计划 |
+| `--plan-only` | flag | False | 否 | 仅构建并打印 conversation 计划 |
 | `--dry-run` | flag | False | 否 | 跳过高风险副作用 |
 | `message` | positional | — | 否 | 消息 (剩余参数) |
 
 **示例：**
 ```bash
 sats chat 今天大盘走势怎么样
-sats chat --no-agent 解释一下 MACD 指标
+sats chat --engine legacy 解释一下 MACD 指标
+sats chat --agent 生成一份000001均线研究报告并保存
 sats chat --knowledge chan-theory 三买的定义是什么
 sats chat --confirm action_001
 sats chat --auto-trade buy --broker qmt 买入 100 股平安银行
@@ -1557,7 +1559,7 @@ AStockDataProvider (统一门面)
 | 模式 | 说明 |
 |------|------|
 | **单一入口** | CLI/REPL/Chat 共用 `cli.main(argv)` |
-| **Agent-first 路由** | 默认对话走 Agent 循环，`--no-agent` 降级 |
+| **Conversation 默认路由** | 默认对话走 conversation 引擎，`sats agent` / `sats chat --agent` 显式启用 Agent |
 | **DuckDB 万能存储** | 30+ 张表覆盖所有数据域 |
 | **数据门面** | `AStockDataProvider` 统一入口 |
 | **输入边界标准化** | `sats.symbols` 标准化股票代码 |

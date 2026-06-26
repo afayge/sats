@@ -137,8 +137,11 @@ CREATE TABLE IF NOT EXISTS sector_daily (
     vol DOUBLE,
     amount DOUBLE,
     data_source TEXT,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (sector_code, trade_date)
 );
+
+ALTER TABLE sector_daily ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP;
 
 CREATE TABLE IF NOT EXISTS sector_members (
     sector_code TEXT NOT NULL,

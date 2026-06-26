@@ -24,47 +24,47 @@ class ChatCliTest(unittest.TestCase):
         fake = SimpleNamespace(
             content="回答 [S1]",
             tool_call_count=1,
-            data_names=("Agent",),
+            data_names=("Conversation",),
             artifacts=(),
             sources=({"id": "S1", "title": "来源", "url": "https://example.com/a"},),
             turn_id="turn",
-            session_id="chat_agent",
+            session_id="conversation",
         )
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_agent_once", return_value=fake) as agent,
+            patch("sats.cli.run_conversation_once", return_value=fake) as conversation,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "帮我", "解释筛选规则"]), 0)
 
-        agent.assert_called_once()
+        conversation.assert_called_once()
         output = stdout.getvalue()
         self.assertIn("# SATS 自然对话输出", output)
         self.assertIn("## 来源", output)
         self.assertIn("https://example.com/a", output)
-        self.assertIn("`数据: Agent`", output)
+        self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 回答", output)
 
     def test_cli_chat_can_disable_memory(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
-        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Conversation",), artifacts=(), turn_id="turn", session_id="conversation")
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_agent_once", return_value=fake) as agent,
+            patch("sats.cli.run_conversation_once", return_value=fake) as conversation,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "--no-memory", "临时问题"]), 0)
 
-        agent.assert_called_once()
+        conversation.assert_called_once()
         output = stdout.getvalue()
         self.assertIn("# SATS 自然对话输出", output)
-        self.assertIn("`数据: Agent`", output)
+        self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 回答", output)
 
-    def test_cli_chat_plan_only_prints_agent_plan_without_execution(self) -> None:
+    def test_cli_chat_plan_only_prints_conversation_plan_without_execution(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro", llm_timeout_seconds=10)
 
@@ -77,9 +77,27 @@ class ChatCliTest(unittest.TestCase):
 
         agent.assert_not_called()
         output = stdout.getvalue()
-        self.assertIn("SATS Agent Plan", output)
-        self.assertIn("工作流: screened_stock_analysis_plan", output)
+        self.assertIn("SATS Conversation Plan", output)
+        self.assertIn("workflow.screened_stock_analysis", output)
         self.assertIn("分析模式: batch", output)
+
+    def test_cli_chat_agent_flag_uses_agent_runtime(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_agent_once", return_value=fake) as agent,
+            patch("sats.cli.run_conversation_once") as conversation,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--agent", "帮我", "解释筛选规则"]), 0)
+
+        agent.assert_called_once()
+        conversation.assert_not_called()
+        output = stdout.getvalue()
+        self.assertIn("`数据: Agent`", output)
 
     def test_cli_chat_no_agent_can_disable_memory(self) -> None:
         stdout = StringIO()
@@ -129,22 +147,57 @@ class ChatCliTest(unittest.TestCase):
         trace.assert_called_once()
         self.assertEqual(stdout.getvalue().strip(), "Turn: turn_123")
 
-    def test_cli_chat_allows_stock_analysis_through_real_data_context(self) -> None:
+    def test_cli_chat_answer_continues_conversation_clarification(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
-        fake = SimpleNamespace(content="真实数据分析", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+        fake = SimpleNamespace(
+            content="已继续分析",
+            tool_call_count=1,
+            data_names=("Conversation",),
+            artifacts=(),
+            sources=(),
+            requires_confirmation=False,
+            pending_action_id="",
+            requires_clarification=False,
+            clarification_id="",
+            clarification_prompt="",
+            missing_fields=(),
+            turn_id="turn",
+            session_id="conversation",
+        )
+        closed: list[str] = []
+        progress = SimpleNamespace(enabled=True, close=lambda: closed.append("answer"))
+        sink = object()
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_agent_once", return_value=fake) as agent,
+            patch("sats.cli.continue_conversation_after_clarification", return_value=fake) as resume,
+            patch("sats.cli.create_progress", return_value=progress),
+            patch("sats.cli.agent_progress_event_sink", return_value=sink),
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "--answer", "act_clarify", "002436"]), 0)
+
+        resume.assert_called_once_with("act_clarify", "002436", settings=settings, event_sink=sink)
+        self.assertEqual(closed, ["answer"])
+        self.assertIn("> 已继续分析", stdout.getvalue())
+
+    def test_cli_chat_allows_stock_analysis_through_real_data_context(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
+        fake = SimpleNamespace(content="真实数据分析", tool_call_count=1, data_names=("Conversation",), artifacts=(), turn_id="turn", session_id="conversation")
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_conversation_once", return_value=fake) as conversation,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "分析002436"]), 0)
 
-        agent.assert_called_once()
+        conversation.assert_called_once()
         output = stdout.getvalue()
         self.assertIn("# SATS 自然对话输出", output)
-        self.assertIn("`数据: Agent`", output)
+        self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 真实数据分析", output)
 
     def test_cli_chat_reports_stock_context_failure_before_llm_output(self) -> None:

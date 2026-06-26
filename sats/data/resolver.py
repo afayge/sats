@@ -10,6 +10,10 @@ from sats.config import Settings
 from sats.data.astock_provider import AStockDataProvider
 from sats.minute_periods import normalize_minute_period
 from sats.indicators import IndicatorInput
+from sats.market_clock import (
+    current_shanghai_trade_date as _current_shanghai_trade_date,
+    is_a_share_trading_time_now as _is_a_share_trading_time_now,
+)
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols
 
@@ -47,11 +51,35 @@ class MarketDataResolver:
         self.storage = storage or DuckDBStorage(settings.db_path)
         self.provider = provider or provider_factory(settings)
 
-    def load_stock_daily(self, symbols: list[str], *, start_date: str, end_date: str) -> pd.DataFrame:
+    def load_stock_daily(
+        self,
+        symbols: list[str],
+        *,
+        start_date: str,
+        end_date: str,
+        refresh_current_day: bool = False,
+    ) -> pd.DataFrame:
         clean_symbols = normalize_symbols(symbols, required=False)
         cached = self.storage.get_stock_daily_range(clean_symbols, start_date=str(start_date), end_date=str(end_date), with_meta=True)
-        if _has_daily_coverage(cached, clean_symbols, str(start_date), str(end_date), symbol_column="ts_code"):
+        refresh_date = _refresh_date(str(end_date), refresh_current_day=refresh_current_day)
+        if not refresh_date and _has_daily_coverage(cached, clean_symbols, str(start_date), str(end_date), symbol_column="ts_code"):
             return _mark(cached, dataset="stock_daily", source="duckdb_cache", cache_hit=True)
+        if refresh_date:
+            fetched_today = self.provider.load_historical_daily_klines(
+                clean_symbols,
+                start_date=refresh_date,
+                end_date=refresh_date,
+                storage=self.storage,
+            )
+            if not fetched_today.empty:
+                fetched_today.attrs["data_source"] = str(fetched_today.attrs.get("data_source") or "astock_provider")
+                self.storage.upsert_stock_daily(fetched_today)
+                cached_after = self.storage.get_stock_daily_range(clean_symbols, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+                combined = _combine_trade_date_overlay(cached_after, fetched_today, refresh_date, symbol_column="ts_code")
+                if _has_daily_coverage(combined, clean_symbols, str(start_date), str(end_date), symbol_column="ts_code"):
+                    return _mark(combined, dataset="stock_daily", source="astock_provider_cached", cache_hit=False)
+            elif _has_daily_coverage(cached, clean_symbols, str(start_date), str(end_date), symbol_column="ts_code"):
+                return _mark(cached, dataset="stock_daily", source="duckdb_cache_stale_current_day", cache_hit=True)
         fetched = self.provider.load_historical_daily_klines(
             clean_symbols,
             start_date=str(start_date),
@@ -61,17 +89,41 @@ class MarketDataResolver:
         if not fetched.empty:
             fetched.attrs["data_source"] = str(fetched.attrs.get("data_source") or "astock_provider")
             self.storage.upsert_stock_daily(fetched)
-            combined = self.storage.get_stock_daily_range(clean_symbols, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+            cached_after = self.storage.get_stock_daily_range(clean_symbols, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+            combined = _combine_current_trading_rows(cached_after, fetched, symbol_column="ts_code")
             if not combined.empty:
                 return _mark(combined, dataset="stock_daily", source="astock_provider_cached", cache_hit=False)
             return _mark(fetched, dataset="stock_daily", source=str(fetched.attrs.get("data_source") or "astock_provider"), cache_hit=False)
         return _mark(cached, dataset="stock_daily", source="duckdb_cache_incomplete", cache_hit=not cached.empty)
 
-    def load_index_daily(self, index_codes: list[str], *, start_date: str, end_date: str) -> pd.DataFrame:
+    def load_index_daily(
+        self,
+        index_codes: list[str],
+        *,
+        start_date: str,
+        end_date: str,
+        refresh_current_day: bool = False,
+    ) -> pd.DataFrame:
         clean_codes = normalize_symbols(index_codes, required=False)
         cached = self.storage.get_index_daily_range(clean_codes, start_date=str(start_date), end_date=str(end_date), with_meta=True)
-        if _has_daily_coverage(cached, clean_codes, str(start_date), str(end_date), symbol_column="index_code"):
+        refresh_date = _refresh_date(str(end_date), refresh_current_day=refresh_current_day)
+        if not refresh_date and _has_daily_coverage(cached, clean_codes, str(start_date), str(end_date), symbol_column="index_code"):
             return _mark(cached, dataset="index_daily", source="duckdb_cache", cache_hit=True)
+        if refresh_date:
+            fetched_today = self.provider.load_index_daily(clean_codes, start_date=refresh_date, end_date=refresh_date)
+            if not fetched_today.empty:
+                fetched_today = _normalize_index_frame(fetched_today)
+                fetched_today.attrs["data_source"] = str(fetched_today.attrs.get("data_source") or "astock_provider")
+                for code in clean_codes:
+                    frame = fetched_today[fetched_today["index_code"].astype(str) == code] if "index_code" in fetched_today.columns else fetched_today
+                    if not frame.empty:
+                        self.storage.upsert_industry_daily(code, frame)
+                cached_after = self.storage.get_index_daily_range(clean_codes, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+                combined = _combine_trade_date_overlay(cached_after, fetched_today, refresh_date, symbol_column="index_code")
+                if _has_daily_coverage(combined, clean_codes, str(start_date), str(end_date), symbol_column="index_code"):
+                    return _mark(combined, dataset="index_daily", source="astock_provider_cached", cache_hit=False)
+            elif _has_daily_coverage(cached, clean_codes, str(start_date), str(end_date), symbol_column="index_code"):
+                return _mark(cached, dataset="index_daily", source="duckdb_cache_stale_current_day", cache_hit=True)
         fetched = self.provider.load_index_daily(clean_codes, start_date=str(start_date), end_date=str(end_date))
         if not fetched.empty:
             fetched = _normalize_index_frame(fetched)
@@ -80,7 +132,8 @@ class MarketDataResolver:
                 frame = fetched[fetched["index_code"].astype(str) == code] if "index_code" in fetched.columns else fetched
                 if not frame.empty:
                     self.storage.upsert_industry_daily(code, frame)
-            combined = self.storage.get_index_daily_range(clean_codes, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+            cached_after = self.storage.get_index_daily_range(clean_codes, start_date=str(start_date), end_date=str(end_date), with_meta=True)
+            combined = _combine_current_trading_rows(cached_after, fetched, symbol_column="index_code")
             if not combined.empty:
                 return _mark(combined, dataset="index_daily", source="astock_provider_cached", cache_hit=False)
             return _mark(fetched, dataset="index_daily", source=str(fetched.attrs.get("data_source") or "astock_provider"), cache_hit=False)
@@ -98,10 +151,20 @@ class MarketDataResolver:
             live_payload, live_source = {}, "unavailable"
         if live_payload and int(live_payload.get("total_count") or live_payload.get("total") or 0) > 0:
             payload = dict(live_payload)
-            payload.setdefault("trade_date", str(as_of_date))
-            payload["data_source"] = str(live_source or "realtime_quote")
+            if not str(payload.get("trade_date") or "").strip():
+                payload["trade_date"] = str(as_of_date)
+            source = str(live_source or "realtime_quote")
+            payload["data_source"] = source
             payload["is_fallback"] = False
-            return payload, str(live_source or "realtime_quote")
+            _attach_turnover_context(
+                payload,
+                storage=self.storage,
+                as_of_date=str(as_of_date),
+                min_count=max(1, int(min_count)),
+                source=source,
+                full_day_snapshot=False,
+            )
+            return payload, source
 
         snapshot = self.storage.get_latest_stock_daily_snapshot(
             end_date=str(as_of_date),
@@ -119,6 +182,14 @@ class MarketDataResolver:
                 "is_fallback": True,
                 "stale_calendar_days": _calendar_day_gap(trade_date, str(as_of_date)),
             }
+        )
+        _attach_turnover_context(
+            payload,
+            storage=self.storage,
+            as_of_date=trade_date,
+            min_count=max(1, int(min_count)),
+            source=source,
+            full_day_snapshot=True,
         )
         return payload, source
 
@@ -151,7 +222,9 @@ class MarketDataResolver:
             fetched.attrs["data_source"] = str(fetched.attrs.get("data_source") or "astock_provider")
             self.storage.upsert_stock_minute_cache(fetched, period=period)
             cached = self.storage.get_stock_minute_cache(clean_symbols, period=period, start_time=start_time, end_time=end_time)
-            return _mark(cached if not cached.empty else fetched, dataset="stock_minute", source="astock_provider_cached", cache_hit=False)
+            fetched_for_return = _minute_cache_shape(fetched, period=period)
+            combined = _combine_minute_overlay(cached, fetched_for_return)
+            return _mark(combined if not combined.empty else fetched_for_return, dataset="stock_minute", source="astock_provider_cached", cache_hit=False)
         return _mark(cached, dataset="stock_minute", source="duckdb_cache_incomplete", cache_hit=not cached.empty)
 
     def load_realtime_quotes(self, symbols: list[str], *, for_trading: bool = False, ttl_seconds: int | None = None) -> pd.DataFrame:
@@ -168,7 +241,7 @@ class MarketDataResolver:
     def load_indicator_inputs(self, symbols: list[str], trade_date: str, *, lookback_days: int = 180) -> list[IndicatorInput]:
         clean_symbols = normalize_symbols(symbols, required=False)
         start = _date_days_before(str(trade_date), int(lookback_days))
-        daily = self.load_stock_daily(clean_symbols, start_date=start, end_date=str(trade_date))
+        daily = self.load_stock_daily(clean_symbols, start_date=start, end_date=str(trade_date), refresh_current_day=True)
         stock_basic = self.storage.get_stock_basic()
         result: list[IndicatorInput] = []
         for symbol in clean_symbols:
@@ -210,6 +283,90 @@ def _mark(frame: pd.DataFrame, *, dataset: str, source: str, cache_hit: bool) ->
         ).to_dict()
     ]
     data.attrs["data_source"] = source
+    return data
+
+
+def should_refresh_current_day(trade_date: str, *, refresh_current_day: bool = True) -> bool:
+    if not refresh_current_day:
+        return False
+    return str(trade_date) == current_shanghai_trade_date() and is_a_share_trading_time_now()
+
+
+def current_shanghai_trade_date() -> str:
+    return _current_shanghai_trade_date()
+
+
+def is_a_share_trading_time_now() -> bool:
+    return _is_a_share_trading_time_now()
+
+
+def _refresh_date(end_date: str, *, refresh_current_day: bool) -> str:
+    return str(end_date) if should_refresh_current_day(str(end_date), refresh_current_day=refresh_current_day) else ""
+
+
+def _combine_current_trading_rows(cached: pd.DataFrame, fetched: pd.DataFrame, *, symbol_column: str) -> pd.DataFrame:
+    if fetched.empty:
+        return cached
+    today = current_shanghai_trade_date()
+    if not is_a_share_trading_time_now():
+        return cached if not cached.empty else fetched
+    return _combine_trade_date_overlay(cached, fetched, today, symbol_column=symbol_column)
+
+
+def _combine_trade_date_overlay(
+    cached: pd.DataFrame,
+    overlay: pd.DataFrame,
+    trade_date: str,
+    *,
+    symbol_column: str,
+) -> pd.DataFrame:
+    if overlay.empty or "trade_date" not in overlay.columns:
+        return cached
+    overlay_rows = overlay[overlay["trade_date"].astype(str) == str(trade_date)].copy()
+    if overlay_rows.empty:
+        return cached if not cached.empty else overlay
+    base = cached.copy()
+    if not base.empty and "trade_date" in base.columns and symbol_column in base.columns and symbol_column in overlay_rows.columns:
+        overlay_symbols = set(overlay_rows[symbol_column].dropna().astype(str))
+        keep = ~(
+            (base["trade_date"].astype(str) == str(trade_date))
+            & (base[symbol_column].astype(str).isin(overlay_symbols))
+        )
+        base = base[keep]
+    combined = pd.concat([base, overlay_rows], ignore_index=True, sort=False)
+    if symbol_column in combined.columns and "trade_date" in combined.columns:
+        combined = combined.sort_values([symbol_column, "trade_date"])
+    return combined.reset_index(drop=True)
+
+
+def _combine_minute_overlay(cached: pd.DataFrame, fetched: pd.DataFrame) -> pd.DataFrame:
+    if cached.empty:
+        return fetched
+    if fetched.empty:
+        return cached
+    columns = [column for column in ("ts_code", "period", "datetime") if column in cached.columns and column in fetched.columns]
+    combined = pd.concat([cached, fetched], ignore_index=True, sort=False)
+    if columns:
+        combined = combined.drop_duplicates(subset=columns, keep="last")
+    sort_columns = [column for column in ("ts_code", "datetime") if column in combined.columns]
+    if sort_columns:
+        combined = combined.sort_values(sort_columns)
+    return combined.reset_index(drop=True)
+
+
+def _minute_cache_shape(frame: pd.DataFrame, *, period: str) -> pd.DataFrame:
+    data = frame.copy()
+    if data.empty:
+        return data
+    if "datetime" not in data.columns:
+        for candidate in ("trade_time", "time", "bar_time"):
+            if candidate in data.columns:
+                data["datetime"] = data[candidate]
+                break
+    if "trade_date" not in data.columns and "datetime" in data.columns:
+        data["trade_date"] = data["datetime"].astype(str).str.replace("-", "", regex=False).str[:8]
+    if "period" not in data.columns:
+        data["period"] = str(period or "1m")
     return data
 
 
@@ -287,6 +444,161 @@ def _breadth_metrics(frame: pd.DataFrame) -> dict[str, Any]:
         "total_amount": _safe_float(amount.sum()),
         "median_pct_chg": _safe_float(pct.median()),
     }
+
+
+def _attach_turnover_context(
+    payload: dict[str, Any],
+    *,
+    storage: DuckDBStorage,
+    as_of_date: str,
+    min_count: int,
+    source: str,
+    full_day_snapshot: bool,
+) -> None:
+    current_date = str(payload.get("trade_date") or as_of_date or "")
+    total_amount = _safe_float(payload.get("total_amount"))
+    progress = 1.0 if full_day_snapshot else _market_session_progress(
+        payload.get("latest_trade_time") or payload.get("trade_time"),
+    )
+    if progress is not None and progress >= 1.0:
+        full_day_snapshot = True
+        progress = 1.0
+    amount_basis = "full_day_snapshot" if full_day_snapshot else "intraday_cumulative"
+    payload["amount_basis"] = amount_basis
+    if progress is not None:
+        payload["session_progress"] = round(float(progress), 4)
+    if total_amount is None:
+        payload["turnover_comparison"] = {
+            "status": "unavailable",
+            "reason": "total_amount_unavailable",
+            "basis": _turnover_comparison_basis(amount_basis),
+        }
+        return
+    if _amount_unit_unverified(source):
+        payload["turnover_comparison"] = {
+            "status": "unavailable",
+            "reason": "amount_unit_unverified",
+            "basis": _turnover_comparison_basis(amount_basis),
+        }
+        return
+    projected_amount = _projected_full_day_amount(total_amount, progress)
+    if projected_amount is not None:
+        payload["projected_full_day_amount"] = projected_amount
+    previous_date, previous_amount = _previous_full_day_amount(
+        storage,
+        before_date=current_date or as_of_date,
+        min_count=min_count,
+    )
+    if previous_date:
+        payload["previous_trade_date"] = previous_date
+    if previous_amount is not None:
+        payload["previous_full_day_amount"] = previous_amount
+    if projected_amount is None:
+        payload["turnover_comparison"] = {
+            "status": "unavailable",
+            "reason": "session_progress_unavailable",
+            "basis": _turnover_comparison_basis(amount_basis),
+        }
+        return
+    if previous_amount in (None, 0):
+        payload["turnover_comparison"] = {
+            "status": "unavailable",
+            "reason": "previous_full_day_amount_unavailable",
+            "basis": _turnover_comparison_basis(amount_basis),
+        }
+        return
+    pct_change = (projected_amount / previous_amount - 1.0) * 100.0
+    payload["turnover_comparison"] = {
+        "status": "ok",
+        "basis": _turnover_comparison_basis(amount_basis),
+        "pct_change": _safe_float(pct_change),
+        "current_amount": total_amount,
+        "projected_full_day_amount": projected_amount,
+        "previous_trade_date": previous_date,
+        "previous_full_day_amount": previous_amount,
+        "direction": _turnover_direction(pct_change),
+    }
+
+
+def _market_session_progress(trade_time: Any | None) -> float | None:
+    parsed = _parse_market_datetime(trade_time)
+    if parsed is None or (parsed.hour, parsed.minute, parsed.second) == (0, 0, 0):
+        parsed = datetime.now()
+    minutes = parsed.hour * 60 + parsed.minute + parsed.second / 60.0
+    morning_start = 9 * 60 + 30
+    morning_end = 11 * 60 + 30
+    afternoon_start = 13 * 60
+    afternoon_end = 15 * 60
+    if minutes <= morning_start:
+        elapsed = 0.0
+    elif minutes <= morning_end:
+        elapsed = minutes - morning_start
+    elif minutes <= afternoon_start:
+        elapsed = 120.0
+    elif minutes <= afternoon_end:
+        elapsed = 120.0 + minutes - afternoon_start
+    else:
+        elapsed = 240.0
+    return max(0.0, min(1.0, elapsed / 240.0))
+
+
+def _parse_market_datetime(value: Any | None) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        parsed = pd.to_datetime(text, errors="coerce")
+    except (TypeError, ValueError):
+        return None
+    if pd.isna(parsed):
+        return None
+    if isinstance(parsed, pd.Timestamp):
+        if parsed.tzinfo is not None:
+            parsed = parsed.tz_convert(None)
+        return parsed.to_pydatetime()
+    return None
+
+
+def _projected_full_day_amount(total_amount: float, progress: float | None) -> float | None:
+    if progress is None or progress <= 0:
+        return None
+    return _safe_float(total_amount / progress)
+
+
+def _previous_full_day_amount(
+    storage: DuckDBStorage,
+    *,
+    before_date: str,
+    min_count: int,
+) -> tuple[str, float | None]:
+    previous_end = _date_days_before(str(before_date), 1)
+    snapshot = storage.get_latest_stock_daily_snapshot(
+        end_date=previous_end,
+        min_count=max(1, int(min_count)),
+    )
+    if snapshot.empty:
+        return "", None
+    trade_date = str(snapshot["trade_date"].astype(str).max() or "")
+    amount = pd.to_numeric(snapshot.get("amount"), errors="coerce") if "amount" in snapshot.columns else pd.Series(dtype=float)
+    return trade_date, _safe_float(amount.sum())
+
+
+def _turnover_comparison_basis(amount_basis: str) -> str:
+    if amount_basis == "intraday_cumulative":
+        return "projected_full_day_vs_previous_full_day"
+    return "full_day_vs_previous_full_day"
+
+
+def _turnover_direction(pct_change: float) -> str:
+    if pct_change >= 5.0:
+        return "higher"
+    if pct_change <= -5.0:
+        return "lower"
+    return "flat"
+
+
+def _amount_unit_unverified(source: str) -> bool:
+    return "akshare" in str(source or "").lower()
 
 
 def _calendar_day_gap(start_date: str, end_date: str) -> int:

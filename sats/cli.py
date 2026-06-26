@@ -39,6 +39,24 @@ from sats.catalog import CATALOG_SECTIONS, build_capability_catalog, format_capa
 from sats.chat import ChatResult, format_chat_result, render_chat_result, run_chat_once
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import init_env_file, load_settings
+from sats.conversation import (
+    confirm_pending_conversation_action,
+    continue_conversation_after_clarification,
+    format_conversation_plan,
+    reject_pending_conversation_action,
+    run_conversation_once,
+)
+from sats.conversation.threads import (
+    archive_thread,
+    create_thread,
+    fork_thread,
+    format_thread_detail,
+    format_thread_list,
+    list_threads,
+    pin_thread,
+    read_thread,
+    rename_thread,
+)
 from sats.data.astock_provider import AStockDataProvider
 from sats.deep_analysis import run_deep_analysis
 from sats.dependencies import (
@@ -79,6 +97,7 @@ from sats.portfolio import DailyPortfolioAgent, PortfolioConfig, PortfolioStore
 from sats.progress import create_progress
 from sats.rag.chan_knowledge import search_chan_knowledge
 from sats.rag.knowledge import KnowledgeStore, format_knowledge_list, format_search_results
+from sats.runtime_status import normalized_runtime_status
 from sats.screening.base import ScreeningResult
 from sats.screening.registry import get_rule, list_rules
 from sats.screening.service import evaluate_inputs
@@ -230,7 +249,7 @@ def _add_agent_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-iterations", type=int, default=6, help="Maximum agent steps")
     parser.add_argument("--command-timeout", type=int, default=120, help="Per SATS command timeout seconds")
     parser.add_argument("--python-timeout", type=int, default=30, help="Restricted Python timeout seconds")
-    parser.add_argument("--plan-only", action="store_true", help="Only build and print the SATS agent plan")
+    parser.add_argument("--plan-only", action="store_true", help="Only build and print the SATS plan")
     parser.add_argument("--dry-run", action="store_true", help="Skip high-risk side effects while keeping read-only planning/execution")
 
 
@@ -365,17 +384,44 @@ def build_parser() -> argparse.ArgumentParser:
     chat = sub.add_parser("chat", help="Chat with the configured LLM")
     chat.add_argument("--no-memory", action="store_true", help="Disable local chat memory for this message")
     chat.add_argument("--knowledge", help="Knowledge base name/id to force into this chat")
-    chat.add_argument("--agent", action="store_true", help=argparse.SUPPRESS)
-    chat.add_argument("--no-agent", action="store_true", help="Disable Agent-first routing and run plain chat")
+    chat.add_argument("--engine", choices=["conversation", "legacy"], default="conversation", help="Conversation engine; defaults to Codex-style tool loop")
+    chat.add_argument("--agent", action="store_true", help="Explicitly use the SATS autonomous Agent runtime")
+    chat.add_argument("--no-agent", action="store_true", help=argparse.SUPPRESS)
     _add_agent_args(chat)
     chat.add_argument("--confirm", help="Confirm and execute a pending SATS runtime action")
     chat.add_argument("--reject", help="Reject a pending SATS runtime action")
+    chat.add_argument("--answer", help="Answer and continue a pending SATS conversation clarification")
     chat.add_argument("--trace", help="Show a chat turn trace")
     chat.add_argument("message", nargs=argparse.REMAINDER, help="Message to send to the LLM")
 
     agent = sub.add_parser("agent", help="Run SATS autonomous agent")
     _add_agent_args(agent)
     agent.add_argument("message", nargs=argparse.REMAINDER, help="Natural-language agent goal")
+
+    threads = sub.add_parser("threads", help="Manage SATS conversation threads")
+    threads_sub = threads.add_subparsers(dest="threads_command")
+    threads_list = threads_sub.add_parser("list", help="List conversation threads")
+    threads_list.add_argument("--archived", action="store_true", help="Include archived threads")
+    threads_list.add_argument("--limit", type=int, default=20, help="Maximum threads")
+    threads_read = threads_sub.add_parser("read", help="Read one conversation thread")
+    threads_read.add_argument("session_id", help="Thread/session id")
+    threads_read.add_argument("--limit", type=int, default=20, help="Maximum messages and turns")
+    threads_new = threads_sub.add_parser("new", help="Create a conversation thread")
+    threads_new.add_argument("title", nargs=argparse.REMAINDER, help="Optional thread title")
+    threads_fork = threads_sub.add_parser("fork", help="Fork a conversation thread")
+    threads_fork.add_argument("session_id", help="Thread/session id")
+    threads_fork.add_argument("--title", default="", help="Optional fork title")
+    threads_archive = threads_sub.add_parser("archive", help="Archive a conversation thread")
+    threads_archive.add_argument("session_id", help="Thread/session id")
+    threads_unarchive = threads_sub.add_parser("unarchive", help="Unarchive a conversation thread")
+    threads_unarchive.add_argument("session_id", help="Thread/session id")
+    threads_pin = threads_sub.add_parser("pin", help="Pin a conversation thread")
+    threads_pin.add_argument("session_id", help="Thread/session id")
+    threads_unpin = threads_sub.add_parser("unpin", help="Unpin a conversation thread")
+    threads_unpin.add_argument("session_id", help="Thread/session id")
+    threads_rename = threads_sub.add_parser("rename", help="Rename a conversation thread")
+    threads_rename.add_argument("session_id", help="Thread/session id")
+    threads_rename.add_argument("title", nargs=argparse.REMAINDER, help="New title")
 
     web = sub.add_parser("web", help="Search public web and social hot lists")
     web_sub = web.add_subparsers(dest="web_command")
@@ -853,6 +899,8 @@ def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser)
         return cmd_chat(args)
     if args.command == "agent":
         return cmd_agent(args)
+    if args.command == "threads":
+        return cmd_threads(args)
     if args.command == "web":
         return cmd_web(args)
     if args.command == "model":
@@ -1579,22 +1627,40 @@ def cmd_chat(args: argparse.Namespace) -> int:
         print(format_runtime_trace(ChatMemoryStore(settings.db_path), turn_id=args.trace))
         return 0
     if getattr(args, "confirm", None):
-        runtime_result = confirm_pending_runtime_action(args.confirm, settings=settings)
-        _emit_chat_result(_chat_result_from_runtime(runtime_result), db_path=getattr(settings, "db_path", None))
+        result = _confirm_chat_action(str(args.confirm), settings=settings)
+        _emit_chat_result(result, db_path=getattr(settings, "db_path", None))
         return 0
     if getattr(args, "reject", None):
-        runtime_result = reject_pending_runtime_action(args.reject, settings=settings)
-        _emit_chat_result(_chat_result_from_runtime(runtime_result), db_path=getattr(settings, "db_path", None))
+        result = _reject_chat_action(str(args.reject), settings=settings)
+        _emit_chat_result(result, db_path=getattr(settings, "db_path", None))
+        return 0
+    if getattr(args, "answer", None):
+        answer = " ".join(args.message).strip()
+        if not answer:
+            raise SystemExit("chat --answer requires an answer message")
+        progress = _progress_for_args(args)
+        try:
+            result = continue_conversation_after_clarification(
+                str(args.answer),
+                answer,
+                settings=settings,
+                event_sink=agent_progress_event_sink(progress),
+            )
+        finally:
+            progress.close()
+        _emit_chat_result(_chat_result_from_conversation(result), db_path=getattr(settings, "db_path", None))
         return 0
     message = " ".join(args.message).strip()
     if not message:
         raise SystemExit("chat message is required")
+    use_agent = bool(getattr(args, "agent", False))
     if getattr(args, "plan_only", False):
-        if getattr(args, "no_agent", False):
-            raise SystemExit("--plan-only requires Agent routing; remove --no-agent")
-        print(_format_agent_plan_only(message, settings=settings, args=args))
+        if use_agent:
+            print(_format_agent_plan_only(message, settings=settings, args=args))
+        else:
+            print(format_conversation_plan(message, settings=settings, policy=_agent_policy_from_args(args)))
         return 0
-    if not getattr(args, "no_agent", False):
+    if use_agent:
         progress = _progress_for_args(args)
         try:
             result = run_agent_once(
@@ -1607,6 +1673,27 @@ def cmd_chat(args: argparse.Namespace) -> int:
         finally:
             progress.close()
         _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
+        return 0
+    engine = str(getattr(args, "engine", "conversation") or "conversation")
+    if getattr(args, "no_agent", False):
+        engine = "legacy"
+    if engine == "conversation":
+        progress = _progress_for_args(args)
+        try:
+            result = run_conversation_once(
+                message,
+                settings=settings,
+                policy=_agent_policy_from_args(args),
+                session_id="conversation",
+                event_sink=agent_progress_event_sink(progress),
+            )
+            if _should_prompt_cli_clarification(result):
+                result = _continue_cli_clarification(result, settings=settings)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+        finally:
+            progress.close()
+        _emit_chat_result(_chat_result_from_conversation(result), db_path=getattr(settings, "db_path", None))
         return 0
     progress = _progress_for_args(args)
     try:
@@ -1645,6 +1732,52 @@ def cmd_agent(args: argparse.Namespace) -> int:
         progress.close()
     _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
     return 0
+
+
+def cmd_threads(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    command = str(getattr(args, "threads_command", "") or "")
+    if not command:
+        raise SystemExit("threads requires subcommand: list, read, new, fork, archive, unarchive, pin, unpin or rename")
+    if command == "list":
+        print(format_thread_list(list_threads(settings, include_archived=bool(getattr(args, "archived", False)), limit=int(getattr(args, "limit", 20) or 20))))
+        return 0
+    if command == "read":
+        print(format_thread_detail(read_thread(settings, args.session_id, limit=int(getattr(args, "limit", 20) or 20))))
+        return 0
+    if command == "new":
+        title = " ".join(getattr(args, "title", ()) or ()).strip()
+        thread = create_thread(settings, title=title)
+        print(f"新线程: {thread.session_id}" + (f" ({thread.title})" if thread.title else ""))
+        return 0
+    if command == "fork":
+        thread = fork_thread(settings, args.session_id, title=str(getattr(args, "title", "") or ""))
+        print(f"已 fork: {thread.session_id}" + (f" ({thread.title})" if thread.title else ""))
+        return 0
+    if command == "archive":
+        thread = archive_thread(settings, args.session_id, archived=True)
+        print(f"已归档: {thread.session_id}")
+        return 0
+    if command == "unarchive":
+        thread = archive_thread(settings, args.session_id, archived=False)
+        print(f"已取消归档: {thread.session_id}")
+        return 0
+    if command == "pin":
+        thread = pin_thread(settings, args.session_id, pinned=True)
+        print(f"已置顶: {thread.session_id}")
+        return 0
+    if command == "unpin":
+        thread = pin_thread(settings, args.session_id, pinned=False)
+        print(f"已取消置顶: {thread.session_id}")
+        return 0
+    if command == "rename":
+        title = " ".join(getattr(args, "title", ()) or ()).strip()
+        if not title:
+            raise SystemExit("threads rename requires title")
+        thread = rename_thread(settings, args.session_id, title)
+        print(f"已重命名: {thread.session_id} ({thread.title})")
+        return 0
+    raise SystemExit("unknown threads command")
 
 
 def cmd_web(args: argparse.Namespace) -> int:
@@ -1809,6 +1942,52 @@ def _chat_result_from_runtime(runtime_result) -> ChatResult:
     )
 
 
+def _chat_result_from_conversation(conversation_result) -> ChatResult:
+    return ChatResult(
+        content=conversation_result.content,
+        skill_names=tuple(getattr(conversation_result, "skill_names", ()) or ()),
+        memory_count=0,
+        tool_call_count=int(getattr(conversation_result, "tool_call_count", 0) or 0),
+        data_names=tuple(getattr(conversation_result, "data_names", ()) or ()),
+        sources=tuple(getattr(conversation_result, "sources", ()) or ()),
+        artifacts=tuple(getattr(conversation_result, "artifacts", ()) or ()),
+        requires_confirmation=bool(getattr(conversation_result, "requires_confirmation", False)),
+        pending_action_id=str(getattr(conversation_result, "pending_action_id", "") or "") or None,
+        turn_id=getattr(conversation_result, "turn_id", None),
+        session_id=str(getattr(conversation_result, "session_id", "") or ""),
+    )
+
+
+def _should_prompt_cli_clarification(conversation_result) -> bool:
+    if not bool(getattr(conversation_result, "requires_clarification", False)):
+        return False
+    if not str(getattr(conversation_result, "clarification_id", "") or "").strip():
+        return False
+    return bool(
+        getattr(sys.stdin, "isatty", lambda: False)()
+        and getattr(sys.stdout, "isatty", lambda: False)()
+    )
+
+
+def _continue_cli_clarification(conversation_result, *, settings):
+    prompt = str(getattr(conversation_result, "clarification_prompt", "") or conversation_result.content or "").strip()
+    if prompt:
+        print(prompt)
+    answer = input("clarify> ").strip()
+    if not answer:
+        return conversation_result
+    progress = create_progress(request=answer)
+    try:
+        return continue_conversation_after_clarification(
+            str(getattr(conversation_result, "clarification_id", "") or ""),
+            answer,
+            settings=settings,
+            event_sink=agent_progress_event_sink(progress),
+        )
+    finally:
+        progress.close()
+
+
 def _chat_result_from_agent(agent_result) -> ChatResult:
     pending = getattr(agent_result, "pending_action", None)
     return ChatResult(
@@ -1823,6 +2002,22 @@ def _chat_result_from_agent(agent_result) -> ChatResult:
         turn_id=agent_result.turn_id,
         session_id=agent_result.session_id,
     )
+
+
+def _confirm_chat_action(action_id: str, *, settings) -> ChatResult:
+    store = ChatMemoryStore(settings.db_path)
+    action = store.get_pending_action(action_id)
+    if action and str(action.get("action_type") or "") == "conversation_tool":
+        return _chat_result_from_conversation(confirm_pending_conversation_action(action_id, settings=settings, store=store))
+    return _chat_result_from_runtime(confirm_pending_runtime_action(action_id, settings=settings, store=store))
+
+
+def _reject_chat_action(action_id: str, *, settings) -> ChatResult:
+    store = ChatMemoryStore(settings.db_path)
+    action = store.get_pending_action(action_id)
+    if action and str(action.get("action_type") or "") in {"conversation_tool", "conversation_clarification"}:
+        return _chat_result_from_conversation(reject_pending_conversation_action(action_id, settings=settings, store=store))
+    return _chat_result_from_runtime(reject_pending_runtime_action(action_id, settings=settings, store=store))
 
 
 def _emit_chat_result(result: ChatResult, *, db_path: Path | str | None = None) -> None:
@@ -3878,7 +4073,7 @@ def _format_monitor_table(rows: list[dict]) -> str:
 
 
 def _format_monitor_runtime(row: dict) -> str:
-    status = row.get("status", "stopped")
+    status = normalized_runtime_status(row)
     pid = row.get("pid") or ""
     heartbeat = row.get("heartbeat_at") or ""
     error = row.get("last_error") or ""
