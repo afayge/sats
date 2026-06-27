@@ -13,7 +13,7 @@
 # .DS_Store
 # *.pyc
 # sats.egg-info/
-# data/
+data/
 # !sats/data/
 # sats/data/*
 # !sats/data/akshare_datasets.py
@@ -23,16 +23,16 @@
 # !sats/data/resolver.py
 # !sats/data/tushare_provider.py
 # !sats/data/tushare_stock_datasets.py
-# reports/
+reports/
 # runtime/
 # tmp/
 # *.duckdb
 
 # --- Detected directories (uncomment to exclude) ---
 
-# docs/
-# scripts/
-# tests/
+docs/
+scripts/
+tests/
 
 # --- Test file patterns (uncomment to exclude) ---
 

@@ -1,0 +1,1463 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/tools/factor_tools.py",
+      "type": "file",
+      "name": "factor_tools.py",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `factor tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:factor_tool_specs",
+      "type": "function",
+      "name": "factor_tool_specs",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        8,
+        93
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `factor_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_factor_list",
+      "type": "function",
+      "name": "_factor_list",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        96,
+        102
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_factor_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_factor_show",
+      "type": "function",
+      "name": "_factor_show",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        105,
+        108
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_factor_show` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_factor_analyze",
+      "type": "function",
+      "name": "_factor_analyze",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        111,
+        120
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_factor_analyze` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_factor_pick",
+      "type": "function",
+      "name": "_factor_pick",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        123,
+        135
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_factor_pick` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_factor_ml",
+      "type": "function",
+      "name": "_factor_ml",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        138,
+        140
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_factor_ml` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_run",
+      "type": "function",
+      "name": "_run",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        143,
+        150
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_add",
+      "type": "function",
+      "name": "_add",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        153,
+        155
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_add` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/factor_tools.py:_flag",
+      "type": "function",
+      "name": "_flag",
+      "filePath": "sats/agent/tools/factor_tools.py",
+      "lineRange": [
+        158,
+        160
+      ],
+      "summary": "在 `factor_tools.py` 中实现 `_flag` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/generated/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/agent/tools/generated/__init__.py",
+      "summary": "定义 `generated` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/agent/tools/generated/loader.py",
+      "type": "file",
+      "name": "loader.py",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `loader` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:generated_tool_specs",
+      "type": "function",
+      "name": "generated_tool_specs",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        16,
+        17
+      ],
+      "summary": "在 `loader.py` 中实现 `generated_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:load_generated_tool_specs",
+      "type": "function",
+      "name": "load_generated_tool_specs",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        20,
+        39
+      ],
+      "summary": "在 `loader.py` 中实现 `load_generated_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:_validate_generated_source",
+      "type": "function",
+      "name": "_validate_generated_source",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        42,
+        58
+      ],
+      "summary": "在 `loader.py` 中实现 `_validate_generated_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:_load_generated_module",
+      "type": "function",
+      "name": "_load_generated_module",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        61,
+        68
+      ],
+      "summary": "在 `loader.py` 中实现 `_load_generated_module` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:_is_readonly_generated_spec",
+      "type": "function",
+      "name": "_is_readonly_generated_spec",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        71,
+        77
+      ],
+      "summary": "在 `loader.py` 中实现 `_is_readonly_generated_spec` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:_import_roots",
+      "type": "function",
+      "name": "_import_roots",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        80,
+        83
+      ],
+      "summary": "在 `loader.py` 中实现 `_import_roots` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/generated/loader.py:_call_name",
+      "type": "function",
+      "name": "_call_name",
+      "filePath": "sats/agent/tools/generated/loader.py",
+      "lineRange": [
+        86,
+        92
+      ],
+      "summary": "在 `loader.py` 中实现 `_call_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/trade_tools.py",
+      "type": "file",
+      "name": "trade_tools.py",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `trade tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/trade_tools.py:trade_tool_specs",
+      "type": "function",
+      "name": "trade_tool_specs",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "lineRange": [
+        9,
+        67
+      ],
+      "summary": "在 `trade_tools.py` 中实现 `trade_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/trade_tools.py:_submit_intent",
+      "type": "function",
+      "name": "_submit_intent",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "lineRange": [
+        70,
+        86
+      ],
+      "summary": "在 `trade_tools.py` 中实现 `_submit_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/trade_tools.py:_qmt_command",
+      "type": "function",
+      "name": "_qmt_command",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "lineRange": [
+        89,
+        99
+      ],
+      "summary": "在 `trade_tools.py` 中实现 `_qmt_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/trade_tools.py:_qmt_orders",
+      "type": "function",
+      "name": "_qmt_orders",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "lineRange": [
+        102,
+        106
+      ],
+      "summary": "在 `trade_tools.py` 中实现 `_qmt_orders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/trade_tools.py:_qmt_trades",
+      "type": "function",
+      "name": "_qmt_trades",
+      "filePath": "sats/agent/tools/trade_tools.py",
+      "lineRange": [
+        109,
+        113
+      ],
+      "summary": "在 `trade_tools.py` 中实现 `_qmt_trades` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/web_tools.py",
+      "type": "file",
+      "name": "web_tools.py",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `web tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/web_tools.py:web_tool_specs",
+      "type": "function",
+      "name": "web_tool_specs",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "lineRange": [
+        9,
+        77
+      ],
+      "summary": "在 `web_tools.py` 中实现 `web_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/web_tools.py:_web_search",
+      "type": "function",
+      "name": "_web_search",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "lineRange": [
+        80,
+        95
+      ],
+      "summary": "在 `web_tools.py` 中实现 `_web_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/web_tools.py:_web_open",
+      "type": "function",
+      "name": "_web_open",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "lineRange": [
+        98,
+        114
+      ],
+      "summary": "在 `web_tools.py` 中实现 `_web_open` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/web_tools.py:_social_hot",
+      "type": "function",
+      "name": "_social_hot",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "lineRange": [
+        117,
+        128
+      ],
+      "summary": "在 `web_tools.py` 中实现 `_social_hot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/web_tools.py:_hot_mentions",
+      "type": "function",
+      "name": "_hot_mentions",
+      "filePath": "sats/agent/tools/web_tools.py",
+      "lineRange": [
+        131,
+        144
+      ],
+      "summary": "在 `web_tools.py` 中实现 `_hot_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/workflow_tools.py",
+      "type": "file",
+      "name": "workflow_tools.py",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `workflow tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:workflow_tool_specs",
+      "type": "function",
+      "name": "workflow_tool_specs",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        22,
+        78
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `workflow_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:is_daily_portfolio_request",
+      "type": "function",
+      "name": "is_daily_portfolio_request",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        81,
+        96
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `is_daily_portfolio_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_daily_portfolio",
+      "type": "function",
+      "name": "_daily_portfolio",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        99,
+        131
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_daily_portfolio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:is_screened_stock_analysis_request",
+      "type": "function",
+      "name": "is_screened_stock_analysis_request",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        134,
+        140
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `is_screened_stock_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:infer_screening_rule",
+      "type": "function",
+      "name": "infer_screening_rule",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        143,
+        151
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `infer_screening_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_screened_stock_analysis",
+      "type": "function",
+      "name": "_screened_stock_analysis",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        154,
+        200
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_screened_stock_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_screening_rows",
+      "type": "function",
+      "name": "_screening_rows",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        203,
+        209
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_screening_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_run_analysis",
+      "type": "function",
+      "name": "_run_analysis",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        212,
+        228
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_run_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_run_analyze_command",
+      "type": "function",
+      "name": "_run_analyze_command",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        231,
+        236
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_run_analyze_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_format_screened_workflow_result",
+      "type": "function",
+      "name": "_format_screened_workflow_result",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        239,
+        272
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_format_screened_workflow_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_verification",
+      "type": "function",
+      "name": "_verification",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        275,
+        301
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_verification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_candidate_limit",
+      "type": "function",
+      "name": "_candidate_limit",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        304,
+        309
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_candidate_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_analysis_mode",
+      "type": "function",
+      "name": "_analysis_mode",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        312,
+        316
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_analysis_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/workflow_tools.py:_canonical_rule",
+      "type": "function",
+      "name": "_canonical_rule",
+      "filePath": "sats/agent/tools/workflow_tools.py",
+      "lineRange": [
+        319,
+        323
+      ],
+      "summary": "在 `workflow_tools.py` 中实现 `_canonical_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:factor_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:factor_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_show",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_show",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_analyze",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_analyze",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_pick",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_pick",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_ml",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_factor_ml",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_add",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_flag",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "function:sats/agent/tools/factor_tools.py:_flag",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:generated_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:generated_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:load_generated_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:load_generated_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_validate_generated_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_validate_generated_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_load_generated_module",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_load_generated_module",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_is_readonly_generated_spec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_is_readonly_generated_spec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_import_roots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_import_roots",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_call_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "function:sats/agent/tools/generated/loader.py:_call_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:trade_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:trade_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_submit_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_submit_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_orders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_orders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_trades",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "function:sats/agent/tools/trade_tools.py:_qmt_trades",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:web_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:web_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_web_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_web_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_web_open",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_web_open",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_social_hot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_social_hot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_hot_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "function:sats/agent/tools/web_tools.py:_hot_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:workflow_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:workflow_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:is_daily_portfolio_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:is_daily_portfolio_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_daily_portfolio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_daily_portfolio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:is_screened_stock_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:is_screened_stock_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:infer_screening_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:infer_screening_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_screened_stock_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_screened_stock_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_screening_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_screening_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_run_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_run_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_run_analyze_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_run_analyze_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_format_screened_workflow_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_format_screened_workflow_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_verification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_verification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_candidate_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_candidate_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_analysis_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_analysis_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_canonical_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "function:sats/agent/tools/workflow_tools.py:_canonical_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/factor_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/generated/__init__.py",
+      "target": "file:sats/agent/tools/generated/loader.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/generated/loader.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/trade_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "file:sats/web/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "file:sats/web/search.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/web_tools.py",
+      "target": "file:sats/web/social_hot.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "file:sats/natural_task.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "file:sats/portfolio/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/workflow_tools.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

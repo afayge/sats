@@ -40,7 +40,7 @@ SATS_COMMANDS = (
     "serve",
 )
 
-RECURSIVE_SATS_COMMANDS = ("agent", "chat")
+RECURSIVE_SATS_COMMANDS = ("chat",)
 
 
 def command_tool_specs() -> list[AgentToolSpec]:
@@ -57,7 +57,7 @@ def command_tool_specs() -> list[AgentToolSpec]:
         AgentToolSpec(
             name="sats_command.run",
             description=(
-                "通过 SATS argv runner 执行任一非递归 SATS CLI 命令；不走 shell，禁止递归 agent/chat。"
+                "通过 SATS argv runner 执行任一非递归 SATS CLI 命令；不走 shell，禁止递归 chat；agent 已停用。"
                 f"可用顶层命令：{', '.join(SATS_COMMANDS)}。"
             ),
             category="command",

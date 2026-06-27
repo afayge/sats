@@ -1,3 +1,8 @@
+"""OBSOLETE: autonomous Agent runtime is retained for internal code/tests only.
+
+Public `sats agent` and `sats chat --agent` entrypoints are disabled.
+"""
+
 from __future__ import annotations
 
 import json

@@ -109,7 +109,7 @@ class AgentCommandRunner:
 
 def _blocked_agent_recursion(argv: list[str]) -> str:
     if argv[0] == "agent":
-        return "agent command cannot recursively run sats agent"
+        return "OBSOLETE: sats agent 已停用，请使用 sats chat ..."
     if argv[0] == "chat":
         return "agent command cannot recursively run sats chat; use chat.answer tool"
     return ""

@@ -1,0 +1,2060 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/screening/rules/signal_composite.py",
+      "type": "file",
+      "name": "signal_composite.py",
+      "filePath": "sats/screening/rules/signal_composite.py",
+      "summary": "实现 规则筛选 中与 `signal composite` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/signal_composite.py:SignalCompositeRule",
+      "type": "class",
+      "name": "SignalCompositeRule",
+      "filePath": "sats/screening/rules/signal_composite.py",
+      "lineRange": [
+        7,
+        20
+      ],
+      "summary": "在 `signal_composite.py` 中定义 `SignalCompositeRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "sats/screening/service.py",
+      "summary": "承载规则筛选主流程，协调数据读取、规则执行和结果落库。",
+      "tags": [
+        "python",
+        "screening",
+        "rules",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/service.py:evaluate_inputs",
+      "type": "function",
+      "name": "evaluate_inputs",
+      "filePath": "sats/screening/service.py",
+      "lineRange": [
+        11,
+        26
+      ],
+      "summary": "在 `service.py` 中实现 `evaluate_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/service.py:evaluate_and_store",
+      "type": "function",
+      "name": "evaluate_and_store",
+      "filePath": "sats/screening/service.py",
+      "lineRange": [
+        29,
+        43
+      ],
+      "summary": "在 `service.py` 中实现 `evaluate_and_store` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/signals/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/signals/__init__.py",
+      "summary": "定义 `signals` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/signals/base.py",
+      "type": "file",
+      "name": "base.py",
+      "filePath": "sats/signals/base.py",
+      "summary": "提供 信号分析 的基础抽象、共享类型与通用 helper。",
+      "tags": [
+        "python",
+        "signals",
+        "analysis",
+        "base-abstraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/signals/base.py:SignalDefinition",
+      "type": "class",
+      "name": "SignalDefinition",
+      "filePath": "sats/signals/base.py",
+      "lineRange": [
+        10,
+        15
+      ],
+      "summary": "在 `base.py` 中定义 `SignalDefinition` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "signals",
+        "analysis",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/signals/base.py:SignalInput",
+      "type": "class",
+      "name": "SignalInput",
+      "filePath": "sats/signals/base.py",
+      "lineRange": [
+        19,
+        24
+      ],
+      "summary": "在 `base.py` 中定义 `SignalInput` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "signals",
+        "analysis",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/signals/base.py:SignalEvent",
+      "type": "class",
+      "name": "SignalEvent",
+      "filePath": "sats/signals/base.py",
+      "lineRange": [
+        28,
+        56
+      ],
+      "summary": "在 `base.py` 中定义 `SignalEvent` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "signals",
+        "analysis",
+        "base-abstraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/signals/base.py:SignalAnalysisResult",
+      "type": "class",
+      "name": "SignalAnalysisResult",
+      "filePath": "sats/signals/base.py",
+      "lineRange": [
+        60,
+        88
+      ],
+      "summary": "在 `base.py` 中定义 `SignalAnalysisResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/signals/base.py:SignalAnalysisRun",
+      "type": "class",
+      "name": "SignalAnalysisRun",
+      "filePath": "sats/signals/base.py",
+      "lineRange": [
+        92,
+        106
+      ],
+      "summary": "在 `base.py` 中定义 `SignalAnalysisRun` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "signals",
+        "analysis",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/signals/engine.py",
+      "type": "file",
+      "name": "engine.py",
+      "filePath": "sats/signals/engine.py",
+      "summary": "实现 Analyze 信号引擎，把行情输入转换为可组合的技术信号结果。",
+      "tags": [
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/signals/engine.py:CompositeSpec",
+      "type": "class",
+      "name": "CompositeSpec",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        23,
+        27
+      ],
+      "summary": "在 `engine.py` 中定义 `CompositeSpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:parse_signal_selection",
+      "type": "function",
+      "name": "parse_signal_selection",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        90,
+        109
+      ],
+      "summary": "在 `engine.py` 中实现 `parse_signal_selection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:analyze_signal_input",
+      "type": "function",
+      "name": "analyze_signal_input",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        112,
+        178
+      ],
+      "summary": "在 `engine.py` 中实现 `analyze_signal_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:analyze_signal_inputs",
+      "type": "function",
+      "name": "analyze_signal_inputs",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        181,
+        218
+      ],
+      "summary": "在 `engine.py` 中实现 `analyze_signal_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:format_signal_analysis",
+      "type": "function",
+      "name": "format_signal_analysis",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        221,
+        236
+      ],
+      "summary": "在 `engine.py` 中实现 `format_signal_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:format_signal_definitions",
+      "type": "function",
+      "name": "format_signal_definitions",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        239,
+        256
+      ],
+      "summary": "在 `engine.py` 中实现 `format_signal_definitions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:write_signal_report",
+      "type": "function",
+      "name": "write_signal_report",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        259,
+        302
+      ],
+      "summary": "在 `engine.py` 中实现 `write_signal_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:screening_result_from_signal_input",
+      "type": "function",
+      "name": "screening_result_from_signal_input",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        305,
+        326
+      ],
+      "summary": "在 `engine.py` 中实现 `screening_result_from_signal_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_filter_events",
+      "type": "function",
+      "name": "_filter_events",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        329,
+        350
+      ],
+      "summary": "在 `engine.py` 中实现 `_filter_events` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_event",
+      "type": "function",
+      "name": "_event",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        353,
+        368
+      ],
+      "summary": "在 `engine.py` 中实现 `_event` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_build_composites",
+      "type": "function",
+      "name": "_build_composites",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        371,
+        393
+      ],
+      "summary": "在 `engine.py` 中实现 `_build_composites` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        396,
+        425
+      ],
+      "summary": "在 `engine.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_enrich_daily",
+      "type": "function",
+      "name": "_enrich_daily",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        428,
+        447
+      ],
+      "summary": "在 `engine.py` 中实现 `_enrich_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_ma_signals",
+      "type": "function",
+      "name": "_detect_ma_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        450,
+        509
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_ma_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_kline_signals",
+      "type": "function",
+      "name": "_detect_kline_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        512,
+        598
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_kline_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_derived_kline_aliases",
+      "type": "function",
+      "name": "_derived_kline_aliases",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        601,
+        642
+      ],
+      "summary": "在 `engine.py` 中实现 `_derived_kline_aliases` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_graph_signals",
+      "type": "function",
+      "name": "_detect_graph_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        645,
+        688
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_graph_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_trendline_signals",
+      "type": "function",
+      "name": "_detect_trendline_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        691,
+        708
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_trendline_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_wave_signals",
+      "type": "function",
+      "name": "_detect_wave_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        711,
+        730
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_wave_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_harmonic_signals",
+      "type": "function",
+      "name": "_detect_harmonic_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        733,
+        762
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_harmonic_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_detect_chan_signals",
+      "type": "function",
+      "name": "_detect_chan_signals",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        765,
+        799
+      ],
+      "summary": "在 `engine.py` 中实现 `_detect_chan_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_score_decision",
+      "type": "function",
+      "name": "_score_decision",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        802,
+        826
+      ],
+      "summary": "在 `engine.py` 中实现 `_score_decision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_key_levels",
+      "type": "function",
+      "name": "_key_levels",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        829,
+        833
+      ],
+      "summary": "在 `engine.py` 中实现 `_key_levels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_llm_review",
+      "type": "function",
+      "name": "_llm_review",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        836,
+        860
+      ],
+      "summary": "在 `engine.py` 中实现 `_llm_review` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_signal_data_sources",
+      "type": "function",
+      "name": "_signal_data_sources",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        863,
+        873
+      ],
+      "summary": "在 `engine.py` 中实现 `_signal_data_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        876,
+        882
+      ],
+      "summary": "在 `engine.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        885,
+        891
+      ],
+      "summary": "在 `engine.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        894,
+        899
+      ],
+      "summary": "在 `engine.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_slope",
+      "type": "function",
+      "name": "_slope",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        902,
+        910
+      ],
+      "summary": "在 `engine.py` 中实现 `_slope` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_line_value",
+      "type": "function",
+      "name": "_line_value",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        913,
+        919
+      ],
+      "summary": "在 `engine.py` 中实现 `_line_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_cross_up",
+      "type": "function",
+      "name": "_cross_up",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        922,
+        923
+      ],
+      "summary": "在 `engine.py` 中实现 `_cross_up` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_cross_down",
+      "type": "function",
+      "name": "_cross_down",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        926,
+        927
+      ],
+      "summary": "在 `engine.py` 中实现 `_cross_down` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_recent_gain",
+      "type": "function",
+      "name": "_recent_gain",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        930,
+        935
+      ],
+      "summary": "在 `engine.py` 中实现 `_recent_gain` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_price_rank",
+      "type": "function",
+      "name": "_price_rank",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        938,
+        944
+      ],
+      "summary": "在 `engine.py` 中实现 `_price_rank` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_pivots",
+      "type": "function",
+      "name": "_pivots",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        947,
+        960
+      ],
+      "summary": "在 `engine.py` 中实现 `_pivots` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_near_equal_lows",
+      "type": "function",
+      "name": "_near_equal_lows",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        963,
+        968
+      ],
+      "summary": "在 `engine.py` 中实现 `_near_equal_lows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_near_equal_highs",
+      "type": "function",
+      "name": "_near_equal_highs",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        971,
+        972
+      ],
+      "summary": "在 `engine.py` 中实现 `_near_equal_highs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_head_shoulders",
+      "type": "function",
+      "name": "_head_shoulders",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        975,
+        982
+      ],
+      "summary": "在 `engine.py` 中实现 `_head_shoulders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_falling_wedge",
+      "type": "function",
+      "name": "_falling_wedge",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        985,
+        988
+      ],
+      "summary": "在 `engine.py` 中实现 `_falling_wedge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_rising_wedge",
+      "type": "function",
+      "name": "_rising_wedge",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        991,
+        994
+      ],
+      "summary": "在 `engine.py` 中实现 `_rising_wedge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_flag_like",
+      "type": "function",
+      "name": "_flag_like",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        997,
+        1004
+      ],
+      "summary": "在 `engine.py` 中实现 `_flag_like` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_bullish_engulfing",
+      "type": "function",
+      "name": "_bullish_engulfing",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1007,
+        1008
+      ],
+      "summary": "在 `engine.py` 中实现 `_bullish_engulfing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_bearish_engulfing",
+      "type": "function",
+      "name": "_bearish_engulfing",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1011,
+        1012
+      ],
+      "summary": "在 `engine.py` 中实现 `_bearish_engulfing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_morning_star",
+      "type": "function",
+      "name": "_morning_star",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1015,
+        1016
+      ],
+      "summary": "在 `engine.py` 中实现 `_morning_star` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_evening_star",
+      "type": "function",
+      "name": "_evening_star",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1019,
+        1020
+      ],
+      "summary": "在 `engine.py` 中实现 `_evening_star` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_piercing",
+      "type": "function",
+      "name": "_piercing",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1023,
+        1025
+      ],
+      "summary": "在 `engine.py` 中实现 `_piercing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_dark_cloud",
+      "type": "function",
+      "name": "_dark_cloud",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1028,
+        1030
+      ],
+      "summary": "在 `engine.py` 中实现 `_dark_cloud` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_harami",
+      "type": "function",
+      "name": "_harami",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1033,
+        1035
+      ],
+      "summary": "在 `engine.py` 中实现 `_harami` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_tweezer_bottom",
+      "type": "function",
+      "name": "_tweezer_bottom",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1038,
+        1040
+      ],
+      "summary": "在 `engine.py` 中实现 `_tweezer_bottom` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_tweezer_top",
+      "type": "function",
+      "name": "_tweezer_top",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1043,
+        1045
+      ],
+      "summary": "在 `engine.py` 中实现 `_tweezer_top` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/engine.py:_double_needle",
+      "type": "function",
+      "name": "_double_needle",
+      "filePath": "sats/signals/engine.py",
+      "lineRange": [
+        1048,
+        1050
+      ],
+      "summary": "在 `engine.py` 中实现 `_double_needle` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/screening/rules/signal_composite.py",
+      "target": "class:sats/screening/rules/signal_composite.py:SignalCompositeRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/signal_composite.py",
+      "target": "class:sats/screening/rules/signal_composite.py:SignalCompositeRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "function:sats/screening/service.py:evaluate_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "function:sats/screening/service.py:evaluate_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "function:sats/screening/service.py:evaluate_and_store",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "function:sats/screening/service.py:evaluate_and_store",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalDefinition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalDefinition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalInput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalInput",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalEvent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalAnalysisResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalAnalysisResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalAnalysisRun",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/base.py",
+      "target": "class:sats/signals/base.py:SignalAnalysisRun",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "class:sats/signals/engine.py:CompositeSpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "class:sats/signals/engine.py:CompositeSpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:parse_signal_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:parse_signal_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:analyze_signal_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:analyze_signal_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:analyze_signal_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:analyze_signal_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:format_signal_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:format_signal_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:format_signal_definitions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:format_signal_definitions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:write_signal_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:write_signal_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:screening_result_from_signal_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:screening_result_from_signal_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_filter_events",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_filter_events",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_build_composites",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_build_composites",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_enrich_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_enrich_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_ma_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_ma_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_kline_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_kline_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_derived_kline_aliases",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_derived_kline_aliases",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_graph_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_graph_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_trendline_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_trendline_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_wave_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_wave_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_harmonic_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_harmonic_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_chan_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_detect_chan_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_score_decision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_score_decision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_key_levels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_key_levels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_llm_review",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_llm_review",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_signal_data_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_signal_data_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_slope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_slope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_line_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_line_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_cross_up",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_cross_up",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_cross_down",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_cross_down",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_recent_gain",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_recent_gain",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_price_rank",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_price_rank",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_pivots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_pivots",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_near_equal_lows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_near_equal_lows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_near_equal_highs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_near_equal_highs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_head_shoulders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_head_shoulders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_falling_wedge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_falling_wedge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_rising_wedge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_rising_wedge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_flag_like",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_flag_like",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_bullish_engulfing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_bullish_engulfing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_bearish_engulfing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_bearish_engulfing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_morning_star",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_morning_star",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_evening_star",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_evening_star",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_piercing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_piercing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_dark_cloud",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_dark_cloud",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_harami",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_harami",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_tweezer_bottom",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_tweezer_bottom",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_tweezer_top",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_tweezer_top",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_double_needle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "function:sats/signals/engine.py:_double_needle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/signal_composite.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/signal_composite.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/service.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/__init__.py",
+      "target": "file:sats/signals/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/__init__.py",
+      "target": "file:sats/signals/engine.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/__init__.py",
+      "target": "file:sats/signals/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "file:sats/chan/engine.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "file:sats/signals/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/signals/engine.py",
+      "target": "file:sats/signals/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -18,9 +18,7 @@ import pandas as pd
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.utils import get_cwidth
 
-from sats.agent import AgentExecutionPolicy, run_agent_once
-from sats.agent.planner import build_agent_plan
-from sats.agent.tools import build_default_tool_registry
+from sats.agent import AgentExecutionPolicy
 from sats.agent.progress import agent_progress_event_sink
 from sats.analysis.chan_llm_review import DEFAULT_CHAN_RULE_NAME, run_chan_llm_review
 from sats.analysis.daily_stock_analysis import run_daily_stock_analysis_for_symbols, run_screened_stock_analysis
@@ -92,6 +90,7 @@ from sats.monitoring import (
     load_monitor_plan_file,
     validate_monitor_plan,
 )
+from sats.natural_output import NaturalTextOutput
 from sats.output_names import SecurityNameOutput, SecurityNameResolver
 from sats.portfolio import DailyPortfolioAgent, PortfolioConfig, PortfolioStore
 from sats.progress import create_progress
@@ -139,6 +138,9 @@ from sats.watchlist_editor import (
 )
 
 DEFAULT_RULE = "ma_volume_relative_strength"
+OBSOLETE_AGENT_ENTRY_MESSAGE = "OBSOLETE: sats agent 已停用，请使用 sats chat ..."
+OBSOLETE_CHAT_AGENT_MESSAGE = "OBSOLETE: sats chat --agent 已停用，请直接使用 sats chat ..."
+OBSOLETE_CHAT_NO_AGENT_MESSAGE = "OBSOLETE: sats chat --no-agent 已停用，请使用 sats chat --engine legacy ..."
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 PERIOD_CHANGE_INDEX_ALIASES = {
     "上证": "000001.SH",
@@ -385,18 +387,12 @@ def build_parser() -> argparse.ArgumentParser:
     chat.add_argument("--no-memory", action="store_true", help="Disable local chat memory for this message")
     chat.add_argument("--knowledge", help="Knowledge base name/id to force into this chat")
     chat.add_argument("--engine", choices=["conversation", "legacy"], default="conversation", help="Conversation engine; defaults to Codex-style tool loop")
-    chat.add_argument("--agent", action="store_true", help="Explicitly use the SATS autonomous Agent runtime")
-    chat.add_argument("--no-agent", action="store_true", help=argparse.SUPPRESS)
     _add_agent_args(chat)
     chat.add_argument("--confirm", help="Confirm and execute a pending SATS runtime action")
     chat.add_argument("--reject", help="Reject a pending SATS runtime action")
     chat.add_argument("--answer", help="Answer and continue a pending SATS conversation clarification")
     chat.add_argument("--trace", help="Show a chat turn trace")
     chat.add_argument("message", nargs=argparse.REMAINDER, help="Message to send to the LLM")
-
-    agent = sub.add_parser("agent", help="Run SATS autonomous agent")
-    _add_agent_args(agent)
-    agent.add_argument("message", nargs=argparse.REMAINDER, help="Natural-language agent goal")
 
     threads = sub.add_parser("threads", help="Manage SATS conversation threads")
     threads_sub = threads.add_subparsers(dest="threads_command")
@@ -845,6 +841,13 @@ def main(argv: list[str] | None = None) -> int:
         from sats.repl import run_repl
 
         return run_repl()
+    if argv[0] == "agent":
+        raise SystemExit(OBSOLETE_AGENT_ENTRY_MESSAGE)
+    if argv[0] == "chat":
+        if "--agent" in argv[1:]:
+            raise SystemExit(OBSOLETE_CHAT_AGENT_MESSAGE)
+        if "--no-agent" in argv[1:]:
+            raise SystemExit(OBSOLETE_CHAT_NO_AGENT_MESSAGE)
     parser = build_parser()
     args = parser.parse_args(argv)
     settings = load_settings()
@@ -855,13 +858,43 @@ def main(argv: list[str] | None = None) -> int:
         provider_factory=AStockDataProvider,
     )
     original_stdout = sys.stdout
-    named_stdout = SecurityNameOutput(original_stdout, resolver)
+    display_stdout = (
+        NaturalTextOutput(original_stdout, db_path=db_path, width=_terminal_width())
+        if _should_render_cli_text_output(args, original_stdout)
+        else original_stdout
+    )
+    named_stdout = SecurityNameOutput(display_stdout, resolver)
     sys.stdout = named_stdout
     try:
         return _dispatch_command(args, parser)
     finally:
         named_stdout.flush()
         sys.stdout = original_stdout
+
+
+def _should_render_cli_text_output(args: argparse.Namespace, stdout) -> bool:
+    if bool(getattr(stdout, "sats_repl_capture", False)):
+        return False
+    if not bool(getattr(stdout, "isatty", lambda: False)()):
+        return False
+    if bool(getattr(args, "json", False)):
+        return False
+    command = str(getattr(args, "command", "") or "")
+    if command in {"chat", "serve"}:
+        return False
+    if command == "monitor" and str(getattr(args, "monitor_command", "") or "") == "run" and not bool(getattr(args, "once", False)):
+        return False
+    if command == "monitor-display" and str(getattr(args, "monitor_display_command", "") or "") == "run" and not bool(getattr(args, "plain", False)):
+        return False
+    if command == "schedule" and str(getattr(args, "schedule_command", "") or "") == "run-loop" and not bool(getattr(args, "once", False)):
+        return False
+    if command == "qmt" and str(getattr(args, "qmt_command", "") or "") == "bridge":
+        return False
+    if command == "watchlist" and str(getattr(args, "watchlist_command", "") or "") in {"select-delete", "import-screened"}:
+        return False
+    if command == "screen" and bool(getattr(args, "select_watchlist", False)):
+        return False
+    return True
 
 
 def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
@@ -897,8 +930,6 @@ def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser)
         return cmd_discover(args)
     if args.command == "chat":
         return cmd_chat(args)
-    if args.command == "agent":
-        return cmd_agent(args)
     if args.command == "threads":
         return cmd_threads(args)
     if args.command == "web":
@@ -1653,30 +1684,10 @@ def cmd_chat(args: argparse.Namespace) -> int:
     message = " ".join(args.message).strip()
     if not message:
         raise SystemExit("chat message is required")
-    use_agent = bool(getattr(args, "agent", False))
     if getattr(args, "plan_only", False):
-        if use_agent:
-            print(_format_agent_plan_only(message, settings=settings, args=args))
-        else:
-            print(format_conversation_plan(message, settings=settings, policy=_agent_policy_from_args(args)))
-        return 0
-    if use_agent:
-        progress = _progress_for_args(args)
-        try:
-            result = run_agent_once(
-                message,
-                settings=settings,
-                policy=_agent_policy_from_args(args),
-                session_id="chat_agent",
-                event_sink=agent_progress_event_sink(progress),
-            )
-        finally:
-            progress.close()
-        _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
+        print(format_conversation_plan(message, settings=settings, policy=_agent_policy_from_args(args)))
         return 0
     engine = str(getattr(args, "engine", "conversation") or "conversation")
-    if getattr(args, "no_agent", False):
-        engine = "legacy"
     if engine == "conversation":
         progress = _progress_for_args(args)
         try:
@@ -1708,29 +1719,6 @@ def cmd_chat(args: argparse.Namespace) -> int:
     finally:
         progress.close()
     _emit_chat_result(result, db_path=getattr(settings, "db_path", None))
-    return 0
-
-
-def cmd_agent(args: argparse.Namespace) -> int:
-    settings = load_settings()
-    message = " ".join(args.message).strip()
-    if not message:
-        raise SystemExit("agent message is required")
-    if getattr(args, "plan_only", False):
-        print(_format_agent_plan_only(message, settings=settings, args=args))
-        return 0
-    progress = _progress_for_args(args)
-    try:
-        result = run_agent_once(
-            message,
-            settings=settings,
-            policy=_agent_policy_from_args(args),
-            session_id="agent",
-            event_sink=agent_progress_event_sink(progress),
-        )
-    finally:
-        progress.close()
-    _emit_chat_result(_chat_result_from_agent(result), db_path=getattr(settings, "db_path", None))
     return 0
 
 
@@ -1988,22 +1976,6 @@ def _continue_cli_clarification(conversation_result, *, settings):
         progress.close()
 
 
-def _chat_result_from_agent(agent_result) -> ChatResult:
-    pending = getattr(agent_result, "pending_action", None)
-    return ChatResult(
-        content=agent_result.content,
-        skill_names=tuple(getattr(agent_result, "skill_names", ()) or ()),
-        tool_call_count=agent_result.tool_call_count,
-        data_names=agent_result.data_names,
-        artifacts=agent_result.artifacts,
-        sources=tuple(getattr(agent_result, "sources", ()) or ()),
-        requires_confirmation=bool(pending is not None),
-        pending_action_id=str(getattr(pending, "action_id", "") or "") if pending is not None else None,
-        turn_id=agent_result.turn_id,
-        session_id=agent_result.session_id,
-    )
-
-
 def _confirm_chat_action(action_id: str, *, settings) -> ChatResult:
     store = ChatMemoryStore(settings.db_path)
     action = store.get_pending_action(action_id)
@@ -2050,58 +2022,6 @@ def _agent_policy_from_args(args: argparse.Namespace) -> AgentExecutionPolicy:
         command_timeout=max(1, int(getattr(args, "command_timeout", 120) or 120)),
         python_timeout=max(1, int(getattr(args, "python_timeout", 30) or 30)),
     )
-
-
-def _format_agent_plan_only(message: str, *, settings, args: argparse.Namespace) -> str:
-    plan = build_agent_plan(
-        message,
-        settings=settings,
-        policy=_agent_policy_from_args(args),
-        llm_factory=None,
-        tool_registry=build_default_tool_registry(),
-    )
-    return _format_agent_plan(plan)
-
-
-def _format_agent_plan(plan) -> str:
-    payload = plan.to_dict()
-    natural_task = payload.get("natural_task") if isinstance(payload.get("natural_task"), dict) else {}
-    lines = [
-        "SATS Agent Plan",
-        f"目标: {payload.get('objective') or '-'}",
-        f"风险级别: {payload.get('risk_level') or '-'}",
-    ]
-    if natural_task:
-        lines.extend(
-            [
-                f"工作流: {natural_task.get('workflow_kind') or '-'}",
-                f"对话模式: {natural_task.get('dialogue_mode') or '-'}",
-                f"分析模式: {natural_task.get('analysis_mode') or payload.get('analysis_mode') or '-'}",
-                f"分析模式原因: {natural_task.get('analysis_mode_reason') or '-'}",
-                f"候选上限: {natural_task.get('candidate_limit') or '-'}",
-            ]
-        )
-    if payload.get("assumptions"):
-        lines.append("假设:")
-        lines.extend(f"- {item}" for item in payload["assumptions"])
-    if natural_task.get("boundaries"):
-        lines.append("边界:")
-        lines.extend(f"- {item}" for item in natural_task["boundaries"])
-    if payload.get("success_criteria"):
-        lines.append("成功标准:")
-        lines.extend(f"- {item}" for item in payload["success_criteria"])
-    if payload.get("steps"):
-        lines.append("步骤:")
-        for index, step in enumerate(payload["steps"], start=1):
-            if step.get("kind") == "final":
-                continue
-            target = step.get("tool_name") or " ".join(step.get("command") or ()) or step.get("kind")
-            lines.append(f"{index}. {step.get('title') or step.get('step_id')} -> {target} [{step.get('side_effect') or 'readonly'}]")
-    checks = natural_task.get("verification_checks") or payload.get("verification_checks") or []
-    if checks:
-        lines.append("验证项:")
-        lines.extend(f"- {item.get('name')}: {item.get('status')}" for item in checks if isinstance(item, dict))
-    return "\n".join(lines)
 
 
 def cmd_model(args: argparse.Namespace) -> int:

@@ -64,20 +64,21 @@ class ProgressReporterTest(unittest.TestCase):
         }
         self.assertIn("unknown knowledge base: missing", _event_detail(failed))
 
-    def test_tty_progress_renders_codex_style_lines(self) -> None:
+    def test_total_progress_renders_single_completion_line(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=10, request="sats screen --trade-date 20260520")
 
-        with progress.step("Tushare 股票数据", total=100) as step:
+        with progress.step("规则计算", total=100) as step:
             step.update(42)
 
         output = stream.getvalue()
-        self.assertIn("→ Tushare 股票数据", output)
-        self.assertIn("· Tushare 股票数据", output)
-        self.assertIn("✓ Tushare 股票数据", output)
-        self.assertIn("Tushare 股票数据", output)
-        self.assertIn("42/100", output)
+        self.assertIn("✓ 规则计算", output)
+        self.assertIn("规则计算", output)
         self.assertIn("100/100", output)
+        self.assertEqual(output.count("规则计算"), 1)
+        self.assertNotIn("→ 规则计算", output)
+        self.assertNotIn("· 规则计算", output)
+        self.assertNotIn("42/100", output)
         self.assertNotIn("Running agent", output)
         self.assertNotIn("Current", output)
         self.assertNotIn("State", output)
@@ -125,7 +126,7 @@ class ProgressReporterTest(unittest.TestCase):
         self.assertIn("✗ bash", output)
         self.assertIn("exit_code=1", output)
 
-    def test_repeated_updates_append_lines_without_redraw(self) -> None:
+    def test_repeated_updates_are_summarized_on_completion(self) -> None:
         stream = _TtyStringIO()
         progress = create_progress(stream=stream, force=True, width=8, request="sats dsa --from-screened")
 
@@ -135,11 +136,13 @@ class ProgressReporterTest(unittest.TestCase):
             step.complete(message="done")
 
         output = stream.getvalue()
-        self.assertIn("→ Tushare 股票数据", output)
-        self.assertIn("10/100", output)
-        self.assertIn("20/100", output)
         self.assertIn("✓ Tushare 股票数据", output)
         self.assertIn("done", output)
+        self.assertEqual(output.count("Tushare 股票数据"), 1)
+        self.assertNotIn("→ Tushare 股票数据", output)
+        self.assertNotIn("· Tushare 股票数据", output)
+        self.assertNotIn("10/100", output)
+        self.assertNotIn("20/100", output)
         self.assertNotIn("\033[J", output)
         self.assertNotIn("\033[A", output)
 
@@ -154,6 +157,7 @@ class ProgressReporterTest(unittest.TestCase):
             )
             step = progress.step("Tushare 股票数据和热点板块", total=100)
             step.update(42, message="正在获取同花顺行业板块和概念板块成分股")
+            step.complete(message="正在获取同花顺行业板块和概念板块成分股")
             lines = progress._panel_lines()
 
         self.assertTrue(lines)
@@ -191,7 +195,7 @@ class ProgressReporterTest(unittest.TestCase):
         self.assertIn("step-9", output)
         self.assertNotIn("older steps", output)
         self.assertNotIn("Recent details", output)
-        self.assertEqual(len(lines), 20)
+        self.assertEqual(len(lines), 10)
 
     def test_agent_progress_event_sink_summarizes_step_details(self) -> None:
         stream = _TtyStringIO()
@@ -329,7 +333,7 @@ class ProgressReporterTest(unittest.TestCase):
             patch("sats.chat.ChatLLM", return_value=FakeLLM()),
             redirect_stdout(io.StringIO()),
         ):
-            self.assertEqual(main(["chat", "--no-agent", "分析大盘"]), 0)
+            self.assertEqual(main(["chat", "--engine", "legacy", "分析大盘"]), 0)
 
         self.assertIn("deepseek-v4-pro", progress_stream.getvalue())
         self.assertIn("→", progress_stream.getvalue())

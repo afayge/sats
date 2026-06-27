@@ -1,0 +1,878 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/analysis/__init__.py",
+      "summary": "定义 `analysis` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/analysis/chan_llm_review.py",
+      "type": "file",
+      "name": "chan_llm_review.py",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `chan llm review` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/chan_llm_review.py:ChanLLMReviewResult",
+      "type": "class",
+      "name": "ChanLLMReviewResult",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        45,
+        49
+      ],
+      "summary": "在 `chan_llm_review.py` 中定义 `ChanLLMReviewResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:run_chan_llm_review",
+      "type": "function",
+      "name": "run_chan_llm_review",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        52,
+        139
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `run_chan_llm_review` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_messages",
+      "type": "function",
+      "name": "_messages",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        142,
+        165
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_write_report",
+      "type": "function",
+      "name": "_write_report",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        168,
+        232
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_write_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_screening_result_row",
+      "type": "function",
+      "name": "_screening_result_row",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        235,
+        245
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_screening_result_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_enrich_reviews",
+      "type": "function",
+      "name": "_enrich_reviews",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        248,
+        266
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_enrich_reviews` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_candidate_data_sources",
+      "type": "function",
+      "name": "_candidate_data_sources",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        269,
+        278
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_candidate_data_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_candidate_missing_fields",
+      "type": "function",
+      "name": "_candidate_missing_fields",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        281,
+        287
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_candidate_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_cell",
+      "type": "function",
+      "name": "_cell",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        290,
+        292
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_cell` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_candidate_evidence",
+      "type": "function",
+      "name": "_candidate_evidence",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        295,
+        310
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_candidate_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_default_source_refs",
+      "type": "function",
+      "name": "_default_source_refs",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        313,
+        319
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_default_source_refs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_rule_title",
+      "type": "function",
+      "name": "_rule_title",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        322,
+        327
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_rule_title` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_all_chan_knowledge_rule_ids",
+      "type": "function",
+      "name": "_all_chan_knowledge_rule_ids",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        330,
+        334
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_all_chan_knowledge_rule_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_llm_review.py:_safe_label",
+      "type": "function",
+      "name": "_safe_label",
+      "filePath": "sats/analysis/chan_llm_review.py",
+      "lineRange": [
+        337,
+        338
+      ],
+      "summary": "在 `chan_llm_review.py` 中实现 `_safe_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/analysis/daily_stock_analysis.py",
+      "type": "file",
+      "name": "daily_stock_analysis.py",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `daily stock analysis` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:run_screened_stock_analysis",
+      "type": "function",
+      "name": "run_screened_stock_analysis",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        23,
+        54
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `run_screened_stock_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:run_daily_stock_analysis_for_symbols",
+      "type": "function",
+      "name": "run_daily_stock_analysis_for_symbols",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        57,
+        142
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `run_daily_stock_analysis_for_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:to_daily_stock_analysis_code",
+      "type": "function",
+      "name": "to_daily_stock_analysis_code",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        145,
+        158
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `to_daily_stock_analysis_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_process_output_tail",
+      "type": "function",
+      "name": "_process_output_tail",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        161,
+        170
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_process_output_tail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:parse_report_rankings",
+      "type": "function",
+      "name": "parse_report_rankings",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        173,
+        194
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `parse_report_rankings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_report_mtimes",
+      "type": "function",
+      "name": "_report_mtimes",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        197,
+        204
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_report_mtimes` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_latest_changed_report",
+      "type": "function",
+      "name": "_latest_changed_report",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        207,
+        221
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_latest_changed_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_archive_report",
+      "type": "function",
+      "name": "_archive_report",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        224,
+        230
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_archive_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_daily_stock_analysis_env",
+      "type": "function",
+      "name": "_daily_stock_analysis_env",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        233,
+        239
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_daily_stock_analysis_env` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/daily_stock_analysis.py:_env_file_keys",
+      "type": "function",
+      "name": "_env_file_keys",
+      "filePath": "sats/analysis/daily_stock_analysis.py",
+      "lineRange": [
+        242,
+        253
+      ],
+      "summary": "在 `daily_stock_analysis.py` 中实现 `_env_file_keys` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "class:sats/analysis/chan_llm_review.py:ChanLLMReviewResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "class:sats/analysis/chan_llm_review.py:ChanLLMReviewResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:run_chan_llm_review",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:run_chan_llm_review",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_write_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_write_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_screening_result_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_screening_result_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_enrich_reviews",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_enrich_reviews",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_data_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_data_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_cell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_cell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_candidate_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_default_source_refs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_default_source_refs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_rule_title",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_rule_title",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_all_chan_knowledge_rule_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_all_chan_knowledge_rule_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_safe_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "function:sats/analysis/chan_llm_review.py:_safe_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:run_screened_stock_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:run_screened_stock_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:run_daily_stock_analysis_for_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:run_daily_stock_analysis_for_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:to_daily_stock_analysis_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:to_daily_stock_analysis_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_process_output_tail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_process_output_tail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:parse_report_rankings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:parse_report_rankings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_report_mtimes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_report_mtimes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_latest_changed_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_latest_changed_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_archive_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_archive_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_daily_stock_analysis_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_daily_stock_analysis_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_env_file_keys",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "function:sats/analysis/daily_stock_analysis.py:_env_file_keys",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/__init__.py",
+      "target": "file:sats/analysis/daily_stock_analysis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/__init__.py",
+      "target": "file:sats/analysis/dsa_native.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/chan_llm_review.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "file:sats/analysis/dsa_native.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/daily_stock_analysis.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,2785 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/tools/data_tools.py",
+      "type": "file",
+      "name": "data_tools.py",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `data tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:data_tool_specs",
+      "type": "function",
+      "name": "data_tool_specs",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        15,
+        280
+      ],
+      "summary": "在 `data_tools.py` 中实现 `data_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_astock_catalog",
+      "type": "function",
+      "name": "_astock_catalog",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        283,
+        299
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_astock_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_astock_fetch",
+      "type": "function",
+      "name": "_astock_fetch",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        302,
+        326
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_astock_fetch` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_list_provider_capabilities",
+      "type": "function",
+      "name": "_list_provider_capabilities",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        329,
+        341
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_list_provider_capabilities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_stock_basic",
+      "type": "function",
+      "name": "_stock_basic",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        344,
+        359
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_stock_basic_lookup_arguments",
+      "type": "function",
+      "name": "_stock_basic_lookup_arguments",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        362,
+        378
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_stock_basic_lookup_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_positive_int",
+      "type": "function",
+      "name": "_positive_int",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        381,
+        388
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_positive_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_filter_stock_basic_frame",
+      "type": "function",
+      "name": "_filter_stock_basic_frame",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        391,
+        419
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_filter_stock_basic_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_stock_daily",
+      "type": "function",
+      "name": "_stock_daily",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        422,
+        426
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_stock_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_index_daily",
+      "type": "function",
+      "name": "_index_daily",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        429,
+        443
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_index_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_stock_minute",
+      "type": "function",
+      "name": "_stock_minute",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        446,
+        456
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_stock_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_realtime_quotes",
+      "type": "function",
+      "name": "_realtime_quotes",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        459,
+        463
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_realtime_quotes` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_indicator_inputs",
+      "type": "function",
+      "name": "_indicator_inputs",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        466,
+        484
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_indicator_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_list_tushare_datasets",
+      "type": "function",
+      "name": "_list_tushare_datasets",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        487,
+        495
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_list_tushare_datasets` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_get_tushare_data",
+      "type": "function",
+      "name": "_get_tushare_data",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        498,
+        511
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_get_tushare_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_list_tushare_stock_datasets",
+      "type": "function",
+      "name": "_list_tushare_stock_datasets",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        514,
+        520
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_list_tushare_stock_datasets` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_get_tushare_stock_data",
+      "type": "function",
+      "name": "_get_tushare_stock_data",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        523,
+        536
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_get_tushare_stock_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_list_akshare_datasets",
+      "type": "function",
+      "name": "_list_akshare_datasets",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        539,
+        549
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_list_akshare_datasets` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_describe_akshare_dataset",
+      "type": "function",
+      "name": "_describe_akshare_dataset",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        552,
+        555
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_describe_akshare_dataset` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_get_akshare_data",
+      "type": "function",
+      "name": "_get_akshare_data",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        558,
+        571
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_get_akshare_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_provider_fetch_operation",
+      "type": "function",
+      "name": "_provider_fetch_operation",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        574,
+        600
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_provider_fetch_operation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/data_tools.py:_frame_result",
+      "type": "function",
+      "name": "_frame_result",
+      "filePath": "sats/agent/tools/data_tools.py",
+      "lineRange": [
+        603,
+        619
+      ],
+      "summary": "在 `data_tools.py` 中实现 `_frame_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/research_tools.py",
+      "type": "file",
+      "name": "research_tools.py",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `research tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:research_tool_specs",
+      "type": "function",
+      "name": "research_tool_specs",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        47,
+        337
+      ],
+      "summary": "在 `research_tools.py` 中实现 `research_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_market_context",
+      "type": "function",
+      "name": "_market_context",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        340,
+        357
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_market_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_discover_opportunities",
+      "type": "function",
+      "name": "_discover_opportunities",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        360,
+        385
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_discover_opportunities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_theme_stock_list",
+      "type": "function",
+      "name": "_theme_stock_list",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        388,
+        433
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_theme_stock_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_serenity_screen",
+      "type": "function",
+      "name": "_serenity_screen",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        436,
+        483
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_serenity_screen` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_theme_stock_returns",
+      "type": "function",
+      "name": "_theme_stock_returns",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        486,
+        603
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_theme_stock_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_return_ranking",
+      "type": "function",
+      "name": "_sector_return_ranking",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        606,
+        711
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_return_ranking` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_stock_context",
+      "type": "function",
+      "name": "_stock_context",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        714,
+        752
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_stock_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_internal_analysis",
+      "type": "function",
+      "name": "_internal_analysis",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        755,
+        844
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_internal_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_deep_stock_analysis",
+      "type": "function",
+      "name": "_deep_stock_analysis",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        847,
+        888
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_deep_stock_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_chan_context",
+      "type": "function",
+      "name": "_chan_context",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        891,
+        899
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_chan_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_knowledge_context",
+      "type": "function",
+      "name": "_knowledge_context",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        902,
+        922
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_knowledge_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_rule_generation",
+      "type": "function",
+      "name": "_rule_generation",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        925,
+        952
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_rule_generation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_stock_context_payload",
+      "type": "function",
+      "name": "_stock_context_payload",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        955,
+        982
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_stock_context_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_effective_stock_context_trade_date",
+      "type": "function",
+      "name": "_effective_stock_context_trade_date",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        985,
+        987
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_effective_stock_context_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_minute_periods_from_arguments",
+      "type": "function",
+      "name": "_minute_periods_from_arguments",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        990,
+        991
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_minute_periods_from_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_signal_input_from_context",
+      "type": "function",
+      "name": "_signal_input_from_context",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        994,
+        1004
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_signal_input_from_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_combined_missing_fields",
+      "type": "function",
+      "name": "_combined_missing_fields",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1007,
+        1016
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_combined_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_chan_kb_search",
+      "type": "function",
+      "name": "_chan_kb_search",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1019,
+        1022
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_chan_kb_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_strategy_draft",
+      "type": "function",
+      "name": "_strategy_draft",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1025,
+        1030
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_strategy_draft` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_backtest",
+      "type": "function",
+      "name": "_backtest",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1033,
+        1067
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_backtest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_write_report",
+      "type": "function",
+      "name": "_write_report",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1070,
+        1089
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_write_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_write_strategy_artifacts",
+      "type": "function",
+      "name": "_write_strategy_artifacts",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1092,
+        1112
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_write_strategy_artifacts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_artifact_dict",
+      "type": "function",
+      "name": "_artifact_dict",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1115,
+        1137
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_artifact_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_theme_web_query",
+      "type": "function",
+      "name": "_theme_web_query",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1140,
+        1144
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_theme_web_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_candidates_from_web_search",
+      "type": "function",
+      "name": "_candidates_from_web_search",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1147,
+        1167
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_candidates_from_web_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_source_ids",
+      "type": "function",
+      "name": "_source_ids",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1170,
+        1178
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_source_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_extract_stock_mentions",
+      "type": "function",
+      "name": "_extract_stock_mentions",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1181,
+        1200
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_extract_stock_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_clean_mention_name",
+      "type": "function",
+      "name": "_clean_mention_name",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1203,
+        1208
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_clean_mention_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_candidates_from_theme_universe",
+      "type": "function",
+      "name": "_candidates_from_theme_universe",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1211,
+        1224
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_candidates_from_theme_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_theme_stock_list_rows",
+      "type": "function",
+      "name": "_theme_stock_list_rows",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1227,
+        1252
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_theme_stock_list_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_candidates_from_symbols",
+      "type": "function",
+      "name": "_candidates_from_symbols",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1255,
+        1273
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_candidates_from_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_validate_theme_return_candidates",
+      "type": "function",
+      "name": "_validate_theme_return_candidates",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1276,
+        1318
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_validate_theme_return_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_theme_return_ranking",
+      "type": "function",
+      "name": "_theme_return_ranking",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1321,
+        1348
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_theme_return_ranking` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_selected_period_return",
+      "type": "function",
+      "name": "_selected_period_return",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1351,
+        1360
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_selected_period_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_safe_float",
+      "type": "function",
+      "name": "_safe_float",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1363,
+        1369
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_load_stock_basic_for_theme_returns",
+      "type": "function",
+      "name": "_load_stock_basic_for_theme_returns",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1372,
+        1387
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_load_stock_basic_for_theme_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_source",
+      "type": "function",
+      "name": "_sector_source",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1390,
+        1395
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_type",
+      "type": "function",
+      "name": "_sector_type",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1398,
+        1403
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_type` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_direction",
+      "type": "function",
+      "name": "_sector_direction",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1406,
+        1411
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_direction` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_period_from_text",
+      "type": "function",
+      "name": "_sector_period_from_text",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1414,
+        1425
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_period_from_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_start_date",
+      "type": "function",
+      "name": "_sector_start_date",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1428,
+        1449
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_start_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_chinese_number",
+      "type": "function",
+      "name": "_chinese_number",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1452,
+        1462
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_chinese_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_load_sector_index_rows",
+      "type": "function",
+      "name": "_load_sector_index_rows",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1465,
+        1485
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_load_sector_index_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_index_records",
+      "type": "function",
+      "name": "_sector_index_records",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1488,
+        1500
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_index_records` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_load_sector_daily_rows",
+      "type": "function",
+      "name": "_load_sector_daily_rows",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1503,
+        1523
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_load_sector_daily_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_fetch_tushare_stock_dataset",
+      "type": "function",
+      "name": "_fetch_tushare_stock_dataset",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1526,
+        1542
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_fetch_tushare_stock_dataset` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_sector_daily_frame",
+      "type": "function",
+      "name": "_sector_daily_frame",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1545,
+        1566
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_sector_daily_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_first_existing_column",
+      "type": "function",
+      "name": "_first_existing_column",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1569,
+        1573
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_first_existing_column` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_clean_stock_basic",
+      "type": "function",
+      "name": "_clean_stock_basic",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1576,
+        1587
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_clean_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_is_a_share_ts_code",
+      "type": "function",
+      "name": "_is_a_share_ts_code",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1590,
+        1591
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_is_a_share_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_period_message",
+      "type": "function",
+      "name": "_period_message",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1594,
+        1602
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_period_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_lookback_days_for_period_requests",
+      "type": "function",
+      "name": "_lookback_days_for_period_requests",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1605,
+        1620
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_lookback_days_for_period_requests` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_positive_int",
+      "type": "function",
+      "name": "_positive_int",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1623,
+        1628
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_positive_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_clean_theme_label",
+      "type": "function",
+      "name": "_clean_theme_label",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1631,
+        1635
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_clean_theme_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1638,
+        1646
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_drop_empty",
+      "type": "function",
+      "name": "_drop_empty",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1649,
+        1650
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_drop_empty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_project_root",
+      "type": "function",
+      "name": "_project_root",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1653,
+        1654
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_project_root` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/research_tools.py:_context_payload",
+      "type": "function",
+      "name": "_context_payload",
+      "filePath": "sats/agent/tools/research_tools.py",
+      "lineRange": [
+        1657,
+        1669
+      ],
+      "summary": "在 `research_tools.py` 中实现 `_context_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:data_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:data_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_astock_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_astock_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_astock_fetch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_astock_fetch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_provider_capabilities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_provider_capabilities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_basic_lookup_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_basic_lookup_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_positive_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_positive_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_filter_stock_basic_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_filter_stock_basic_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_index_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_index_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_stock_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_realtime_quotes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_realtime_quotes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_indicator_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_indicator_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_tushare_datasets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_tushare_datasets",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_tushare_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_tushare_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_tushare_stock_datasets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_tushare_stock_datasets",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_tushare_stock_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_tushare_stock_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_akshare_datasets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_list_akshare_datasets",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_describe_akshare_dataset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_describe_akshare_dataset",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_akshare_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_get_akshare_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_provider_fetch_operation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_provider_fetch_operation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_frame_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "function:sats/agent/tools/data_tools.py:_frame_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:research_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:research_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_market_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_market_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_discover_opportunities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_discover_opportunities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_serenity_screen",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_serenity_screen",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_return_ranking",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_return_ranking",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_stock_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_stock_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_internal_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_internal_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_deep_stock_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_deep_stock_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chan_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chan_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_knowledge_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_knowledge_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_rule_generation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_rule_generation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_stock_context_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_stock_context_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_effective_stock_context_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_effective_stock_context_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_minute_periods_from_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_minute_periods_from_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_signal_input_from_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_signal_input_from_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_combined_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_combined_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chan_kb_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chan_kb_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_strategy_draft",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_strategy_draft",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_backtest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_backtest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_write_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_write_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_write_strategy_artifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_write_strategy_artifacts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_artifact_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_artifact_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_web_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_web_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_web_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_web_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_source_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_source_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_extract_stock_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_extract_stock_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_mention_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_mention_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_theme_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_theme_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_list_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_stock_list_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_candidates_from_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_validate_theme_return_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_validate_theme_return_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_return_ranking",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_theme_return_ranking",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_selected_period_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_selected_period_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_stock_basic_for_theme_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_stock_basic_for_theme_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_type",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_direction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_direction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_period_from_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_period_from_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_start_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_start_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chinese_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_chinese_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_sector_index_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_sector_index_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_index_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_index_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_sector_daily_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_load_sector_daily_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_fetch_tushare_stock_dataset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_fetch_tushare_stock_dataset",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_daily_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_sector_daily_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_first_existing_column",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_first_existing_column",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_is_a_share_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_is_a_share_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_period_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_period_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_lookback_days_for_period_requests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_lookback_days_for_period_requests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_positive_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_positive_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_theme_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_clean_theme_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_drop_empty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_drop_empty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_project_root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_project_root",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_context_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "function:sats/agent/tools/research_tools.py:_context_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/data_tools.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/agent/date_policy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/analysis/stock_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/backtesting/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/backtesting/strategy_spec.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/chat_artifacts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/chat_components.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/deep_analysis/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/serenity/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/research_tools.py",
+      "target": "file:sats/web/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

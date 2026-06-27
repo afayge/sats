@@ -1,0 +1,1179 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/trading/miniqmt_client.py",
+      "type": "file",
+      "name": "miniqmt_client.py",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "summary": "实现 交易桥接 中与 `miniqmt client` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/trading/miniqmt_client.py:MiniQmtBrokerClient",
+      "type": "class",
+      "name": "MiniQmtBrokerClient",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        18,
+        129
+      ],
+      "summary": "在 `miniqmt_client.py` 中定义 `MiniQmtBrokerClient` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:broker_from_settings",
+      "type": "function",
+      "name": "broker_from_settings",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        132,
+        141
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `broker_from_settings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_position_from_payload",
+      "type": "function",
+      "name": "_position_from_payload",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        144,
+        201
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_position_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_order_from_payload",
+      "type": "function",
+      "name": "_order_from_payload",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        204,
+        216
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_order_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_trade_from_payload",
+      "type": "function",
+      "name": "_trade_from_payload",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        219,
+        229
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_trade_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_pick",
+      "type": "function",
+      "name": "_pick",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        232,
+        236
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_pick` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        239,
+        243
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_position_num",
+      "type": "function",
+      "name": "_position_num",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        246,
+        266
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_position_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/miniqmt_client.py:_normalize_ts_code",
+      "type": "function",
+      "name": "_normalize_ts_code",
+      "filePath": "sats/trading/miniqmt_client.py",
+      "lineRange": [
+        269,
+        284
+      ],
+      "summary": "在 `miniqmt_client.py` 中实现 `_normalize_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/trading/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "sats/trading/models.py",
+      "summary": "定义 交易桥接 共享的数据模型与类型结构，供同模块流程复用。",
+      "tags": [
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/trading/models.py:BrokerAsset",
+      "type": "class",
+      "name": "BrokerAsset",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        8,
+        18
+      ],
+      "summary": "在 `models.py` 中定义 `BrokerAsset` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/models.py:BrokerPosition",
+      "type": "class",
+      "name": "BrokerPosition",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        22,
+        35
+      ],
+      "summary": "在 `models.py` 中定义 `BrokerPosition` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/models.py:BrokerOrder",
+      "type": "class",
+      "name": "BrokerOrder",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        39,
+        52
+      ],
+      "summary": "在 `models.py` 中定义 `BrokerOrder` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/models.py:BrokerTrade",
+      "type": "class",
+      "name": "BrokerTrade",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        56,
+        67
+      ],
+      "summary": "在 `models.py` 中定义 `BrokerTrade` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/models.py:OrderRequest",
+      "type": "class",
+      "name": "OrderRequest",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        71,
+        82
+      ],
+      "summary": "在 `models.py` 中定义 `OrderRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/models.py:OrderResult",
+      "type": "class",
+      "name": "OrderResult",
+      "filePath": "sats/trading/models.py",
+      "lineRange": [
+        86,
+        95
+      ],
+      "summary": "在 `models.py` 中定义 `OrderResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/trading/monitor_provider.py",
+      "type": "file",
+      "name": "monitor_provider.py",
+      "filePath": "sats/trading/monitor_provider.py",
+      "summary": "实现 交易桥接 中与 `monitor provider` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/trading/monitor_provider.py:AutoTradeConfig",
+      "type": "class",
+      "name": "AutoTradeConfig",
+      "filePath": "sats/trading/monitor_provider.py",
+      "lineRange": [
+        13,
+        17
+      ],
+      "summary": "在 `monitor_provider.py` 中定义 `AutoTradeConfig` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/monitor_provider.py:QmtTradingProvider",
+      "type": "class",
+      "name": "QmtTradingProvider",
+      "filePath": "sats/trading/monitor_provider.py",
+      "lineRange": [
+        20,
+        168
+      ],
+      "summary": "在 `monitor_provider.py` 中定义 `QmtTradingProvider` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/trading/monitor_provider.py:_stable_id",
+      "type": "function",
+      "name": "_stable_id",
+      "filePath": "sats/trading/monitor_provider.py",
+      "lineRange": [
+        171,
+        172
+      ],
+      "summary": "在 `monitor_provider.py` 中实现 `_stable_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/trading/qmt_bridge.py",
+      "type": "file",
+      "name": "qmt_bridge.py",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "summary": "实现 交易桥接 中与 `qmt bridge` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/trading/qmt_bridge.py:QmtBridgeConfig",
+      "type": "class",
+      "name": "QmtBridgeConfig",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        8,
+        13
+      ],
+      "summary": "在 `qmt_bridge.py` 中定义 `QmtBridgeConfig` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/qmt_bridge.py:XtQuantQmtGateway",
+      "type": "class",
+      "name": "XtQuantQmtGateway",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        16,
+        94
+      ],
+      "summary": "在 `qmt_bridge.py` 中定义 `XtQuantQmtGateway` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/qmt_bridge.py:create_app",
+      "type": "function",
+      "name": "create_app",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        97,
+        137
+      ],
+      "summary": "在 `qmt_bridge.py` 中实现 `create_app` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/qmt_bridge.py:run_bridge",
+      "type": "function",
+      "name": "run_bridge",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        140,
+        145
+      ],
+      "summary": "在 `qmt_bridge.py` 中实现 `run_bridge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/qmt_bridge.py:_obj_to_dict",
+      "type": "function",
+      "name": "_obj_to_dict",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        148,
+        178
+      ],
+      "summary": "在 `qmt_bridge.py` 中实现 `_obj_to_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/qmt_bridge.py:_to_qmt_symbol",
+      "type": "function",
+      "name": "_to_qmt_symbol",
+      "filePath": "sats/trading/qmt_bridge.py",
+      "lineRange": [
+        181,
+        182
+      ],
+      "summary": "在 `qmt_bridge.py` 中实现 `_to_qmt_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/trading/sync.py",
+      "type": "file",
+      "name": "sync.py",
+      "filePath": "sats/trading/sync.py",
+      "summary": "实现 交易桥接 中与 `sync` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/trading/sync.py:QmtPositionSyncError",
+      "type": "class",
+      "name": "QmtPositionSyncError",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        17,
+        18
+      ],
+      "summary": "在 `sync.py` 中定义 `QmtPositionSyncError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/sync.py:QmtPositionSyncService",
+      "type": "class",
+      "name": "QmtPositionSyncService",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        21,
+        61
+      ],
+      "summary": "在 `sync.py` 中定义 `QmtPositionSyncService` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_validated_position_rows",
+      "type": "function",
+      "name": "_validated_position_rows",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        64,
+        103
+      ],
+      "summary": "在 `sync.py` 中实现 `_validated_position_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_position_buy_date",
+      "type": "function",
+      "name": "_position_buy_date",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        106,
+        114
+      ],
+      "summary": "在 `sync.py` 中实现 `_position_buy_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_finite_number",
+      "type": "function",
+      "name": "_finite_number",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        117,
+        124
+      ],
+      "summary": "在 `sync.py` 中实现 `_finite_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_nonnegative_number",
+      "type": "function",
+      "name": "_nonnegative_number",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        127,
+        131
+      ],
+      "summary": "在 `sync.py` 中实现 `_nonnegative_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_sync_error_message",
+      "type": "function",
+      "name": "_sync_error_message",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        134,
+        138
+      ],
+      "summary": "在 `sync.py` 中实现 `_sync_error_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/trading/sync.py:_record_sync_error",
+      "type": "function",
+      "name": "_record_sync_error",
+      "filePath": "sats/trading/sync.py",
+      "lineRange": [
+        141,
+        153
+      ],
+      "summary": "在 `sync.py` 中实现 `_record_sync_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "class:sats/trading/miniqmt_client.py:MiniQmtBrokerClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "class:sats/trading/miniqmt_client.py:MiniQmtBrokerClient",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:broker_from_settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:broker_from_settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_position_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_position_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_order_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_order_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_trade_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_trade_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_pick",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_pick",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_position_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_position_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_normalize_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "function:sats/trading/miniqmt_client.py:_normalize_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerAsset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerAsset",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerPosition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerPosition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerOrder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerTrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:BrokerTrade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:OrderRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:OrderRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:OrderResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/models.py",
+      "target": "class:sats/trading/models.py:OrderResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "class:sats/trading/monitor_provider.py:AutoTradeConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "class:sats/trading/monitor_provider.py:AutoTradeConfig",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "class:sats/trading/monitor_provider.py:QmtTradingProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "class:sats/trading/monitor_provider.py:QmtTradingProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "function:sats/trading/monitor_provider.py:_stable_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "function:sats/trading/monitor_provider.py:_stable_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "class:sats/trading/qmt_bridge.py:QmtBridgeConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "class:sats/trading/qmt_bridge.py:QmtBridgeConfig",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "class:sats/trading/qmt_bridge.py:XtQuantQmtGateway",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "class:sats/trading/qmt_bridge.py:XtQuantQmtGateway",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:create_app",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:create_app",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:run_bridge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:run_bridge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:_obj_to_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:_obj_to_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:_to_qmt_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/qmt_bridge.py",
+      "target": "function:sats/trading/qmt_bridge.py:_to_qmt_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "class:sats/trading/sync.py:QmtPositionSyncError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "class:sats/trading/sync.py:QmtPositionSyncError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "class:sats/trading/sync.py:QmtPositionSyncService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "class:sats/trading/sync.py:QmtPositionSyncService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_validated_position_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_validated_position_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_position_buy_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_position_buy_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_finite_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_finite_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_nonnegative_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_nonnegative_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_sync_error_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_sync_error_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_record_sync_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "function:sats/trading/sync.py:_record_sync_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "file:sats/trading/broker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/miniqmt_client.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "file:sats/trading/broker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/monitor_provider.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "file:sats/trading/broker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "file:sats/trading/miniqmt_client.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/sync.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,1755 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/screening/base.py",
+      "type": "file",
+      "name": "base.py",
+      "filePath": "sats/screening/base.py",
+      "summary": "提供 规则筛选 的基础抽象、共享类型与通用 helper。",
+      "tags": [
+        "python",
+        "screening",
+        "rules",
+        "base-abstraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/base.py:ScreeningInput",
+      "type": "class",
+      "name": "ScreeningInput",
+      "filePath": "sats/screening/base.py",
+      "lineRange": [
+        11,
+        19
+      ],
+      "summary": "在 `base.py` 中定义 `ScreeningInput` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/base.py:ScreeningResult",
+      "type": "class",
+      "name": "ScreeningResult",
+      "filePath": "sats/screening/base.py",
+      "lineRange": [
+        23,
+        43
+      ],
+      "summary": "在 `base.py` 中定义 `ScreeningResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/base.py:IntradayKlineRequirement",
+      "type": "class",
+      "name": "IntradayKlineRequirement",
+      "filePath": "sats/screening/base.py",
+      "lineRange": [
+        47,
+        53
+      ],
+      "summary": "在 `base.py` 中定义 `IntradayKlineRequirement` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/base.py:ScreeningRule",
+      "type": "class",
+      "name": "ScreeningRule",
+      "filePath": "sats/screening/base.py",
+      "lineRange": [
+        56,
+        73
+      ],
+      "summary": "在 `base.py` 中定义 `ScreeningRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/generated_rule_runtime.py",
+      "type": "file",
+      "name": "generated_rule_runtime.py",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "summary": "实现 规则筛选 中与 `generated rule runtime` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:evaluate_generated_rule",
+      "type": "function",
+      "name": "evaluate_generated_rule",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        10,
+        62
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `evaluate_generated_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_evaluate_condition",
+      "type": "function",
+      "name": "_evaluate_condition",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        65,
+        154
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_evaluate_condition` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        157,
+        172
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_prepare_daily_basic",
+      "type": "function",
+      "name": "_prepare_daily_basic",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        175,
+        185
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_prepare_daily_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        188,
+        199
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_pct_change",
+      "type": "function",
+      "name": "_pct_change",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        202,
+        210
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_pct_change` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_volume_ratio",
+      "type": "function",
+      "name": "_volume_ratio",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        213,
+        218
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_volume_ratio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_ma",
+      "type": "function",
+      "name": "_ma",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        221,
+        224
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_ma` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_range_position",
+      "type": "function",
+      "name": "_range_position",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        227,
+        234
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_range_position` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_breakout_value",
+      "type": "function",
+      "name": "_breakout_value",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        237,
+        240
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_breakout_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_latest_basic_value",
+      "type": "function",
+      "name": "_latest_basic_value",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        243,
+        247
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_latest_basic_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_relative_strength",
+      "type": "function",
+      "name": "_relative_strength",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        250,
+        259
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_relative_strength` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_window_return",
+      "type": "function",
+      "name": "_window_return",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        262,
+        265
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_window_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/generated_rule_runtime.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/generated_rule_runtime.py",
+      "lineRange": [
+        268,
+        274
+      ],
+      "summary": "在 `generated_rule_runtime.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/registry.py",
+      "type": "file",
+      "name": "registry.py",
+      "filePath": "sats/screening/registry.py",
+      "summary": "维护 规则筛选 的注册表与查找逻辑，统一组织可扩展对象。",
+      "tags": [
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/registry.py:list_rules",
+      "type": "function",
+      "name": "list_rules",
+      "filePath": "sats/screening/registry.py",
+      "lineRange": [
+        77,
+        78
+      ],
+      "summary": "在 `registry.py` 中实现 `list_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/registry.py:canonical_rule_name",
+      "type": "function",
+      "name": "canonical_rule_name",
+      "filePath": "sats/screening/registry.py",
+      "lineRange": [
+        81,
+        83
+      ],
+      "summary": "在 `registry.py` 中实现 `canonical_rule_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/registry.py:get_rule",
+      "type": "function",
+      "name": "get_rule",
+      "filePath": "sats/screening/registry.py",
+      "lineRange": [
+        86,
+        93
+      ],
+      "summary": "在 `registry.py` 中实现 `get_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/registry.py:_all_rules",
+      "type": "function",
+      "name": "_all_rules",
+      "filePath": "sats/screening/registry.py",
+      "lineRange": [
+        96,
+        100
+      ],
+      "summary": "在 `registry.py` 中实现 `_all_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/registry.py:_generated_rules",
+      "type": "function",
+      "name": "_generated_rules",
+      "filePath": "sats/screening/registry.py",
+      "lineRange": [
+        103,
+        125
+      ],
+      "summary": "在 `registry.py` 中实现 `_generated_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/chan_composite.py",
+      "type": "file",
+      "name": "chan_composite.py",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "summary": "实现 规则筛选 中与 `chan composite` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/chan_composite.py:ChanCompositeThresholds",
+      "type": "class",
+      "name": "ChanCompositeThresholds",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        40,
+        59
+      ],
+      "summary": "在 `chan_composite.py` 中定义 `ChanCompositeThresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/chan_composite.py:ChanCompositeRule",
+      "type": "class",
+      "name": "ChanCompositeRule",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        62,
+        158
+      ],
+      "summary": "在 `chan_composite.py` 中定义 `ChanCompositeRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:chan_composite_daily_candidates",
+      "type": "function",
+      "name": "chan_composite_daily_candidates",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        161,
+        179
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `chan_composite_daily_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_common_daily_context",
+      "type": "function",
+      "name": "_common_daily_context",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        182,
+        198
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_common_daily_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy",
+      "type": "function",
+      "name": "_evaluate_first_buy",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        201,
+        214
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_first_buy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy_daily",
+      "type": "function",
+      "name": "_evaluate_first_buy_daily",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        217,
+        276
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_first_buy_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy",
+      "type": "function",
+      "name": "_evaluate_second_buy",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        279,
+        292
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_second_buy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy_daily",
+      "type": "function",
+      "name": "_evaluate_second_buy_daily",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        295,
+        361
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_second_buy_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_third_buy",
+      "type": "function",
+      "name": "_evaluate_third_buy",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        364,
+        378
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_third_buy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low",
+      "type": "function",
+      "name": "_evaluate_center_low",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        381,
+        394
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_center_low` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low_daily",
+      "type": "function",
+      "name": "_evaluate_center_low_daily",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        397,
+        443
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_center_low_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_evaluate_repair_minute",
+      "type": "function",
+      "name": "_evaluate_repair_minute",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        446,
+        495
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_evaluate_repair_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_merge_daily_minute_result",
+      "type": "function",
+      "name": "_merge_daily_minute_result",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        498,
+        516
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_merge_daily_minute_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_overlap_sub_rule",
+      "type": "function",
+      "name": "_overlap_sub_rule",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        519,
+        533
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_overlap_sub_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_sub_rule",
+      "type": "function",
+      "name": "_sub_rule",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        536,
+        554
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_sub_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_segment_return",
+      "type": "function",
+      "name": "_segment_return",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        557,
+        562
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_segment_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_amplitude",
+      "type": "function",
+      "name": "_amplitude",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        565,
+        571
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_amplitude` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_negative_area",
+      "type": "function",
+      "name": "_negative_area",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        574,
+        576
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_negative_area` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_failed_daily_flags",
+      "type": "function",
+      "name": "_failed_daily_flags",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        579,
+        580
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_failed_daily_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_unique_risk_flags",
+      "type": "function",
+      "name": "_unique_risk_flags",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        583,
+        594
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_unique_risk_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_common_risk_flags",
+      "type": "function",
+      "name": "_common_risk_flags",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        597,
+        605
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_common_risk_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_composite.py:_composite_score",
+      "type": "function",
+      "name": "_composite_score",
+      "filePath": "sats/screening/rules/chan_composite.py",
+      "lineRange": [
+        608,
+        615
+      ],
+      "summary": "在 `chan_composite.py` 中实现 `_composite_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/chan_signals.py",
+      "type": "file",
+      "name": "chan_signals.py",
+      "filePath": "sats/screening/rules/chan_signals.py",
+      "summary": "实现 规则筛选 中与 `chan signals` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/chan_signals.py:ChanSignalsRule",
+      "type": "class",
+      "name": "ChanSignalsRule",
+      "filePath": "sats/screening/rules/chan_signals.py",
+      "lineRange": [
+        9,
+        72
+      ],
+      "summary": "在 `chan_signals.py` 中定义 `ChanSignalsRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_signals.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/screening/rules/chan_signals.py",
+      "lineRange": [
+        75,
+        82
+      ],
+      "summary": "在 `chan_signals.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_signals.py:_risk_flags",
+      "type": "function",
+      "name": "_risk_flags",
+      "filePath": "sats/screening/rules/chan_signals.py",
+      "lineRange": [
+        85,
+        96
+      ],
+      "summary": "在 `chan_signals.py` 中实现 `_risk_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_signals.py:_evidence_refs",
+      "type": "function",
+      "name": "_evidence_refs",
+      "filePath": "sats/screening/rules/chan_signals.py",
+      "lineRange": [
+        99,
+        109
+      ],
+      "summary": "在 `chan_signals.py` 中实现 `_evidence_refs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningInput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningInput",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:IntradayKlineRequirement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:IntradayKlineRequirement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/base.py",
+      "target": "class:sats/screening/base.py:ScreeningRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:evaluate_generated_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:evaluate_generated_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_evaluate_condition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_evaluate_condition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_prepare_daily_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_prepare_daily_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_pct_change",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_pct_change",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_volume_ratio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_volume_ratio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_ma",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_ma",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_range_position",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_range_position",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_breakout_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_breakout_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_latest_basic_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_latest_basic_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_relative_strength",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_relative_strength",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_window_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_window_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "function:sats/screening/generated_rule_runtime.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:list_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:list_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:canonical_rule_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:canonical_rule_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:get_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:get_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:_all_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:_all_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:_generated_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "function:sats/screening/registry.py:_generated_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "class:sats/screening/rules/chan_composite.py:ChanCompositeThresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "class:sats/screening/rules/chan_composite.py:ChanCompositeThresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "class:sats/screening/rules/chan_composite.py:ChanCompositeRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "class:sats/screening/rules/chan_composite.py:ChanCompositeRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:chan_composite_daily_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:chan_composite_daily_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_common_daily_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_common_daily_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_first_buy_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_second_buy_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_third_buy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_third_buy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_center_low_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_repair_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_evaluate_repair_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_merge_daily_minute_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_merge_daily_minute_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_overlap_sub_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_overlap_sub_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_sub_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_sub_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_segment_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_segment_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_amplitude",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_amplitude",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_negative_area",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_negative_area",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_failed_daily_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_failed_daily_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_unique_risk_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_unique_risk_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_common_risk_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_common_risk_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_composite_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "function:sats/screening/rules/chan_composite.py:_composite_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "class:sats/screening/rules/chan_signals.py:ChanSignalsRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "class:sats/screening/rules/chan_signals.py:ChanSignalsRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_risk_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_risk_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_evidence_refs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "function:sats/screening/rules/chan_signals.py:_evidence_refs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/generated_rule_runtime.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/chan_composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/chan_signals.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/chan_third_buy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/monthly_base_breakout.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/price_volume_ma.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/sequoia_x.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/registry.py",
+      "target": "file:sats/screening/rules/signal_composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_composite.py",
+      "target": "file:sats/screening/rules/chan_third_buy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "file:sats/chan/engine.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_signals.py",
+      "target": "file:sats/screening/rules/chan_third_buy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

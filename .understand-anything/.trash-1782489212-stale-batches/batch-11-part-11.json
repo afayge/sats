@@ -1,0 +1,1912 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/chat_planner.py",
+      "type": "file",
+      "name": "chat_planner.py",
+      "filePath": "sats/chat_planner.py",
+      "summary": "实现 项目 中与 `chat planner` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_planner.py:ChatPlan",
+      "type": "class",
+      "name": "ChatPlan",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        16,
+        53
+      ],
+      "summary": "在 `chat_planner.py` 中定义 `ChatPlan` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_planner.py:build_chat_plan",
+      "type": "function",
+      "name": "build_chat_plan",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        56,
+        198
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `build_chat_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_planner.py:skills_for_plan",
+      "type": "function",
+      "name": "skills_for_plan",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        201,
+        213
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `skills_for_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_route_symbols",
+      "type": "function",
+      "name": "_route_symbols",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        216,
+        222
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_route_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_is_chan_question",
+      "type": "function",
+      "name": "_is_chan_question",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        225,
+        227
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_is_chan_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_is_financial_question",
+      "type": "function",
+      "name": "_is_financial_question",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        230,
+        247
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_is_financial_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_china_market_focus",
+      "type": "function",
+      "name": "_china_market_focus",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        289,
+        290
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_china_market_focus` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_is_command_help",
+      "type": "function",
+      "name": "_is_command_help",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        293,
+        295
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_is_command_help` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_mentions_external_analysis",
+      "type": "function",
+      "name": "_mentions_external_analysis",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        298,
+        300
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_mentions_external_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_skill_ids",
+      "type": "function",
+      "name": "_skill_ids",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        303,
+        304
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_skill_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_existing_skill_ids",
+      "type": "function",
+      "name": "_existing_skill_ids",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        307,
+        309
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_existing_skill_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_planner.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/chat_planner.py",
+      "lineRange": [
+        312,
+        320
+      ],
+      "summary": "在 `chat_planner.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-planner",
+        "chat-planner-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/chat_preprocessor.py",
+      "type": "file",
+      "name": "chat_preprocessor.py",
+      "filePath": "sats/chat_preprocessor.py",
+      "summary": "实现 项目 中与 `chat preprocessor` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_preprocessor.py:ChatPreprocessResult",
+      "type": "class",
+      "name": "ChatPreprocessResult",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        41,
+        89
+      ],
+      "summary": "在 `chat_preprocessor.py` 中定义 `ChatPreprocessResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:preprocess_chat_message",
+      "type": "function",
+      "name": "preprocess_chat_message",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        92,
+        121
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `preprocess_chat_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_run_llm_preprocess",
+      "type": "function",
+      "name": "_run_llm_preprocess",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        124,
+        149
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_run_llm_preprocess` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_preprocess_messages",
+      "type": "function",
+      "name": "_preprocess_messages",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        152,
+        184
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_preprocess_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_reference_context_summary",
+      "type": "function",
+      "name": "_reference_context_summary",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        187,
+        196
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_reference_context_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        199,
+        200
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        203,
+        204
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        207,
+        213
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_parse_required_json_response",
+      "type": "function",
+      "name": "_parse_required_json_response",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        216,
+        220
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_parse_required_json_response` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_local_preprocess",
+      "type": "function",
+      "name": "_local_preprocess",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        223,
+        278
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_local_preprocess` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_merge_llm_and_local",
+      "type": "function",
+      "name": "_merge_llm_and_local",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        281,
+        362
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_merge_llm_and_local` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_resolve_and_validate_entities",
+      "type": "function",
+      "name": "_resolve_and_validate_entities",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        365,
+        428
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_resolve_and_validate_entities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_load_stock_basic",
+      "type": "function",
+      "name": "_load_stock_basic",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        431,
+        441
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_load_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_resolve_stock_names",
+      "type": "function",
+      "name": "_resolve_stock_names",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        444,
+        446
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_resolve_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_match_stock_name",
+      "type": "function",
+      "name": "_match_stock_name",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        449,
+        452
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_match_stock_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_should_scan_stock_names",
+      "type": "function",
+      "name": "_should_scan_stock_names",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        455,
+        464
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_should_scan_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_names_from_stock_basic",
+      "type": "function",
+      "name": "_names_from_stock_basic",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        467,
+        468
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_names_from_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_names_from_message",
+      "type": "function",
+      "name": "_names_from_message",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        471,
+        482
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_names_from_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_skill_hints",
+      "type": "function",
+      "name": "_skill_hints",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        485,
+        504
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_skill_hints` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_stock_analysis_like",
+      "type": "function",
+      "name": "_is_stock_analysis_like",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        507,
+        532
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_stock_analysis_like` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_looks_like_symbol_followup",
+      "type": "function",
+      "name": "_looks_like_symbol_followup",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        535,
+        537
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_looks_like_symbol_followup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_has_possible_named_stock",
+      "type": "function",
+      "name": "_has_possible_named_stock",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        540,
+        561
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_has_possible_named_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_indicator_question",
+      "type": "function",
+      "name": "_is_indicator_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        564,
+        566
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_indicator_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_quote_question",
+      "type": "function",
+      "name": "_is_quote_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        569,
+        571
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_quote_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_needs_full_stock_context",
+      "type": "function",
+      "name": "_needs_full_stock_context",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        574,
+        575
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_needs_full_stock_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_chan_question",
+      "type": "function",
+      "name": "_is_chan_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        578,
+        580
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_chan_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_financial_question",
+      "type": "function",
+      "name": "_is_financial_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        583,
+        600
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_financial_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_safe_extract_trade_date",
+      "type": "function",
+      "name": "_safe_extract_trade_date",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        603,
+        607
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_safe_extract_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_sanitize_missing_questions",
+      "type": "function",
+      "name": "_sanitize_missing_questions",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        610,
+        633
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_sanitize_missing_questions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_filter_opportunity_stock_names",
+      "type": "function",
+      "name": "_filter_opportunity_stock_names",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        636,
+        640
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_filter_opportunity_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_filter_market_scope_stock_names",
+      "type": "function",
+      "name": "_filter_market_scope_stock_names",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        643,
+        647
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_filter_market_scope_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_market_scope_stock_name",
+      "type": "function",
+      "name": "_is_market_scope_stock_name",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        650,
+        687
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_market_scope_stock_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_generic_market_scope_value",
+      "type": "function",
+      "name": "_is_generic_market_scope_value",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        690,
+        714
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_generic_market_scope_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_filter_missing_stock_identifier_questions",
+      "type": "function",
+      "name": "_filter_missing_stock_identifier_questions",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        717,
+        718
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_filter_missing_stock_identifier_questions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_missing_stock_identifier_question",
+      "type": "function",
+      "name": "_is_missing_stock_identifier_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        721,
+        727
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_missing_stock_identifier_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_is_missing_market_scope_question",
+      "type": "function",
+      "name": "_is_missing_market_scope_question",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        730,
+        736
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_is_missing_market_scope_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_market_plan_source",
+      "type": "function",
+      "name": "_market_plan_source",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        739,
+        746
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_market_plan_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_string_list",
+      "type": "function",
+      "name": "_string_list",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        749,
+        754
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_string_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_clean_string",
+      "type": "function",
+      "name": "_clean_string",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        757,
+        758
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_clean_string` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_bool",
+      "type": "function",
+      "name": "_bool",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        761,
+        766
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_bool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_positive_int",
+      "type": "function",
+      "name": "_positive_int",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        769,
+        774
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_positive_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_confidence",
+      "type": "function",
+      "name": "_confidence",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        777,
+        781
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_confidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_preprocessor.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/chat_preprocessor.py",
+      "lineRange": [
+        784,
+        793
+      ],
+      "summary": "在 `chat_preprocessor.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-preprocessor",
+        "chat-preprocessor-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "class:sats/chat_planner.py:ChatPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "class:sats/chat_planner.py:ChatPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:build_chat_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:build_chat_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:skills_for_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:skills_for_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_route_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_route_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_chan_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_chan_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_financial_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_financial_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_china_market_focus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_china_market_focus",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_command_help",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_is_command_help",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_mentions_external_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_mentions_external_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_skill_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_skill_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_existing_skill_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_existing_skill_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "function:sats/chat_planner.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "class:sats/chat_preprocessor.py:ChatPreprocessResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "class:sats/chat_preprocessor.py:ChatPreprocessResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:preprocess_chat_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:preprocess_chat_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_run_llm_preprocess",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_run_llm_preprocess",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_preprocess_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_preprocess_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_reference_context_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_reference_context_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_parse_required_json_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_parse_required_json_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_local_preprocess",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_local_preprocess",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_merge_llm_and_local",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_merge_llm_and_local",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_resolve_and_validate_entities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_resolve_and_validate_entities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_load_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_load_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_resolve_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_resolve_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_match_stock_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_match_stock_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_should_scan_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_should_scan_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_names_from_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_names_from_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_names_from_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_names_from_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_skill_hints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_skill_hints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_stock_analysis_like",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_stock_analysis_like",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_looks_like_symbol_followup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_looks_like_symbol_followup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_has_possible_named_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_has_possible_named_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_indicator_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_indicator_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_quote_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_quote_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_needs_full_stock_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_needs_full_stock_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_chan_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_chan_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_financial_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_financial_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_safe_extract_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_safe_extract_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_sanitize_missing_questions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_sanitize_missing_questions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_opportunity_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_opportunity_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_market_scope_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_market_scope_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_market_scope_stock_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_market_scope_stock_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_generic_market_scope_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_generic_market_scope_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_missing_stock_identifier_questions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_filter_missing_stock_identifier_questions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_missing_stock_identifier_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_missing_stock_identifier_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_missing_market_scope_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_is_missing_market_scope_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_market_plan_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_market_plan_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_string_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_string_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_clean_string",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_clean_string",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_bool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_bool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_positive_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_positive_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_confidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_confidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "function:sats/chat_preprocessor.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/screening/rule_composer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/skill_routing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_planner.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/chat_reference.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/skill_routing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_preprocessor.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

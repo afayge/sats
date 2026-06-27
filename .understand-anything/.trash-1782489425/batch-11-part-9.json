@@ -1,0 +1,2181 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/backtesting/strategy_spec.py",
+      "type": "file",
+      "name": "strategy_spec.py",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "summary": "实现 回测与策略验证 中与 `strategy spec` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/backtesting/strategy_spec.py:StrategySpec",
+      "type": "class",
+      "name": "StrategySpec",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        13,
+        32
+      ],
+      "summary": "在 `strategy_spec.py` 中定义 `StrategySpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:strategy_spec_from_request",
+      "type": "function",
+      "name": "strategy_spec_from_request",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        35,
+        56
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `strategy_spec_from_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:validate_strategy_spec",
+      "type": "function",
+      "name": "validate_strategy_spec",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        59,
+        91
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `validate_strategy_spec` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:strategy_draft_python",
+      "type": "function",
+      "name": "strategy_draft_python",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        94,
+        103
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `strategy_draft_python` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_symbols_from_text",
+      "type": "function",
+      "name": "_symbols_from_text",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        106,
+        107
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_symbols_from_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_strategy_name",
+      "type": "function",
+      "name": "_strategy_name",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        110,
+        115
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_strategy_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_moving_average_windows",
+      "type": "function",
+      "name": "_moving_average_windows",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        118,
+        123
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_moving_average_windows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_top_n",
+      "type": "function",
+      "name": "_top_n",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        126,
+        128
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_top_n` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_lookback_days",
+      "type": "function",
+      "name": "_lookback_days",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        131,
+        133
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_lookback_days` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_number_after",
+      "type": "function",
+      "name": "_number_after",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        136,
+        141
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_number_after` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_optional_pct_after",
+      "type": "function",
+      "name": "_optional_pct_after",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        144,
+        150
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_optional_pct_after` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_clean_optional_float",
+      "type": "function",
+      "name": "_clean_optional_float",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        153,
+        156
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_clean_optional_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_today_yyyymmdd",
+      "type": "function",
+      "name": "_today_yyyymmdd",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        159,
+        160
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_today_yyyymmdd` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/backtesting/strategy_spec.py:_date_days_before",
+      "type": "function",
+      "name": "_date_days_before",
+      "filePath": "sats/backtesting/strategy_spec.py",
+      "lineRange": [
+        163,
+        168
+      ],
+      "summary": "在 `strategy_spec.py` 中实现 `_date_days_before` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "backtesting",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/chat.py",
+      "type": "file",
+      "name": "chat.py",
+      "filePath": "sats/chat.py",
+      "summary": "承载自然语言聊天主流程，协调预处理、上下文组装和分析执行。",
+      "tags": [
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat.py:ChatResult",
+      "type": "class",
+      "name": "ChatResult",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        80,
+        91
+      ],
+      "summary": "在 `chat.py` 中定义 `ChatResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat.py:ChatSession",
+      "type": "class",
+      "name": "ChatSession",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        94,
+        682
+      ],
+      "summary": "在 `chat.py` 中定义 `ChatSession` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat.py:ConversationContext",
+      "type": "class",
+      "name": "ConversationContext",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        782,
+        784
+      ],
+      "summary": "在 `chat.py` 中定义 `ConversationContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat.py:ConversationContextBuilder",
+      "type": "class",
+      "name": "ConversationContextBuilder",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        787,
+        823
+      ],
+      "summary": "在 `chat.py` 中定义 `ConversationContextBuilder` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/chat.py:ChatToolRegistry",
+      "type": "class",
+      "name": "ChatToolRegistry",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1424,
+        1658
+      ],
+      "summary": "在 `chat.py` 中定义 `ChatToolRegistry` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat.py:run_chat_once",
+      "type": "function",
+      "name": "run_chat_once",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        685,
+        708
+      ],
+      "summary": "在 `chat.py` 中实现 `run_chat_once` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_chat_result_from_runtime",
+      "type": "function",
+      "name": "_chat_result_from_runtime",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        711,
+        731
+      ],
+      "summary": "在 `chat.py` 中实现 `_chat_result_from_runtime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:build_chat_messages",
+      "type": "function",
+      "name": "build_chat_messages",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        734,
+        778
+      ],
+      "summary": "在 `chat.py` 中实现 `build_chat_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat.py:_stock_context_message",
+      "type": "function",
+      "name": "_stock_context_message",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        826,
+        832
+      ],
+      "summary": "在 `chat.py` 中实现 `_stock_context_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_context_system_message_for_llm",
+      "type": "function",
+      "name": "_context_system_message_for_llm",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        835,
+        841
+      ],
+      "summary": "在 `chat.py` 中实现 `_context_system_message_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_context_payload_for_llm",
+      "type": "function",
+      "name": "_context_payload_for_llm",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        844,
+        854
+      ],
+      "summary": "在 `chat.py` 中实现 `_context_payload_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_fit_chat_messages_to_context_budget",
+      "type": "function",
+      "name": "_fit_chat_messages_to_context_budget",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        857,
+        868
+      ],
+      "summary": "在 `chat.py` 中实现 `_fit_chat_messages_to_context_budget` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_fit_chat_messages_to_context_budget_with_metadata",
+      "type": "function",
+      "name": "_fit_chat_messages_to_context_budget_with_metadata",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        871,
+        905
+      ],
+      "summary": "在 `chat.py` 中实现 `_fit_chat_messages_to_context_budget_with_metadata` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat.py:_estimate_chat_messages_tokens",
+      "type": "function",
+      "name": "_estimate_chat_messages_tokens",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        908,
+        913
+      ],
+      "summary": "在 `chat.py` 中实现 `_estimate_chat_messages_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_is_essential_discover_message",
+      "type": "function",
+      "name": "_is_essential_discover_message",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        916,
+        929
+      ],
+      "summary": "在 `chat.py` 中实现 `_is_essential_discover_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_preprocess_event_payload",
+      "type": "function",
+      "name": "_preprocess_event_payload",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        932,
+        954
+      ],
+      "summary": "在 `chat.py` 中实现 `_preprocess_event_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_tool_event_arguments",
+      "type": "function",
+      "name": "_tool_event_arguments",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        957,
+        962
+      ],
+      "summary": "在 `chat.py` 中实现 `_tool_event_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_tool_result_event_status",
+      "type": "function",
+      "name": "_tool_result_event_status",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        965,
+        972
+      ],
+      "summary": "在 `chat.py` 中实现 `_tool_result_event_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:format_chat_result",
+      "type": "function",
+      "name": "format_chat_result",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        975,
+        986
+      ],
+      "summary": "在 `chat.py` 中实现 `format_chat_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_append_source_table",
+      "type": "function",
+      "name": "_append_source_table",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        989,
+        1011
+      ],
+      "summary": "在 `chat.py` 中实现 `_append_source_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:render_chat_result",
+      "type": "function",
+      "name": "render_chat_result",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1014,
+        1030
+      ],
+      "summary": "在 `chat.py` 中实现 `render_chat_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_format_preprocess_questions",
+      "type": "function",
+      "name": "_format_preprocess_questions",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1033,
+        1036
+      ],
+      "summary": "在 `chat.py` 中实现 `_format_preprocess_questions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_should_include_preprocess_context",
+      "type": "function",
+      "name": "_should_include_preprocess_context",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1039,
+        1046
+      ],
+      "summary": "在 `chat.py` 中实现 `_should_include_preprocess_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_is_stock_followup",
+      "type": "function",
+      "name": "_is_stock_followup",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1071,
+        1077
+      ],
+      "summary": "在 `chat.py` 中实现 `_is_stock_followup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_looks_like_rule_plan_revision",
+      "type": "function",
+      "name": "_looks_like_rule_plan_revision",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1080,
+        1082
+      ],
+      "summary": "在 `chat.py` 中实现 `_looks_like_rule_plan_revision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_collections_for_plan",
+      "type": "function",
+      "name": "_collections_for_plan",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1085,
+        1122
+      ],
+      "summary": "在 `chat.py` 中实现 `_collections_for_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat.py:_research_context_limit",
+      "type": "function",
+      "name": "_research_context_limit",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1125,
+        1130
+      ],
+      "summary": "在 `chat.py` 中实现 `_research_context_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_ensure_skill",
+      "type": "function",
+      "name": "_ensure_skill",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1133,
+        1139
+      ],
+      "summary": "在 `chat.py` 中实现 `_ensure_skill` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_skills_context",
+      "type": "function",
+      "name": "_skills_context",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1142,
+        1158
+      ],
+      "summary": "在 `chat.py` 中实现 `_skills_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_memory_context",
+      "type": "function",
+      "name": "_memory_context",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1161,
+        1166
+      ],
+      "summary": "在 `chat.py` 中实现 `_memory_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_create_llm",
+      "type": "function",
+      "name": "_create_llm",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1169,
+        1192
+      ],
+      "summary": "在 `chat.py` 中实现 `_create_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1195,
+        1196
+      ],
+      "summary": "在 `chat.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1199,
+        1200
+      ],
+      "summary": "在 `chat.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_chat_model_meta",
+      "type": "function",
+      "name": "_chat_model_meta",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1203,
+        1211
+      ],
+      "summary": "在 `chat.py` 中实现 `_chat_model_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_timeout_model_name",
+      "type": "function",
+      "name": "_timeout_model_name",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1214,
+        1217
+      ],
+      "summary": "在 `chat.py` 中实现 `_timeout_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1220,
+        1226
+      ],
+      "summary": "在 `chat.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_is_timeout_exception",
+      "type": "function",
+      "name": "_is_timeout_exception",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1229,
+        1233
+      ],
+      "summary": "在 `chat.py` 中实现 `_is_timeout_exception` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_timeout_message",
+      "type": "function",
+      "name": "_timeout_message",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1236,
+        1240
+      ],
+      "summary": "在 `chat.py` 中实现 `_timeout_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_tushare_chat_tool_definitions",
+      "type": "function",
+      "name": "_tushare_chat_tool_definitions",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1256,
+        1421
+      ],
+      "summary": "在 `chat.py` 中实现 `_tushare_chat_tool_definitions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat.py:_run_internal_analysis_tool",
+      "type": "function",
+      "name": "_run_internal_analysis_tool",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1664,
+        1665
+      ],
+      "summary": "在 `chat.py` 中实现 `_run_internal_analysis_tool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_signal_input_from_context",
+      "type": "function",
+      "name": "_signal_input_from_context",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1668,
+        1676
+      ],
+      "summary": "在 `chat.py` 中实现 `_signal_input_from_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_today_yyyymmdd",
+      "type": "function",
+      "name": "_today_yyyymmdd",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1679,
+        1683
+      ],
+      "summary": "在 `chat.py` 中实现 `_today_yyyymmdd` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_opportunity_discovery_content_or_fallback",
+      "type": "function",
+      "name": "_opportunity_discovery_content_or_fallback",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1686,
+        1699
+      ],
+      "summary": "在 `chat.py` 中实现 `_opportunity_discovery_content_or_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_is_substantive_opportunity_answer",
+      "type": "function",
+      "name": "_is_substantive_opportunity_answer",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1702,
+        1708
+      ],
+      "summary": "在 `chat.py` 中实现 `_is_substantive_opportunity_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_assistant_tool_call_message",
+      "type": "function",
+      "name": "_assistant_tool_call_message",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1711,
+        1729
+      ],
+      "summary": "在 `chat.py` 中实现 `_assistant_tool_call_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_tool_result_message",
+      "type": "function",
+      "name": "_tool_result_message",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1732,
+        1738
+      ],
+      "summary": "在 `chat.py` 中实现 `_tool_result_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/chat.py",
+      "lineRange": [
+        1741,
+        1749
+      ],
+      "summary": "在 `chat.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat",
+        "chat-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "class:sats/backtesting/strategy_spec.py:StrategySpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "class:sats/backtesting/strategy_spec.py:StrategySpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:strategy_spec_from_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:strategy_spec_from_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:validate_strategy_spec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:validate_strategy_spec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:strategy_draft_python",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:strategy_draft_python",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_symbols_from_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_symbols_from_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_strategy_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_strategy_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_moving_average_windows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_moving_average_windows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_top_n",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_top_n",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_lookback_days",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_lookback_days",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_number_after",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_number_after",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_optional_pct_after",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_optional_pct_after",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_clean_optional_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_clean_optional_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_today_yyyymmdd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_today_yyyymmdd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_date_days_before",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "function:sats/backtesting/strategy_spec.py:_date_days_before",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatSession",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ConversationContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ConversationContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ConversationContextBuilder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ConversationContextBuilder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatToolRegistry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "class:sats/chat.py:ChatToolRegistry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:run_chat_once",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:run_chat_once",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_chat_result_from_runtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_chat_result_from_runtime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:build_chat_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:build_chat_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_stock_context_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_stock_context_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_context_system_message_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_context_system_message_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_context_payload_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_context_payload_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_fit_chat_messages_to_context_budget",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_fit_chat_messages_to_context_budget",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_fit_chat_messages_to_context_budget_with_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_fit_chat_messages_to_context_budget_with_metadata",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_estimate_chat_messages_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_estimate_chat_messages_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_essential_discover_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_essential_discover_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_preprocess_event_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_preprocess_event_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_event_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_event_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_result_event_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_result_event_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:format_chat_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:format_chat_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_append_source_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_append_source_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:render_chat_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:render_chat_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_format_preprocess_questions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_format_preprocess_questions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_should_include_preprocess_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_should_include_preprocess_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_stock_followup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_stock_followup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_looks_like_rule_plan_revision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_looks_like_rule_plan_revision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_collections_for_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_collections_for_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_research_context_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_research_context_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_ensure_skill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_ensure_skill",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_skills_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_skills_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_memory_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_memory_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_create_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_create_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_chat_model_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_chat_model_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_timeout_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_timeout_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_timeout_exception",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_timeout_exception",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_timeout_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_timeout_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tushare_chat_tool_definitions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tushare_chat_tool_definitions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_run_internal_analysis_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_run_internal_analysis_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_signal_input_from_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_signal_input_from_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_today_yyyymmdd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_today_yyyymmdd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_opportunity_discovery_content_or_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_opportunity_discovery_content_or_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_substantive_opportunity_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_is_substantive_opportunity_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_assistant_tool_call_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_assistant_tool_call_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_result_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_tool_result_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "function:sats/chat.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/backtesting/strategy_spec.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/chan_chat_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/quote_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/stock_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/analysis/stock_research_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_components.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_events.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_preprocessor.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_reference.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/chat_runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/natural_output.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/screening/rule_composer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/skill_routing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

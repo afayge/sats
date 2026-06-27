@@ -1,0 +1,1285 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/tools/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/agent/tools/__init__.py",
+      "summary": "定义 `tools` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "function:sats/agent/tools/__init__.py:build_default_tool_registry",
+      "type": "function",
+      "name": "build_default_tool_registry",
+      "filePath": "sats/agent/tools/__init__.py",
+      "lineRange": [
+        17,
+        33
+      ],
+      "summary": "在 `__init__.py` 中实现 `build_default_tool_registry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/analysis_tools.py",
+      "type": "file",
+      "name": "analysis_tools.py",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `analysis tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/tools/analysis_tools.py:_ResolverProxy",
+      "type": "class",
+      "name": "_ResolverProxy",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        87,
+        100
+      ],
+      "summary": "在 `analysis_tools.py` 中定义 `_ResolverProxy` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/analysis_tools.py:analysis_tool_specs",
+      "type": "function",
+      "name": "analysis_tool_specs",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        19,
+        54
+      ],
+      "summary": "在 `analysis_tools.py` 中实现 `analysis_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/analysis_tools.py:_python_program",
+      "type": "function",
+      "name": "_python_program",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        57,
+        84
+      ],
+      "summary": "在 `analysis_tools.py` 中实现 `_python_program` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/analysis_tools.py:_allowed_resolver_methods",
+      "type": "function",
+      "name": "_allowed_resolver_methods",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        103,
+        107
+      ],
+      "summary": "在 `analysis_tools.py` 中实现 `_allowed_resolver_methods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/analysis_tools.py:_normalize_program_payload",
+      "type": "function",
+      "name": "_normalize_program_payload",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        110,
+        123
+      ],
+      "summary": "在 `analysis_tools.py` 中实现 `_normalize_program_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/analysis_tools.py:_positive_int",
+      "type": "function",
+      "name": "_positive_int",
+      "filePath": "sats/agent/tools/analysis_tools.py",
+      "lineRange": [
+        126,
+        133
+      ],
+      "summary": "在 `analysis_tools.py` 中实现 `_positive_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/base.py",
+      "type": "file",
+      "name": "base.py",
+      "filePath": "sats/agent/tools/base.py",
+      "summary": "提供 Agent 运行时与工具编排 的基础抽象、共享类型与通用 helper。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/agent/tools/base.py:AgentToolResult",
+      "type": "class",
+      "name": "AgentToolResult",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        16,
+        30
+      ],
+      "summary": "在 `base.py` 中定义 `AgentToolResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/tools/base.py:AgentToolSpec",
+      "type": "class",
+      "name": "AgentToolSpec",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        34,
+        68
+      ],
+      "summary": "在 `base.py` 中定义 `AgentToolSpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/tools/base.py:AgentToolContext",
+      "type": "class",
+      "name": "AgentToolContext",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        72,
+        88
+      ],
+      "summary": "在 `base.py` 中定义 `AgentToolContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/tools/base.py:AgentToolRegistry",
+      "type": "class",
+      "name": "AgentToolRegistry",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        91,
+        166
+      ],
+      "summary": "在 `base.py` 中定义 `AgentToolRegistry` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:_normalize_symbol_arguments",
+      "type": "function",
+      "name": "_normalize_symbol_arguments",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        169,
+        187
+      ],
+      "summary": "在 `base.py` 中实现 `_normalize_symbol_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:_looks_like_security_code",
+      "type": "function",
+      "name": "_looks_like_security_code",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        190,
+        197
+      ],
+      "summary": "在 `base.py` 中实现 `_looks_like_security_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:_schema_requires_symbols",
+      "type": "function",
+      "name": "_schema_requires_symbols",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        200,
+        204
+      ],
+      "summary": "在 `base.py` 中实现 `_schema_requires_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:validate_tool_arguments",
+      "type": "function",
+      "name": "validate_tool_arguments",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        207,
+        222
+      ],
+      "summary": "在 `base.py` 中实现 `validate_tool_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:find_fabricated_market_data",
+      "type": "function",
+      "name": "find_fabricated_market_data",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        225,
+        243
+      ],
+      "summary": "在 `base.py` 中实现 `find_fabricated_market_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:_looks_like_market_literal",
+      "type": "function",
+      "name": "_looks_like_market_literal",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        246,
+        251
+      ],
+      "summary": "在 `base.py` 中实现 `_looks_like_market_literal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:_validate_value_type",
+      "type": "function",
+      "name": "_validate_value_type",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        254,
+        271
+      ],
+      "summary": "在 `base.py` 中实现 `_validate_value_type` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:object_schema",
+      "type": "function",
+      "name": "object_schema",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        274,
+        275
+      ],
+      "summary": "在 `base.py` 中实现 `object_schema` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:ok",
+      "type": "function",
+      "name": "ok",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        278,
+        279
+      ],
+      "summary": "在 `base.py` 中实现 `ok` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/base.py:json_content",
+      "type": "function",
+      "name": "json_content",
+      "filePath": "sats/agent/tools/base.py",
+      "lineRange": [
+        282,
+        283
+      ],
+      "summary": "在 `base.py` 中实现 `json_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "base-abstraction"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/catalog_tools.py",
+      "type": "file",
+      "name": "catalog_tools.py",
+      "filePath": "sats/agent/tools/catalog_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `catalog tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/catalog_tools.py:catalog_tool_specs",
+      "type": "function",
+      "name": "catalog_tool_specs",
+      "filePath": "sats/agent/tools/catalog_tools.py",
+      "lineRange": [
+        9,
+        31
+      ],
+      "summary": "在 `catalog_tools.py` 中实现 `catalog_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/catalog_tools.py:_capabilities",
+      "type": "function",
+      "name": "_capabilities",
+      "filePath": "sats/agent/tools/catalog_tools.py",
+      "lineRange": [
+        34,
+        50
+      ],
+      "summary": "在 `catalog_tools.py` 中实现 `_capabilities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/chat_tools.py",
+      "type": "file",
+      "name": "chat_tools.py",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `chat tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:chat_tool_specs",
+      "type": "function",
+      "name": "chat_tool_specs",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        12,
+        63
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `chat_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:_answer",
+      "type": "function",
+      "name": "_answer",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        66,
+        77
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:_list_skills",
+      "type": "function",
+      "name": "_list_skills",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        80,
+        82
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `_list_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:_load_skill",
+      "type": "function",
+      "name": "_load_skill",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        85,
+        97
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `_load_skill` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:_knowledge_search",
+      "type": "function",
+      "name": "_knowledge_search",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        100,
+        126
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `_knowledge_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/chat_tools.py:_skills",
+      "type": "function",
+      "name": "_skills",
+      "filePath": "sats/agent/tools/chat_tools.py",
+      "lineRange": [
+        129,
+        133
+      ],
+      "summary": "在 `chat_tools.py` 中实现 `_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/tools/command_tools.py",
+      "type": "file",
+      "name": "command_tools.py",
+      "filePath": "sats/agent/tools/command_tools.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `command tools` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/tools/command_tools.py:command_tool_specs",
+      "type": "function",
+      "name": "command_tool_specs",
+      "filePath": "sats/agent/tools/command_tools.py",
+      "lineRange": [
+        46,
+        69
+      ],
+      "summary": "在 `command_tools.py` 中实现 `command_tool_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/command_tools.py:_catalog",
+      "type": "function",
+      "name": "_catalog",
+      "filePath": "sats/agent/tools/command_tools.py",
+      "lineRange": [
+        72,
+        73
+      ],
+      "summary": "在 `command_tools.py` 中实现 `_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/tools/command_tools.py:_run",
+      "type": "function",
+      "name": "_run",
+      "filePath": "sats/agent/tools/command_tools.py",
+      "lineRange": [
+        76,
+        86
+      ],
+      "summary": "在 `command_tools.py` 中实现 `_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "function:sats/agent/tools/__init__.py:build_default_tool_registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "function:sats/agent/tools/__init__.py:build_default_tool_registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "class:sats/agent/tools/analysis_tools.py:_ResolverProxy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "class:sats/agent/tools/analysis_tools.py:_ResolverProxy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:analysis_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:analysis_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_python_program",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_python_program",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_allowed_resolver_methods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_allowed_resolver_methods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_normalize_program_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_normalize_program_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_positive_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "function:sats/agent/tools/analysis_tools.py:_positive_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolSpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolSpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolRegistry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "class:sats/agent/tools/base.py:AgentToolRegistry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_normalize_symbol_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_normalize_symbol_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_looks_like_security_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_looks_like_security_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_schema_requires_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_schema_requires_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:validate_tool_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:validate_tool_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:find_fabricated_market_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:find_fabricated_market_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_looks_like_market_literal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_looks_like_market_literal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_validate_value_type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:_validate_value_type",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:object_schema",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:object_schema",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:ok",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:ok",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:json_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "function:sats/agent/tools/base.py:json_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "function:sats/agent/tools/catalog_tools.py:catalog_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "function:sats/agent/tools/catalog_tools.py:catalog_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "function:sats/agent/tools/catalog_tools.py:_capabilities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "function:sats/agent/tools/catalog_tools.py:_capabilities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:chat_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:chat_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_list_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_list_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_load_skill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_load_skill",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_knowledge_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_knowledge_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "function:sats/agent/tools/chat_tools.py:_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:command_tool_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:command_tool_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "function:sats/agent/tools/command_tools.py:_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/analysis_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/catalog_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/chat_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/command_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/data_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/factor_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/generated/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/research_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/trade_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/web_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/__init__.py",
+      "target": "file:sats/agent/tools/workflow_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "file:sats/agent/python_runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/analysis_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "file:sats/agent/date_policy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/base.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/catalog_tools.py",
+      "target": "file:sats/catalog.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "file:sats/chat_components.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/chat_tools.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/tools/command_tools.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

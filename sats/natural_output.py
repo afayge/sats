@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.formatted_text.utils import fragment_list_to_text
+from prompt_toolkit.output.defaults import create_output
 from prompt_toolkit.utils import get_cwidth
 
 from sats.analysis.market_llm_context import DEFAULT_MARKET_INDICES, _INDEX_ALIASES
@@ -296,6 +300,125 @@ def render_natural_output(
         fragments.append(("", "\n"))
         index += 1
     return FormattedText(fragments)
+
+
+def render_text_output_for_tty(
+    text: str,
+    *,
+    db_path: Path | str | None = None,
+    width: int = 100,
+) -> str | FormattedText:
+    value = str(text or "")
+    if not value:
+        return value
+    if _looks_like_complete_json(value):
+        return value
+    semantic_lexicon = build_output_semantic_lexicon(value, db_path=db_path)
+    return render_natural_output(
+        value,
+        channel="cli",
+        tty=True,
+        width=width,
+        semantic_lexicon=semantic_lexicon,
+    )
+
+
+def print_text_output_for_tty(
+    text: str,
+    *,
+    db_path: Path | str | None = None,
+    width: int = 100,
+    printer: Any | None = None,
+    formatted_printer: Any | None = None,
+    output_target: Any | None = None,
+) -> None:
+    rendered = render_text_output_for_tty(text, db_path=db_path, width=width)
+    if isinstance(rendered, str):
+        if output_target is not None:
+            output_target.write(f"{rendered}\n")
+            output_target.flush()
+            return
+        (printer or print)(rendered)
+        return
+    if output_target is not None:
+        output = create_output(stdout=output_target)
+        print_formatted_text(rendered, output=output, end="")
+        return
+    if formatted_printer is not None:
+        formatted_printer(rendered)
+        return
+    if printer is not None and printer is not print:
+        printer(fragment_list_to_text(rendered))
+        return
+    print_formatted_text(rendered, end="")
+
+
+class NaturalTextOutput:
+    def __init__(
+        self,
+        target: Any,
+        *,
+        db_path: Path | str | None = None,
+        width: int = 100,
+    ) -> None:
+        self.target = target
+        self.db_path = db_path
+        self.width = width
+        self._buffer = ""
+
+    def write(self, text: str) -> int:
+        value = str(text)
+        self._buffer += value
+        return len(value)
+
+    def flush(self) -> None:
+        if self._buffer:
+            value = self._buffer
+            self._buffer = ""
+            rendered = render_text_output_for_tty(value, db_path=self.db_path, width=self.width)
+            if isinstance(rendered, str):
+                self.target.write(rendered)
+            else:
+                output = create_output(stdout=self.target)
+                print_formatted_text(rendered, output=output, end="")
+        self.target.flush()
+
+    @property
+    def encoding(self):
+        return getattr(self.target, "encoding", None)
+
+    @property
+    def errors(self):
+        return getattr(self.target, "errors", None)
+
+    @property
+    def buffer(self):
+        return getattr(self.target, "buffer")
+
+    def isatty(self) -> bool:
+        handler = getattr(self.target, "isatty", None)
+        return bool(handler()) if callable(handler) else False
+
+    def fileno(self) -> int:
+        return int(self.target.fileno())
+
+    def writable(self) -> bool:
+        handler = getattr(self.target, "writable", None)
+        return bool(handler()) if callable(handler) else True
+
+    def __getattr__(self, name: str):
+        return getattr(self.target, name)
+
+
+def _looks_like_complete_json(text: str) -> bool:
+    stripped = str(text or "").strip()
+    if not stripped.startswith(("{", "[")):
+        return False
+    try:
+        json.loads(stripped)
+    except (TypeError, ValueError):
+        return False
+    return True
 
 
 def _build_wrapped_markdown(

@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "id": "document:skills/serenity-stock-screen/references/chain-tiers.md",
+      "type": "document",
+      "name": "chain-tiers.md",
+      "filePath": "skills/serenity-stock-screen/references/chain-tiers.md",
+      "summary": "记录与 `chain-tiers` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/serenity-stock-screen/references/evidence-ladder.md",
+      "type": "document",
+      "name": "evidence-ladder.md",
+      "filePath": "skills/serenity-stock-screen/references/evidence-ladder.md",
+      "summary": "记录与 `evidence-ladder` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/serenity-stock-screen/references/scoring.md",
+      "type": "document",
+      "name": "scoring.md",
+      "filePath": "skills/serenity-stock-screen/references/scoring.md",
+      "summary": "记录与 `scoring` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": []
+}

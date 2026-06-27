@@ -25,10 +25,10 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.utils import get_cwidth
 
 from sats import __version__
-from sats.agent import AgentExecutionPolicy, run_agent_once
+from sats.agent import AgentExecutionPolicy
 from sats.agent.progress import agent_progress_event_sink
 from sats.chat import ChatResult, ChatSession, format_chat_result, render_chat_result
-from sats.natural_output import build_output_semantic_lexicon, render_natural_output
+from sats.natural_output import build_output_semantic_lexicon, print_text_output_for_tty, render_natural_output
 from sats.chat_reference import build_chat_reference_context
 from sats.chat_runtime import confirm_pending_runtime_action, format_runtime_trace, reject_pending_runtime_action
 from sats.config import load_settings
@@ -84,8 +84,13 @@ CLI_COMMANDS = [
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "answer", "trace", "goal", "plan", "engine"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "answer", "trace", "plan", "engine"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
+OBSOLETE_GOAL_MESSAGE = "OBSOLETE: /goal 已停用，请直接使用自然语言或 /chat ..."
+OBSOLETE_AGENT_ENTRY_MESSAGE = "OBSOLETE: /agent 已停用，请直接使用自然语言或 /chat ..."
+OBSOLETE_ENGINE_AGENT_MESSAGE = "OBSOLETE: engine agent 已停用；engine 只支持 conversation 或 legacy"
+OBSOLETE_CHAT_AGENT_MESSAGE = "OBSOLETE: /chat --agent 已停用，请直接使用 /chat ..."
+OBSOLETE_CHAT_NO_AGENT_MESSAGE = "OBSOLETE: /chat --no-agent 已停用，请使用 /chat --engine legacy ..."
 
 HELP_COMMANDS = [
     ("/help", "查看命令"),
@@ -117,7 +122,6 @@ HELP_COMMANDS = [
     ("/discover", "短线机会发现"),
     ("/chat", "LLM 聊天"),
     ("/web", "网络搜索/社交热榜"),
-    ("/goal", "设置/查看 Agent 目标"),
     ("/model", "模型配置切换"),
     ("/memory", "管理聊天记忆"),
     ("/history", "查询执行历史"),
@@ -175,7 +179,6 @@ HELP_EXAMPLES = [
     ("/web mentions --keyword 贵州茅台", "热榜关键词命中"),
     ("筛选短线机会并保存报告", "自然语言自主执行 Agent"),
     ("/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划", "只生成自然任务计划"),
-    ("/goal 明天按信号自动买入不超过2万", "设置并运行 Agent 目标"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
     ("/trace", "查看最近一次对话 trace"),
     ("/watchlist", "编辑关注列表"),
@@ -372,7 +375,6 @@ COMPLETION_DESCRIPTIONS = {
     "--python-timeout": "Agent Python 超时秒数",
     "--plan-only": "只生成计划",
     "--engine": "对话引擎",
-    "--agent": "显式启用 Agent",
     "--dry-run": "跳过高风险副作用",
     "--lists": "列表名称",
     "--llm-review": "启用 LLM 复核",
@@ -1114,28 +1116,26 @@ def handle_repl_line(
             _clear_pending_clarification(state)
             return True
         if command == "goal":
-            subcommand = str(argv[1]).lower() if len(argv) > 1 else "status"
-            if subcommand == "status":
-                output = f"当前 Agent 目标: {state.agent_goal}" if state.agent_goal else "当前没有 Agent 目标。"
-                printer(output)
-                _remember_output(state, output, request=text, source="/goal")
-                return True
-            if subcommand in {"cancel", "clear"}:
-                state.agent_goal = ""
-                output = "已取消 Agent 目标。"
-                printer(output)
-                _remember_output(state, output, request=text, source="/goal")
-                return True
-            state.agent_goal = " ".join(argv[1:]).strip()
-            argv = ["agent", *argv[1:]]
-            command = "agent"
+            output = OBSOLETE_GOAL_MESSAGE
+            printer(output)
+            _remember_output(state, output, request=text, source="/goal")
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source="/goal",
+                    output=output,
+                    status="error",
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
+            return True
         if command == "plan":
             message = " ".join(argv[1:]).strip()
             if not message:
                 output = "错误: plan message is required"
-            elif state.engine == "agent":
-                argv = ["agent", "--plan-only", *argv[1:]]
-                command = "agent"
             else:
                 settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
                 output = format_conversation_plan(message, settings=settings)
@@ -1154,18 +1154,19 @@ def handle_repl_line(
                     started_at=started_at,
                 )
                 return True
-            if command != "agent":
-                printer(output)
-                return True
+            printer(output)
+            return True
         if command == "engine":
             requested = str(argv[1]).lower() if len(argv) > 1 else "status"
             if requested == "status":
                 output = f"当前自然语言引擎: {state.engine}"
-            elif requested in {"conversation", "legacy", "agent"}:
+            elif requested == "agent":
+                output = OBSOLETE_ENGINE_AGENT_MESSAGE
+            elif requested in {"conversation", "legacy"}:
                 state.engine = requested
                 output = f"已切换自然语言引擎: {state.engine}"
             else:
-                output = "错误: engine 只支持 conversation, legacy 或 agent"
+                output = "错误: engine 只支持 conversation 或 legacy"
             printer(output)
             _remember_output(state, output, request=text, source="/engine")
             return True
@@ -1241,14 +1242,56 @@ def handle_repl_line(
                 use_memory = False
                 chat_args = chat_args[1:]
             if len(chat_args) >= 2 and chat_args[0] == "--engine":
+                if chat_args[1] == "agent":
+                    message_text = OBSOLETE_ENGINE_AGENT_MESSAGE
+                    printer(message_text)
+                    _record_interaction_history(
+                        ReplExecutionRecord(
+                            kind="chat",
+                            request=text,
+                            source="chat",
+                            output=message_text,
+                            status="error",
+                            session_id=_record_session_id(chat_session, state),
+                        ),
+                        state=state,
+                        started_at=started_at,
+                    )
+                    return True
                 engine = chat_args[1]
                 chat_args = chat_args[2:]
             if chat_args and chat_args[0] == "--agent":
-                engine = "agent"
-                chat_args = chat_args[1:]
+                message_text = OBSOLETE_CHAT_AGENT_MESSAGE
+                printer(message_text)
+                _record_interaction_history(
+                    ReplExecutionRecord(
+                        kind="chat",
+                        request=text,
+                        source="chat",
+                        output=message_text,
+                        status="error",
+                        session_id=_record_session_id(chat_session, state),
+                    ),
+                    state=state,
+                    started_at=started_at,
+                )
+                return True
             if chat_args and chat_args[0] == "--no-agent":
-                engine = "legacy"
-                chat_args = chat_args[1:]
+                message_text = OBSOLETE_CHAT_NO_AGENT_MESSAGE
+                printer(message_text)
+                _record_interaction_history(
+                    ReplExecutionRecord(
+                        kind="chat",
+                        request=text,
+                        source="chat",
+                        output=message_text,
+                        status="error",
+                        session_id=_record_session_id(chat_session, state),
+                    ),
+                    state=state,
+                    started_at=started_at,
+                )
+                return True
             message = " ".join(chat_args).strip()
             if not message:
                 message_text = "错误: chat message is required"
@@ -1285,7 +1328,23 @@ def handle_repl_line(
             )
             _record_interaction_history(record, state=state, started_at=started_at)
             return True
-        if command not in CLI_COMMANDS and command != "agent":
+        if command == "agent":
+            message = OBSOLETE_AGENT_ENTRY_MESSAGE
+            printer(message)
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source="/agent",
+                    output=message,
+                    status="error",
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
+            return True
+        if command not in CLI_COMMANDS:
             message = f"未知命令: /{command}。输入 /help 查看可用命令。"
             printer(message)
             _record_interaction_history(
@@ -1305,7 +1364,15 @@ def handle_repl_line(
         command_runner = runner or _run_cli_command
         buffer = io.StringIO()
         original_stdout = sys.stdout
-        tee = _TeeStdout(printer, buffer, original_stdout=original_stdout)
+        current_settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
+        tee = _TeeStdout(
+            printer,
+            buffer,
+            original_stdout=original_stdout,
+            formatted_printer=formatted_printer,
+            db_path=getattr(current_settings, "db_path", None),
+            render_text=command not in {"agent"},
+        )
         record_command = command != "history"
         if record_command:
             interrupted_record = ReplExecutionRecord(
@@ -1405,7 +1472,7 @@ def _handle_chat(
     if isinstance(session, ChatSession):
         state.chat_session = session
     active_engine = str(engine or state.engine or "conversation")
-    if type(session) is not ChatSession and active_engine != "agent":
+    if type(session) is not ChatSession:
         active_engine = "legacy"
     session_id = _record_session_id(session, state)
     progress = create_progress(request=chat_message)
@@ -1419,17 +1486,7 @@ def _handle_chat(
             kwargs["reference_context"] = reference_context
         if getattr(progress, "enabled", False):
             kwargs["progress"] = progress
-        if active_engine == "agent":
-            agent_result = run_agent_once(
-                chat_message,
-                settings=settings,
-                policy=AgentExecutionPolicy(),
-                session_id=session_id or "repl_agent",
-                event_sink=agent_progress_event_sink(progress),
-                reference_context=reference_context,
-            )
-            result = _chat_result_from_agent(agent_result)
-        elif active_engine == "conversation":
+        if active_engine == "conversation":
             conversation_result = run_conversation_once(
                 chat_message,
                 settings=settings,
@@ -1477,7 +1534,7 @@ def _handle_chat(
         formatted_printer=formatted_printer,
         db_path=getattr(settings, "db_path", None),
     )
-    source = "agent" if active_engine == "agent" else "conversation" if active_engine == "conversation" else "chat"
+    source = "conversation" if active_engine == "conversation" else "chat"
     captured = _remember_output(state, output, request=chat_message, source=source)
     if save_request is not None:
         _save_output(captured, save_request, printer=printer)
@@ -1656,22 +1713,6 @@ def _chat_result_from_runtime(result: object) -> ChatResult:
     )
 
 
-def _chat_result_from_agent(result: object) -> ChatResult:
-    pending = getattr(result, "pending_action", None)
-    return ChatResult(
-        content=str(getattr(result, "content", "") or ""),
-        skill_names=tuple(getattr(result, "skill_names", ()) or ()),
-        tool_call_count=int(getattr(result, "tool_call_count", 0) or 0),
-        data_names=tuple(getattr(result, "data_names", ()) or ()),
-        artifacts=tuple(getattr(result, "artifacts", ()) or ()),
-        sources=tuple(getattr(result, "sources", ()) or ()),
-        requires_confirmation=bool(pending is not None),
-        pending_action_id=str(getattr(pending, "action_id", "") or "") if pending is not None else None,
-        turn_id=getattr(result, "turn_id", None),
-        session_id=str(getattr(result, "session_id", "") or ""),
-    )
-
-
 def _chat_result_from_conversation(result: object) -> ChatResult:
     return ChatResult(
         content=str(getattr(result, "content", "") or ""),
@@ -1797,16 +1838,24 @@ def _print_system_exit(exc: SystemExit, printer: Callable[[str], None]) -> None:
 
 
 class _TeeStdout:
+    sats_repl_capture = True
+
     def __init__(
         self,
         printer: Callable[[str], None],
         buffer: io.StringIO,
         *,
         original_stdout,
+        formatted_printer: Callable[[FormattedText], None] | None = None,
+        db_path: Path | str | None = None,
+        render_text: bool = True,
     ) -> None:
         self.printer = printer
         self._capture_buffer = buffer
         self.original_stdout = original_stdout
+        self.formatted_printer = formatted_printer
+        self.db_path = db_path
+        self.render_text = render_text
         self._pending = ""
 
     @property
@@ -1853,10 +1902,25 @@ class _TeeStdout:
         return getattr(self.original_stdout, name)
 
     def _emit(self, line: str) -> None:
+        if self.render_text and self._should_render_line():
+            print_text_output_for_tty(
+                line,
+                printer=self.printer,
+                formatted_printer=self.formatted_printer,
+                output_target=self.original_stdout if self.printer is print and self.formatted_printer is None else None,
+                db_path=self.db_path,
+                width=_banner_width(),
+            )
+            return
         if self.printer is print:
             self.original_stdout.write(f"{line}\n")
             return
         self.printer(line)
+
+    def _should_render_line(self) -> bool:
+        if self.printer is print:
+            return bool(getattr(self.original_stdout, "isatty", lambda: False)())
+        return self.formatted_printer is not None
 
 
 def _handle_save_command(argv: list[str], *, state: ReplState, printer: Callable[[str], None]) -> None:

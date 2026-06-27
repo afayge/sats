@@ -1,0 +1,3903 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/minute_periods.py",
+      "type": "file",
+      "name": "minute_periods.py",
+      "filePath": "sats/minute_periods.py",
+      "summary": "实现 项目 中与 `minute periods` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/minute_periods.py:looks_like_minute_period",
+      "type": "function",
+      "name": "looks_like_minute_period",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        23,
+        27
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `looks_like_minute_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:normalize_minute_period",
+      "type": "function",
+      "name": "normalize_minute_period",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        30,
+        38
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `normalize_minute_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:extract_minute_periods",
+      "type": "function",
+      "name": "extract_minute_periods",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        41,
+        55
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `extract_minute_periods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:normalize_minute_periods",
+      "type": "function",
+      "name": "normalize_minute_periods",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        58,
+        71
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `normalize_minute_periods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:minute_period_minutes",
+      "type": "function",
+      "name": "minute_period_minutes",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        74,
+        75
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `minute_period_minutes` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:native_minute_base_period",
+      "type": "function",
+      "name": "native_minute_base_period",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        78,
+        83
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `native_minute_base_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:native_minute_count_for",
+      "type": "function",
+      "name": "native_minute_count_for",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        86,
+        91
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `native_minute_count_for` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:tail_minute_klines",
+      "type": "function",
+      "name": "tail_minute_klines",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        94,
+        102
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `tail_minute_klines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:ensure_minute_frame_period",
+      "type": "function",
+      "name": "ensure_minute_frame_period",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        105,
+        116
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `ensure_minute_frame_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:aggregate_minute_klines",
+      "type": "function",
+      "name": "aggregate_minute_klines",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        119,
+        182
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `aggregate_minute_klines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/minute_periods.py:_session_bucket",
+      "type": "function",
+      "name": "_session_bucket",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        185,
+        199
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `_session_bucket` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:_session_bounds",
+      "type": "function",
+      "name": "_session_bounds",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        202,
+        213
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `_session_bounds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:_derived_source_label",
+      "type": "function",
+      "name": "_derived_source_label",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        216,
+        222
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `_derived_source_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/minute_periods.py:_unsupported_period_message",
+      "type": "function",
+      "name": "_unsupported_period_message",
+      "filePath": "sats/minute_periods.py",
+      "lineRange": [
+        225,
+        230
+      ],
+      "summary": "在 `minute_periods.py` 中实现 `_unsupported_period_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "minute-periods",
+        "minute-periods-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/natural_output.py",
+      "type": "file",
+      "name": "natural_output.py",
+      "filePath": "sats/natural_output.py",
+      "summary": "实现 项目 中与 `natural output` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/natural_output.py:OutputDecorations",
+      "type": "class",
+      "name": "OutputDecorations",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        48,
+        54
+      ],
+      "summary": "在 `natural_output.py` 中定义 `OutputDecorations` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_output.py:OutputSemanticLexicon",
+      "type": "class",
+      "name": "OutputSemanticLexicon",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        58,
+        60
+      ],
+      "summary": "在 `natural_output.py` 中定义 `OutputSemanticLexicon` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_output.py:SemanticToken",
+      "type": "class",
+      "name": "SemanticToken",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        64,
+        66
+      ],
+      "summary": "在 `natural_output.py` 中定义 `SemanticToken` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:format_meter",
+      "type": "function",
+      "name": "format_meter",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        69,
+        71
+      ],
+      "summary": "在 `natural_output.py` 中实现 `format_meter` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:format_sparkline",
+      "type": "function",
+      "name": "format_sparkline",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        74,
+        84
+      ],
+      "summary": "在 `natural_output.py` 中实现 `format_sparkline` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:extract_output_metadata",
+      "type": "function",
+      "name": "extract_output_metadata",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        87,
+        122
+      ],
+      "summary": "在 `natural_output.py` 中实现 `extract_output_metadata` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:normalize_natural_markdown",
+      "type": "function",
+      "name": "normalize_natural_markdown",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        125,
+        168
+      ],
+      "summary": "在 `natural_output.py` 中实现 `normalize_natural_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:build_output_semantic_lexicon",
+      "type": "function",
+      "name": "build_output_semantic_lexicon",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        171,
+        187
+      ],
+      "summary": "在 `natural_output.py` 中实现 `build_output_semantic_lexicon` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:tokenize_semantic_text",
+      "type": "function",
+      "name": "tokenize_semantic_text",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        190,
+        229
+      ],
+      "summary": "在 `natural_output.py` 中实现 `tokenize_semantic_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:render_natural_output",
+      "type": "function",
+      "name": "render_natural_output",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        232,
+        298
+      ],
+      "summary": "在 `natural_output.py` 中实现 `render_natural_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_build_wrapped_markdown",
+      "type": "function",
+      "name": "_build_wrapped_markdown",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        301,
+        337
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_build_wrapped_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_augment_structured_markdown",
+      "type": "function",
+      "name": "_augment_structured_markdown",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        340,
+        398
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_augment_structured_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_chart_lines",
+      "type": "function",
+      "name": "_chart_lines",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        401,
+        416
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_chart_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_risk_lines",
+      "type": "function",
+      "name": "_risk_lines",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        419,
+        428
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_risk_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_next_lines",
+      "type": "function",
+      "name": "_next_lines",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        431,
+        439
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_next_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_artifact_lines",
+      "type": "function",
+      "name": "_artifact_lines",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        442,
+        450
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_artifact_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_evidence_lines",
+      "type": "function",
+      "name": "_evidence_lines",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        453,
+        464
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_evidence_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_summary_bullets",
+      "type": "function",
+      "name": "_summary_bullets",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        467,
+        488
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_summary_bullets` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_derive_callout",
+      "type": "function",
+      "name": "_derive_callout",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        491,
+        498
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_derive_callout` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_infer_title",
+      "type": "function",
+      "name": "_infer_title",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        501,
+        518
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_infer_title` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_badge_tokens",
+      "type": "function",
+      "name": "_badge_tokens",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        521,
+        545
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_badge_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_confirmation_callout",
+      "type": "function",
+      "name": "_confirmation_callout",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        548,
+        549
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_confirmation_callout` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_looks_structured",
+      "type": "function",
+      "name": "_looks_structured",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        552,
+        555
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_looks_structured` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_has_heading",
+      "type": "function",
+      "name": "_has_heading",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        558,
+        566
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_has_heading` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_has_section_body",
+      "type": "function",
+      "name": "_has_section_body",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        569,
+        583
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_has_section_body` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_ensure_section_body",
+      "type": "function",
+      "name": "_ensure_section_body",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        586,
+        603
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_ensure_section_body` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_has_blockquote",
+      "type": "function",
+      "name": "_has_blockquote",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        606,
+        607
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_has_blockquote` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_has_badges",
+      "type": "function",
+      "name": "_has_badges",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        610,
+        611
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_has_badges` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_trim_sentence",
+      "type": "function",
+      "name": "_trim_sentence",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        614,
+        618
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_trim_sentence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_is_badge_line",
+      "type": "function",
+      "name": "_is_badge_line",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        621,
+        623
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_is_badge_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_badge_line",
+      "type": "function",
+      "name": "_render_badge_line",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        626,
+        640
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_badge_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_inline_code",
+      "type": "function",
+      "name": "_render_inline_code",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        643,
+        677
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_inline_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_line_style",
+      "type": "function",
+      "name": "_line_style",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        680,
+        691
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_line_style` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_table_block",
+      "type": "function",
+      "name": "_render_table_block",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        694,
+        711
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_table_block` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_parse_table_row",
+      "type": "function",
+      "name": "_parse_table_row",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        714,
+        716
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_parse_table_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_is_separator_row",
+      "type": "function",
+      "name": "_is_separator_row",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        719,
+        720
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_is_separator_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_should_collapse_table",
+      "type": "function",
+      "name": "_should_collapse_table",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        723,
+        726
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_should_collapse_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_aligned_table",
+      "type": "function",
+      "name": "_render_aligned_table",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        729,
+        763
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_aligned_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_collapsed_table",
+      "type": "function",
+      "name": "_render_collapsed_table",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        766,
+        790
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_collapsed_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_output.py:_pad_display",
+      "type": "function",
+      "name": "_pad_display",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        793,
+        796
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_pad_display` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_render_text_fragments",
+      "type": "function",
+      "name": "_render_text_fragments",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        799,
+        813
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_render_text_fragments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_semantic_style",
+      "type": "function",
+      "name": "_semantic_style",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        816,
+        826
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_semantic_style` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_match_date",
+      "type": "function",
+      "name": "_match_date",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        829,
+        834
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_match_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_match_candidate",
+      "type": "function",
+      "name": "_match_candidate",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        837,
+        841
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_match_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_append_semantic_token",
+      "type": "function",
+      "name": "_append_semantic_token",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        844,
+        851
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_append_semantic_token` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_matching_index_names",
+      "type": "function",
+      "name": "_matching_index_names",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        854,
+        858
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_matching_index_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_matching_stock_names",
+      "type": "function",
+      "name": "_matching_stock_names",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        861,
+        877
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_matching_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_output.py:_should_skip_semantic_highlight",
+      "type": "function",
+      "name": "_should_skip_semantic_highlight",
+      "filePath": "sats/natural_output.py",
+      "lineRange": [
+        880,
+        892
+      ],
+      "summary": "在 `natural_output.py` 中实现 `_should_skip_semantic_highlight` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-output",
+        "natural-output-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/output_saver.py",
+      "type": "file",
+      "name": "output_saver.py",
+      "filePath": "sats/output_saver.py",
+      "summary": "实现 项目 中与 `output saver` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/output_saver.py:CapturedOutput",
+      "type": "class",
+      "name": "CapturedOutput",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        18,
+        22
+      ],
+      "summary": "在 `output_saver.py` 中定义 `CapturedOutput` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/output_saver.py:SaveRequest",
+      "type": "class",
+      "name": "SaveRequest",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        26,
+        31
+      ],
+      "summary": "在 `output_saver.py` 中定义 `SaveRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/output_saver.py:SavedOutputResult",
+      "type": "class",
+      "name": "SavedOutputResult",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        35,
+        39
+      ],
+      "summary": "在 `output_saver.py` 中定义 `SavedOutputResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:parse_save_request",
+      "type": "function",
+      "name": "parse_save_request",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        89,
+        105
+      ],
+      "summary": "在 `output_saver.py` 中实现 `parse_save_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:extract_report_path",
+      "type": "function",
+      "name": "extract_report_path",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        108,
+        116
+      ],
+      "summary": "在 `output_saver.py` 中实现 `extract_report_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:save_captured_output",
+      "type": "function",
+      "name": "save_captured_output",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        119,
+        138
+      ],
+      "summary": "在 `output_saver.py` 中实现 `save_captured_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:save_output_as_markdown",
+      "type": "function",
+      "name": "save_output_as_markdown",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        141,
+        152
+      ],
+      "summary": "在 `output_saver.py` 中实现 `save_output_as_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:save_output_as_pdf",
+      "type": "function",
+      "name": "save_output_as_pdf",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        155,
+        204
+      ],
+      "summary": "在 `output_saver.py` 中实现 `save_output_as_pdf` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/output_saver.py:_detect_format",
+      "type": "function",
+      "name": "_detect_format",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        207,
+        213
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_detect_format` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_strip_save_phrase",
+      "type": "function",
+      "name": "_strip_save_phrase",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        216,
+        220
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_strip_save_phrase` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_looks_like_output_conversion_request",
+      "type": "function",
+      "name": "_looks_like_output_conversion_request",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        223,
+        227
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_looks_like_output_conversion_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_is_pure_save_request",
+      "type": "function",
+      "name": "_is_pure_save_request",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        230,
+        241
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_is_pure_save_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_resolve_content",
+      "type": "function",
+      "name": "_resolve_content",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        244,
+        251
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_resolve_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_target_path",
+      "type": "function",
+      "name": "_target_path",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        254,
+        261
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_target_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_markdown_document",
+      "type": "function",
+      "name": "_markdown_document",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        264,
+        278
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_markdown_document` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_looks_like_markdown_output",
+      "type": "function",
+      "name": "_looks_like_markdown_output",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        281,
+        286
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_looks_like_markdown_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_pdf_styles",
+      "type": "function",
+      "name": "_pdf_styles",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        289,
+        353
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_pdf_styles` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/output_saver.py:_pdf_story_from_markdown",
+      "type": "function",
+      "name": "_pdf_story_from_markdown",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        356,
+        471
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_pdf_story_from_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/output_saver.py:_pdf_table_story",
+      "type": "function",
+      "name": "_pdf_table_story",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        474,
+        524
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_pdf_table_story` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/output_saver.py:_pdf_badge_story",
+      "type": "function",
+      "name": "_pdf_badge_story",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        527,
+        546
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_pdf_badge_story` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_is_badge_line",
+      "type": "function",
+      "name": "_is_badge_line",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        549,
+        551
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_is_badge_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_parse_table_row",
+      "type": "function",
+      "name": "_parse_table_row",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        554,
+        556
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_parse_table_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_is_separator_row",
+      "type": "function",
+      "name": "_is_separator_row",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        559,
+        560
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_is_separator_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_escape_inline_markdown",
+      "type": "function",
+      "name": "_escape_inline_markdown",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        563,
+        566
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_escape_inline_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_semantic_pdf_markup",
+      "type": "function",
+      "name": "_semantic_pdf_markup",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        569,
+        591
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_semantic_pdf_markup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_semantic_token_markup",
+      "type": "function",
+      "name": "_semantic_token_markup",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        594,
+        604
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_semantic_token_markup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_should_skip_semantic_highlight",
+      "type": "function",
+      "name": "_should_skip_semantic_highlight",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        607,
+        619
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_should_skip_semantic_highlight` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/output_saver.py:_wrap_pdf_line",
+      "type": "function",
+      "name": "_wrap_pdf_line",
+      "filePath": "sats/output_saver.py",
+      "lineRange": [
+        622,
+        638
+      ],
+      "summary": "在 `output_saver.py` 中实现 `_wrap_pdf_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "output-saver",
+        "output-saver-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/rag/knowledge.py",
+      "type": "file",
+      "name": "knowledge.py",
+      "filePath": "sats/rag/knowledge.py",
+      "summary": "封装本地知识库检索与片段召回，为对话和分析流程提供 RAG 支撑。",
+      "tags": [
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/rag/knowledge.py:KnowledgeBase",
+      "type": "class",
+      "name": "KnowledgeBase",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        145,
+        151
+      ],
+      "summary": "在 `knowledge.py` 中定义 `KnowledgeBase` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/rag/knowledge.py:KnowledgeFile",
+      "type": "class",
+      "name": "KnowledgeFile",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        155,
+        161
+      ],
+      "summary": "在 `knowledge.py` 中定义 `KnowledgeFile` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/rag/knowledge.py:KnowledgeChunk",
+      "type": "class",
+      "name": "KnowledgeChunk",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        165,
+        173
+      ],
+      "summary": "在 `knowledge.py` 中定义 `KnowledgeChunk` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/rag/knowledge.py:KnowledgeSearchResult",
+      "type": "class",
+      "name": "KnowledgeSearchResult",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        177,
+        208
+      ],
+      "summary": "在 `knowledge.py` 中定义 `KnowledgeSearchResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/rag/knowledge.py:KnowledgeStore",
+      "type": "class",
+      "name": "KnowledgeStore",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        211,
+        629
+      ],
+      "summary": "在 `knowledge.py` 中定义 `KnowledgeStore` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:load_document_chunks",
+      "type": "function",
+      "name": "load_document_chunks",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        632,
+        651
+      ],
+      "summary": "在 `knowledge.py` 中实现 `load_document_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:infer_stock_collections",
+      "type": "function",
+      "name": "infer_stock_collections",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        654,
+        863
+      ],
+      "summary": "在 `knowledge.py` 中实现 `infer_stock_collections` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:format_knowledge_list",
+      "type": "function",
+      "name": "format_knowledge_list",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        866,
+        872
+      ],
+      "summary": "在 `knowledge.py` 中实现 `format_knowledge_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:format_search_results",
+      "type": "function",
+      "name": "format_search_results",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        875,
+        888
+      ],
+      "summary": "在 `knowledge.py` 中实现 `format_search_results` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:build_knowledge_context",
+      "type": "function",
+      "name": "build_knowledge_context",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        891,
+        911
+      ],
+      "summary": "在 `knowledge.py` 中实现 `build_knowledge_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_expand_paths",
+      "type": "function",
+      "name": "_expand_paths",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        914,
+        925
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_expand_paths` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_split_text_chunks",
+      "type": "function",
+      "name": "_split_text_chunks",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        928,
+        957
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_split_text_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_markdown_sections",
+      "type": "function",
+      "name": "_markdown_sections",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        960,
+        980
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_markdown_sections` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_window_text",
+      "type": "function",
+      "name": "_window_text",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        983,
+        999
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_window_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_pdf_chunks",
+      "type": "function",
+      "name": "_pdf_chunks",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1002,
+        1028
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_pdf_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_json_to_text",
+      "type": "function",
+      "name": "_json_to_text",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1031,
+        1036
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_json_to_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_score_chunk",
+      "type": "function",
+      "name": "_score_chunk",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1039,
+        1066
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_score_chunk` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_collection_matches_query",
+      "type": "function",
+      "name": "_collection_matches_query",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1069,
+        1246
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_collection_matches_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_query_terms",
+      "type": "function",
+      "name": "_query_terms",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1249,
+        1426
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_query_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_looks_stock_related",
+      "type": "function",
+      "name": "_looks_stock_related",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1429,
+        1432
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_looks_stock_related` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_knowledge_from_row",
+      "type": "function",
+      "name": "_knowledge_from_row",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1435,
+        1443
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_knowledge_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_display_path",
+      "type": "function",
+      "name": "_display_path",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1446,
+        1452
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_display_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_content_type",
+      "type": "function",
+      "name": "_content_type",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1455,
+        1463
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_content_type` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_clean_required",
+      "type": "function",
+      "name": "_clean_required",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1466,
+        1470
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_clean_required` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_clean_collection",
+      "type": "function",
+      "name": "_clean_collection",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1473,
+        1476
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_clean_collection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_clean_tags",
+      "type": "function",
+      "name": "_clean_tags",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1479,
+        1488
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_clean_tags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_loads_json_list",
+      "type": "function",
+      "name": "_loads_json_list",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1491,
+        1498
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_loads_json_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_maybe_int",
+      "type": "function",
+      "name": "_maybe_int",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1501,
+        1507
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_maybe_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/knowledge.py:_new_id",
+      "type": "function",
+      "name": "_new_id",
+      "filePath": "sats/rag/knowledge.py",
+      "lineRange": [
+        1510,
+        1511
+      ],
+      "summary": "在 `knowledge.py` 中实现 `_new_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:looks_like_minute_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:looks_like_minute_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:normalize_minute_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:normalize_minute_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:extract_minute_periods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:extract_minute_periods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:normalize_minute_periods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:normalize_minute_periods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:minute_period_minutes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:minute_period_minutes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:native_minute_base_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:native_minute_base_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:native_minute_count_for",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:native_minute_count_for",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:tail_minute_klines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:tail_minute_klines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:ensure_minute_frame_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:ensure_minute_frame_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:aggregate_minute_klines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:aggregate_minute_klines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_session_bucket",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_session_bucket",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_session_bounds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_session_bounds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_derived_source_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_derived_source_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_unsupported_period_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/minute_periods.py",
+      "target": "function:sats/minute_periods.py:_unsupported_period_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:OutputDecorations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:OutputDecorations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:OutputSemanticLexicon",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:OutputSemanticLexicon",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:SemanticToken",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "class:sats/natural_output.py:SemanticToken",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:format_meter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:format_meter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:format_sparkline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:format_sparkline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:extract_output_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:extract_output_metadata",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:normalize_natural_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:normalize_natural_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:build_output_semantic_lexicon",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:build_output_semantic_lexicon",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:tokenize_semantic_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:tokenize_semantic_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:render_natural_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:render_natural_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_build_wrapped_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_build_wrapped_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_augment_structured_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_augment_structured_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_chart_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_chart_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_risk_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_risk_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_next_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_next_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_artifact_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_artifact_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_evidence_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_evidence_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_summary_bullets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_summary_bullets",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_derive_callout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_derive_callout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_infer_title",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_infer_title",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_badge_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_badge_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_confirmation_callout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_confirmation_callout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_looks_structured",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_looks_structured",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_heading",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_heading",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_section_body",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_section_body",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_ensure_section_body",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_ensure_section_body",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_blockquote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_blockquote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_badges",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_has_badges",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_trim_sentence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_trim_sentence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_is_badge_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_is_badge_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_badge_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_badge_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_inline_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_inline_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_line_style",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_line_style",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_table_block",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_table_block",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_parse_table_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_parse_table_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_is_separator_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_is_separator_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_should_collapse_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_should_collapse_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_aligned_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_aligned_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_collapsed_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_collapsed_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_pad_display",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_pad_display",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_text_fragments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_render_text_fragments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_semantic_style",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_semantic_style",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_match_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_match_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_match_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_match_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_append_semantic_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_append_semantic_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_matching_index_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_matching_index_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_matching_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_matching_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_should_skip_semantic_highlight",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "function:sats/natural_output.py:_should_skip_semantic_highlight",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:CapturedOutput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:CapturedOutput",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:SaveRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:SaveRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:SavedOutputResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "class:sats/output_saver.py:SavedOutputResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:parse_save_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:parse_save_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:extract_report_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:extract_report_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_captured_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_captured_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_output_as_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_output_as_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_output_as_pdf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:save_output_as_pdf",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_detect_format",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_detect_format",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_strip_save_phrase",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_strip_save_phrase",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_looks_like_output_conversion_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_looks_like_output_conversion_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_pure_save_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_pure_save_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_resolve_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_resolve_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_target_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_target_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_markdown_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_markdown_document",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_looks_like_markdown_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_looks_like_markdown_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_styles",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_styles",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_story_from_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_story_from_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_table_story",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_table_story",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_badge_story",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_pdf_badge_story",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_badge_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_badge_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_parse_table_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_parse_table_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_separator_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_is_separator_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_escape_inline_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_escape_inline_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_semantic_pdf_markup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_semantic_pdf_markup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_semantic_token_markup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_semantic_token_markup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_should_skip_semantic_highlight",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_should_skip_semantic_highlight",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_wrap_pdf_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "function:sats/output_saver.py:_wrap_pdf_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeBase",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeBase",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeFile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeFile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeChunk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeChunk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeSearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeSearchResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeStore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "class:sats/rag/knowledge.py:KnowledgeStore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:load_document_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:load_document_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:infer_stock_collections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:infer_stock_collections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:format_knowledge_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:format_knowledge_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:format_search_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:format_search_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:build_knowledge_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:build_knowledge_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_expand_paths",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_expand_paths",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_split_text_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_split_text_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_markdown_sections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_markdown_sections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_window_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_window_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_pdf_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_pdf_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_json_to_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_json_to_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_score_chunk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_score_chunk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_collection_matches_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_collection_matches_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_query_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_query_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_looks_stock_related",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_looks_stock_related",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_knowledge_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_knowledge_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_display_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_display_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_content_type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_content_type",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_required",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_required",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_collection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_collection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_tags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_clean_tags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_loads_json_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_loads_json_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_maybe_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_maybe_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_new_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "function:sats/rag/knowledge.py:_new_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_output.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/output_saver.py",
+      "target": "file:sats/natural_output.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/rag/knowledge.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

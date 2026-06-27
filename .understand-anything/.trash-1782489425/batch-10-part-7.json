@@ -1,0 +1,3287 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/conversation/runtime.py",
+      "type": "file",
+      "name": "runtime.py",
+      "filePath": "sats/conversation/runtime.py",
+      "summary": "承载 会话线程与上下文 的运行时执行与状态协调逻辑。",
+      "tags": [
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/conversation/runtime.py:_PlanInterruption",
+      "type": "class",
+      "name": "_PlanInterruption",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        43,
+        49
+      ],
+      "summary": "在 `runtime.py` 中定义 `_PlanInterruption` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/conversation/runtime.py:_ConversationAction",
+      "type": "class",
+      "name": "_ConversationAction",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        53,
+        61
+      ],
+      "summary": "在 `runtime.py` 中定义 `_ConversationAction` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/conversation/runtime.py:_LoopOutcome",
+      "type": "class",
+      "name": "_LoopOutcome",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        65,
+        71
+      ],
+      "summary": "在 `runtime.py` 中定义 `_LoopOutcome` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/conversation/runtime.py:ConversationResult",
+      "type": "class",
+      "name": "ConversationResult",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        75,
+        117
+      ],
+      "summary": "在 `runtime.py` 中定义 `ConversationResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:run_conversation_once",
+      "type": "function",
+      "name": "run_conversation_once",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        120,
+        265
+      ],
+      "summary": "在 `runtime.py` 中实现 `run_conversation_once` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:format_conversation_plan",
+      "type": "function",
+      "name": "format_conversation_plan",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        268,
+        308
+      ],
+      "summary": "在 `runtime.py` 中实现 `format_conversation_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_normalize_conversation_plan",
+      "type": "function",
+      "name": "_normalize_conversation_plan",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        311,
+        342
+      ],
+      "summary": "在 `runtime.py` 中实现 `_normalize_conversation_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_is_ambiguous_stock_analysis_request",
+      "type": "function",
+      "name": "_is_ambiguous_stock_analysis_request",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        345,
+        355
+      ],
+      "summary": "在 `runtime.py` 中实现 `_is_ambiguous_stock_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_run_conversation_loop",
+      "type": "function",
+      "name": "_run_conversation_loop",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        358,
+        533
+      ],
+      "summary": "在 `runtime.py` 中实现 `_run_conversation_loop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_conversation_action_messages",
+      "type": "function",
+      "name": "_conversation_action_messages",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        536,
+        577
+      ],
+      "summary": "在 `runtime.py` 中实现 `_conversation_action_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_parse_conversation_action",
+      "type": "function",
+      "name": "_parse_conversation_action",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        580,
+        612
+      ],
+      "summary": "在 `runtime.py` 中实现 `_parse_conversation_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_step_from_action",
+      "type": "function",
+      "name": "_step_from_action",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        615,
+        626
+      ],
+      "summary": "在 `runtime.py` 中实现 `_step_from_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_execute_conversation_tool_step",
+      "type": "function",
+      "name": "_execute_conversation_tool_step",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        629,
+        722
+      ],
+      "summary": "在 `runtime.py` 中实现 `_execute_conversation_tool_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_conversation_action_detail",
+      "type": "function",
+      "name": "_conversation_action_detail",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        725,
+        736
+      ],
+      "summary": "在 `runtime.py` 中实现 `_conversation_action_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_action_arguments_summary",
+      "type": "function",
+      "name": "_action_arguments_summary",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        739,
+        756
+      ],
+      "summary": "在 `runtime.py` 中实现 `_action_arguments_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_loop_final_needs_synthesis",
+      "type": "function",
+      "name": "_loop_final_needs_synthesis",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        759,
+        766
+      ],
+      "summary": "在 `runtime.py` 中实现 `_loop_final_needs_synthesis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_final_answer_blocking_issue",
+      "type": "function",
+      "name": "_final_answer_blocking_issue",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        769,
+        777
+      ],
+      "summary": "在 `runtime.py` 中实现 `_final_answer_blocking_issue` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_requires_market_context_before_final",
+      "type": "function",
+      "name": "_requires_market_context_before_final",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        780,
+        786
+      ],
+      "summary": "在 `runtime.py` 中实现 `_requires_market_context_before_final` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_requires_next_week_horizon",
+      "type": "function",
+      "name": "_requires_next_week_horizon",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        789,
+        791
+      ],
+      "summary": "在 `runtime.py` 中实现 `_requires_next_week_horizon` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_successful_market_context_observation",
+      "type": "function",
+      "name": "_successful_market_context_observation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        794,
+        798
+      ],
+      "summary": "在 `runtime.py` 中实现 `_successful_market_context_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_market_context_horizons",
+      "type": "function",
+      "name": "_market_context_horizons",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        801,
+        817
+      ],
+      "summary": "在 `runtime.py` 中实现 `_market_context_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_record_action_blocked",
+      "type": "function",
+      "name": "_record_action_blocked",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        820,
+        847
+      ],
+      "summary": "在 `runtime.py` 中实现 `_record_action_blocked` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_record_loop_error",
+      "type": "function",
+      "name": "_record_loop_error",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        850,
+        877
+      ],
+      "summary": "在 `runtime.py` 中实现 `_record_loop_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_loop_error_signature",
+      "type": "function",
+      "name": "_loop_error_signature",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        880,
+        881
+      ],
+      "summary": "在 `runtime.py` 中实现 `_loop_error_signature` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_conversation_action_payload",
+      "type": "function",
+      "name": "_conversation_action_payload",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        884,
+        894
+      ],
+      "summary": "在 `runtime.py` 中实现 `_conversation_action_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_make_conversation_llm",
+      "type": "function",
+      "name": "_make_conversation_llm",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        897,
+        902
+      ],
+      "summary": "在 `runtime.py` 中实现 `_make_conversation_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_conversation_model_meta",
+      "type": "function",
+      "name": "_conversation_model_meta",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        905,
+        910
+      ],
+      "summary": "在 `runtime.py` 中实现 `_conversation_model_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_registry_context",
+      "type": "function",
+      "name": "_registry_context",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        913,
+        923
+      ],
+      "summary": "在 `runtime.py` 中实现 `_registry_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_compact_observations",
+      "type": "function",
+      "name": "_compact_observations",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        926,
+        941
+      ],
+      "summary": "在 `runtime.py` 中实现 `_compact_observations` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_reference_context_payload",
+      "type": "function",
+      "name": "_reference_context_payload",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        944,
+        952
+      ],
+      "summary": "在 `runtime.py` 中实现 `_reference_context_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_truncate_text",
+      "type": "function",
+      "name": "_truncate_text",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        955,
+        959
+      ],
+      "summary": "在 `runtime.py` 中实现 `_truncate_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:confirm_pending_conversation_action",
+      "type": "function",
+      "name": "confirm_pending_conversation_action",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        962,
+        1019
+      ],
+      "summary": "在 `runtime.py` 中实现 `confirm_pending_conversation_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:continue_conversation_after_clarification",
+      "type": "function",
+      "name": "continue_conversation_after_clarification",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1022,
+        1064
+      ],
+      "summary": "在 `runtime.py` 中实现 `continue_conversation_after_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:reject_pending_conversation_action",
+      "type": "function",
+      "name": "reject_pending_conversation_action",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1067,
+        1092
+      ],
+      "summary": "在 `runtime.py` 中实现 `reject_pending_conversation_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_execute_plan_until_confirmation",
+      "type": "function",
+      "name": "_execute_plan_until_confirmation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1095,
+        1197
+      ],
+      "summary": "在 `runtime.py` 中实现 `_execute_plan_until_confirmation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_execute_readonly_subagent",
+      "type": "function",
+      "name": "_execute_readonly_subagent",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1200,
+        1318
+      ],
+      "summary": "在 `runtime.py` 中实现 `_execute_readonly_subagent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_subagent_task",
+      "type": "function",
+      "name": "_subagent_task",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1321,
+        1323
+      ],
+      "summary": "在 `runtime.py` 中实现 `_subagent_task` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_subagent_allowed_tools",
+      "type": "function",
+      "name": "_subagent_allowed_tools",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1326,
+        1334
+      ],
+      "summary": "在 `runtime.py` 中实现 `_subagent_allowed_tools` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_is_subagent_readonly_tool",
+      "type": "function",
+      "name": "_is_subagent_readonly_tool",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1337,
+        1348
+      ],
+      "summary": "在 `runtime.py` 中实现 `_is_subagent_readonly_tool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_subagent_summary",
+      "type": "function",
+      "name": "_subagent_summary",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1351,
+        1366
+      ],
+      "summary": "在 `runtime.py` 中实现 `_subagent_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_conversation_argument_issue",
+      "type": "function",
+      "name": "_conversation_argument_issue",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1369,
+        1409
+      ],
+      "summary": "在 `runtime.py` 中实现 `_conversation_argument_issue` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_missing_schema_arguments",
+      "type": "function",
+      "name": "_missing_schema_arguments",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1412,
+        1424
+      ],
+      "summary": "在 `runtime.py` 中实现 `_missing_schema_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_argument_present",
+      "type": "function",
+      "name": "_argument_present",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1427,
+        1434
+      ],
+      "summary": "在 `runtime.py` 中实现 `_argument_present` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_missing_arguments_issue",
+      "type": "function",
+      "name": "_missing_arguments_issue",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1437,
+        1440
+      ],
+      "summary": "在 `runtime.py` 中实现 `_missing_arguments_issue` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_argument_hint",
+      "type": "function",
+      "name": "_argument_hint",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1443,
+        1455
+      ],
+      "summary": "在 `runtime.py` 中实现 `_argument_hint` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_is_historical_market_request",
+      "type": "function",
+      "name": "_is_historical_market_request",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1458,
+        1462
+      ],
+      "summary": "在 `runtime.py` 中实现 `_is_historical_market_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_is_historical_analysis_request",
+      "type": "function",
+      "name": "_is_historical_analysis_request",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1465,
+        1467
+      ],
+      "summary": "在 `runtime.py` 中实现 `_is_historical_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_astock_operation_issue",
+      "type": "function",
+      "name": "_astock_operation_issue",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1470,
+        1479
+      ],
+      "summary": "在 `runtime.py` 中实现 `_astock_operation_issue` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_catalog_returned_operation",
+      "type": "function",
+      "name": "_catalog_returned_operation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1482,
+        1498
+      ],
+      "summary": "在 `runtime.py` 中实现 `_catalog_returned_operation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_issue_missing_fields",
+      "type": "function",
+      "name": "_issue_missing_fields",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1501,
+        1506
+      ],
+      "summary": "在 `runtime.py` 中实现 `_issue_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_argument_guard_observation",
+      "type": "function",
+      "name": "_argument_guard_observation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1509,
+        1528
+      ],
+      "summary": "在 `runtime.py` 中实现 `_argument_guard_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_clarification_prompt",
+      "type": "function",
+      "name": "_clarification_prompt",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1531,
+        1534
+      ],
+      "summary": "在 `runtime.py` 中实现 `_clarification_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_clarification_message",
+      "type": "function",
+      "name": "_clarification_message",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1537,
+        1540
+      ],
+      "summary": "在 `runtime.py` 中实现 `_clarification_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_clarification_question",
+      "type": "function",
+      "name": "_clarification_question",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1543,
+        1553
+      ],
+      "summary": "在 `runtime.py` 中实现 `_clarification_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_require_clarification",
+      "type": "function",
+      "name": "_require_clarification",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1556,
+        1584
+      ],
+      "summary": "在 `runtime.py` 中实现 `_require_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_merge_clarification_answer",
+      "type": "function",
+      "name": "_merge_clarification_answer",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1587,
+        1595
+      ],
+      "summary": "在 `runtime.py` 中实现 `_merge_clarification_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_tool_context",
+      "type": "function",
+      "name": "_tool_context",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1598,
+        1625
+      ],
+      "summary": "在 `runtime.py` 中实现 `_tool_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_require_step_confirmation",
+      "type": "function",
+      "name": "_require_step_confirmation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1628,
+        1650
+      ],
+      "summary": "在 `runtime.py` 中实现 `_require_step_confirmation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_approval_observation",
+      "type": "function",
+      "name": "_approval_observation",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1653,
+        1660
+      ],
+      "summary": "在 `runtime.py` 中实现 `_approval_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_pending_message",
+      "type": "function",
+      "name": "_pending_message",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1663,
+        1671
+      ],
+      "summary": "在 `runtime.py` 中实现 `_pending_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_persist_messages",
+      "type": "function",
+      "name": "_persist_messages",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1674,
+        1680
+      ],
+      "summary": "在 `runtime.py` 中实现 `_persist_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_complete_turn",
+      "type": "function",
+      "name": "_complete_turn",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1683,
+        1711
+      ],
+      "summary": "在 `runtime.py` 中实现 `_complete_turn` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_fallback_content",
+      "type": "function",
+      "name": "_fallback_content",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1714,
+        1718
+      ],
+      "summary": "在 `runtime.py` 中实现 `_fallback_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_policy_from_payload",
+      "type": "function",
+      "name": "_policy_from_payload",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1721,
+        1735
+      ],
+      "summary": "在 `runtime.py` 中实现 `_policy_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_step_from_payload",
+      "type": "function",
+      "name": "_step_from_payload",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1738,
+        1751
+      ],
+      "summary": "在 `runtime.py` 中实现 `_step_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/runtime.py:_plan_from_payload",
+      "type": "function",
+      "name": "_plan_from_payload",
+      "filePath": "sats/conversation/runtime.py",
+      "lineRange": [
+        1754,
+        1771
+      ],
+      "summary": "在 `runtime.py` 中实现 `_plan_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/conversation/threads.py",
+      "type": "file",
+      "name": "threads.py",
+      "filePath": "sats/conversation/threads.py",
+      "summary": "实现 会话线程与上下文 中与 `threads` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/conversation/threads.py:ThreadSummary",
+      "type": "class",
+      "name": "ThreadSummary",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        13,
+        23
+      ],
+      "summary": "在 `threads.py` 中定义 `ThreadSummary` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:create_thread",
+      "type": "function",
+      "name": "create_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        26,
+        30
+      ],
+      "summary": "在 `threads.py` 中实现 `create_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:list_threads",
+      "type": "function",
+      "name": "list_threads",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        33,
+        61
+      ],
+      "summary": "在 `threads.py` 中实现 `list_threads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:get_thread",
+      "type": "function",
+      "name": "get_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        64,
+        91
+      ],
+      "summary": "在 `threads.py` 中实现 `get_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:read_thread",
+      "type": "function",
+      "name": "read_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        94,
+        127
+      ],
+      "summary": "在 `threads.py` 中实现 `read_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:fork_thread",
+      "type": "function",
+      "name": "fork_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        130,
+        144
+      ],
+      "summary": "在 `threads.py` 中实现 `fork_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:archive_thread",
+      "type": "function",
+      "name": "archive_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        147,
+        148
+      ],
+      "summary": "在 `threads.py` 中实现 `archive_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:pin_thread",
+      "type": "function",
+      "name": "pin_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        151,
+        152
+      ],
+      "summary": "在 `threads.py` 中实现 `pin_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:rename_thread",
+      "type": "function",
+      "name": "rename_thread",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        155,
+        158
+      ],
+      "summary": "在 `threads.py` 中实现 `rename_thread` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:format_thread_list",
+      "type": "function",
+      "name": "format_thread_list",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        161,
+        174
+      ],
+      "summary": "在 `threads.py` 中实现 `format_thread_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:format_thread_detail",
+      "type": "function",
+      "name": "format_thread_detail",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        177,
+        198
+      ],
+      "summary": "在 `threads.py` 中实现 `format_thread_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_set_thread_bool",
+      "type": "function",
+      "name": "_set_thread_bool",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        201,
+        211
+      ],
+      "summary": "在 `threads.py` 中实现 `_set_thread_bool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_latest_turn_id",
+      "type": "function",
+      "name": "_latest_turn_id",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        214,
+        218
+      ],
+      "summary": "在 `threads.py` 中实现 `_latest_turn_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_thread_from_row",
+      "type": "function",
+      "name": "_thread_from_row",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        221,
+        233
+      ],
+      "summary": "在 `threads.py` 中实现 `_thread_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_new_thread_id",
+      "type": "function",
+      "name": "_new_thread_id",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        236,
+        237
+      ],
+      "summary": "在 `threads.py` 中实现 `_new_thread_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_loads_json_object",
+      "type": "function",
+      "name": "_loads_json_object",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        240,
+        247
+      ],
+      "summary": "在 `threads.py` 中实现 `_loads_json_object` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/conversation/threads.py:_loads_json_list",
+      "type": "function",
+      "name": "_loads_json_list",
+      "filePath": "sats/conversation/threads.py",
+      "lineRange": [
+        250,
+        257
+      ],
+      "summary": "在 `threads.py` 中实现 `_loads_json_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/dependencies.py",
+      "type": "file",
+      "name": "dependencies.py",
+      "filePath": "sats/dependencies.py",
+      "summary": "实现 项目 中与 `dependencies` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/dependencies.py:DependencySpec",
+      "type": "class",
+      "name": "DependencySpec",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        14,
+        16
+      ],
+      "summary": "在 `dependencies.py` 中定义 `DependencySpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/dependencies.py:OptionalDependencyStatus",
+      "type": "class",
+      "name": "OptionalDependencyStatus",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        20,
+        50
+      ],
+      "summary": "在 `dependencies.py` 中定义 `OptionalDependencyStatus` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/dependencies.py:OptionalDependencyError",
+      "type": "class",
+      "name": "OptionalDependencyError",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        53,
+        56
+      ],
+      "summary": "在 `dependencies.py` 中定义 `OptionalDependencyError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:check_optional_dependencies",
+      "type": "function",
+      "name": "check_optional_dependencies",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        77,
+        96
+      ],
+      "summary": "在 `dependencies.py` 中实现 `check_optional_dependencies` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:ensure_optional_dependencies",
+      "type": "function",
+      "name": "ensure_optional_dependencies",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        99,
+        138
+      ],
+      "summary": "在 `dependencies.py` 中实现 `ensure_optional_dependencies` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/dependencies.py:sync_optional_dependency_files",
+      "type": "function",
+      "name": "sync_optional_dependency_files",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        141,
+        153
+      ],
+      "summary": "在 `dependencies.py` 中实现 `sync_optional_dependency_files` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_dependency_specs",
+      "type": "function",
+      "name": "_dependency_specs",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        156,
+        161
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_dependency_specs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_project_root",
+      "type": "function",
+      "name": "_project_root",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        164,
+        167
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_project_root` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_is_project_venv_python",
+      "type": "function",
+      "name": "_is_project_venv_python",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        170,
+        178
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_is_project_venv_python` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_pip_error_message",
+      "type": "function",
+      "name": "_pip_error_message",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        181,
+        186
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_pip_error_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_sync_requirements",
+      "type": "function",
+      "name": "_sync_requirements",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        189,
+        202
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_sync_requirements` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_sync_pyproject_optional_dependencies",
+      "type": "function",
+      "name": "_sync_pyproject_optional_dependencies",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        205,
+        211
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_sync_pyproject_optional_dependencies` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_set_optional_dependency_section",
+      "type": "function",
+      "name": "_set_optional_dependency_section",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        214,
+        246
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_set_optional_dependency_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/dependencies.py:_normalize_requirement_name",
+      "type": "function",
+      "name": "_normalize_requirement_name",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        249,
+        256
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_normalize_requirement_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/dependencies.py:_normalize_package_name",
+      "type": "function",
+      "name": "_normalize_package_name",
+      "filePath": "sats/dependencies.py",
+      "lineRange": [
+        259,
+        260
+      ],
+      "summary": "在 `dependencies.py` 中实现 `_normalize_package_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "dependencies",
+        "dependencies-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_PlanInterruption",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_PlanInterruption",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_ConversationAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_ConversationAction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_LoopOutcome",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:_LoopOutcome",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:ConversationResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "class:sats/conversation/runtime.py:ConversationResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:run_conversation_once",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:run_conversation_once",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:format_conversation_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:format_conversation_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_normalize_conversation_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_normalize_conversation_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_ambiguous_stock_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_ambiguous_stock_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_run_conversation_loop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_run_conversation_loop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_parse_conversation_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_parse_conversation_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_step_from_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_step_from_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_conversation_tool_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_conversation_tool_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_action_arguments_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_action_arguments_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_loop_final_needs_synthesis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_loop_final_needs_synthesis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_final_answer_blocking_issue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_final_answer_blocking_issue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_requires_market_context_before_final",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_requires_market_context_before_final",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_requires_next_week_horizon",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_requires_next_week_horizon",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_successful_market_context_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_successful_market_context_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_market_context_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_market_context_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_record_action_blocked",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_record_action_blocked",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_record_loop_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_record_loop_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_loop_error_signature",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_loop_error_signature",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_action_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_make_conversation_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_make_conversation_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_model_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_model_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_registry_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_registry_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_compact_observations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_compact_observations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_reference_context_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_reference_context_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_truncate_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_truncate_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:confirm_pending_conversation_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:confirm_pending_conversation_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:continue_conversation_after_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:continue_conversation_after_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:reject_pending_conversation_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:reject_pending_conversation_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_plan_until_confirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_plan_until_confirmation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_readonly_subagent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_execute_readonly_subagent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_task",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_task",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_allowed_tools",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_allowed_tools",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_subagent_readonly_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_subagent_readonly_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_subagent_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_argument_issue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_conversation_argument_issue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_missing_schema_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_missing_schema_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_present",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_present",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_missing_arguments_issue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_missing_arguments_issue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_hint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_hint",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_historical_market_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_historical_market_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_historical_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_is_historical_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_astock_operation_issue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_astock_operation_issue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_catalog_returned_operation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_catalog_returned_operation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_issue_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_issue_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_guard_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_argument_guard_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_clarification_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_require_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_require_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_merge_clarification_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_merge_clarification_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_tool_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_tool_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_require_step_confirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_require_step_confirmation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_approval_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_approval_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_pending_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_pending_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_persist_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_persist_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_complete_turn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_complete_turn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_fallback_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_fallback_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_policy_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_policy_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_step_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_step_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_plan_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "function:sats/conversation/runtime.py:_plan_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "class:sats/conversation/threads.py:ThreadSummary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "class:sats/conversation/threads.py:ThreadSummary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:create_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:create_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:list_threads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:list_threads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:get_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:get_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:read_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:read_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:fork_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:fork_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:archive_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:archive_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:pin_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:pin_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:rename_thread",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:rename_thread",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:format_thread_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:format_thread_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:format_thread_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:format_thread_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_set_thread_bool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_set_thread_bool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_latest_turn_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_latest_turn_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_thread_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_thread_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_new_thread_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_new_thread_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_loads_json_object",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_loads_json_object",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_loads_json_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "function:sats/conversation/threads.py:_loads_json_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:DependencySpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:DependencySpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:OptionalDependencyStatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:OptionalDependencyStatus",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:OptionalDependencyError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "class:sats/dependencies.py:OptionalDependencyError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:check_optional_dependencies",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:check_optional_dependencies",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:ensure_optional_dependencies",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:ensure_optional_dependencies",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:sync_optional_dependency_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:sync_optional_dependency_files",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_dependency_specs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_dependency_specs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_project_root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_project_root",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_is_project_venv_python",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_is_project_venv_python",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_pip_error_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_pip_error_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_sync_requirements",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_sync_requirements",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_sync_pyproject_optional_dependencies",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_sync_pyproject_optional_dependencies",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_set_optional_dependency_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_set_optional_dependency_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_normalize_requirement_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_normalize_requirement_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_normalize_package_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/dependencies.py",
+      "target": "function:sats/dependencies.py:_normalize_package_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/command_runner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/synthesis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/tools/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/agent/trading.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/chat_events.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/runtime.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/threads.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

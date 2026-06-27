@@ -1,0 +1,3220 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/dsa_decision.py",
+      "type": "file",
+      "name": "dsa_decision.py",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `dsa decision` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/dsa_decision.py:DsaLocalDecision",
+      "type": "class",
+      "name": "DsaLocalDecision",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        19,
+        47
+      ],
+      "summary": "在 `dsa_decision.py` 中定义 `DsaLocalDecision` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:build_local_dsa_decision",
+      "type": "function",
+      "name": "build_local_dsa_decision",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        50,
+        204
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `build_local_dsa_decision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:normalize_operation_advice",
+      "type": "function",
+      "name": "normalize_operation_advice",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        207,
+        233
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `normalize_operation_advice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:decision_type_for_advice",
+      "type": "function",
+      "name": "decision_type_for_advice",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        236,
+        241
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `decision_type_for_advice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_trend_status",
+      "type": "function",
+      "name": "_trend_status",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        244,
+        266
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_trend_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_trend_score",
+      "type": "function",
+      "name": "_trend_score",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        269,
+        278
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_trend_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_operation_advice",
+      "type": "function",
+      "name": "_operation_advice",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        281,
+        294
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_operation_advice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_trend_prediction",
+      "type": "function",
+      "name": "_trend_prediction",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        297,
+        306
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_trend_prediction` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_confidence_level",
+      "type": "function",
+      "name": "_confidence_level",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        309,
+        314
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_confidence_level` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_bias_ma5",
+      "type": "function",
+      "name": "_bias_ma5",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        317,
+        318
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_bias_ma5` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_bias_value",
+      "type": "function",
+      "name": "_bias_value",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        321,
+        328
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_bias_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_volume_score",
+      "type": "function",
+      "name": "_volume_score",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        331,
+        338
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_volume_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_is_ma_support",
+      "type": "function",
+      "name": "_is_ma_support",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        341,
+        344
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_is_ma_support` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_macd_score",
+      "type": "function",
+      "name": "_macd_score",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        347,
+        360
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_macd_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_rsi_status",
+      "type": "function",
+      "name": "_rsi_status",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        363,
+        374
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_rsi_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_rsi_score",
+      "type": "function",
+      "name": "_rsi_score",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        377,
+        384
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_rsi_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_stabilize_with_structure",
+      "type": "function",
+      "name": "_stabilize_with_structure",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        387,
+        517
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_stabilize_with_structure` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_first_level",
+      "type": "function",
+      "name": "_first_level",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        520,
+        523
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_first_level` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_first_number",
+      "type": "function",
+      "name": "_first_number",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        526,
+        531
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_first_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_profit_ratio_pct",
+      "type": "function",
+      "name": "_profit_ratio_pct",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        534,
+        538
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_profit_ratio_pct` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_optional_float",
+      "type": "function",
+      "name": "_optional_float",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        541,
+        547
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_optional_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_decision.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/analysis/dsa_decision.py",
+      "lineRange": [
+        550,
+        552
+      ],
+      "summary": "在 `dsa_decision.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/analysis/dsa_native.py",
+      "type": "file",
+      "name": "dsa_native.py",
+      "filePath": "sats/analysis/dsa_native.py",
+      "summary": "提供 SATS 原生 DSA 分析实现，负责生成结构化诊断与结论。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/dsa_native.py:DsaAnalysisRanking",
+      "type": "class",
+      "name": "DsaAnalysisRanking",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        26,
+        37
+      ],
+      "summary": "在 `dsa_native.py` 中定义 `DsaAnalysisRanking` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/dsa_native.py:DsaStockAnalysis",
+      "type": "class",
+      "name": "DsaStockAnalysis",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        41,
+        69
+      ],
+      "summary": "在 `dsa_native.py` 中定义 `DsaStockAnalysis` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/dsa_native.py:DsaAnalysisRunResult",
+      "type": "class",
+      "name": "DsaAnalysisRunResult",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        73,
+        81
+      ],
+      "summary": "在 `dsa_native.py` 中定义 `DsaAnalysisRunResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:run_dsa_analysis",
+      "type": "function",
+      "name": "run_dsa_analysis",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        84,
+        288
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `run_dsa_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_load_indicator_inputs",
+      "type": "function",
+      "name": "_load_indicator_inputs",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        291,
+        317
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_load_indicator_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_merge_indicator_input",
+      "type": "function",
+      "name": "_merge_indicator_input",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        320,
+        364
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_merge_indicator_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_cache_indicator_input",
+      "type": "function",
+      "name": "_cache_indicator_input",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        367,
+        395
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_cache_indicator_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_load_quote_lookup",
+      "type": "function",
+      "name": "_load_quote_lookup",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        398,
+        416
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_load_quote_lookup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_llm_stock_payload",
+      "type": "function",
+      "name": "_llm_stock_payload",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        419,
+        475
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_llm_stock_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_missing_llm_context_fields",
+      "type": "function",
+      "name": "_missing_llm_context_fields",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        478,
+        493
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_missing_llm_context_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_build_context_pack",
+      "type": "function",
+      "name": "_build_context_pack",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        496,
+        528
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_build_context_pack` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_fallback_stock_payload",
+      "type": "function",
+      "name": "_fallback_stock_payload",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        531,
+        556
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_fallback_stock_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_final_stock_payload",
+      "type": "function",
+      "name": "_final_stock_payload",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        559,
+        580
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_final_stock_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_build_dashboard",
+      "type": "function",
+      "name": "_build_dashboard",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        583,
+        673
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_build_dashboard` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_safe_hot_sector_context",
+      "type": "function",
+      "name": "_safe_hot_sector_context",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        676,
+        686
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_safe_hot_sector_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_stock_hot_sectors",
+      "type": "function",
+      "name": "_stock_hot_sectors",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        689,
+        697
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_stock_hot_sectors` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_market_phase_context",
+      "type": "function",
+      "name": "_market_phase_context",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        700,
+        726
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_market_phase_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_position_advice",
+      "type": "function",
+      "name": "_position_advice",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        729,
+        746
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_position_advice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_sniper_points",
+      "type": "function",
+      "name": "_sniper_points",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        749,
+        778
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_sniper_points` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_position_strategy",
+      "type": "function",
+      "name": "_position_strategy",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        781,
+        795
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_position_strategy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_action_checklist",
+      "type": "function",
+      "name": "_action_checklist",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        798,
+        811
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_action_checklist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_chip_structure",
+      "type": "function",
+      "name": "_chip_structure",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        814,
+        824
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_chip_structure` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_chip_health",
+      "type": "function",
+      "name": "_chip_health",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        827,
+        836
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_chip_health` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_bias_status",
+      "type": "function",
+      "name": "_bias_status",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        839,
+        849
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_bias_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_volume_meaning",
+      "type": "function",
+      "name": "_volume_meaning",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        852,
+        859
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_volume_meaning` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_earnings_outlook",
+      "type": "function",
+      "name": "_earnings_outlook",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        862,
+        875
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_earnings_outlook` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_time_sensitivity",
+      "type": "function",
+      "name": "_time_sensitivity",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        878,
+        884
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_time_sensitivity` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_missing_field_alerts",
+      "type": "function",
+      "name": "_missing_field_alerts",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        887,
+        888
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_missing_field_alerts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_first_or_none",
+      "type": "function",
+      "name": "_first_or_none",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        891,
+        894
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_first_or_none` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_round_price",
+      "type": "function",
+      "name": "_round_price",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        897,
+        901
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_round_price` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_dedupe_text",
+      "type": "function",
+      "name": "_dedupe_text",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        904,
+        913
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_dedupe_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_write_report",
+      "type": "function",
+      "name": "_write_report",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        916,
+        928
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_write_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_format_report",
+      "type": "function",
+      "name": "_format_report",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        931,
+        1030
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_format_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_analysis_sources",
+      "type": "function",
+      "name": "_analysis_sources",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1033,
+        1047
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_analysis_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_llm_status_text",
+      "type": "function",
+      "name": "_llm_status_text",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1050,
+        1055
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_llm_status_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_input_lookup",
+      "type": "function",
+      "name": "_input_lookup",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1058,
+        1059
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_input_lookup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_records_by_symbol",
+      "type": "function",
+      "name": "_records_by_symbol",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1062,
+        1069
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_records_by_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_safe_provider_list",
+      "type": "function",
+      "name": "_safe_provider_list",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1072,
+        1077
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_safe_provider_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_safe_provider_frame",
+      "type": "function",
+      "name": "_safe_provider_frame",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1080,
+        1085
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_safe_provider_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_safe_provider_dict",
+      "type": "function",
+      "name": "_safe_provider_dict",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1088,
+        1093
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_safe_provider_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_build_optional",
+      "type": "function",
+      "name": "_build_optional",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1096,
+        1100
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_build_optional` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_merge_dicts",
+      "type": "function",
+      "name": "_merge_dicts",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1103,
+        1108
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_merge_dicts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_normalize_llm_payload",
+      "type": "function",
+      "name": "_normalize_llm_payload",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1111,
+        1134
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_normalize_llm_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_daily_stock_analysis_support",
+      "type": "function",
+      "name": "_daily_stock_analysis_support",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1137,
+        1148
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_daily_stock_analysis_support` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_extract_json",
+      "type": "function",
+      "name": "_extract_json",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1151,
+        1162
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_extract_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1165,
+        1180
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_calendar_dates",
+      "type": "function",
+      "name": "_calendar_dates",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1183,
+        1185
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_calendar_dates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_today",
+      "type": "function",
+      "name": "_today",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1188,
+        1189
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_today` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_empty_frame",
+      "type": "function",
+      "name": "_empty_frame",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1192,
+        1193
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_empty_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_is_empty",
+      "type": "function",
+      "name": "_is_empty",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1196,
+        1197
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_is_empty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_safe_float",
+      "type": "function",
+      "name": "_safe_float",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1200,
+        1206
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_first_safe_float",
+      "type": "function",
+      "name": "_first_safe_float",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1209,
+        1214
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_first_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1217,
+        1218
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1221,
+        1225
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_join_levels",
+      "type": "function",
+      "name": "_join_levels",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1228,
+        1231
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_join_levels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_join_text",
+      "type": "function",
+      "name": "_join_text",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1234,
+        1236
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_join_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/dsa_native.py:_format_hot_sectors",
+      "type": "function",
+      "name": "_format_hot_sectors",
+      "filePath": "sats/analysis/dsa_native.py",
+      "lineRange": [
+        1239,
+        1251
+      ],
+      "summary": "在 `dsa_native.py` 中实现 `_format_hot_sectors` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/catalog.py",
+      "type": "file",
+      "name": "catalog.py",
+      "filePath": "sats/catalog.py",
+      "summary": "实现 项目 中与 `catalog` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/catalog.py:build_capability_catalog",
+      "type": "function",
+      "name": "build_capability_catalog",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        33,
+        106
+      ],
+      "summary": "在 `catalog.py` 中实现 `build_capability_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:format_capability_catalog",
+      "type": "function",
+      "name": "format_capability_catalog",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        109,
+        182
+      ],
+      "summary": "在 `catalog.py` 中实现 `format_capability_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:_commands_section",
+      "type": "function",
+      "name": "_commands_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        185,
+        211
+      ],
+      "summary": "在 `catalog.py` 中实现 `_commands_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:_agent_tools_section",
+      "type": "function",
+      "name": "_agent_tools_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        214,
+        222
+      ],
+      "summary": "在 `catalog.py` 中实现 `_agent_tools_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_skills_section",
+      "type": "function",
+      "name": "_skills_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        225,
+        257
+      ],
+      "summary": "在 `catalog.py` 中实现 `_skills_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:_knowledge_section",
+      "type": "function",
+      "name": "_knowledge_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        260,
+        307
+      ],
+      "summary": "在 `catalog.py` 中实现 `_knowledge_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:_providers_section",
+      "type": "function",
+      "name": "_providers_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        310,
+        329
+      ],
+      "summary": "在 `catalog.py` 中实现 `_providers_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_screening_rules_section",
+      "type": "function",
+      "name": "_screening_rules_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        332,
+        346
+      ],
+      "summary": "在 `catalog.py` 中实现 `_screening_rules_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_signals_section",
+      "type": "function",
+      "name": "_signals_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        349,
+        363
+      ],
+      "summary": "在 `catalog.py` 中实现 `_signals_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_factors_section",
+      "type": "function",
+      "name": "_factors_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        366,
+        387
+      ],
+      "summary": "在 `catalog.py` 中实现 `_factors_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_api_section",
+      "type": "function",
+      "name": "_api_section",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        390,
+        405
+      ],
+      "summary": "在 `catalog.py` 中实现 `_api_section` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_command_consistency",
+      "type": "function",
+      "name": "_command_consistency",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        408,
+        439
+      ],
+      "summary": "在 `catalog.py` 中实现 `_command_consistency` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/catalog.py:_argument_payload",
+      "type": "function",
+      "name": "_argument_payload",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        442,
+        454
+      ],
+      "summary": "在 `catalog.py` 中实现 `_argument_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_filter_items",
+      "type": "function",
+      "name": "_filter_items",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        457,
+        461
+      ],
+      "summary": "在 `catalog.py` 中实现 `_filter_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_page",
+      "type": "function",
+      "name": "_page",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        464,
+        481
+      ],
+      "summary": "在 `catalog.py` 中实现 `_page` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_section_summary",
+      "type": "function",
+      "name": "_section_summary",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        484,
+        489
+      ],
+      "summary": "在 `catalog.py` 中实现 `_section_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_parse_json_list",
+      "type": "function",
+      "name": "_parse_json_list",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        492,
+        497
+      ],
+      "summary": "在 `catalog.py` 中实现 `_parse_json_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/catalog.py:_json_safe",
+      "type": "function",
+      "name": "_json_safe",
+      "filePath": "sats/catalog.py",
+      "lineRange": [
+        500,
+        509
+      ],
+      "summary": "在 `catalog.py` 中实现 `_json_safe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "catalog",
+        "catalog-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "class:sats/analysis/dsa_decision.py:DsaLocalDecision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "class:sats/analysis/dsa_decision.py:DsaLocalDecision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:build_local_dsa_decision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:build_local_dsa_decision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:normalize_operation_advice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:normalize_operation_advice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:decision_type_for_advice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:decision_type_for_advice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_operation_advice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_operation_advice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_prediction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_trend_prediction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_confidence_level",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_confidence_level",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_bias_ma5",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_bias_ma5",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_bias_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_bias_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_volume_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_volume_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_is_ma_support",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_is_ma_support",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_macd_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_macd_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_rsi_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_rsi_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_rsi_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_rsi_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_stabilize_with_structure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_stabilize_with_structure",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_first_level",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_first_level",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_first_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_first_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_profit_ratio_pct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_profit_ratio_pct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_optional_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_optional_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_decision.py",
+      "target": "function:sats/analysis/dsa_decision.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaAnalysisRanking",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaAnalysisRanking",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaStockAnalysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaStockAnalysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaAnalysisRunResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "class:sats/analysis/dsa_native.py:DsaAnalysisRunResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:run_dsa_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:run_dsa_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_load_indicator_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_load_indicator_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_merge_indicator_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_merge_indicator_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_cache_indicator_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_cache_indicator_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_load_quote_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_load_quote_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_llm_stock_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_llm_stock_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_missing_llm_context_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_missing_llm_context_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_context_pack",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_context_pack",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_fallback_stock_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_fallback_stock_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_final_stock_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_final_stock_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_dashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_dashboard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_hot_sector_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_hot_sector_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_stock_hot_sectors",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_stock_hot_sectors",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_market_phase_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_market_phase_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_position_advice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_position_advice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_sniper_points",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_sniper_points",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_position_strategy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_position_strategy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_action_checklist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_action_checklist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_chip_structure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_chip_structure",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_chip_health",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_chip_health",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_bias_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_bias_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_volume_meaning",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_volume_meaning",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_earnings_outlook",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_earnings_outlook",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_time_sensitivity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_time_sensitivity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_missing_field_alerts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_missing_field_alerts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_first_or_none",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_first_or_none",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_round_price",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_round_price",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_dedupe_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_dedupe_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_write_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_write_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_format_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_format_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_analysis_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_analysis_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_llm_status_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_llm_status_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_input_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_input_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_records_by_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_records_by_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_provider_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_optional",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_build_optional",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_merge_dicts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_merge_dicts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_normalize_llm_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_normalize_llm_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_daily_stock_analysis_support",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_daily_stock_analysis_support",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_extract_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_extract_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_calendar_dates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_calendar_dates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_today",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_today",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_empty_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_empty_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_is_empty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_is_empty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_first_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_first_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_join_levels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_join_levels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_join_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_join_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_format_hot_sectors",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "function:sats/analysis/dsa_native.py:_format_hot_sectors",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:build_capability_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:build_capability_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:format_capability_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:format_capability_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_commands_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_commands_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_agent_tools_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_agent_tools_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_skills_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_skills_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_knowledge_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_knowledge_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_providers_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_providers_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_screening_rules_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_screening_rules_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_signals_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_signals_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_factors_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_factors_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_api_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_api_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_command_consistency",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_command_consistency",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_argument_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_argument_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_filter_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_filter_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_page",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_page",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_section_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_section_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_parse_json_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_parse_json_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_json_safe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "function:sats/catalog.py:_json_safe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/analysis/dsa_decision.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/dsa_native.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "file:sats/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/catalog.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

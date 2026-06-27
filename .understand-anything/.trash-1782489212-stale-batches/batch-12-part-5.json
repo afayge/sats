@@ -1,0 +1,2367 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/screening/rule_composer.py",
+      "type": "file",
+      "name": "rule_composer.py",
+      "filePath": "sats/screening/rule_composer.py",
+      "summary": "实现 规则筛选 中与 `rule composer` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rule_composer.py:RuleGenerationPlan",
+      "type": "class",
+      "name": "RuleGenerationPlan",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        34,
+        59
+      ],
+      "summary": "在 `rule_composer.py` 中定义 `RuleGenerationPlan` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rule_composer.py:GeneratedRuleResult",
+      "type": "class",
+      "name": "GeneratedRuleResult",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        63,
+        66
+      ],
+      "summary": "在 `rule_composer.py` 中定义 `GeneratedRuleResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:is_rule_generation_request",
+      "type": "function",
+      "name": "is_rule_generation_request",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        69,
+        76
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `is_rule_generation_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:parse_rule_generation_confirmation",
+      "type": "function",
+      "name": "parse_rule_generation_confirmation",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        79,
+        83
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `parse_rule_generation_confirmation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:compose_rule_generation_plan",
+      "type": "function",
+      "name": "compose_rule_generation_plan",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        86,
+        123
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `compose_rule_generation_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:revise_rule_generation_plan",
+      "type": "function",
+      "name": "revise_rule_generation_plan",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        126,
+        134
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `revise_rule_generation_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:format_rule_generation_plan",
+      "type": "function",
+      "name": "format_rule_generation_plan",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        137,
+        170
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `format_rule_generation_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:format_generated_rule_result",
+      "type": "function",
+      "name": "format_generated_rule_result",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        173,
+        181
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `format_generated_rule_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:generate_rule_code",
+      "type": "function",
+      "name": "generate_rule_code",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        184,
+        211
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `generate_rule_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:default_generated_rules_dir",
+      "type": "function",
+      "name": "default_generated_rules_dir",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        214,
+        215
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `default_generated_rules_dir` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_conditions_from_text",
+      "type": "function",
+      "name": "_conditions_from_text",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        218,
+        370
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_conditions_from_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_add_condition",
+      "type": "function",
+      "name": "_add_condition",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        373,
+        379
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_add_condition` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_has_core_condition",
+      "type": "function",
+      "name": "_has_core_condition",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        382,
+        384
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_has_core_condition` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_requested_or_default_rule_name",
+      "type": "function",
+      "name": "_requested_or_default_rule_name",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        387,
+        408
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_requested_or_default_rule_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_normalize_rule_name",
+      "type": "function",
+      "name": "_normalize_rule_name",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        411,
+        412
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_normalize_rule_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_decision_name",
+      "type": "function",
+      "name": "_decision_name",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        415,
+        420
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_decision_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_goal",
+      "type": "function",
+      "name": "_goal",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        423,
+        427
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_goal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_unsupported_requirements",
+      "type": "function",
+      "name": "_unsupported_requirements",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        430,
+        435
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_unsupported_requirements` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_data_dependencies",
+      "type": "function",
+      "name": "_data_dependencies",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        438,
+        446
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_data_dependencies` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_mentioned_ma_windows",
+      "type": "function",
+      "name": "_mentioned_ma_windows",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        449,
+        455
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_mentioned_ma_windows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_range_after_keyword",
+      "type": "function",
+      "name": "_range_after_keyword",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        458,
+        465
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_range_after_keyword` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_market_value_range",
+      "type": "function",
+      "name": "_market_value_range",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        468,
+        474
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_market_value_range` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_max_after_keyword",
+      "type": "function",
+      "name": "_max_after_keyword",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        477,
+        480
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_max_after_keyword` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_min_after_keyword",
+      "type": "function",
+      "name": "_min_after_keyword",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        483,
+        486
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_min_after_keyword` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_max_required_window",
+      "type": "function",
+      "name": "_max_required_window",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        489,
+        496
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_max_required_window` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_class_name",
+      "type": "function",
+      "name": "_class_name",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        499,
+        500
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_class_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_render_rule_code",
+      "type": "function",
+      "name": "_render_rule_code",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        503,
+        515
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_render_rule_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_validate_generated_ast",
+      "type": "function",
+      "name": "_validate_generated_ast",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        518,
+        529
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_validate_generated_ast` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_validate_generated_module",
+      "type": "function",
+      "name": "_validate_generated_module",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        532,
+        549
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_validate_generated_module` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rule_composer.py:_synthetic_input",
+      "type": "function",
+      "name": "_synthetic_input",
+      "filePath": "sats/screening/rule_composer.py",
+      "lineRange": [
+        552,
+        591
+      ],
+      "summary": "在 `rule_composer.py` 中实现 `_synthetic_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/serenity/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/serenity/__init__.py",
+      "summary": "定义 `serenity` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/serenity/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "sats/serenity/models.py",
+      "summary": "定义 Serenity 研究 共享的数据模型与类型结构，供同模块流程复用。",
+      "tags": [
+        "python",
+        "serenity",
+        "research",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/serenity/models.py:SerenityScreenRequest",
+      "type": "class",
+      "name": "SerenityScreenRequest",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        9,
+        23
+      ],
+      "summary": "在 `models.py` 中定义 `SerenityScreenRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "serenity",
+        "research",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/serenity/models.py:SerenityFactorResult",
+      "type": "class",
+      "name": "SerenityFactorResult",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        27,
+        38
+      ],
+      "summary": "在 `models.py` 中定义 `SerenityFactorResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/serenity/models.py:SerenityEvidence",
+      "type": "class",
+      "name": "SerenityEvidence",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        42,
+        50
+      ],
+      "summary": "在 `models.py` 中定义 `SerenityEvidence` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "serenity",
+        "research",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/serenity/models.py:SerenityCandidateResult",
+      "type": "class",
+      "name": "SerenityCandidateResult",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        54,
+        108
+      ],
+      "summary": "在 `models.py` 中定义 `SerenityCandidateResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/serenity/models.py:SerenityScreenResult",
+      "type": "class",
+      "name": "SerenityScreenResult",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        112,
+        190
+      ],
+      "summary": "在 `models.py` 中定义 `SerenityScreenResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/models.py:_candidate_markdown",
+      "type": "function",
+      "name": "_candidate_markdown",
+      "filePath": "sats/serenity/models.py",
+      "lineRange": [
+        193,
+        249
+      ],
+      "summary": "在 `models.py` 中实现 `_candidate_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/serenity/scoring.py",
+      "type": "file",
+      "name": "scoring.py",
+      "filePath": "sats/serenity/scoring.py",
+      "summary": "实现 Serenity 研究 中与 `scoring` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:preliminary_serenity_score",
+      "type": "function",
+      "name": "preliminary_serenity_score",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        242,
+        252
+      ],
+      "summary": "在 `scoring.py` 中实现 `preliminary_serenity_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:score_serenity_candidate",
+      "type": "function",
+      "name": "score_serenity_candidate",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        255,
+        327
+      ],
+      "summary": "在 `scoring.py` 中实现 `score_serenity_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:rank_serenity_candidates",
+      "type": "function",
+      "name": "rank_serenity_candidates",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        330,
+        345
+      ],
+      "summary": "在 `scoring.py` 中实现 `rank_serenity_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:infer_chain_tier",
+      "type": "function",
+      "name": "infer_chain_tier",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        348,
+        353
+      ],
+      "summary": "在 `scoring.py` 中实现 `infer_chain_tier` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:strongest_evidence_grade",
+      "type": "function",
+      "name": "strongest_evidence_grade",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        356,
+        364
+      ],
+      "summary": "在 `scoring.py` 中实现 `strongest_evidence_grade` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:score_verdict",
+      "type": "function",
+      "name": "score_verdict",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        367,
+        374
+      ],
+      "summary": "在 `scoring.py` 中实现 `score_verdict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:extract_evidence",
+      "type": "function",
+      "name": "extract_evidence",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        377,
+        429
+      ],
+      "summary": "在 `scoring.py` 中实现 `extract_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:calculate_penalties",
+      "type": "function",
+      "name": "calculate_penalties",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        432,
+        478
+      ],
+      "summary": "在 `scoring.py` 中实现 `calculate_penalties` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_demand",
+      "type": "function",
+      "name": "_factor_demand",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        481,
+        501
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_demand` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_architecture",
+      "type": "function",
+      "name": "_factor_architecture",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        504,
+        522
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_architecture` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_chokepoint",
+      "type": "function",
+      "name": "_factor_chokepoint",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        525,
+        538
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_chokepoint` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_supplier_concentration",
+      "type": "function",
+      "name": "_factor_supplier_concentration",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        541,
+        546
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_supplier_concentration` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_expansion_difficulty",
+      "type": "function",
+      "name": "_factor_expansion_difficulty",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        549,
+        554
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_expansion_difficulty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_evidence_quality",
+      "type": "function",
+      "name": "_factor_evidence_quality",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        557,
+        562
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_evidence_quality` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_valuation",
+      "type": "function",
+      "name": "_factor_valuation",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        565,
+        599
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_valuation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor_catalyst",
+      "type": "function",
+      "name": "_factor_catalyst",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        602,
+        619
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor_catalyst` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_factor",
+      "type": "function",
+      "name": "_factor",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        622,
+        640
+      ],
+      "summary": "在 `scoring.py` 中实现 `_factor` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_constrained_link",
+      "type": "function",
+      "name": "_constrained_link",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        643,
+        646
+      ],
+      "summary": "在 `scoring.py` 中实现 `_constrained_link` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_scarce_layer",
+      "type": "function",
+      "name": "_scarce_layer",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        649,
+        655
+      ],
+      "summary": "在 `scoring.py` 中实现 `_scarce_layer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_risk_statements",
+      "type": "function",
+      "name": "_risk_statements",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        658,
+        672
+      ],
+      "summary": "在 `scoring.py` 中实现 `_risk_statements` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_next_checks",
+      "type": "function",
+      "name": "_next_checks",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        675,
+        690
+      ],
+      "summary": "在 `scoring.py` 中实现 `_next_checks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_evidence_strength",
+      "type": "function",
+      "name": "_evidence_strength",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        693,
+        717
+      ],
+      "summary": "在 `scoring.py` 中实现 `_evidence_strength` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_evidence_claim",
+      "type": "function",
+      "name": "_evidence_claim",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        720,
+        735
+      ],
+      "summary": "在 `scoring.py` 中实现 `_evidence_claim` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_context_items",
+      "type": "function",
+      "name": "_context_items",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        738,
+        748
+      ],
+      "summary": "在 `scoring.py` 中实现 `_context_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_text_blob",
+      "type": "function",
+      "name": "_text_blob",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        751,
+        775
+      ],
+      "summary": "在 `scoring.py` 中实现 `_text_blob` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_row_text",
+      "type": "function",
+      "name": "_row_text",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        778,
+        782
+      ],
+      "summary": "在 `scoring.py` 中实现 `_row_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_indicator_fundamentals",
+      "type": "function",
+      "name": "_indicator_fundamentals",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        785,
+        787
+      ],
+      "summary": "在 `scoring.py` 中实现 `_indicator_fundamentals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_growth_from_payload",
+      "type": "function",
+      "name": "_growth_from_payload",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        790,
+        801
+      ],
+      "summary": "在 `scoring.py` 中实现 `_growth_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_frame_growth",
+      "type": "function",
+      "name": "_frame_growth",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        804,
+        823
+      ],
+      "summary": "在 `scoring.py` 中实现 `_frame_growth` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_first_number",
+      "type": "function",
+      "name": "_first_number",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        826,
+        831
+      ],
+      "summary": "在 `scoring.py` 中实现 `_first_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        834,
+        844
+      ],
+      "summary": "在 `scoring.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        847,
+        849
+      ],
+      "summary": "在 `scoring.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_fmt_pct",
+      "type": "function",
+      "name": "_fmt_pct",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        852,
+        854
+      ],
+      "summary": "在 `scoring.py` 中实现 `_fmt_pct` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_has_any_term",
+      "type": "function",
+      "name": "_has_any_term",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        857,
+        859
+      ],
+      "summary": "在 `scoring.py` 中实现 `_has_any_term` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/scoring.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/serenity/scoring.py",
+      "lineRange": [
+        862,
+        870
+      ],
+      "summary": "在 `scoring.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "class:sats/screening/rule_composer.py:RuleGenerationPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "class:sats/screening/rule_composer.py:RuleGenerationPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "class:sats/screening/rule_composer.py:GeneratedRuleResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "class:sats/screening/rule_composer.py:GeneratedRuleResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:is_rule_generation_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:is_rule_generation_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:parse_rule_generation_confirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:parse_rule_generation_confirmation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:compose_rule_generation_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:compose_rule_generation_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:revise_rule_generation_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:revise_rule_generation_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:format_rule_generation_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:format_rule_generation_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:format_generated_rule_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:format_generated_rule_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:generate_rule_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:generate_rule_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:default_generated_rules_dir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:default_generated_rules_dir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_conditions_from_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_conditions_from_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_add_condition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_add_condition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_has_core_condition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_has_core_condition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_requested_or_default_rule_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_requested_or_default_rule_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_normalize_rule_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_normalize_rule_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_decision_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_decision_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_goal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_goal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_unsupported_requirements",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_unsupported_requirements",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_data_dependencies",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_data_dependencies",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_mentioned_ma_windows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_mentioned_ma_windows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_range_after_keyword",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_range_after_keyword",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_market_value_range",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_market_value_range",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_max_after_keyword",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_max_after_keyword",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_min_after_keyword",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_min_after_keyword",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_max_required_window",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_max_required_window",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_class_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_class_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_render_rule_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_render_rule_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_validate_generated_ast",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_validate_generated_ast",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_validate_generated_module",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_validate_generated_module",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_synthetic_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "function:sats/screening/rule_composer.py:_synthetic_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityScreenRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityScreenRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityFactorResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityFactorResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityEvidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityEvidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityCandidateResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityCandidateResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityScreenResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "class:sats/serenity/models.py:SerenityScreenResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "function:sats/serenity/models.py:_candidate_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/models.py",
+      "target": "function:sats/serenity/models.py:_candidate_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:preliminary_serenity_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:preliminary_serenity_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:score_serenity_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:score_serenity_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:rank_serenity_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:rank_serenity_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:infer_chain_tier",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:infer_chain_tier",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:strongest_evidence_grade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:strongest_evidence_grade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:score_verdict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:score_verdict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:extract_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:extract_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:calculate_penalties",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:calculate_penalties",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_demand",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_demand",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_architecture",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_architecture",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_chokepoint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_chokepoint",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_supplier_concentration",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_supplier_concentration",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_expansion_difficulty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_expansion_difficulty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_evidence_quality",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_evidence_quality",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_valuation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_valuation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_catalyst",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor_catalyst",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_factor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_constrained_link",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_constrained_link",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_scarce_layer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_scarce_layer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_risk_statements",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_risk_statements",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_next_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_next_checks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_evidence_strength",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_evidence_strength",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_evidence_claim",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_evidence_claim",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_context_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_context_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_text_blob",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_text_blob",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_row_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_row_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_indicator_fundamentals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_indicator_fundamentals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_growth_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_growth_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_frame_growth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_frame_growth",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_first_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_first_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_fmt_pct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_fmt_pct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_has_any_term",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_has_any_term",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "function:sats/serenity/scoring.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rule_composer.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/__init__.py",
+      "target": "file:sats/serenity/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/__init__.py",
+      "target": "file:sats/serenity/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/scoring.py",
+      "target": "file:sats/serenity/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

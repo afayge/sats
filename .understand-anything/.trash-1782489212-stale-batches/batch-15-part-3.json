@@ -1,0 +1,1778 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/natural_task.py",
+      "type": "file",
+      "name": "natural_task.py",
+      "filePath": "sats/natural_task.py",
+      "summary": "实现 项目 中与 `natural task` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/natural_task.py:DialogueMode",
+      "type": "class",
+      "name": "DialogueMode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        9,
+        12
+      ],
+      "summary": "在 `natural_task.py` 中定义 `DialogueMode` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_task.py:SideEffectLevel",
+      "type": "class",
+      "name": "SideEffectLevel",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        15,
+        20
+      ],
+      "summary": "在 `natural_task.py` 中定义 `SideEffectLevel` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_task.py:WorkflowRunStatus",
+      "type": "class",
+      "name": "WorkflowRunStatus",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        23,
+        31
+      ],
+      "summary": "在 `natural_task.py` 中定义 `WorkflowRunStatus` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_task.py:ScreenedAnalysisMode",
+      "type": "class",
+      "name": "ScreenedAnalysisMode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        34,
+        38
+      ],
+      "summary": "在 `natural_task.py` 中定义 `ScreenedAnalysisMode` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_task.py:VerificationCheck",
+      "type": "class",
+      "name": "VerificationCheck",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        42,
+        48
+      ],
+      "summary": "在 `natural_task.py` 中定义 `VerificationCheck` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/natural_task.py:NaturalTaskSpec",
+      "type": "class",
+      "name": "NaturalTaskSpec",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        52,
+        75
+      ],
+      "summary": "在 `natural_task.py` 中定义 `NaturalTaskSpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:extract_candidate_limit",
+      "type": "function",
+      "name": "extract_candidate_limit",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        82,
+        93
+      ],
+      "summary": "在 `natural_task.py` 中实现 `extract_candidate_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:requested_screened_analysis_mode",
+      "type": "function",
+      "name": "requested_screened_analysis_mode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        96,
+        105
+      ],
+      "summary": "在 `natural_task.py` 中实现 `requested_screened_analysis_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:choose_screened_analysis_mode",
+      "type": "function",
+      "name": "choose_screened_analysis_mode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        108,
+        122
+      ],
+      "summary": "在 `natural_task.py` 中实现 `choose_screened_analysis_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:default_limit_for_mode",
+      "type": "function",
+      "name": "default_limit_for_mode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        125,
+        131
+      ],
+      "summary": "在 `natural_task.py` 中实现 `default_limit_for_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:build_screened_natural_task_spec",
+      "type": "function",
+      "name": "build_screened_natural_task_spec",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        134,
+        167
+      ],
+      "summary": "在 `natural_task.py` 中实现 `build_screened_natural_task_spec` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/natural_task.py:_asks_for_detail",
+      "type": "function",
+      "name": "_asks_for_detail",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        170,
+        171
+      ],
+      "summary": "在 `natural_task.py` 中实现 `_asks_for_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/natural_task.py:_coerce_mode",
+      "type": "function",
+      "name": "_coerce_mode",
+      "filePath": "sats/natural_task.py",
+      "lineRange": [
+        174,
+        183
+      ],
+      "summary": "在 `natural_task.py` 中实现 `_coerce_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "natural-task",
+        "natural-task-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/web/__init__.py",
+      "summary": "定义 `web` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/web/cache.py",
+      "type": "file",
+      "name": "cache.py",
+      "filePath": "sats/web/cache.py",
+      "summary": "实现 网页搜索与抓取 中与 `cache` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/cache.py:cache_dir",
+      "type": "function",
+      "name": "cache_dir",
+      "filePath": "sats/web/cache.py",
+      "lineRange": [
+        10,
+        14
+      ],
+      "summary": "在 `cache.py` 中实现 `cache_dir` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/cache.py:cache_key",
+      "type": "function",
+      "name": "cache_key",
+      "filePath": "sats/web/cache.py",
+      "lineRange": [
+        17,
+        19
+      ],
+      "summary": "在 `cache.py` 中实现 `cache_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/cache.py:read_cache",
+      "type": "function",
+      "name": "read_cache",
+      "filePath": "sats/web/cache.py",
+      "lineRange": [
+        22,
+        37
+      ],
+      "summary": "在 `cache.py` 中实现 `read_cache` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/cache.py:write_cache",
+      "type": "function",
+      "name": "write_cache",
+      "filePath": "sats/web/cache.py",
+      "lineRange": [
+        40,
+        47
+      ],
+      "summary": "在 `cache.py` 中实现 `write_cache` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/fetch.py",
+      "type": "file",
+      "name": "fetch.py",
+      "filePath": "sats/web/fetch.py",
+      "summary": "实现 网页搜索与抓取 中与 `fetch` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/fetch.py:fetch_page",
+      "type": "function",
+      "name": "fetch_page",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        24,
+        59
+      ],
+      "summary": "在 `fetch.py` 中实现 `fetch_page` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/fetch.py:validate_public_url",
+      "type": "function",
+      "name": "validate_public_url",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        62,
+        80
+      ],
+      "summary": "在 `fetch.py` 中实现 `validate_public_url` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:extract_content",
+      "type": "function",
+      "name": "extract_content",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        83,
+        94
+      ],
+      "summary": "在 `fetch.py` 中实现 `extract_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_http_get_once",
+      "type": "function",
+      "name": "_http_get_once",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        97,
+        115
+      ],
+      "summary": "在 `fetch.py` 中实现 `_http_get_once` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_extract_html",
+      "type": "function",
+      "name": "_extract_html",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        118,
+        151
+      ],
+      "summary": "在 `fetch.py` 中实现 `_extract_html` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_extract_pdf",
+      "type": "function",
+      "name": "_extract_pdf",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        154,
+        170
+      ],
+      "summary": "在 `fetch.py` 中实现 `_extract_pdf` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_resolve_addresses",
+      "type": "function",
+      "name": "_resolve_addresses",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        173,
+        183
+      ],
+      "summary": "在 `fetch.py` 中实现 `_resolve_addresses` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_is_non_public_ip",
+      "type": "function",
+      "name": "_is_non_public_ip",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        186,
+        194
+      ],
+      "summary": "在 `fetch.py` 中实现 `_is_non_public_ip` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_decode_text",
+      "type": "function",
+      "name": "_decode_text",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        197,
+        203
+      ],
+      "summary": "在 `fetch.py` 中实现 `_decode_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_clean_html_text",
+      "type": "function",
+      "name": "_clean_html_text",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        206,
+        207
+      ],
+      "summary": "在 `fetch.py` 中实现 `_clean_html_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/fetch.py:_safe_int",
+      "type": "function",
+      "name": "_safe_int",
+      "filePath": "sats/web/fetch.py",
+      "lineRange": [
+        210,
+        214
+      ],
+      "summary": "在 `fetch.py` 中实现 `_safe_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/index.py",
+      "type": "file",
+      "name": "index.py",
+      "filePath": "sats/web/index.py",
+      "summary": "实现 网页搜索与抓取 中与 `index` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/web/index.py:WebIndex",
+      "type": "class",
+      "name": "WebIndex",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        12,
+        217
+      ],
+      "summary": "在 `index.py` 中定义 `WebIndex` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/index.py:split_web_content",
+      "type": "function",
+      "name": "split_web_content",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        220,
+        247
+      ],
+      "summary": "在 `index.py` 中实现 `split_web_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/index.py:is_expired",
+      "type": "function",
+      "name": "is_expired",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        250,
+        256
+      ],
+      "summary": "在 `index.py` 中实现 `is_expired` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/index.py:_document_from_row",
+      "type": "function",
+      "name": "_document_from_row",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        259,
+        273
+      ],
+      "summary": "在 `index.py` 中实现 `_document_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/index.py:_chunk_from_row",
+      "type": "function",
+      "name": "_chunk_from_row",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        276,
+        291
+      ],
+      "summary": "在 `index.py` 中实现 `_chunk_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/index.py:_loads_dict",
+      "type": "function",
+      "name": "_loads_dict",
+      "filePath": "sats/web/index.py",
+      "lineRange": [
+        294,
+        299
+      ],
+      "summary": "在 `index.py` 中实现 `_loads_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/providers.py",
+      "type": "file",
+      "name": "providers.py",
+      "filePath": "sats/web/providers.py",
+      "summary": "实现 网页搜索与抓取 中与 `providers` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/web/providers.py:ProviderResult",
+      "type": "class",
+      "name": "ProviderResult",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        28,
+        42
+      ],
+      "summary": "在 `providers.py` 中定义 `ProviderResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:configured_provider_names",
+      "type": "function",
+      "name": "configured_provider_names",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        45,
+        58
+      ],
+      "summary": "在 `providers.py` 中实现 `configured_provider_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:search_many",
+      "type": "function",
+      "name": "search_many",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        61,
+        98
+      ],
+      "summary": "在 `providers.py` 中实现 `search_many` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_search_provider",
+      "type": "function",
+      "name": "_search_provider",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        101,
+        140
+      ],
+      "summary": "在 `providers.py` 中实现 `_search_provider` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_bing_search",
+      "type": "function",
+      "name": "_bing_search",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        143,
+        169
+      ],
+      "summary": "在 `providers.py` 中实现 `_bing_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_tavily_search",
+      "type": "function",
+      "name": "_tavily_search",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        172,
+        196
+      ],
+      "summary": "在 `providers.py` 中实现 `_tavily_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_bocha_search",
+      "type": "function",
+      "name": "_bocha_search",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        199,
+        233
+      ],
+      "summary": "在 `providers.py` 中实现 `_bocha_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_querit_search",
+      "type": "function",
+      "name": "_querit_search",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        236,
+        262
+      ],
+      "summary": "在 `providers.py` 中实现 `_querit_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_rrf_merge",
+      "type": "function",
+      "name": "_rrf_merge",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        265,
+        295
+      ],
+      "summary": "在 `providers.py` 中实现 `_rrf_merge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/providers.py:_aggregate_provider_status",
+      "type": "function",
+      "name": "_aggregate_provider_status",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        298,
+        312
+      ],
+      "summary": "在 `providers.py` 中实现 `_aggregate_provider_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_normalize_item",
+      "type": "function",
+      "name": "_normalize_item",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        315,
+        326
+      ],
+      "summary": "在 `providers.py` 中实现 `_normalize_item` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:canonicalize_url",
+      "type": "function",
+      "name": "canonicalize_url",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        329,
+        340
+      ],
+      "summary": "在 `providers.py` 中实现 `canonicalize_url` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_unwrap_ddg_url",
+      "type": "function",
+      "name": "_unwrap_ddg_url",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        343,
+        348
+      ],
+      "summary": "在 `providers.py` 中实现 `_unwrap_ddg_url` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_domain_query",
+      "type": "function",
+      "name": "_domain_query",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        351,
+        354
+      ],
+      "summary": "在 `providers.py` 中实现 `_domain_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_url_matches_domains",
+      "type": "function",
+      "name": "_url_matches_domains",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        357,
+        359
+      ],
+      "summary": "在 `providers.py` 中实现 `_url_matches_domains` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_strip_html",
+      "type": "function",
+      "name": "_strip_html",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        362,
+        364
+      ],
+      "summary": "在 `providers.py` 中实现 `_strip_html` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_is_garbage_item",
+      "type": "function",
+      "name": "_is_garbage_item",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        367,
+        369
+      ],
+      "summary": "在 `providers.py` 中实现 `_is_garbage_item` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/providers.py:_user_agent",
+      "type": "function",
+      "name": "_user_agent",
+      "filePath": "sats/web/providers.py",
+      "lineRange": [
+        372,
+        373
+      ],
+      "summary": "在 `providers.py` 中实现 `_user_agent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:DialogueMode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:DialogueMode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:SideEffectLevel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:SideEffectLevel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:WorkflowRunStatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:WorkflowRunStatus",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:ScreenedAnalysisMode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:ScreenedAnalysisMode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:VerificationCheck",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:VerificationCheck",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:NaturalTaskSpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "class:sats/natural_task.py:NaturalTaskSpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:extract_candidate_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:extract_candidate_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:requested_screened_analysis_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:requested_screened_analysis_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:choose_screened_analysis_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:choose_screened_analysis_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:default_limit_for_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:default_limit_for_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:build_screened_natural_task_spec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:build_screened_natural_task_spec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:_asks_for_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:_asks_for_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:_coerce_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/natural_task.py",
+      "target": "function:sats/natural_task.py:_coerce_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:cache_dir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:cache_dir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:cache_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:cache_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:read_cache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:read_cache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:write_cache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/cache.py",
+      "target": "function:sats/web/cache.py:write_cache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:fetch_page",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:fetch_page",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:validate_public_url",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:validate_public_url",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:extract_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:extract_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_http_get_once",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_http_get_once",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_extract_html",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_extract_html",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_extract_pdf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_extract_pdf",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_resolve_addresses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_resolve_addresses",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_is_non_public_ip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_is_non_public_ip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_decode_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_decode_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_clean_html_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_clean_html_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_safe_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/fetch.py",
+      "target": "function:sats/web/fetch.py:_safe_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "class:sats/web/index.py:WebIndex",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "class:sats/web/index.py:WebIndex",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:split_web_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:split_web_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:is_expired",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:is_expired",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_document_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_document_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_chunk_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_chunk_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_loads_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "function:sats/web/index.py:_loads_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "class:sats/web/providers.py:ProviderResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "class:sats/web/providers.py:ProviderResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:configured_provider_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:configured_provider_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:search_many",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:search_many",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_search_provider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_search_provider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_bing_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_bing_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_tavily_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_tavily_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_bocha_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_bocha_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_querit_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_querit_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_rrf_merge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_rrf_merge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_aggregate_provider_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_aggregate_provider_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_normalize_item",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_normalize_item",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:canonicalize_url",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:canonicalize_url",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_unwrap_ddg_url",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_unwrap_ddg_url",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_domain_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_domain_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_url_matches_domains",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_url_matches_domains",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_strip_html",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_strip_html",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_is_garbage_item",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_is_garbage_item",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_user_agent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/providers.py",
+      "target": "function:sats/web/providers.py:_user_agent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/__init__.py",
+      "target": "file:sats/web/search.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/__init__.py",
+      "target": "file:sats/web/social_hot.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/index.py",
+      "target": "file:sats/web/providers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,2837 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/rag/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/rag/__init__.py",
+      "summary": "定义 `rag` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/rag/chan_knowledge.py",
+      "type": "file",
+      "name": "chan_knowledge.py",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "summary": "实现 知识检索 中与 `chan knowledge` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/rag/chan_knowledge.py:ChanRuleCard",
+      "type": "class",
+      "name": "ChanRuleCard",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        13,
+        34
+      ],
+      "summary": "在 `chan_knowledge.py` 中定义 `ChanRuleCard` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:load_rule_cards",
+      "type": "function",
+      "name": "load_rule_cards",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        37,
+        48
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `load_rule_cards` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:search_chan_knowledge",
+      "type": "function",
+      "name": "search_chan_knowledge",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        51,
+        76
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `search_chan_knowledge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:build_chan_rule_cards_from_pdf",
+      "type": "function",
+      "name": "build_chan_rule_cards_from_pdf",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        79,
+        103
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `build_chan_rule_cards_from_pdf` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:_card_from_payload",
+      "type": "function",
+      "name": "_card_from_payload",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        106,
+        117
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `_card_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:_score_card",
+      "type": "function",
+      "name": "_score_card",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        120,
+        144
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `_score_card` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:_terms",
+      "type": "function",
+      "name": "_terms",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        147,
+        151
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/rag/chan_knowledge.py:_seed_rule_payloads",
+      "type": "function",
+      "name": "_seed_rule_payloads",
+      "filePath": "sats/rag/chan_knowledge.py",
+      "lineRange": [
+        154,
+        288
+      ],
+      "summary": "在 `chan_knowledge.py` 中实现 `_seed_rule_payloads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "rag",
+        "knowledge"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:sats/repl.py",
+      "type": "file",
+      "name": "repl.py",
+      "filePath": "sats/repl.py",
+      "summary": "实现交互式 REPL，负责 slash 命令、补全、帮助和聊天入口桥接。",
+      "tags": [
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/repl.py:InputSeparatorProcessor",
+      "type": "class",
+      "name": "InputSeparatorProcessor",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        477,
+        499
+      ],
+      "summary": "在 `repl.py` 中定义 `InputSeparatorProcessor` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/repl.py:ReplPromptSession",
+      "type": "class",
+      "name": "ReplPromptSession",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        502,
+        513
+      ],
+      "summary": "在 `repl.py` 中定义 `ReplPromptSession` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/repl.py:ReplState",
+      "type": "class",
+      "name": "ReplState",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        517,
+        530
+      ],
+      "summary": "在 `repl.py` 中定义 `ReplState` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/repl.py:ReplExecutionRecord",
+      "type": "class",
+      "name": "ReplExecutionRecord",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        534,
+        541
+      ],
+      "summary": "在 `repl.py` 中定义 `ReplExecutionRecord` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/repl.py:SlashCommandFileHistory",
+      "type": "class",
+      "name": "SlashCommandFileHistory",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1763,
+        1766
+      ],
+      "summary": "在 `repl.py` 中定义 `SlashCommandFileHistory` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/repl.py:_TeeStdout",
+      "type": "class",
+      "name": "_TeeStdout",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1799,
+        1859
+      ],
+      "summary": "在 `repl.py` 中定义 `_TeeStdout` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:run_repl",
+      "type": "function",
+      "name": "run_repl",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        544,
+        572
+      ],
+      "summary": "在 `repl.py` 中实现 `run_repl` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_prompt_message",
+      "type": "function",
+      "name": "_prompt_message",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        575,
+        576
+      ],
+      "summary": "在 `repl.py` 中实现 `_prompt_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:build_repl_completer",
+      "type": "function",
+      "name": "build_repl_completer",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        579,
+        586
+      ],
+      "summary": "在 `repl.py` 中实现 `build_repl_completer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_completion_display_dict",
+      "type": "function",
+      "name": "_completion_display_dict",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        589,
+        594
+      ],
+      "summary": "在 `repl.py` 中实现 `_completion_display_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:render_startup_banner",
+      "type": "function",
+      "name": "render_startup_banner",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        597,
+        616
+      ],
+      "summary": "在 `repl.py` 中实现 `render_startup_banner` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:render_help_box",
+      "type": "function",
+      "name": "render_help_box",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        619,
+        643
+      ],
+      "summary": "在 `repl.py` 中实现 `render_help_box` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_help_command_width",
+      "type": "function",
+      "name": "_help_command_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        646,
+        652
+      ],
+      "summary": "在 `repl.py` 中实现 `_help_command_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_help_row_fragments",
+      "type": "function",
+      "name": "_help_row_fragments",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        655,
+        670
+      ],
+      "summary": "在 `repl.py` 中实现 `_help_row_fragments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_banner_help_lines",
+      "type": "function",
+      "name": "_banner_help_lines",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        673,
+        679
+      ],
+      "summary": "在 `repl.py` 中实现 `_banner_help_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_banner_command_width",
+      "type": "function",
+      "name": "_banner_command_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        682,
+        684
+      ],
+      "summary": "在 `repl.py` 中实现 `_banner_command_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_banner_width",
+      "type": "function",
+      "name": "_banner_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        687,
+        689
+      ],
+      "summary": "在 `repl.py` 中实现 `_banner_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_top_border",
+      "type": "function",
+      "name": "_top_border",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        692,
+        693
+      ],
+      "summary": "在 `repl.py` 中实现 `_top_border` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_bottom_border",
+      "type": "function",
+      "name": "_bottom_border",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        696,
+        697
+      ],
+      "summary": "在 `repl.py` 中实现 `_bottom_border` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_box_line",
+      "type": "function",
+      "name": "_box_line",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        700,
+        701
+      ],
+      "summary": "在 `repl.py` 中实现 `_box_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_box_fragments",
+      "type": "function",
+      "name": "_print_box_fragments",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        704,
+        712
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_box_fragments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_plain_fragments",
+      "type": "function",
+      "name": "_print_plain_fragments",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        715,
+        723
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_plain_fragments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_banner_title",
+      "type": "function",
+      "name": "_print_banner_title",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        726,
+        728
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_banner_title` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_banner_logo_rows",
+      "type": "function",
+      "name": "_banner_logo_rows",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        731,
+        757
+      ],
+      "summary": "在 `repl.py` 中实现 `_banner_logo_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_pad_to_width",
+      "type": "function",
+      "name": "_pad_to_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        760,
+        761
+      ],
+      "summary": "在 `repl.py` 中实现 `_pad_to_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_truncate_to_width",
+      "type": "function",
+      "name": "_truncate_to_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        764,
+        780
+      ],
+      "summary": "在 `repl.py` 中实现 `_truncate_to_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_truncate_fragments_to_width",
+      "type": "function",
+      "name": "_truncate_fragments_to_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        783,
+        803
+      ],
+      "summary": "在 `repl.py` 中实现 `_truncate_fragments_to_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_display_width",
+      "type": "function",
+      "name": "_display_width",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        806,
+        807
+      ],
+      "summary": "在 `repl.py` 中实现 `_display_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_input_separator",
+      "type": "function",
+      "name": "_print_input_separator",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        810,
+        817
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_input_separator` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_status_toolbar",
+      "type": "function",
+      "name": "_status_toolbar",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        820,
+        831
+      ],
+      "summary": "在 `repl.py` 中实现 `_status_toolbar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_align_status_toolbar",
+      "type": "function",
+      "name": "_align_status_toolbar",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        834,
+        844
+      ],
+      "summary": "在 `repl.py` 中实现 `_align_status_toolbar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_runtime_status_bar",
+      "type": "function",
+      "name": "_runtime_status_bar",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        847,
+        867
+      ],
+      "summary": "在 `repl.py` 中实现 `_runtime_status_bar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_portfolio_status_bar",
+      "type": "function",
+      "name": "_portfolio_status_bar",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        870,
+        891
+      ],
+      "summary": "在 `repl.py` 中实现 `_portfolio_status_bar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_status_number",
+      "type": "function",
+      "name": "_status_number",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        894,
+        903
+      ],
+      "summary": "在 `repl.py` 中实现 `_status_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_refresh_runtime_status_bar",
+      "type": "function",
+      "name": "_refresh_runtime_status_bar",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        906,
+        909
+      ],
+      "summary": "在 `repl.py` 中实现 `_refresh_runtime_status_bar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_provider_label",
+      "type": "function",
+      "name": "_provider_label",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        912,
+        922
+      ],
+      "summary": "在 `repl.py` 中实现 `_provider_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_format_duration",
+      "type": "function",
+      "name": "_format_duration",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        925,
+        935
+      ],
+      "summary": "在 `repl.py` 中实现 `_format_duration` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_record_last_duration",
+      "type": "function",
+      "name": "_record_last_duration",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        938,
+        939
+      ],
+      "summary": "在 `repl.py` 中实现 `_record_last_duration` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_record_session_id",
+      "type": "function",
+      "name": "_record_session_id",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        942,
+        944
+      ],
+      "summary": "在 `repl.py` 中实现 `_record_session_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_active_chat_session",
+      "type": "function",
+      "name": "_active_chat_session",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        947,
+        948
+      ],
+      "summary": "在 `repl.py` 中实现 `_active_chat_session` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_new_chat_session_id",
+      "type": "function",
+      "name": "_new_chat_session_id",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        951,
+        952
+      ],
+      "summary": "在 `repl.py` 中实现 `_new_chat_session_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_new_chat_session",
+      "type": "function",
+      "name": "_handle_new_chat_session",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        955,
+        1000
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_new_chat_session` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_record_interaction_history",
+      "type": "function",
+      "name": "_record_interaction_history",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1003,
+        1023
+      ],
+      "summary": "在 `repl.py` 中实现 `_record_interaction_history` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:handle_repl_line",
+      "type": "function",
+      "name": "handle_repl_line",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1026,
+        1373
+      ],
+      "summary": "在 `repl.py` 中实现 `handle_repl_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/repl.py:_help_formatted_printer",
+      "type": "function",
+      "name": "_help_formatted_printer",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1376,
+        1384
+      ],
+      "summary": "在 `repl.py` 中实现 `_help_formatted_printer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_chat",
+      "type": "function",
+      "name": "_handle_chat",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1387,
+        1492
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_chat` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_clarification_answer",
+      "type": "function",
+      "name": "_handle_clarification_answer",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1495,
+        1540
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_clarification_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_answer_builtin",
+      "type": "function",
+      "name": "_handle_answer_builtin",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1543,
+        1574
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_answer_builtin` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_reject_pending_repl_clarification",
+      "type": "function",
+      "name": "_reject_pending_repl_clarification",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1577,
+        1594
+      ],
+      "summary": "在 `repl.py` 中实现 `_reject_pending_repl_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_update_pending_clarification_state",
+      "type": "function",
+      "name": "_update_pending_clarification_state",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1597,
+        1602
+      ],
+      "summary": "在 `repl.py` 中实现 `_update_pending_clarification_state` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_clear_pending_clarification",
+      "type": "function",
+      "name": "_clear_pending_clarification",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1605,
+        1607
+      ],
+      "summary": "在 `repl.py` 中实现 `_clear_pending_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_runtime_builtin",
+      "type": "function",
+      "name": "_handle_runtime_builtin",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1610,
+        1643
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_runtime_builtin` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/repl.py:_chat_result_from_runtime",
+      "type": "function",
+      "name": "_chat_result_from_runtime",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1646,
+        1656
+      ],
+      "summary": "在 `repl.py` 中实现 `_chat_result_from_runtime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_chat_result_from_agent",
+      "type": "function",
+      "name": "_chat_result_from_agent",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1659,
+        1672
+      ],
+      "summary": "在 `repl.py` 中实现 `_chat_result_from_agent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_chat_result_from_conversation",
+      "type": "function",
+      "name": "_chat_result_from_conversation",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1675,
+        1687
+      ],
+      "summary": "在 `repl.py` 中实现 `_chat_result_from_conversation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_chat_result",
+      "type": "function",
+      "name": "_print_chat_result",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1690,
+        1706
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_chat_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_natural_output",
+      "type": "function",
+      "name": "_print_natural_output",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1709,
+        1730
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_natural_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:repl_command_to_argv",
+      "type": "function",
+      "name": "repl_command_to_argv",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1733,
+        1737
+      ],
+      "summary": "在 `repl.py` 中实现 `repl_command_to_argv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:help_text",
+      "type": "function",
+      "name": "help_text",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1740,
+        1745
+      ],
+      "summary": "在 `repl.py` 中实现 `help_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_left_align_display",
+      "type": "function",
+      "name": "_left_align_display",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1748,
+        1749
+      ],
+      "summary": "在 `repl.py` 中实现 `_left_align_display` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_history",
+      "type": "function",
+      "name": "_history",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1752,
+        1760
+      ],
+      "summary": "在 `repl.py` 中实现 `_history` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_run_cli_command",
+      "type": "function",
+      "name": "_run_cli_command",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1769,
+        1772
+      ],
+      "summary": "在 `repl.py` 中实现 `_run_cli_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_system_exit_message",
+      "type": "function",
+      "name": "_system_exit_message",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1775,
+        1781
+      ],
+      "summary": "在 `repl.py` 中实现 `_system_exit_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_system_exit_failed",
+      "type": "function",
+      "name": "_system_exit_failed",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1784,
+        1785
+      ],
+      "summary": "在 `repl.py` 中实现 `_system_exit_failed` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_merge_history_output",
+      "type": "function",
+      "name": "_merge_history_output",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1788,
+        1790
+      ],
+      "summary": "在 `repl.py` 中实现 `_merge_history_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_print_system_exit",
+      "type": "function",
+      "name": "_print_system_exit",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1793,
+        1796
+      ],
+      "summary": "在 `repl.py` 中实现 `_print_system_exit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_handle_save_command",
+      "type": "function",
+      "name": "_handle_save_command",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1862,
+        1873
+      ],
+      "summary": "在 `repl.py` 中实现 `_handle_save_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_save_last_output",
+      "type": "function",
+      "name": "_save_last_output",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1876,
+        1880
+      ],
+      "summary": "在 `repl.py` 中实现 `_save_last_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_build_repl_reference_context",
+      "type": "function",
+      "name": "_build_repl_reference_context",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1883,
+        1892
+      ],
+      "summary": "在 `repl.py` 中实现 `_build_repl_reference_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_save_output",
+      "type": "function",
+      "name": "_save_output",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1895,
+        1905
+      ],
+      "summary": "在 `repl.py` 中实现 `_save_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/repl.py:_remember_output",
+      "type": "function",
+      "name": "_remember_output",
+      "filePath": "sats/repl.py",
+      "lineRange": [
+        1908,
+        1919
+      ],
+      "summary": "在 `repl.py` 中实现 `_remember_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "repl",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/runtime_status.py",
+      "type": "file",
+      "name": "runtime_status.py",
+      "filePath": "sats/runtime_status.py",
+      "summary": "实现 项目 中与 `runtime status` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "runtime-status",
+        "runtime-status-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/runtime_status.py:is_runtime_process_alive",
+      "type": "function",
+      "name": "is_runtime_process_alive",
+      "filePath": "sats/runtime_status.py",
+      "lineRange": [
+        6,
+        23
+      ],
+      "summary": "在 `runtime_status.py` 中实现 `is_runtime_process_alive` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "runtime-status",
+        "runtime-status-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/runtime_status.py:normalized_runtime_status",
+      "type": "function",
+      "name": "normalized_runtime_status",
+      "filePath": "sats/runtime_status.py",
+      "lineRange": [
+        26,
+        30
+      ],
+      "summary": "在 `runtime_status.py` 中实现 `normalized_runtime_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "runtime-status",
+        "runtime-status-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/runtime_status.py:runtime_is_running",
+      "type": "function",
+      "name": "runtime_is_running",
+      "filePath": "sats/runtime_status.py",
+      "lineRange": [
+        33,
+        34
+      ],
+      "summary": "在 `runtime_status.py` 中实现 `runtime_is_running` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "runtime-status",
+        "runtime-status-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/scheduler/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/scheduler/__init__.py",
+      "summary": "定义 `scheduler` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "scheduling",
+        "automation"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "class:sats/rag/chan_knowledge.py:ChanRuleCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "class:sats/rag/chan_knowledge.py:ChanRuleCard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:load_rule_cards",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:load_rule_cards",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:search_chan_knowledge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:search_chan_knowledge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:build_chan_rule_cards_from_pdf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:build_chan_rule_cards_from_pdf",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_card_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_card_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_score_card",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_score_card",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_seed_rule_payloads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/rag/chan_knowledge.py",
+      "target": "function:sats/rag/chan_knowledge.py:_seed_rule_payloads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:InputSeparatorProcessor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:InputSeparatorProcessor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplPromptSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplPromptSession",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplState",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplState",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplExecutionRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:ReplExecutionRecord",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:SlashCommandFileHistory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:SlashCommandFileHistory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:_TeeStdout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "class:sats/repl.py:_TeeStdout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:run_repl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:run_repl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_prompt_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_prompt_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:build_repl_completer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:build_repl_completer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_completion_display_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_completion_display_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:render_startup_banner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:render_startup_banner",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:render_help_box",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:render_help_box",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_command_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_command_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_row_fragments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_row_fragments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_help_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_help_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_command_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_command_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_top_border",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_top_border",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_bottom_border",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_bottom_border",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_box_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_box_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_box_fragments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_box_fragments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_plain_fragments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_plain_fragments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_banner_title",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_banner_title",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_logo_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_banner_logo_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_pad_to_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_pad_to_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_truncate_to_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_truncate_to_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_truncate_fragments_to_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_truncate_fragments_to_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_display_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_display_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_input_separator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_input_separator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_status_toolbar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_status_toolbar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_align_status_toolbar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_align_status_toolbar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_runtime_status_bar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_runtime_status_bar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_portfolio_status_bar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_portfolio_status_bar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_status_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_status_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_refresh_runtime_status_bar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_refresh_runtime_status_bar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_provider_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_provider_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_format_duration",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_format_duration",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_last_duration",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_last_duration",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_session_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_session_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_active_chat_session",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_active_chat_session",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_new_chat_session_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_new_chat_session_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_new_chat_session",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_new_chat_session",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_interaction_history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_record_interaction_history",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:handle_repl_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:handle_repl_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_formatted_printer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_help_formatted_printer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_chat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_chat",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_clarification_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_clarification_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_answer_builtin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_answer_builtin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_reject_pending_repl_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_reject_pending_repl_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_update_pending_clarification_state",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_update_pending_clarification_state",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_clear_pending_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_clear_pending_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_runtime_builtin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_runtime_builtin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_runtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_runtime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_agent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_agent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_conversation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_chat_result_from_conversation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_chat_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_chat_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_natural_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_natural_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:repl_command_to_argv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:repl_command_to_argv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:help_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:help_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_left_align_display",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_left_align_display",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_history",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_run_cli_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_run_cli_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_system_exit_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_system_exit_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_system_exit_failed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_system_exit_failed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_merge_history_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_merge_history_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_system_exit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_print_system_exit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_save_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_handle_save_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_save_last_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_save_last_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_build_repl_reference_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_build_repl_reference_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_save_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_save_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_remember_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "function:sats/repl.py:_remember_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:is_runtime_process_alive",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:is_runtime_process_alive",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:normalized_runtime_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:normalized_runtime_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:runtime_is_running",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/runtime_status.py",
+      "target": "function:sats/runtime_status.py:runtime_is_running",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/rag/__init__.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/rag/__init__.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/agent/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/agent/progress.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/chat_reference.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/chat_runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/chat.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/conversation/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/history.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/natural_output.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/output_saver.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/progress.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/runtime_status.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/scheduler/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/repl.py",
+      "target": "file:sats/storage/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/scheduler/__init__.py",
+      "target": "file:sats/scheduler/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

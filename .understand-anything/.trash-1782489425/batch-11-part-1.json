@@ -1,0 +1,4112 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/date_policy.py",
+      "type": "file",
+      "name": "date_policy.py",
+      "filePath": "sats/agent/date_policy.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `date policy` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/agent/date_policy.py:AgentTimeContext",
+      "type": "class",
+      "name": "AgentTimeContext",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        22,
+        27
+      ],
+      "summary": "在 `date_policy.py` 中定义 `AgentTimeContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/date_policy.py:SanitizedToolArguments",
+      "type": "class",
+      "name": "SanitizedToolArguments",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        31,
+        34
+      ],
+      "summary": "在 `date_policy.py` 中定义 `SanitizedToolArguments` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:agent_today",
+      "type": "function",
+      "name": "agent_today",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        37,
+        38
+      ],
+      "summary": "在 `date_policy.py` 中实现 `agent_today` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:normalize_agent_date",
+      "type": "function",
+      "name": "normalize_agent_date",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        41,
+        51
+      ],
+      "summary": "在 `date_policy.py` 中实现 `normalize_agent_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:resolve_agent_time_context",
+      "type": "function",
+      "name": "resolve_agent_time_context",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        54,
+        66
+      ],
+      "summary": "在 `date_policy.py` 中实现 `resolve_agent_time_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:sanitize_agent_tool_arguments",
+      "type": "function",
+      "name": "sanitize_agent_tool_arguments",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        69,
+        98
+      ],
+      "summary": "在 `date_policy.py` 中实现 `sanitize_agent_tool_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:is_forecast_without_intraday",
+      "type": "function",
+      "name": "is_forecast_without_intraday",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        101,
+        103
+      ],
+      "summary": "在 `date_policy.py` 中实现 `is_forecast_without_intraday` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_apply_forecast_policy",
+      "type": "function",
+      "name": "_apply_forecast_policy",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        106,
+        132
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_apply_forecast_policy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_normalize_date_fields",
+      "type": "function",
+      "name": "_normalize_date_fields",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        135,
+        154
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_normalize_date_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_explicit_dates",
+      "type": "function",
+      "name": "_explicit_dates",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        157,
+        174
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_explicit_dates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_forecast_horizons",
+      "type": "function",
+      "name": "_forecast_horizons",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        177,
+        188
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_forecast_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_requires_intraday_text",
+      "type": "function",
+      "name": "_requires_intraday_text",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        191,
+        195
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_requires_intraday_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_requires_intraday_arguments",
+      "type": "function",
+      "name": "_requires_intraday_arguments",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        198,
+        205
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_requires_intraday_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_copy_jsonable",
+      "type": "function",
+      "name": "_copy_jsonable",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        208,
+        215
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_copy_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/date_policy.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/agent/date_policy.py",
+      "lineRange": [
+        218,
+        225
+      ],
+      "summary": "在 `date_policy.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/planner.py",
+      "type": "file",
+      "name": "planner.py",
+      "filePath": "sats/agent/planner.py",
+      "summary": "实现 Agent 的主规划器，把研究目标拆解成可执行的工具步骤。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/planner.py:build_agent_plan",
+      "type": "function",
+      "name": "build_agent_plan",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        33,
+        95
+      ],
+      "summary": "在 `planner.py` 中实现 `build_agent_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_llm_plan_payload",
+      "type": "function",
+      "name": "_llm_plan_payload",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        98,
+        161
+      ],
+      "summary": "在 `planner.py` 中实现 `_llm_plan_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_planner_messages",
+      "type": "function",
+      "name": "_planner_messages",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        164,
+        230
+      ],
+      "summary": "在 `planner.py` 中实现 `_planner_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_plan_from_payload",
+      "type": "function",
+      "name": "_plan_from_payload",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        233,
+        285
+      ],
+      "summary": "在 `planner.py` 中实现 `_plan_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_fallback_plan",
+      "type": "function",
+      "name": "_fallback_plan",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        288,
+        573
+      ],
+      "summary": "在 `planner.py` 中实现 `_fallback_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_requires_standard_planner",
+      "type": "function",
+      "name": "_requires_standard_planner",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        576,
+        580
+      ],
+      "summary": "在 `planner.py` 中实现 `_requires_standard_planner` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_normalize_chat_answer_steps",
+      "type": "function",
+      "name": "_normalize_chat_answer_steps",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        583,
+        601
+      ],
+      "summary": "在 `planner.py` 中实现 `_normalize_chat_answer_steps` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_with_planner_model_meta",
+      "type": "function",
+      "name": "_with_planner_model_meta",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        604,
+        617
+      ],
+      "summary": "在 `planner.py` 中实现 `_with_planner_model_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        620,
+        621
+      ],
+      "summary": "在 `planner.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        624,
+        625
+      ],
+      "summary": "在 `planner.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        628,
+        634
+      ],
+      "summary": "在 `planner.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_augment_plan",
+      "type": "function",
+      "name": "_augment_plan",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        637,
+        858
+      ],
+      "summary": "在 `planner.py` 中实现 `_augment_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_tool_step",
+      "type": "function",
+      "name": "_tool_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        861,
+        869
+      ],
+      "summary": "在 `planner.py` 中实现 `_tool_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_with_explicit_minute_periods",
+      "type": "function",
+      "name": "_with_explicit_minute_periods",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        872,
+        883
+      ],
+      "summary": "在 `planner.py` 中实现 `_with_explicit_minute_periods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_analyze_signals_step",
+      "type": "function",
+      "name": "_analyze_signals_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        886,
+        899
+      ],
+      "summary": "在 `planner.py` 中实现 `_analyze_signals_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_hot_sector_context_step",
+      "type": "function",
+      "name": "_hot_sector_context_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        902,
+        909
+      ],
+      "summary": "在 `planner.py` 中实现 `_hot_sector_context_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_theme_stock_returns_step",
+      "type": "function",
+      "name": "_theme_stock_returns_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        912,
+        929
+      ],
+      "summary": "在 `planner.py` 中实现 `_theme_stock_returns_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_return_ranking_step",
+      "type": "function",
+      "name": "_sector_return_ranking_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        932,
+        946
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_return_ranking_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_auto_program_steps",
+      "type": "function",
+      "name": "_auto_program_steps",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        949,
+        985
+      ],
+      "summary": "在 `planner.py` 中实现 `_auto_program_steps` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_theme_stock_list_step",
+      "type": "function",
+      "name": "_theme_stock_list_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        988,
+        995
+      ],
+      "summary": "在 `planner.py` 中实现 `_theme_stock_list_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_steps",
+      "type": "function",
+      "name": "_web_steps",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        998,
+        1045
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_steps` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_clean_command",
+      "type": "function",
+      "name": "_clean_command",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1048,
+        1058
+      ],
+      "summary": "在 `planner.py` 中实现 `_clean_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_string_list",
+      "type": "function",
+      "name": "_string_list",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1061,
+        1066
+      ],
+      "summary": "在 `planner.py` 中实现 `_string_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_reference_symbols_for_message",
+      "type": "function",
+      "name": "_reference_symbols_for_message",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1069,
+        1072
+      ],
+      "summary": "在 `planner.py` 中实现 `_reference_symbols_for_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_reference_trade_date",
+      "type": "function",
+      "name": "_reference_trade_date",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1075,
+        1076
+      ],
+      "summary": "在 `planner.py` 中实现 `_reference_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_reference_context_prompt",
+      "type": "function",
+      "name": "_reference_context_prompt",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1079,
+        1094
+      ],
+      "summary": "在 `planner.py` 中实现 `_reference_context_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_short_text",
+      "type": "function",
+      "name": "_short_text",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1097,
+        1099
+      ],
+      "summary": "在 `planner.py` 中实现 `_short_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_trade_request",
+      "type": "function",
+      "name": "_is_trade_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1102,
+        1104
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_trade_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_factor_request",
+      "type": "function",
+      "name": "_is_factor_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1107,
+        1109
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_factor_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_factor_analyze_request",
+      "type": "function",
+      "name": "_is_factor_analyze_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1112,
+        1114
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_factor_analyze_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_factor_ml_request",
+      "type": "function",
+      "name": "_is_factor_ml_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1117,
+        1119
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_factor_ml_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_factor_ml_command",
+      "type": "function",
+      "name": "_factor_ml_command",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1122,
+        1132
+      ],
+      "summary": "在 `planner.py` 中实现 `_factor_ml_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_factor_id",
+      "type": "function",
+      "name": "_factor_id",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1135,
+        1148
+      ],
+      "summary": "在 `planner.py` 中实现 `_factor_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_market_analysis_request",
+      "type": "function",
+      "name": "_is_market_analysis_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1151,
+        1157
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_market_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_hot_sector_lookup_request",
+      "type": "function",
+      "name": "_is_hot_sector_lookup_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1160,
+        1171
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_hot_sector_lookup_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_hot_sector_opportunity_request",
+      "type": "function",
+      "name": "_is_hot_sector_opportunity_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1174,
+        1178
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_hot_sector_opportunity_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_stock_analysis_request",
+      "type": "function",
+      "name": "_is_stock_analysis_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1181,
+        1189
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_stock_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_company_fundamentals_request",
+      "type": "function",
+      "name": "_is_company_fundamentals_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1192,
+        1206
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_company_fundamentals_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_deep_stock_analysis_request",
+      "type": "function",
+      "name": "_is_deep_stock_analysis_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1209,
+        1233
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_deep_stock_analysis_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_serenity_screen_request",
+      "type": "function",
+      "name": "_is_serenity_screen_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1236,
+        1272
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_serenity_screen_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_has_explicit_non_serenity_rule",
+      "type": "function",
+      "name": "_has_explicit_non_serenity_rule",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1275,
+        1281
+      ],
+      "summary": "在 `planner.py` 中实现 `_has_explicit_non_serenity_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_serenity_screen_args",
+      "type": "function",
+      "name": "_serenity_screen_args",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1284,
+        1295
+      ],
+      "summary": "在 `planner.py` 中实现 `_serenity_screen_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_opportunity_request",
+      "type": "function",
+      "name": "_is_opportunity_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1298,
+        1299
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_opportunity_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_chan_request",
+      "type": "function",
+      "name": "_is_chan_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1302,
+        1304
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_chan_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_dsa_request",
+      "type": "function",
+      "name": "_is_dsa_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1307,
+        1309
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_dsa_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_signal_analysis",
+      "type": "function",
+      "name": "_needs_signal_analysis",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1312,
+        1314
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_signal_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_factor_summary",
+      "type": "function",
+      "name": "_needs_factor_summary",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1317,
+        1321
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_factor_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_knowledge_context_args",
+      "type": "function",
+      "name": "_knowledge_context_args",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1324,
+        1338
+      ],
+      "summary": "在 `planner.py` 中实现 `_knowledge_context_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_market_horizons",
+      "type": "function",
+      "name": "_market_horizons",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1341,
+        1353
+      ],
+      "summary": "在 `planner.py` 中实现 `_market_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_market_context_args",
+      "type": "function",
+      "name": "_market_context_args",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1356,
+        1365
+      ],
+      "summary": "在 `planner.py` 中实现 `_market_context_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_web_evidence",
+      "type": "function",
+      "name": "_needs_web_evidence",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1368,
+        1369
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_web_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_sector_return_ranking_request",
+      "type": "function",
+      "name": "_is_sector_return_ranking_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1372,
+        1384
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_sector_return_ranking_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_ranking_source",
+      "type": "function",
+      "name": "_sector_ranking_source",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1387,
+        1391
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_ranking_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_ranking_type",
+      "type": "function",
+      "name": "_sector_ranking_type",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1394,
+        1398
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_ranking_type` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_ranking_direction",
+      "type": "function",
+      "name": "_sector_ranking_direction",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1401,
+        1405
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_ranking_direction` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_ranking_period",
+      "type": "function",
+      "name": "_sector_ranking_period",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1408,
+        1419
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_ranking_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_sector_ranking_limit",
+      "type": "function",
+      "name": "_sector_ranking_limit",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1422,
+        1429
+      ],
+      "summary": "在 `planner.py` 中实现 `_sector_ranking_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_chinese_number_value",
+      "type": "function",
+      "name": "_chinese_number_value",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1432,
+        1442
+      ],
+      "summary": "在 `planner.py` 中实现 `_chinese_number_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_auto_program_request",
+      "type": "function",
+      "name": "_is_auto_program_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1445,
+        1447
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_auto_program_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_catalog_query_for_program",
+      "type": "function",
+      "name": "_catalog_query_for_program",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1450,
+        1452
+      ],
+      "summary": "在 `planner.py` 中实现 `_catalog_query_for_program` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_theme_stock_return_request",
+      "type": "function",
+      "name": "_is_theme_stock_return_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1455,
+        1469
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_theme_stock_return_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_theme_stock_list_request",
+      "type": "function",
+      "name": "_is_theme_stock_list_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1472,
+        1486
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_theme_stock_list_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_compact_theme_request_text",
+      "type": "function",
+      "name": "_compact_theme_request_text",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1489,
+        1490
+      ],
+      "summary": "在 `planner.py` 中实现 `_compact_theme_request_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_negates_short_opportunity_prediction",
+      "type": "function",
+      "name": "_negates_short_opportunity_prediction",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1493,
+        1509
+      ],
+      "summary": "在 `planner.py` 中实现 `_negates_short_opportunity_prediction` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_theme_return_period",
+      "type": "function",
+      "name": "_theme_return_period",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1512,
+        1524
+      ],
+      "summary": "在 `planner.py` 中实现 `_theme_return_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_theme_return_peer_theme",
+      "type": "function",
+      "name": "_theme_return_peer_theme",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1527,
+        1540
+      ],
+      "summary": "在 `planner.py` 中实现 `_theme_return_peer_theme` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_clean_peer_theme",
+      "type": "function",
+      "name": "_clean_peer_theme",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1543,
+        1551
+      ],
+      "summary": "在 `planner.py` 中实现 `_clean_peer_theme` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_small_period_amount",
+      "type": "function",
+      "name": "_small_period_amount",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1554,
+        1571
+      ],
+      "summary": "在 `planner.py` 中实现 `_small_period_amount` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_akshare_data_request",
+      "type": "function",
+      "name": "_is_akshare_data_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1574,
+        1576
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_akshare_data_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_akshare_dataset_id",
+      "type": "function",
+      "name": "_akshare_dataset_id",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1579,
+        1586
+      ],
+      "summary": "在 `planner.py` 中实现 `_akshare_dataset_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_akshare_query",
+      "type": "function",
+      "name": "_akshare_query",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1589,
+        1593
+      ],
+      "summary": "在 `planner.py` 中实现 `_akshare_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_web_search",
+      "type": "function",
+      "name": "_needs_web_search",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1596,
+        1625
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_web_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_social_hot",
+      "type": "function",
+      "name": "_needs_social_hot",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1628,
+        1648
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_social_hot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_social_mentions",
+      "type": "function",
+      "name": "_needs_social_mentions",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1651,
+        1654
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_social_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_platforms",
+      "type": "function",
+      "name": "_web_platforms",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1657,
+        1687
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_platforms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_keyword",
+      "type": "function",
+      "name": "_web_keyword",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1690,
+        1698
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_keyword` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_freshness",
+      "type": "function",
+      "name": "_web_freshness",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1701,
+        1708
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_freshness` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_context_size",
+      "type": "function",
+      "name": "_web_context_size",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1711,
+        1714
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_context_size` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_market_data_only_request",
+      "type": "function",
+      "name": "_is_market_data_only_request",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1717,
+        1737
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_market_data_only_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_web_limit",
+      "type": "function",
+      "name": "_web_limit",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1740,
+        1746
+      ],
+      "summary": "在 `planner.py` 中实现 `_web_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_with_default_market_dimensions",
+      "type": "function",
+      "name": "_with_default_market_dimensions",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1749,
+        1755
+      ],
+      "summary": "在 `planner.py` 中实现 `_with_default_market_dimensions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_analysis_trade_date",
+      "type": "function",
+      "name": "_analysis_trade_date",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1758,
+        1762
+      ],
+      "summary": "在 `planner.py` 中实现 `_analysis_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_analysis_signals",
+      "type": "function",
+      "name": "_analysis_signals",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1765,
+        1766
+      ],
+      "summary": "在 `planner.py` 中实现 `_analysis_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_strategy_intents",
+      "type": "function",
+      "name": "_strategy_intents",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1769,
+        1801
+      ],
+      "summary": "在 `planner.py` 中实现 `_strategy_intents` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_strategy_signals",
+      "type": "function",
+      "name": "_strategy_signals",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1804,
+        1821
+      ],
+      "summary": "在 `planner.py` 中实现 `_strategy_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_hot_sector_context",
+      "type": "function",
+      "name": "_needs_hot_sector_context",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1824,
+        1825
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_hot_sector_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_factor_strategy_summary",
+      "type": "function",
+      "name": "_needs_factor_strategy_summary",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1828,
+        1829
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_factor_strategy_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_public_strategy_evidence",
+      "type": "function",
+      "name": "_needs_public_strategy_evidence",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1832,
+        1833
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_public_strategy_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_explicit_signal_selection",
+      "type": "function",
+      "name": "_explicit_signal_selection",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1836,
+        1856
+      ],
+      "summary": "在 `planner.py` 中实现 `_explicit_signal_selection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_final_index",
+      "type": "function",
+      "name": "_final_index",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1859,
+        1863
+      ],
+      "summary": "在 `planner.py` 中实现 `_final_index` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_insert_before_factor_or_final",
+      "type": "function",
+      "name": "_insert_before_factor_or_final",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1866,
+        1872
+      ],
+      "summary": "在 `planner.py` 中实现 `_insert_before_factor_or_final` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_has_tool",
+      "type": "function",
+      "name": "_has_tool",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1875,
+        1876
+      ],
+      "summary": "在 `planner.py` 中实现 `_has_tool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_has_internal_analysis_kind",
+      "type": "function",
+      "name": "_has_internal_analysis_kind",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1879,
+        1880
+      ],
+      "summary": "在 `planner.py` 中实现 `_has_internal_analysis_kind` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_plan_stock_symbols",
+      "type": "function",
+      "name": "_plan_stock_symbols",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1883,
+        1894
+      ],
+      "summary": "在 `planner.py` 中实现 `_plan_stock_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_resolve_message_stock_symbols",
+      "type": "function",
+      "name": "_resolve_message_stock_symbols",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1897,
+        1909
+      ],
+      "summary": "在 `planner.py` 中实现 `_resolve_message_stock_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_message_may_contain_stock_name",
+      "type": "function",
+      "name": "_message_may_contain_stock_name",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1912,
+        1951
+      ],
+      "summary": "在 `planner.py` 中实现 `_message_may_contain_stock_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_rewrite_invalid_stock_basic_fetch_step",
+      "type": "function",
+      "name": "_rewrite_invalid_stock_basic_fetch_step",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1954,
+        1982
+      ],
+      "summary": "在 `planner.py` 中实现 `_rewrite_invalid_stock_basic_fetch_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_replace_unresolved_step_symbols",
+      "type": "function",
+      "name": "_replace_unresolved_step_symbols",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1985,
+        1992
+      ],
+      "summary": "在 `planner.py` 中实现 `_replace_unresolved_step_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_with_resolved_step_symbols",
+      "type": "function",
+      "name": "_with_resolved_step_symbols",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        1995,
+        1999
+      ],
+      "summary": "在 `planner.py` 中实现 `_with_resolved_step_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_looks_like_stock_symbol",
+      "type": "function",
+      "name": "_looks_like_stock_symbol",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2002,
+        2009
+      ],
+      "summary": "在 `planner.py` 中实现 `_looks_like_stock_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_looks_like_index_symbol",
+      "type": "function",
+      "name": "_looks_like_index_symbol",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2012,
+        2014
+      ],
+      "summary": "在 `planner.py` 中实现 `_looks_like_index_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_is_pure_factor_workflow",
+      "type": "function",
+      "name": "_is_pure_factor_workflow",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2017,
+        2022
+      ],
+      "summary": "在 `planner.py` 中实现 `_is_pure_factor_workflow` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_factor_profile",
+      "type": "function",
+      "name": "_factor_profile",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2025,
+        2033
+      ],
+      "summary": "在 `planner.py` 中实现 `_factor_profile` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_top_n",
+      "type": "function",
+      "name": "_top_n",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2036,
+        2040
+      ],
+      "summary": "在 `planner.py` 中实现 `_top_n` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_needs_symbol_default",
+      "type": "function",
+      "name": "_needs_symbol_default",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2043,
+        2044
+      ],
+      "summary": "在 `planner.py` 中实现 `_needs_symbol_default` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_looks_like_sats_command",
+      "type": "function",
+      "name": "_looks_like_sats_command",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2047,
+        2049
+      ],
+      "summary": "在 `planner.py` 中实现 `_looks_like_sats_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_command_from_text",
+      "type": "function",
+      "name": "_command_from_text",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2052,
+        2058
+      ],
+      "summary": "在 `planner.py` 中实现 `_command_from_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_today",
+      "type": "function",
+      "name": "_today",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2061,
+        2062
+      ],
+      "summary": "在 `planner.py` 中实现 `_today` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner.py:_date_days_before",
+      "type": "function",
+      "name": "_date_days_before",
+      "filePath": "sats/agent/planner.py",
+      "lineRange": [
+        2065,
+        2070
+      ],
+      "summary": "在 `planner.py` 中实现 `_date_days_before` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "class:sats/agent/date_policy.py:AgentTimeContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "class:sats/agent/date_policy.py:AgentTimeContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "class:sats/agent/date_policy.py:SanitizedToolArguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "class:sats/agent/date_policy.py:SanitizedToolArguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:agent_today",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:agent_today",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:normalize_agent_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:normalize_agent_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:resolve_agent_time_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:resolve_agent_time_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:sanitize_agent_tool_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:sanitize_agent_tool_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:is_forecast_without_intraday",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:is_forecast_without_intraday",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_apply_forecast_policy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_apply_forecast_policy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_normalize_date_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_normalize_date_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_explicit_dates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_explicit_dates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_forecast_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_forecast_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_requires_intraday_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_requires_intraday_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_requires_intraday_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_requires_intraday_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_copy_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_copy_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "function:sats/agent/date_policy.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:build_agent_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:build_agent_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_llm_plan_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_llm_plan_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_planner_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_planner_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_plan_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_plan_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_fallback_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_fallback_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_requires_standard_planner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_requires_standard_planner",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_normalize_chat_answer_steps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_normalize_chat_answer_steps",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_planner_model_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_planner_model_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_augment_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_augment_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_tool_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_tool_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_explicit_minute_periods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_explicit_minute_periods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analyze_signals_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analyze_signals_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_hot_sector_context_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_hot_sector_context_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_stock_returns_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_stock_returns_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_return_ranking_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_return_ranking_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_auto_program_steps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_auto_program_steps",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_stock_list_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_stock_list_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_steps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_steps",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_clean_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_clean_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_string_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_string_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_symbols_for_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_symbols_for_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_context_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_reference_context_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_short_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_short_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_trade_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_trade_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_analyze_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_analyze_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_ml_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_factor_ml_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_ml_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_ml_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_market_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_market_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_hot_sector_lookup_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_hot_sector_lookup_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_hot_sector_opportunity_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_hot_sector_opportunity_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_stock_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_stock_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_company_fundamentals_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_company_fundamentals_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_deep_stock_analysis_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_deep_stock_analysis_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_serenity_screen_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_serenity_screen_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_explicit_non_serenity_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_explicit_non_serenity_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_serenity_screen_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_serenity_screen_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_opportunity_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_opportunity_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_chan_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_chan_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_dsa_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_dsa_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_signal_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_signal_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_factor_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_factor_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_knowledge_context_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_knowledge_context_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_market_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_market_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_market_context_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_market_context_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_web_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_web_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_sector_return_ranking_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_sector_return_ranking_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_type",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_direction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_direction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_sector_ranking_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_chinese_number_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_chinese_number_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_auto_program_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_auto_program_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_catalog_query_for_program",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_catalog_query_for_program",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_theme_stock_return_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_theme_stock_return_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_theme_stock_list_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_theme_stock_list_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_compact_theme_request_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_compact_theme_request_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_negates_short_opportunity_prediction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_negates_short_opportunity_prediction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_return_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_return_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_return_peer_theme",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_theme_return_peer_theme",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_clean_peer_theme",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_clean_peer_theme",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_small_period_amount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_small_period_amount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_akshare_data_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_akshare_data_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_akshare_dataset_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_akshare_dataset_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_akshare_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_akshare_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_web_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_web_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_social_hot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_social_hot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_social_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_social_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_platforms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_platforms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_keyword",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_keyword",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_freshness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_freshness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_context_size",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_context_size",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_market_data_only_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_market_data_only_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_web_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_default_market_dimensions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_default_market_dimensions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analysis_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analysis_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analysis_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_analysis_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_strategy_intents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_strategy_intents",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_strategy_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_strategy_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_hot_sector_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_hot_sector_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_factor_strategy_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_factor_strategy_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_public_strategy_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_public_strategy_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_explicit_signal_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_explicit_signal_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_final_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_final_index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_insert_before_factor_or_final",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_insert_before_factor_or_final",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_internal_analysis_kind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_has_internal_analysis_kind",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_plan_stock_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_plan_stock_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_resolve_message_stock_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_resolve_message_stock_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_message_may_contain_stock_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_message_may_contain_stock_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_rewrite_invalid_stock_basic_fetch_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_rewrite_invalid_stock_basic_fetch_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_replace_unresolved_step_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_replace_unresolved_step_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_resolved_step_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_with_resolved_step_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_stock_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_stock_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_index_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_index_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_pure_factor_workflow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_is_pure_factor_workflow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_profile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_factor_profile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_top_n",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_top_n",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_symbol_default",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_needs_symbol_default",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_sats_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_looks_like_sats_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_command_from_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_command_from_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_today",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_today",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_date_days_before",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "function:sats/agent/planner.py:_date_days_before",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/date_policy.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/agent/date_policy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/agent/tools/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/agent/tools/workflow_tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/chat_reference.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/natural_task.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/screening/rule_composer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

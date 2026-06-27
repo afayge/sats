@@ -1,0 +1,1074 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/scheduler/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "sats/scheduler/service.py",
+      "summary": "实现定时任务管理与执行编排，把 CLI 与聊天任务纳入统一调度。",
+      "tags": [
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/scheduler/service.py:SchedulerConfig",
+      "type": "class",
+      "name": "SchedulerConfig",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        45,
+        47
+      ],
+      "summary": "在 `service.py` 中定义 `SchedulerConfig` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/scheduler/service.py:ScheduledTaskRunner",
+      "type": "class",
+      "name": "ScheduledTaskRunner",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        50,
+        155
+      ],
+      "summary": "在 `service.py` 中定义 `ScheduledTaskRunner` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/scheduler/service.py:SchedulerService",
+      "type": "class",
+      "name": "SchedulerService",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        158,
+        275
+      ],
+      "summary": "在 `service.py` 中定义 `SchedulerService` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/scheduler/service.py:_ScheduledTaskExecutionError",
+      "type": "class",
+      "name": "_ScheduledTaskExecutionError",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        362,
+        365
+      ],
+      "summary": "在 `service.py` 中定义 `_ScheduledTaskExecutionError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:compute_next_run",
+      "type": "function",
+      "name": "compute_next_run",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        278,
+        314
+      ],
+      "summary": "在 `service.py` 中实现 `compute_next_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:parse_schedule_days",
+      "type": "function",
+      "name": "parse_schedule_days",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        317,
+        329
+      ],
+      "summary": "在 `service.py` 中实现 `parse_schedule_days` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:validate_time_of_day",
+      "type": "function",
+      "name": "validate_time_of_day",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        332,
+        334
+      ],
+      "summary": "在 `service.py` 中实现 `validate_time_of_day` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:format_task_schedule",
+      "type": "function",
+      "name": "format_task_schedule",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        337,
+        345
+      ],
+      "summary": "在 `service.py` 中实现 `format_task_schedule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_validate_cli_argv",
+      "type": "function",
+      "name": "_validate_cli_argv",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        348,
+        359
+      ],
+      "summary": "在 `service.py` 中实现 `_validate_cli_argv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_extract_report_path",
+      "type": "function",
+      "name": "_extract_report_path",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        368,
+        372
+      ],
+      "summary": "在 `service.py` 中实现 `_extract_report_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_is_trading_day",
+      "type": "function",
+      "name": "_is_trading_day",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        375,
+        404
+      ],
+      "summary": "在 `service.py` 中实现 `_is_trading_day` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_join_output",
+      "type": "function",
+      "name": "_join_output",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        407,
+        409
+      ],
+      "summary": "在 `service.py` 中实现 `_join_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_parse_time",
+      "type": "function",
+      "name": "_parse_time",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        412,
+        424
+      ],
+      "summary": "在 `service.py` 中实现 `_parse_time` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        427,
+        428
+      ],
+      "summary": "在 `service.py` 中实现 `_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_ensure_tz",
+      "type": "function",
+      "name": "_ensure_tz",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        431,
+        434
+      ],
+      "summary": "在 `service.py` 中实现 `_ensure_tz` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/scheduler/service.py:_format_dt",
+      "type": "function",
+      "name": "_format_dt",
+      "filePath": "sats/scheduler/service.py",
+      "lineRange": [
+        437,
+        442
+      ],
+      "summary": "在 `service.py` 中实现 `_format_dt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "scheduling",
+        "automation",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/storage/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/storage/__init__.py",
+      "summary": "定义 `storage` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/storage/duckdb.py",
+      "type": "file",
+      "name": "duckdb.py",
+      "filePath": "sats/storage/duckdb.py",
+      "summary": "封装 DuckDB 存储层，负责缓存、筛选结果、监控与会话等本地持久化能力。",
+      "tags": [
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/storage/duckdb.py:DuckDBStorage",
+      "type": "class",
+      "name": "DuckDBStorage",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        26,
+        2127
+      ],
+      "summary": "在 `duckdb.py` 中定义 `DuckDBStorage` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_prepare_frame",
+      "type": "function",
+      "name": "_prepare_frame",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2130,
+        2143
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_prepare_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_drop_current_trading_session_rows",
+      "type": "function",
+      "name": "_drop_current_trading_session_rows",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2146,
+        2153
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_drop_current_trading_session_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_cache_date_from_value",
+      "type": "function",
+      "name": "_cache_date_from_value",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2156,
+        2168
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_cache_date_from_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_with_cache_metadata",
+      "type": "function",
+      "name": "_with_cache_metadata",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2171,
+        2183
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_with_cache_metadata` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_normalize_quote_columns",
+      "type": "function",
+      "name": "_normalize_quote_columns",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2186,
+        2201
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_normalize_quote_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_now_timestamp",
+      "type": "function",
+      "name": "_now_timestamp",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2204,
+        2205
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_now_timestamp` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_scheduled_task_row",
+      "type": "function",
+      "name": "_scheduled_task_row",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2208,
+        2226
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_scheduled_task_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_optional_float",
+      "type": "function",
+      "name": "_optional_float",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2229,
+        2237
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_optional_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_loads_json",
+      "type": "function",
+      "name": "_loads_json",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2240,
+        2246
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_loads_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/storage/duckdb.py:_stable_id",
+      "type": "function",
+      "name": "_stable_id",
+      "filePath": "sats/storage/duckdb.py",
+      "lineRange": [
+        2249,
+        2250
+      ],
+      "summary": "在 `duckdb.py` 中实现 `_stable_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/trading/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/trading/__init__.py",
+      "summary": "定义 `trading` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/trading/broker.py",
+      "type": "file",
+      "name": "broker.py",
+      "filePath": "sats/trading/broker.py",
+      "summary": "定义交易 broker 抽象与受控交易边界，约束真实下单能力的接入方式。",
+      "tags": [
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/broker.py:BrokerError",
+      "type": "class",
+      "name": "BrokerError",
+      "filePath": "sats/trading/broker.py",
+      "lineRange": [
+        8,
+        9
+      ],
+      "summary": "在 `broker.py` 中定义 `BrokerError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/trading/broker.py:BrokerClient",
+      "type": "class",
+      "name": "BrokerClient",
+      "filePath": "sats/trading/broker.py",
+      "lineRange": [
+        12,
+        35
+      ],
+      "summary": "在 `broker.py` 中定义 `BrokerClient` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "trading",
+        "broker"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:SchedulerConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:SchedulerConfig",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:ScheduledTaskRunner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:ScheduledTaskRunner",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:SchedulerService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:SchedulerService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:_ScheduledTaskExecutionError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "class:sats/scheduler/service.py:_ScheduledTaskExecutionError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:compute_next_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:compute_next_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:parse_schedule_days",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:parse_schedule_days",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:validate_time_of_day",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:validate_time_of_day",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:format_task_schedule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:format_task_schedule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_validate_cli_argv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_validate_cli_argv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_extract_report_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_extract_report_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_is_trading_day",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_is_trading_day",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_join_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_join_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_parse_time",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_parse_time",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_ensure_tz",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_ensure_tz",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_format_dt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "function:sats/scheduler/service.py:_format_dt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "class:sats/storage/duckdb.py:DuckDBStorage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "class:sats/storage/duckdb.py:DuckDBStorage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_prepare_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_prepare_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_drop_current_trading_session_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_drop_current_trading_session_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_cache_date_from_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_cache_date_from_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_with_cache_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_with_cache_metadata",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_normalize_quote_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_normalize_quote_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_now_timestamp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_now_timestamp",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_scheduled_task_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_scheduled_task_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_optional_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_optional_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_loads_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_loads_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_stable_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "function:sats/storage/duckdb.py:_stable_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/broker.py",
+      "target": "class:sats/trading/broker.py:BrokerError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/broker.py",
+      "target": "class:sats/trading/broker.py:BrokerError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/trading/broker.py",
+      "target": "class:sats/trading/broker.py:BrokerClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/trading/broker.py",
+      "target": "class:sats/trading/broker.py:BrokerClient",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/scheduler/service.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/storage/__init__.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "file:sats/market_clock.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/storage/duckdb.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/__init__.py",
+      "target": "file:sats/trading/broker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/__init__.py",
+      "target": "file:sats/trading/miniqmt_client.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/__init__.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/trading/broker.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,1048 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_163.py",
+      "type": "file",
+      "name": "alpha_163.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_163.py",
+      "summary": "定义 GTJA191 因子 163 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_163.py",
+      "lineRange": [
+        48,
+        64
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_164.py",
+      "type": "file",
+      "name": "alpha_164.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_164.py",
+      "summary": "定义 GTJA191 因子 164 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_164.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_164.py",
+      "lineRange": [
+        47,
+        67
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_165.py",
+      "type": "file",
+      "name": "alpha_165.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_165.py",
+      "summary": "定义 GTJA191 因子 165 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_165.py",
+      "lineRange": [
+        47,
+        60
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_166.py",
+      "type": "file",
+      "name": "alpha_166.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_166.py",
+      "summary": "定义 GTJA191 因子 166 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_166.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_166.py",
+      "lineRange": [
+        47,
+        62
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_167.py",
+      "type": "file",
+      "name": "alpha_167.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_167.py",
+      "summary": "定义 GTJA191 因子 167 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_167.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_167.py",
+      "lineRange": [
+        47,
+        58
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_168.py",
+      "type": "file",
+      "name": "alpha_168.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_168.py",
+      "summary": "定义 GTJA191 因子 168 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_168.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_168.py",
+      "lineRange": [
+        47,
+        58
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_169.py",
+      "type": "file",
+      "name": "alpha_169.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_169.py",
+      "summary": "定义 GTJA191 因子 169 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_169.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_169.py",
+      "lineRange": [
+        47,
+        62
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_170.py",
+      "type": "file",
+      "name": "alpha_170.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_170.py",
+      "summary": "定义 GTJA191 因子 170 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_170.py",
+      "lineRange": [
+        48,
+        66
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_171.py",
+      "type": "file",
+      "name": "alpha_171.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_171.py",
+      "summary": "定义 GTJA191 因子 171 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_171.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_171.py",
+      "lineRange": [
+        47,
+        61
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_172.py",
+      "type": "file",
+      "name": "alpha_172.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_172.py",
+      "summary": "定义 GTJA191 因子 172 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_172.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_172.py",
+      "lineRange": [
+        47,
+        75
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_173.py",
+      "type": "file",
+      "name": "alpha_173.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_173.py",
+      "summary": "定义 GTJA191 因子 173 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_173.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_173.py",
+      "lineRange": [
+        47,
+        64
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_174.py",
+      "type": "file",
+      "name": "alpha_174.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_174.py",
+      "summary": "定义 GTJA191 因子 174 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_174.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_174.py",
+      "lineRange": [
+        47,
+        62
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_175.py",
+      "type": "file",
+      "name": "alpha_175.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_175.py",
+      "summary": "定义 GTJA191 因子 175 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_175.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_175.py",
+      "lineRange": [
+        47,
+        66
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_176.py",
+      "type": "file",
+      "name": "alpha_176.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_176.py",
+      "summary": "定义 GTJA191 因子 176 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_176.py",
+      "lineRange": [
+        47,
+        64
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/alpha_177.py",
+      "type": "file",
+      "name": "alpha_177.py",
+      "filePath": "sats/factors/zoo/gtja191/alpha_177.py",
+      "summary": "定义 GTJA191 因子 177 的计算过程，用于多因子研究与选股工作流。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "gtja191",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/gtja191/alpha_177.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/gtja191/alpha_177.py",
+      "lineRange": [
+        47,
+        58
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_163.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_163.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_164.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_164.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_164.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_164.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_165.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_165.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_166.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_166.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_166.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_166.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_167.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_167.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_167.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_167.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_168.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_168.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_168.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_168.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_169.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_169.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_169.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_169.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_170.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_170.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_171.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_171.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_171.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_171.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_172.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_172.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_172.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_172.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_173.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_173.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_173.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_173.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_174.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_174.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_174.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_174.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_175.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_175.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_175.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_175.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_176.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_176.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_177.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_177.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_177.py",
+      "target": "function:sats/factors/zoo/gtja191/alpha_177.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_163.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_164.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_165.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_166.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_167.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_168.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_169.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_170.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_171.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_172.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_173.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_174.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_175.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_176.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/gtja191/alpha_177.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "target": "function:sats/factors/base.py:vwap",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "target": "function:sats/factors/base.py:rank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_163.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_164.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_164.py:compute",
+      "target": "function:sats/factors/base.py:ts_min",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "target": "function:sats/factors/base.py:ts_max",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "target": "function:sats/factors/base.py:ts_min",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_165.py:compute",
+      "target": "function:sats/factors/base.py:ts_std",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_166.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_166.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_168.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_168.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_169.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "target": "function:sats/factors/base.py:vwap",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "target": "function:sats/factors/base.py:rank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_170.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_171.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_172.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_172.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_174.py:compute",
+      "target": "function:sats/factors/base.py:ts_std",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_175.py:compute",
+      "target": "function:sats/factors/base.py:ts_mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "target": "function:sats/factors/base.py:ts_min",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "target": "function:sats/factors/base.py:ts_max",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "target": "function:sats/factors/base.py:safe_div",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "target": "function:sats/factors/base.py:ts_corr",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_176.py:compute",
+      "target": "function:sats/factors/base.py:rank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:sats/factors/zoo/gtja191/alpha_177.py:compute",
+      "target": "function:sats/factors/base.py:ts_argmax",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

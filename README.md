@@ -310,7 +310,6 @@ REPL 当前内置操作包括：
 - `/help`：查看命令和示例
 - `/new`：开启新对话
 - `/save --format md|pdf`：保存上一条输出
-- `/goal`：设置、查看或清除 Agent 目标
 - `/confirm`、`/reject`：处理待确认 runtime 动作
 - `/trace`：查看对话 turn trace
 - `/memory`、`/history`：管理记忆与交互历史
@@ -347,7 +346,7 @@ sats serve --host 127.0.0.1 --port 8000
 | 跑缠论候选复核 | `sats analyze-chan --trade-date 20260514 --chan-rule chan_signals --top 20` |
 | 自然语言短线选股 | `sats discover 推荐几只未来几天可能走强的 A 股` |
 | 自然语言研究 | `sats chat 今天A股大盘分析，明天和下周走势预测` |
-| 显式启用 Agent runtime | `sats chat --agent 生成一份000001均线研究报告并保存` |
+| 生成自然语言研究报告 | `sats chat 生成一份000001均线研究报告并保存` |
 | 使用旧聊天引擎 | `sats chat --engine legacy 帮我解释 price_volume_ma` |
 | 查看对话线程 | `sats threads list` |
 | 搜公开网页证据 | `sats web search 贵州茅台 最新公告 --limit 5` |
@@ -371,7 +370,6 @@ sats> /period-change --indices 上证指数,沪深300 --days 180
 sats> /chat --no-memory 临时问题
 sats> /plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划
 sats> /save --format pdf
-sats> /goal 明天按信号自动买入不超过2万
 sats> /trace
 ```
 
@@ -645,17 +643,16 @@ sats discover 推荐几只未来几天可能走强的 A 股
 sats discover 新能源方向有哪些短线机会
 ```
 
-### 8.2 聊天、Agent、模型与知识
+### 8.2 聊天、模型与知识
 
 #### `chat`
 
-- 用途：配置好的自然语言入口，默认启用 Codex-style 工具循环 conversation 引擎；旧聊天和 Agent runtime 都保留为显式模式。
+- 用途：配置好的自然语言入口，默认启用 Codex-style 工具循环 conversation 引擎；旧聊天路径通过 `--engine legacy` 保留。
 - 入口：CLI、REPL 普通输入、REPL `/chat`
 - 核心参数：
   - `--no-memory`
   - `--knowledge`
   - `--engine conversation|legacy`
-  - `--agent`
   - `--confirm`
   - `--reject`
   - `--trace`
@@ -670,30 +667,14 @@ sats chat --dry-run "筛选结果按风险和信号强弱分组分析"
 sats chat --no-memory 临时问题
 sats chat --knowledge chan 解释三买和背驰
 sats chat --engine legacy 帮我总结当前功能
-sats chat --agent 生成一份000001均线研究报告并保存
 sats chat --confirm act_xxxxxxxx
 sats chat --trace turn_xxxxxxxx
 ```
 
 - 普通 `sats chat`、REPL 普通输入和 `/chat` 默认走 conversation 工具循环：模型每轮只输出一个受控 JSON action，由 SATS 调用注册工具、记录 observation，再决定继续、澄清、确认或最终回答；如果只想要旧聊天路径，使用 `--engine legacy`。
-- 只有显式 `sats agent ...` 或 `sats chat --agent ...` 会进入 autonomous Agent runtime。
 - 聊天中可触发研究、报告、规则生成、受限回测等 runtime 动作；待确认动作需用 `--confirm` 或 REPL `/confirm`。
-- `--plan-only` 在 `sats chat` 中生成 conversation 计划；在 `sats agent` 或 `sats chat --agent` 中生成 Agent 计划。
+- `--plan-only` 在 `sats chat` 中生成 conversation 计划。
 - `--dry-run` 会跳过高风险副作用；筛选股票分析工作流可用于预览候选、模式和执行计划。
-
-#### `agent`
-
-- 用途：显式把一句自然语言当成 Agent 目标执行。
-- 入口：CLI、REPL `/goal` 最终会转成 `agent`
-- 核心参数：`--max-iterations`、`--command-timeout`、`--python-timeout` 及交易门控参数
-
-```bash
-sats agent 生成一份000001均线研究报告并保存
-sats agent 筛选短线机会并保存报告
-sats agent --plan-only "筛选前5只，逐股详细分析并给出明天计划"
-```
-
-- 如果你只是日常问答、研究或选股，通常直接用 `sats chat` 或 REPL 普通输入就够了。
 
 #### `model`
 
@@ -1203,9 +1184,9 @@ SATS 允许同时配置主模型与轻量模型：
 
 公司介绍、公司概况、主营业务、业务构成或基本面介绍请求会先把中文证券名称解析为规范 A 股代码，再调用 `research.internal_analysis(kind=company_fundamentals)`。该路径以 Tushare 的 `stock_company`、`fina_mainbz`、`daily_basic`、`fina_indicator` 和三张财务报表为主，不依赖日线行情；AkShare 仅在对应字段缺失且接口可用时补充。
 
-`sats_command.catalog` 会列出除 `agent`、`chat` 自递归入口之外的全部顶层 CLI 命令，`sats_command.run` 可通过 argv runner 调用这些命令。QMT 买卖和撤单仍受 Agent 的自动交易与实盘权限策略约束。
+`sats_command.catalog` 会列出除 `chat` 自递归入口之外的全部顶层 CLI 命令，`sats_command.run` 可通过 argv runner 调用这些命令。QMT 买卖和撤单仍受自动交易与实盘权限策略约束。
 
-Agent 执行步骤失败后，会按错误原因做有限自动恢复：普通命令失败、参数错误、未知工具或数据接口选择错误会触发重规划，并继续执行后续替代步骤；重规划仍受 `--max-iterations`、重复错误保护、交易权限、实盘权限和人工确认策略约束。需要用户确认、自动交易授权或直接人工审批的失败不会被 Agent 自动绕过，会在最终总结里说明阻塞原因和下一步。
+Conversation 工具循环执行步骤失败后，会按错误原因做有限自动恢复：普通命令失败、参数错误、未知工具或数据接口选择错误会触发重规划，并继续执行后续替代步骤；重规划仍受 `--max-iterations`、重复错误保护、交易权限、实盘权限和人工确认策略约束。需要用户确认、自动交易授权或直接人工审批的失败不会被自动绕过，会在最终总结里说明阻塞原因和下一步。
 
 筛选股票分析类自然任务会优先走 `workflow.screened_stock_analysis`：先解析规则/交易日和候选上限，再按 `batch`、`group` 或 `per_stock` 分析模式生成次日交易计划素材。默认是集合分析；只有用户明确说“逐股/每只/逐一”或候选很少且要求详细时，才会逐股展开。
 
@@ -1217,7 +1198,7 @@ sats chat --engine legacy 帮我解释当前命令结构
 
 ### 10.4 受限 Python 与回测
 
-当前没有单独的顶层 `backtest` 命令。回测主要通过聊天 / Agent runtime 触发，内部使用 SATS-native 轻量回测能力。
+当前没有单独的顶层 `backtest` 命令。回测主要通过聊天 / conversation runtime 触发，内部使用 SATS-native 轻量回测能力。
 
 受限 Python runtime 的边界在代码里写得很明确：
 
@@ -1282,7 +1263,7 @@ SATS 会按消息内容自动匹配 skill，也支持你先用 `sats skills` 查
 - `trading-committee`
 - `discover`
 - `factor`
-- 聊天 / Agent runtime 的报告与回测产物
+- 聊天 / conversation runtime 的报告与回测产物
 
 报告通常写入工程下的 `reports/` 目录。
 
@@ -1428,7 +1409,7 @@ curl "http://127.0.0.1:8000/api/market/minute-k?symbols=000001.SZ&period=10min&m
 - API 面当前只覆盖筛选与分钟 K，不等同于 CLI 全部能力。
 - 很多研究能力依赖本地数据缓存与第三方数据源配置，没有配置好就会失败或返回缺失字段。
 - `web search` 与 `web hot` 只能提供公开证据，不能替代结构化行情。
-- 回测没有单独顶层 CLI 命令，主要通过聊天 / Agent runtime 触发。
+- 回测没有单独顶层 CLI 命令，主要通过聊天 / conversation runtime 触发。
 - 即使配置了 LLM，SATS 仍然坚持“没有真实数据就不做伪造回答”。
 
 ## 15. 测试与开发提示

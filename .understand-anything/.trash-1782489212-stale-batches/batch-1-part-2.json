@@ -1,0 +1,1579 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_017.py",
+      "type": "file",
+      "name": "alpha_017.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_017.py",
+      "summary": "定义 Alpha101 因子 017 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_017.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_017.py",
+      "lineRange": [
+        48,
+        56
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_018.py",
+      "type": "file",
+      "name": "alpha_018.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_018.py",
+      "summary": "定义 Alpha101 因子 018 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_018.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_018.py",
+      "lineRange": [
+        48,
+        57
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "type": "file",
+      "name": "alpha_019.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_019.py",
+      "summary": "定义 Alpha101 因子 019 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_019.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_019.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_019.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_019.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_019.py",
+      "lineRange": [
+        53,
+        57
+      ],
+      "summary": "在 `alpha_019.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_019.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_019.py",
+      "lineRange": [
+        60,
+        70
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "type": "file",
+      "name": "alpha_020.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_020.py",
+      "summary": "定义 Alpha101 因子 020 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_020.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_020.py",
+      "lineRange": [
+        48,
+        52
+      ],
+      "summary": "在 `alpha_020.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_020.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_020.py",
+      "lineRange": [
+        55,
+        66
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "type": "file",
+      "name": "alpha_021.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_021.py",
+      "summary": "定义 Alpha101 因子 021 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_021.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_021.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_021.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_021.py:_make_one",
+      "type": "function",
+      "name": "_make_one",
+      "filePath": "sats/factors/zoo/alpha101/alpha_021.py",
+      "lineRange": [
+        53,
+        55
+      ],
+      "summary": "在 `alpha_021.py` 中实现 `_make_one` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_021.py:_where_ternary",
+      "type": "function",
+      "name": "_where_ternary",
+      "filePath": "sats/factors/zoo/alpha101/alpha_021.py",
+      "lineRange": [
+        58,
+        76
+      ],
+      "summary": "在 `alpha_021.py` 中实现 `_where_ternary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_021.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_021.py",
+      "lineRange": [
+        79,
+        98
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_022.py",
+      "type": "file",
+      "name": "alpha_022.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_022.py",
+      "summary": "定义 Alpha101 因子 022 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_022.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_022.py",
+      "lineRange": [
+        48,
+        57
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "type": "file",
+      "name": "alpha_023.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_023.py",
+      "summary": "定义 Alpha101 因子 023 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_023.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_023.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_023.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_023.py:_where_ternary",
+      "type": "function",
+      "name": "_where_ternary",
+      "filePath": "sats/factors/zoo/alpha101/alpha_023.py",
+      "lineRange": [
+        53,
+        71
+      ],
+      "summary": "在 `alpha_023.py` 中实现 `_where_ternary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_023.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_023.py",
+      "lineRange": [
+        74,
+        85
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "type": "file",
+      "name": "alpha_024.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_024.py",
+      "summary": "定义 Alpha101 因子 024 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_024.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_024.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_024.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_024.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_024.py",
+      "lineRange": [
+        53,
+        57
+      ],
+      "summary": "在 `alpha_024.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_024.py:_where_ternary",
+      "type": "function",
+      "name": "_where_ternary",
+      "filePath": "sats/factors/zoo/alpha101/alpha_024.py",
+      "lineRange": [
+        60,
+        78
+      ],
+      "summary": "在 `alpha_024.py` 中实现 `_where_ternary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_024.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_024.py",
+      "lineRange": [
+        81,
+        96
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_025.py",
+      "type": "file",
+      "name": "alpha_025.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_025.py",
+      "summary": "定义 Alpha101 因子 025 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_025.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_025.py",
+      "lineRange": [
+        48,
+        58
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_026.py",
+      "type": "file",
+      "name": "alpha_026.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_026.py",
+      "summary": "定义 Alpha101 因子 026 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_026.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_026.py",
+      "lineRange": [
+        48,
+        56
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "type": "file",
+      "name": "alpha_027.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_027.py",
+      "summary": "定义 Alpha101 因子 027 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_027.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_027.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_027.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_027.py:_make_one",
+      "type": "function",
+      "name": "_make_one",
+      "filePath": "sats/factors/zoo/alpha101/alpha_027.py",
+      "lineRange": [
+        53,
+        55
+      ],
+      "summary": "在 `alpha_027.py` 中实现 `_make_one` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_027.py:_where_ternary",
+      "type": "function",
+      "name": "_where_ternary",
+      "filePath": "sats/factors/zoo/alpha101/alpha_027.py",
+      "lineRange": [
+        58,
+        76
+      ],
+      "summary": "在 `alpha_027.py` 中实现 `_where_ternary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_027.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_027.py",
+      "lineRange": [
+        79,
+        92
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_028.py",
+      "type": "file",
+      "name": "alpha_028.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_028.py",
+      "summary": "定义 Alpha101 因子 028 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_028.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_028.py",
+      "lineRange": [
+        48,
+        58
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "type": "file",
+      "name": "alpha_029.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_029.py",
+      "summary": "定义 Alpha101 因子 029 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_029.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_029.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_prod",
+      "type": "function",
+      "name": "_rolling_prod",
+      "filePath": "sats/factors/zoo/alpha101/alpha_029.py",
+      "lineRange": [
+        53,
+        55
+      ],
+      "summary": "在 `alpha_029.py` 中实现 `_rolling_prod` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_029.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_029.py",
+      "lineRange": [
+        58,
+        62
+      ],
+      "summary": "在 `alpha_029.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_029.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_029.py",
+      "lineRange": [
+        65,
+        83
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "type": "file",
+      "name": "alpha_030.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_030.py",
+      "summary": "定义 Alpha101 因子 030 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_030.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_030.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_030.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_030.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_030.py",
+      "lineRange": [
+        53,
+        57
+      ],
+      "summary": "在 `alpha_030.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_030.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_030.py",
+      "lineRange": [
+        60,
+        71
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_031.py",
+      "type": "file",
+      "name": "alpha_031.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_031.py",
+      "summary": "定义 Alpha101 因子 031 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_031.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_031.py",
+      "lineRange": [
+        48,
+        60
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "type": "file",
+      "name": "alpha_032.py",
+      "filePath": "sats/factors/zoo/alpha101/alpha_032.py",
+      "summary": "定义 Alpha101 因子 032 的核心计算逻辑，复用公共时间序列算子生成横截面因子值。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_032.py:_rolling_sum",
+      "type": "function",
+      "name": "_rolling_sum",
+      "filePath": "sats/factors/zoo/alpha101/alpha_032.py",
+      "lineRange": [
+        48,
+        50
+      ],
+      "summary": "在 `alpha_032.py` 中实现 `_rolling_sum` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_032.py:_delay",
+      "type": "function",
+      "name": "_delay",
+      "filePath": "sats/factors/zoo/alpha101/alpha_032.py",
+      "lineRange": [
+        53,
+        57
+      ],
+      "summary": "在 `alpha_032.py` 中实现 `_delay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "alpha101"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/alpha101/alpha_032.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/alpha101/alpha_032.py",
+      "lineRange": [
+        60,
+        70
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_017.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_017.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_017.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_017.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_018.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_018.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_018.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_018.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_019.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_020.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_020.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_020.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_020.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_make_one",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_make_one",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_where_ternary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:_where_ternary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_021.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_022.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_022.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_022.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_022.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:_where_ternary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:_where_ternary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_023.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_where_ternary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:_where_ternary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_024.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_025.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_025.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_025.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_025.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_026.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_026.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_026.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_026.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_make_one",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_make_one",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_where_ternary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:_where_ternary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_027.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_028.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_028.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_028.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_028.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_prod",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_rolling_prod",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_029.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_030.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_031.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_031.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_031.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_031.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:_rolling_sum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:_rolling_sum",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:_delay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:_delay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "function:sats/factors/zoo/alpha101/alpha_032.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_017.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_018.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_019.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_020.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_021.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_022.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_023.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_024.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_025.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_026.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_027.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_028.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_029.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_030.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_031.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/alpha101/alpha_032.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

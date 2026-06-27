@@ -2978,6 +2978,19 @@ class AgentTest(unittest.TestCase):
         command_description = build_default_tool_registry().get("sats_command.run").description
         self.assertTrue(all(command in command_description for command in SATS_COMMANDS))
 
+    def test_agent_command_runner_rejects_obsolete_agent_command(self) -> None:
+        calls = []
+
+        def fake_cli(argv):
+            calls.append(argv)
+            return 0
+
+        result = AgentCommandRunner(policy=AgentExecutionPolicy(), cli_main=fake_cli).run(["agent", "hello"])
+
+        self.assertEqual(result.status, "error")
+        self.assertIn("OBSOLETE: sats agent", result.stderr)
+        self.assertEqual(calls, [])
+
     def test_trading_executor_requires_permission_and_uses_quote(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", qmt_account_id="acct")
@@ -3748,18 +3761,10 @@ class AgentTest(unittest.TestCase):
         )
 
     def test_cli_agent_entrypoint(self) -> None:
-        stdout = StringIO()
-        fake = SimpleNamespace(content="agent ok", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="agent")
-        with (
-            patch("sats.cli.load_settings", return_value=SimpleNamespace(db_path=Path("x.duckdb"))),
-            patch("sats.cli.run_agent_once", return_value=fake) as run_agent,
-            redirect_stdout(stdout),
-        ):
-            self.assertEqual(main(["agent", "hello"]), 0)
+        with self.assertRaises(SystemExit) as raised:
+            main(["agent", "hello"])
 
-        run_agent.assert_called_once()
-        self.assertIn("数据: Agent", stdout.getvalue())
-        self.assertIn("agent ok", stdout.getvalue())
+        self.assertIn("OBSOLETE: sats agent", str(raised.exception))
 
     def test_repl_agent_and_goal_commands(self) -> None:
         calls = []
@@ -3770,9 +3775,15 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(handle_repl_line("/goal status", runner=lambda argv: 0, printer=output.append, state=state))
         self.assertTrue(handle_repl_line("/goal hello goal", runner=lambda argv: calls.append(argv) or 0, printer=output.append, state=state))
         self.assertTrue(handle_repl_line("/goal cancel", runner=lambda argv: 0, printer=output.append, state=state))
+        self.assertTrue(handle_repl_line("/engine agent", runner=lambda argv: calls.append(argv) or 0, printer=output.append, state=state))
+        self.assertTrue(handle_repl_line("/chat --agent hello", runner=lambda argv: calls.append(argv) or 0, printer=output.append, state=state))
+        self.assertTrue(handle_repl_line("/agent hello", runner=lambda argv: calls.append(argv) or 0, printer=output.append, state=state))
 
-        self.assertEqual(calls[0], ["agent", "hello", "goal"])
-        self.assertTrue(any("当前没有 Agent 目标" in item for item in output))
+        self.assertEqual(calls, [])
+        self.assertTrue(any("OBSOLETE: /goal" in item for item in output))
+        self.assertTrue(any("OBSOLETE: engine agent" in item for item in output))
+        self.assertTrue(any("OBSOLETE: /chat --agent" in item for item in output))
+        self.assertTrue(any("OBSOLETE: /agent" in item for item in output))
         self.assertEqual(state.agent_goal, "")
 
 

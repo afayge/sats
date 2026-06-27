@@ -1,0 +1,514 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/watchlist_editor.py",
+      "type": "file",
+      "name": "watchlist_editor.py",
+      "filePath": "sats/watchlist_editor.py",
+      "summary": "实现 项目 中与 `watchlist editor` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/watchlist_editor.py:WatchlistImportResult",
+      "type": "class",
+      "name": "WatchlistImportResult",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        34,
+        36
+      ],
+      "summary": "在 `watchlist_editor.py` 中定义 `WatchlistImportResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:format_watchlist",
+      "type": "function",
+      "name": "format_watchlist",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        39,
+        53
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `format_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:upsert_watchlist_symbols",
+      "type": "function",
+      "name": "upsert_watchlist_symbols",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        56,
+        72
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `upsert_watchlist_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:delete_watchlist_symbols",
+      "type": "function",
+      "name": "delete_watchlist_symbols",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        75,
+        80
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `delete_watchlist_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:clear_watchlist",
+      "type": "function",
+      "name": "clear_watchlist",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        83,
+        89
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `clear_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:import_screened_to_watchlist",
+      "type": "function",
+      "name": "import_screened_to_watchlist",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        92,
+        100
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `import_screened_to_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:select_and_import_watchlist",
+      "type": "function",
+      "name": "select_and_import_watchlist",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        103,
+        125
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `select_and_import_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:run_watchlist_editor",
+      "type": "function",
+      "name": "run_watchlist_editor",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        128,
+        158
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `run_watchlist_editor` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:select_and_delete_watchlist",
+      "type": "function",
+      "name": "select_and_delete_watchlist",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        161,
+        179
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `select_and_delete_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:select_stock_rows",
+      "type": "function",
+      "name": "select_stock_rows",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        182,
+        192
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `select_stock_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:parse_symbol_csv",
+      "type": "function",
+      "name": "parse_symbol_csv",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        195,
+        196
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `parse_symbol_csv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:_row_label",
+      "type": "function",
+      "name": "_row_label",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        199,
+        204
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `_row_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:_matched_labels",
+      "type": "function",
+      "name": "_matched_labels",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        207,
+        216
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `_matched_labels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:_unique_symbols",
+      "type": "function",
+      "name": "_unique_symbols",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        219,
+        220
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `_unique_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/watchlist_editor.py:_stock_basic_name_lookup",
+      "type": "function",
+      "name": "_stock_basic_name_lookup",
+      "filePath": "sats/watchlist_editor.py",
+      "lineRange": [
+        223,
+        235
+      ],
+      "summary": "在 `watchlist_editor.py` 中实现 `_stock_basic_name_lookup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "watchlist-editor",
+        "watchlist-editor-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "class:sats/watchlist_editor.py:WatchlistImportResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "class:sats/watchlist_editor.py:WatchlistImportResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:format_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:format_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:upsert_watchlist_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:upsert_watchlist_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:delete_watchlist_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:delete_watchlist_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:clear_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:clear_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:import_screened_to_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:import_screened_to_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_and_import_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_and_import_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:run_watchlist_editor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:run_watchlist_editor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_and_delete_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_and_delete_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_stock_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:select_stock_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:parse_symbol_csv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:parse_symbol_csv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_row_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_row_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_matched_labels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_matched_labels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_unique_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_unique_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_stock_basic_name_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "function:sats/watchlist_editor.py:_stock_basic_name_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/watchlist_editor.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

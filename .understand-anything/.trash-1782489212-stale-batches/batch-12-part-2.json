@@ -1,0 +1,1269 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/factors/profiles.py",
+      "type": "file",
+      "name": "profiles.py",
+      "filePath": "sats/factors/profiles.py",
+      "summary": "实现 因子研究 中与 `profiles` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/factors/profiles.py:FactorProfile",
+      "type": "class",
+      "name": "FactorProfile",
+      "filePath": "sats/factors/profiles.py",
+      "lineRange": [
+        10,
+        22
+      ],
+      "summary": "在 `profiles.py` 中定义 `FactorProfile` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/profiles.py:get_factor_profile",
+      "type": "function",
+      "name": "get_factor_profile",
+      "filePath": "sats/factors/profiles.py",
+      "lineRange": [
+        76,
+        82
+      ],
+      "summary": "在 `profiles.py` 中实现 `get_factor_profile` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/profiles.py:resolve_factor_ids",
+      "type": "function",
+      "name": "resolve_factor_ids",
+      "filePath": "sats/factors/profiles.py",
+      "lineRange": [
+        85,
+        89
+      ],
+      "summary": "在 `profiles.py` 中实现 `resolve_factor_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "sats/factors/service.py",
+      "summary": "封装因子分析与选股的主服务流程，对外提供统一业务入口。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/factors/service.py:FactorSnapshot",
+      "type": "class",
+      "name": "FactorSnapshot",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        25,
+        84
+      ],
+      "summary": "在 `service.py` 中定义 `FactorSnapshot` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/service.py:compute_factor_snapshot",
+      "type": "function",
+      "name": "compute_factor_snapshot",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        87,
+        114
+      ],
+      "summary": "在 `service.py` 中实现 `compute_factor_snapshot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/service.py:pick_with_factor_profile",
+      "type": "function",
+      "name": "pick_with_factor_profile",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        117,
+        157
+      ],
+      "summary": "在 `service.py` 中实现 `pick_with_factor_profile` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/service.py:snapshot_from_screening_inputs",
+      "type": "function",
+      "name": "snapshot_from_screening_inputs",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        160,
+        187
+      ],
+      "summary": "在 `service.py` 中实现 `snapshot_from_screening_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/service.py:summarize_factor_exposure",
+      "type": "function",
+      "name": "summarize_factor_exposure",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        190,
+        191
+      ],
+      "summary": "在 `service.py` 中实现 `summarize_factor_exposure` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/service.py:_snapshot_coverage",
+      "type": "function",
+      "name": "_snapshot_coverage",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        194,
+        201
+      ],
+      "summary": "在 `service.py` 中实现 `_snapshot_coverage` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/service.py:_resolve_score_date",
+      "type": "function",
+      "name": "_resolve_score_date",
+      "filePath": "sats/factors/service.py",
+      "lineRange": [
+        204,
+        210
+      ],
+      "summary": "在 `service.py` 中实现 `_resolve_score_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/indicators/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/indicators/__init__.py",
+      "summary": "定义 `indicators` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/indicators/calculator.py",
+      "type": "file",
+      "name": "calculator.py",
+      "filePath": "sats/indicators/calculator.py",
+      "summary": "实现 指标计算 中与 `calculator` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/indicators/calculator.py:IndicatorInput",
+      "type": "class",
+      "name": "IndicatorInput",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        15,
+        23
+      ],
+      "summary": "在 `calculator.py` 中定义 `IndicatorInput` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/indicators/calculator.py:IndicatorResult",
+      "type": "class",
+      "name": "IndicatorResult",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        27,
+        55
+      ],
+      "summary": "在 `calculator.py` 中定义 `IndicatorResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/indicators/calculator.py:IndicatorCalculator",
+      "type": "class",
+      "name": "IndicatorCalculator",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        58,
+        163
+      ],
+      "summary": "在 `calculator.py` 中定义 `IndicatorCalculator` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:format_indicator_results",
+      "type": "function",
+      "name": "format_indicator_results",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        166,
+        201
+      ],
+      "summary": "在 `calculator.py` 中实现 `format_indicator_results` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        204,
+        218
+      ],
+      "summary": "在 `calculator.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_empty_result",
+      "type": "function",
+      "name": "_empty_result",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        221,
+        235
+      ],
+      "summary": "在 `calculator.py` 中实现 `_empty_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_rsi",
+      "type": "function",
+      "name": "_rsi",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        238,
+        248
+      ],
+      "summary": "在 `calculator.py` 中实现 `_rsi` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_macd_signal",
+      "type": "function",
+      "name": "_macd_signal",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        251,
+        270
+      ],
+      "summary": "在 `calculator.py` 中实现 `_macd_signal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_candlestick_patterns",
+      "type": "function",
+      "name": "_candlestick_patterns",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        273,
+        308
+      ],
+      "summary": "在 `calculator.py` 中实现 `_candlestick_patterns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_volume_analysis",
+      "type": "function",
+      "name": "_volume_analysis",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        311,
+        338
+      ],
+      "summary": "在 `calculator.py` 中实现 `_volume_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_support_resistance",
+      "type": "function",
+      "name": "_support_resistance",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        341,
+        352
+      ],
+      "summary": "在 `calculator.py` 中实现 `_support_resistance` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_elliott_wave",
+      "type": "function",
+      "name": "_elliott_wave",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        355,
+        376
+      ],
+      "summary": "在 `calculator.py` 中实现 `_elliott_wave` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_peaks_valleys",
+      "type": "function",
+      "name": "_peaks_valleys",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        379,
+        391
+      ],
+      "summary": "在 `calculator.py` 中实现 `_peaks_valleys` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_alternate_pivots",
+      "type": "function",
+      "name": "_alternate_pivots",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        394,
+        405
+      ],
+      "summary": "在 `calculator.py` 中实现 `_alternate_pivots` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_moneyflow_snapshot",
+      "type": "function",
+      "name": "_moneyflow_snapshot",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        408,
+        423
+      ],
+      "summary": "在 `calculator.py` 中实现 `_moneyflow_snapshot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_fundamental_snapshot",
+      "type": "function",
+      "name": "_fundamental_snapshot",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        426,
+        444
+      ],
+      "summary": "在 `calculator.py` 中实现 `_fundamental_snapshot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_ma_alignment",
+      "type": "function",
+      "name": "_ma_alignment",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        447,
+        454
+      ],
+      "summary": "在 `calculator.py` 中实现 `_ma_alignment` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_boll_position",
+      "type": "function",
+      "name": "_boll_position",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        457,
+        467
+      ],
+      "summary": "在 `calculator.py` 中实现 `_boll_position` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_cluster_levels",
+      "type": "function",
+      "name": "_cluster_levels",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        470,
+        478
+      ],
+      "summary": "在 `calculator.py` 中实现 `_cluster_levels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_bias",
+      "type": "function",
+      "name": "_bias",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        481,
+        484
+      ],
+      "summary": "在 `calculator.py` 中实现 `_bias` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_first_column",
+      "type": "function",
+      "name": "_first_column",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        487,
+        492
+      ],
+      "summary": "在 `calculator.py` 中实现 `_first_column` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_optional_num",
+      "type": "function",
+      "name": "_optional_num",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        495,
+        501
+      ],
+      "summary": "在 `calculator.py` 中实现 `_optional_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_round_or_none",
+      "type": "function",
+      "name": "_round_or_none",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        504,
+        505
+      ],
+      "summary": "在 `calculator.py` 中实现 `_round_or_none` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        508,
+        510
+      ],
+      "summary": "在 `calculator.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        513,
+        515
+      ],
+      "summary": "在 `calculator.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/indicators/calculator.py:_join_numbers",
+      "type": "function",
+      "name": "_join_numbers",
+      "filePath": "sats/indicators/calculator.py",
+      "lineRange": [
+        518,
+        521
+      ],
+      "summary": "在 `calculator.py` 中实现 `_join_numbers` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "indicators",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "class:sats/factors/profiles.py:FactorProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "class:sats/factors/profiles.py:FactorProfile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "function:sats/factors/profiles.py:get_factor_profile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "function:sats/factors/profiles.py:get_factor_profile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "function:sats/factors/profiles.py:resolve_factor_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/profiles.py",
+      "target": "function:sats/factors/profiles.py:resolve_factor_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "class:sats/factors/service.py:FactorSnapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "class:sats/factors/service.py:FactorSnapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:compute_factor_snapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:compute_factor_snapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:pick_with_factor_profile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:pick_with_factor_profile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:snapshot_from_screening_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:snapshot_from_screening_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:summarize_factor_exposure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:summarize_factor_exposure",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:_snapshot_coverage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:_snapshot_coverage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:_resolve_score_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "function:sats/factors/service.py:_resolve_score_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorInput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorInput",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorCalculator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "class:sats/indicators/calculator.py:IndicatorCalculator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:format_indicator_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:format_indicator_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_empty_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_empty_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_rsi",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_rsi",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_macd_signal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_macd_signal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_candlestick_patterns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_candlestick_patterns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_volume_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_volume_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_support_resistance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_support_resistance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_elliott_wave",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_elliott_wave",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_peaks_valleys",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_peaks_valleys",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_alternate_pivots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_alternate_pivots",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_moneyflow_snapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_moneyflow_snapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_fundamental_snapshot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_fundamental_snapshot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_ma_alignment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_ma_alignment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_boll_position",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_boll_position",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_cluster_levels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_cluster_levels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_bias",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_bias",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_first_column",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_first_column",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_optional_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_optional_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_round_or_none",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_round_or_none",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_join_numbers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/indicators/calculator.py",
+      "target": "function:sats/indicators/calculator.py:_join_numbers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/factors/composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/factors/panel.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/factors/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/service.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/indicators/__init__.py",
+      "target": "file:sats/indicators/calculator.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

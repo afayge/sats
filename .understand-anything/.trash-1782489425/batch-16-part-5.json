@@ -1,0 +1,159 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/signals/registry.py",
+      "type": "file",
+      "name": "registry.py",
+      "filePath": "sats/signals/registry.py",
+      "summary": "维护 信号分析 的注册表与查找逻辑，统一组织可扩展对象。",
+      "tags": [
+        "python",
+        "signals",
+        "analysis",
+        "registry"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/signals/registry.py:_add",
+      "type": "function",
+      "name": "_add",
+      "filePath": "sats/signals/registry.py",
+      "lineRange": [
+        10,
+        11
+      ],
+      "summary": "在 `registry.py` 中实现 `_add` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/registry.py:_comp",
+      "type": "function",
+      "name": "_comp",
+      "filePath": "sats/signals/registry.py",
+      "lineRange": [
+        171,
+        172
+      ],
+      "summary": "在 `registry.py` 中实现 `_comp` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/registry.py:list_signal_definitions",
+      "type": "function",
+      "name": "list_signal_definitions",
+      "filePath": "sats/signals/registry.py",
+      "lineRange": [
+        268,
+        277
+      ],
+      "summary": "在 `registry.py` 中实现 `list_signal_definitions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/signals/registry.py:get_signal_definition",
+      "type": "function",
+      "name": "get_signal_definition",
+      "filePath": "sats/signals/registry.py",
+      "lineRange": [
+        280,
+        281
+      ],
+      "summary": "在 `registry.py` 中实现 `get_signal_definition` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "signals",
+        "analysis",
+        "registry"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:_add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:_add",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:_comp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:_comp",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:list_signal_definitions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:list_signal_definitions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:get_signal_definition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "function:sats/signals/registry.py:get_signal_definition",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/signals/registry.py",
+      "target": "file:sats/signals/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

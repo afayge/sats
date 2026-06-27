@@ -1,0 +1,1289 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/history.py",
+      "type": "file",
+      "name": "history.py",
+      "filePath": "sats/history.py",
+      "summary": "实现 项目 中与 `history` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/history.py:InteractionHistoryRecord",
+      "type": "class",
+      "name": "InteractionHistoryRecord",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        19,
+        31
+      ],
+      "summary": "在 `history.py` 中定义 `InteractionHistoryRecord` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/history.py:InteractionHistoryStore",
+      "type": "class",
+      "name": "InteractionHistoryStore",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        34,
+        175
+      ],
+      "summary": "在 `history.py` 中定义 `InteractionHistoryStore` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/history.py:format_history_list",
+      "type": "function",
+      "name": "format_history_list",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        178,
+        200
+      ],
+      "summary": "在 `history.py` 中实现 `format_history_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:format_history_detail",
+      "type": "function",
+      "name": "format_history_detail",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        203,
+        216
+      ],
+      "summary": "在 `history.py` 中实现 `format_history_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_history_from_row",
+      "type": "function",
+      "name": "_history_from_row",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        219,
+        234
+      ],
+      "summary": "在 `history.py` 中实现 `_history_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_new_id",
+      "type": "function",
+      "name": "_new_id",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        237,
+        238
+      ],
+      "summary": "在 `history.py` 中实现 `_new_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_clean_required",
+      "type": "function",
+      "name": "_clean_required",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        241,
+        245
+      ],
+      "summary": "在 `history.py` 中实现 `_clean_required` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_clean_choice",
+      "type": "function",
+      "name": "_clean_choice",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        248,
+        252
+      ],
+      "summary": "在 `history.py` 中实现 `_clean_choice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_optional_kind",
+      "type": "function",
+      "name": "_optional_kind",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        255,
+        258
+      ],
+      "summary": "在 `history.py` 中实现 `_optional_kind` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_clean_duration",
+      "type": "function",
+      "name": "_clean_duration",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        261,
+        267
+      ],
+      "summary": "在 `history.py` 中实现 `_clean_duration` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_clamp_limit",
+      "type": "function",
+      "name": "_clamp_limit",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        270,
+        275
+      ],
+      "summary": "在 `history.py` 中实现 `_clamp_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_query_terms",
+      "type": "function",
+      "name": "_query_terms",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        278,
+        291
+      ],
+      "summary": "在 `history.py` 中实现 `_query_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_snippet",
+      "type": "function",
+      "name": "_snippet",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        294,
+        311
+      ],
+      "summary": "在 `history.py` 中实现 `_snippet` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_short_time",
+      "type": "function",
+      "name": "_short_time",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        314,
+        316
+      ],
+      "summary": "在 `history.py` 中实现 `_short_time` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_display_width",
+      "type": "function",
+      "name": "_display_width",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        319,
+        320
+      ],
+      "summary": "在 `history.py` 中实现 `_display_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/history.py:_pad_display",
+      "type": "function",
+      "name": "_pad_display",
+      "filePath": "sats/history.py",
+      "lineRange": [
+        323,
+        325
+      ],
+      "summary": "在 `history.py` 中实现 `_pad_display` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "history",
+        "history-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/market_clock.py",
+      "type": "file",
+      "name": "market_clock.py",
+      "filePath": "sats/market_clock.py",
+      "summary": "实现 项目 中与 `market clock` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "market-clock",
+        "market-clock-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/market_clock.py:current_shanghai_datetime",
+      "type": "function",
+      "name": "current_shanghai_datetime",
+      "filePath": "sats/market_clock.py",
+      "lineRange": [
+        10,
+        11
+      ],
+      "summary": "在 `market_clock.py` 中实现 `current_shanghai_datetime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "market-clock",
+        "market-clock-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/market_clock.py:current_shanghai_trade_date",
+      "type": "function",
+      "name": "current_shanghai_trade_date",
+      "filePath": "sats/market_clock.py",
+      "lineRange": [
+        14,
+        15
+      ],
+      "summary": "在 `market_clock.py` 中实现 `current_shanghai_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "market-clock",
+        "market-clock-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/market_clock.py:is_a_share_trading_time_now",
+      "type": "function",
+      "name": "is_a_share_trading_time_now",
+      "filePath": "sats/market_clock.py",
+      "lineRange": [
+        18,
+        27
+      ],
+      "summary": "在 `market_clock.py` 中实现 `is_a_share_trading_time_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "market-clock",
+        "market-clock-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/market_clock.py:is_current_trading_session_date",
+      "type": "function",
+      "name": "is_current_trading_session_date",
+      "filePath": "sats/market_clock.py",
+      "lineRange": [
+        30,
+        31
+      ],
+      "summary": "在 `market_clock.py` 中实现 `is_current_trading_session_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "market-clock",
+        "market-clock-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/memory.py",
+      "type": "file",
+      "name": "memory.py",
+      "filePath": "sats/memory.py",
+      "summary": "实现 项目 中与 `memory` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/memory.py:MemoryRecord",
+      "type": "class",
+      "name": "MemoryRecord",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        16,
+        25
+      ],
+      "summary": "在 `memory.py` 中定义 `MemoryRecord` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/memory.py:MemoryCandidate",
+      "type": "class",
+      "name": "MemoryCandidate",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        29,
+        33
+      ],
+      "summary": "在 `memory.py` 中定义 `MemoryCandidate` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/memory.py:ChatMemoryStore",
+      "type": "class",
+      "name": "ChatMemoryStore",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        36,
+        879
+      ],
+      "summary": "在 `memory.py` 中定义 `ChatMemoryStore` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/memory.py:MemoryRetriever",
+      "type": "class",
+      "name": "MemoryRetriever",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        882,
+        888
+      ],
+      "summary": "在 `memory.py` 中定义 `MemoryRetriever` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/memory.py:MemoryExtractor",
+      "type": "class",
+      "name": "MemoryExtractor",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        891,
+        952
+      ],
+      "summary": "在 `memory.py` 中定义 `MemoryExtractor` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/memory.py:format_memory_list",
+      "type": "function",
+      "name": "format_memory_list",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        955,
+        965
+      ],
+      "summary": "在 `memory.py` 中实现 `format_memory_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_parse_required_json_response",
+      "type": "function",
+      "name": "_parse_required_json_response",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        968,
+        972
+      ],
+      "summary": "在 `memory.py` 中实现 `_parse_required_json_response` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_memory_from_row",
+      "type": "function",
+      "name": "_memory_from_row",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        975,
+        987
+      ],
+      "summary": "在 `memory.py` 中实现 `_memory_from_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_loads_tags",
+      "type": "function",
+      "name": "_loads_tags",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        990,
+        997
+      ],
+      "summary": "在 `memory.py` 中实现 `_loads_tags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_loads_json_object",
+      "type": "function",
+      "name": "_loads_json_object",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1000,
+        1005
+      ],
+      "summary": "在 `memory.py` 中实现 `_loads_json_object` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_loads_json_list",
+      "type": "function",
+      "name": "_loads_json_list",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1008,
+        1013
+      ],
+      "summary": "在 `memory.py` 中实现 `_loads_json_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_new_id",
+      "type": "function",
+      "name": "_new_id",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1016,
+        1017
+      ],
+      "summary": "在 `memory.py` 中实现 `_new_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_json",
+      "type": "function",
+      "name": "_json",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1020,
+        1021
+      ],
+      "summary": "在 `memory.py` 中实现 `_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_clean_required",
+      "type": "function",
+      "name": "_clean_required",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1024,
+        1028
+      ],
+      "summary": "在 `memory.py` 中实现 `_clean_required` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_clean_tags",
+      "type": "function",
+      "name": "_clean_tags",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1031,
+        1040
+      ],
+      "summary": "在 `memory.py` 中实现 `_clean_tags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_clamp_importance",
+      "type": "function",
+      "name": "_clamp_importance",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1043,
+        1048
+      ],
+      "summary": "在 `memory.py` 中实现 `_clamp_importance` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_query_terms",
+      "type": "function",
+      "name": "_query_terms",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1051,
+        1064
+      ],
+      "summary": "在 `memory.py` 中实现 `_query_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/memory.py:_memory_score",
+      "type": "function",
+      "name": "_memory_score",
+      "filePath": "sats/memory.py",
+      "lineRange": [
+        1067,
+        1079
+      ],
+      "summary": "在 `memory.py` 中实现 `_memory_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "memory",
+        "memory-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/history.py",
+      "target": "class:sats/history.py:InteractionHistoryRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "class:sats/history.py:InteractionHistoryRecord",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "class:sats/history.py:InteractionHistoryStore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "class:sats/history.py:InteractionHistoryStore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:format_history_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:format_history_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:format_history_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:format_history_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_history_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_history_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_new_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_new_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_required",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_required",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_choice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_choice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_optional_kind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_optional_kind",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_duration",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clean_duration",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clamp_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_clamp_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_query_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_query_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_snippet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_snippet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_short_time",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_short_time",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_display_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_display_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_pad_display",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "function:sats/history.py:_pad_display",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:current_shanghai_datetime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:current_shanghai_datetime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:current_shanghai_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:current_shanghai_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:is_a_share_trading_time_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:is_a_share_trading_time_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:is_current_trading_session_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/market_clock.py",
+      "target": "function:sats/market_clock.py:is_current_trading_session_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryRecord",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryCandidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryCandidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:ChatMemoryStore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:ChatMemoryStore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryRetriever",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryRetriever",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryExtractor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "class:sats/memory.py:MemoryExtractor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:format_memory_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:format_memory_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_parse_required_json_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_parse_required_json_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_memory_from_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_memory_from_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_tags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_tags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_json_object",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_json_object",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_json_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_loads_json_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_new_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_new_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clean_required",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clean_required",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clean_tags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clean_tags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clamp_importance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_clamp_importance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_query_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_query_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_memory_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "function:sats/memory.py:_memory_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/history.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "file:sats/chat_events.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/memory.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

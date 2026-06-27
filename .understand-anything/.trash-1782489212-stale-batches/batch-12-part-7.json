@@ -1,0 +1,359 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/stock_question.py",
+      "type": "file",
+      "name": "stock_question.py",
+      "filePath": "sats/stock_question.py",
+      "summary": "实现 项目 中与 `stock question` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/stock_question.py:StockQuestion",
+      "type": "class",
+      "name": "StockQuestion",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        23,
+        27
+      ],
+      "summary": "在 `stock_question.py` 中定义 `StockQuestion` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:parse_stock_question",
+      "type": "function",
+      "name": "parse_stock_question",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        30,
+        40
+      ],
+      "summary": "在 `stock_question.py` 中实现 `parse_stock_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:extract_stock_symbols",
+      "type": "function",
+      "name": "extract_stock_symbols",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        43,
+        51
+      ],
+      "summary": "在 `stock_question.py` 中实现 `extract_stock_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:extract_trade_date",
+      "type": "function",
+      "name": "extract_trade_date",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        54,
+        63
+      ],
+      "summary": "在 `stock_question.py` 中实现 `extract_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:extract_natural_trade_date",
+      "type": "function",
+      "name": "extract_natural_trade_date",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        66,
+        77
+      ],
+      "summary": "在 `stock_question.py` 中实现 `extract_natural_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:_normalize_today",
+      "type": "function",
+      "name": "_normalize_today",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        80,
+        84
+      ],
+      "summary": "在 `stock_question.py` 中实现 `_normalize_today` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_question.py:extract_intraday_time",
+      "type": "function",
+      "name": "extract_intraday_time",
+      "filePath": "sats/stock_question.py",
+      "lineRange": [
+        87,
+        92
+      ],
+      "summary": "在 `stock_question.py` 中实现 `extract_intraday_time` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-question",
+        "stock-question-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/symbols.py",
+      "type": "file",
+      "name": "symbols.py",
+      "filePath": "sats/symbols.py",
+      "summary": "实现 项目 中与 `symbols` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "symbols",
+        "symbols-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/symbols.py:normalize_ts_code",
+      "type": "function",
+      "name": "normalize_ts_code",
+      "filePath": "sats/symbols.py",
+      "lineRange": [
+        7,
+        19
+      ],
+      "summary": "在 `symbols.py` 中实现 `normalize_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "symbols",
+        "symbols-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/symbols.py:normalize_symbols",
+      "type": "function",
+      "name": "normalize_symbols",
+      "filePath": "sats/symbols.py",
+      "lineRange": [
+        22,
+        41
+      ],
+      "summary": "在 `symbols.py` 中实现 `normalize_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "symbols",
+        "symbols-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/symbols.py:parse_symbol_csv",
+      "type": "function",
+      "name": "parse_symbol_csv",
+      "filePath": "sats/symbols.py",
+      "lineRange": [
+        44,
+        45
+      ],
+      "summary": "在 `symbols.py` 中实现 `parse_symbol_csv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "symbols",
+        "symbols-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "class:sats/stock_question.py:StockQuestion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "class:sats/stock_question.py:StockQuestion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:parse_stock_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:parse_stock_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_stock_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_stock_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_natural_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_natural_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:_normalize_today",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:_normalize_today",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_intraday_time",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "function:sats/stock_question.py:extract_intraday_time",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:normalize_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:normalize_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:normalize_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:normalize_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:parse_symbol_csv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/symbols.py",
+      "target": "function:sats/symbols.py:parse_symbol_csv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_question.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

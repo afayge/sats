@@ -1,0 +1,1326 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/python_runtime.py",
+      "type": "file",
+      "name": "python_runtime.py",
+      "filePath": "sats/agent/python_runtime.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `python runtime` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/python_runtime.py:PythonRunResult",
+      "type": "class",
+      "name": "PythonRunResult",
+      "filePath": "sats/agent/python_runtime.py",
+      "lineRange": [
+        18,
+        22
+      ],
+      "summary": "在 `python_runtime.py` 中定义 `PythonRunResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/python_runtime.py:RestrictedPythonRuntime",
+      "type": "class",
+      "name": "RestrictedPythonRuntime",
+      "filePath": "sats/agent/python_runtime.py",
+      "lineRange": [
+        25,
+        95
+      ],
+      "summary": "在 `python_runtime.py` 中定义 `RestrictedPythonRuntime` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/python_runtime.py:_validate_tree",
+      "type": "function",
+      "name": "_validate_tree",
+      "filePath": "sats/agent/python_runtime.py",
+      "lineRange": [
+        98,
+        112
+      ],
+      "summary": "在 `python_runtime.py` 中实现 `_validate_tree` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/python_runtime.py:_validate_market_literal_dict",
+      "type": "function",
+      "name": "_validate_market_literal_dict",
+      "filePath": "sats/agent/python_runtime.py",
+      "lineRange": [
+        115,
+        122
+      ],
+      "summary": "在 `python_runtime.py` 中实现 `_validate_market_literal_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/python_runtime.py:_call_name",
+      "type": "function",
+      "name": "_call_name",
+      "filePath": "sats/agent/python_runtime.py",
+      "lineRange": [
+        125,
+        131
+      ],
+      "summary": "在 `python_runtime.py` 中实现 `_call_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/runtime.py",
+      "type": "file",
+      "name": "runtime.py",
+      "filePath": "sats/agent/runtime.py",
+      "summary": "实现自主 Agent 的运行时循环，协调工具调用、权限门控与观察记录。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:run_agent_once",
+      "type": "function",
+      "name": "run_agent_once",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        30,
+        334
+      ],
+      "summary": "在 `runtime.py` 中实现 `run_agent_once` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_execute_step",
+      "type": "function",
+      "name": "_execute_step",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        337,
+        437
+      ],
+      "summary": "在 `runtime.py` 中实现 `_execute_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_resolve_tool_arguments",
+      "type": "function",
+      "name": "_resolve_tool_arguments",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        440,
+        444
+      ],
+      "summary": "在 `runtime.py` 中实现 `_resolve_tool_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_resolve_argument_placeholders",
+      "type": "function",
+      "name": "_resolve_argument_placeholders",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        447,
+        472
+      ],
+      "summary": "在 `runtime.py` 中实现 `_resolve_argument_placeholders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_resolve_string_placeholder",
+      "type": "function",
+      "name": "_resolve_string_placeholder",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        475,
+        488
+      ],
+      "summary": "在 `runtime.py` 中实现 `_resolve_string_placeholder` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_placeholder_value",
+      "type": "function",
+      "name": "_placeholder_value",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        491,
+        516
+      ],
+      "summary": "在 `runtime.py` 中实现 `_placeholder_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_lookup_payload_path",
+      "type": "function",
+      "name": "_lookup_payload_path",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        519,
+        526
+      ],
+      "summary": "在 `runtime.py` 中实现 `_lookup_payload_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_collect_symbol_values",
+      "type": "function",
+      "name": "_collect_symbol_values",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        529,
+        560
+      ],
+      "summary": "在 `runtime.py` 中实现 `_collect_symbol_values` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_tool_argument_payload",
+      "type": "function",
+      "name": "_tool_argument_payload",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        563,
+        567
+      ],
+      "summary": "在 `runtime.py` 中实现 `_tool_argument_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_gated_step_observation",
+      "type": "function",
+      "name": "_gated_step_observation",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        570,
+        594
+      ],
+      "summary": "在 `runtime.py` 中实现 `_gated_step_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_with_step_verification",
+      "type": "function",
+      "name": "_with_step_verification",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        597,
+        620
+      ],
+      "summary": "在 `runtime.py` 中实现 `_with_step_verification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_with_replan_decision",
+      "type": "function",
+      "name": "_with_replan_decision",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        623,
+        632
+      ],
+      "summary": "在 `runtime.py` 中实现 `_with_replan_decision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_trade_intent",
+      "type": "function",
+      "name": "_trade_intent",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        635,
+        644
+      ],
+      "summary": "在 `runtime.py` 中实现 `_trade_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_with_source",
+      "type": "function",
+      "name": "_with_source",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        647,
+        658
+      ],
+      "summary": "在 `runtime.py` 中实现 `_with_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_replan_request",
+      "type": "function",
+      "name": "_replan_request",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        661,
+        670
+      ],
+      "summary": "在 `runtime.py` 中实现 `_replan_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_catalog_replan_request",
+      "type": "function",
+      "name": "_catalog_replan_request",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        673,
+        681
+      ],
+      "summary": "在 `runtime.py` 中实现 `_catalog_replan_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_should_replan_after_catalog",
+      "type": "function",
+      "name": "_should_replan_after_catalog",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        684,
+        695
+      ],
+      "summary": "在 `runtime.py` 中实现 `_should_replan_after_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_replan_decision",
+      "type": "function",
+      "name": "_replan_decision",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        698,
+        729
+      ],
+      "summary": "在 `runtime.py` 中实现 `_replan_decision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_error_signature",
+      "type": "function",
+      "name": "_error_signature",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        732,
+        744
+      ],
+      "summary": "在 `runtime.py` 中实现 `_error_signature` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_error_category",
+      "type": "function",
+      "name": "_error_category",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        747,
+        771
+      ],
+      "summary": "在 `runtime.py` 中实现 `_error_category` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_error_content",
+      "type": "function",
+      "name": "_error_content",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        774,
+        777
+      ],
+      "summary": "在 `runtime.py` 中实现 `_error_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_compact_error_text",
+      "type": "function",
+      "name": "_compact_error_text",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        780,
+        782
+      ],
+      "summary": "在 `runtime.py` 中实现 `_compact_error_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_data_names",
+      "type": "function",
+      "name": "_data_names",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        785,
+        795
+      ],
+      "summary": "在 `runtime.py` 中实现 `_data_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_artifacts",
+      "type": "function",
+      "name": "_artifacts",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        798,
+        808
+      ],
+      "summary": "在 `runtime.py` 中实现 `_artifacts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_stringify",
+      "type": "function",
+      "name": "_stringify",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        811,
+        816
+      ],
+      "summary": "在 `runtime.py` 中实现 `_stringify` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/runtime.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/agent/runtime.py",
+      "lineRange": [
+        819,
+        832
+      ],
+      "summary": "在 `runtime.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration",
+        "runtime"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/trading.py",
+      "type": "file",
+      "name": "trading.py",
+      "filePath": "sats/agent/trading.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `trading` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/trading.py:AgentTradingExecutor",
+      "type": "class",
+      "name": "AgentTradingExecutor",
+      "filePath": "sats/agent/trading.py",
+      "lineRange": [
+        14,
+        147
+      ],
+      "summary": "在 `trading.py` 中定义 `AgentTradingExecutor` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/agent/trading.py:_DryRunBroker",
+      "type": "class",
+      "name": "_DryRunBroker",
+      "filePath": "sats/agent/trading.py",
+      "lineRange": [
+        151,
+        159
+      ],
+      "summary": "在 `trading.py` 中定义 `_DryRunBroker` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/trading.py:_quote_price",
+      "type": "function",
+      "name": "_quote_price",
+      "filePath": "sats/agent/trading.py",
+      "lineRange": [
+        162,
+        170
+      ],
+      "summary": "在 `trading.py` 中实现 `_quote_price` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/trading.py:_available_position",
+      "type": "function",
+      "name": "_available_position",
+      "filePath": "sats/agent/trading.py",
+      "lineRange": [
+        173,
+        177
+      ],
+      "summary": "在 `trading.py` 中实现 `_available_position` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "class:sats/agent/python_runtime.py:PythonRunResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "class:sats/agent/python_runtime.py:PythonRunResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "class:sats/agent/python_runtime.py:RestrictedPythonRuntime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "class:sats/agent/python_runtime.py:RestrictedPythonRuntime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_validate_tree",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_validate_tree",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_validate_market_literal_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_validate_market_literal_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_call_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "function:sats/agent/python_runtime.py:_call_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:run_agent_once",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:run_agent_once",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_execute_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_execute_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_tool_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_tool_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_argument_placeholders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_argument_placeholders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_string_placeholder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_resolve_string_placeholder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_placeholder_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_placeholder_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_lookup_payload_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_lookup_payload_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_collect_symbol_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_collect_symbol_values",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_tool_argument_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_tool_argument_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_gated_step_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_gated_step_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_step_verification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_step_verification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_replan_decision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_replan_decision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_trade_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_trade_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_with_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_replan_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_replan_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_catalog_replan_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_catalog_replan_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_should_replan_after_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_should_replan_after_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_replan_decision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_replan_decision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_signature",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_signature",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_category",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_category",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_error_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_compact_error_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_compact_error_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_data_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_data_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_artifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_artifacts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_stringify",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_stringify",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "function:sats/agent/runtime.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "class:sats/agent/trading.py:AgentTradingExecutor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "class:sats/agent/trading.py:AgentTradingExecutor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "class:sats/agent/trading.py:_DryRunBroker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "class:sats/agent/trading.py:_DryRunBroker",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "function:sats/agent/trading.py:_quote_price",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "function:sats/agent/trading.py:_quote_price",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "function:sats/agent/trading.py:_available_position",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "function:sats/agent/trading.py:_available_position",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/python_runtime.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/command_runner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/python_runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/synthesis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/tools/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/agent/trading.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/chat_events.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/runtime.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "file:sats/trading/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/trading.py",
+      "target": "file:sats/trading/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,2801 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/screening/rules/chan_third_buy.py",
+      "type": "file",
+      "name": "chan_third_buy.py",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "summary": "实现 规则筛选 中与 `chan third buy` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyThresholds",
+      "type": "class",
+      "name": "ChanThirdBuyThresholds",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        13,
+        23
+      ],
+      "summary": "在 `chan_third_buy.py` 中定义 `ChanThirdBuyThresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyRule",
+      "type": "class",
+      "name": "ChanThirdBuyRule",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        26,
+        88
+      ],
+      "summary": "在 `chan_third_buy.py` 中定义 `ChanThirdBuyRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:is_chan_daily_candidate",
+      "type": "function",
+      "name": "is_chan_daily_candidate",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        91,
+        93
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `is_chan_daily_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_daily_setup",
+      "type": "function",
+      "name": "evaluate_chan_daily_setup",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        96,
+        141
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `evaluate_chan_daily_setup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_minute_confirmation",
+      "type": "function",
+      "name": "evaluate_chan_minute_confirmation",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        144,
+        212
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `evaluate_chan_minute_confirmation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_find_latest_daily_breakout_setup",
+      "type": "function",
+      "name": "_find_latest_daily_breakout_setup",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        215,
+        276
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_find_latest_daily_breakout_setup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        279,
+        298
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_prepare_minute",
+      "type": "function",
+      "name": "_prepare_minute",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        301,
+        319
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_prepare_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        322,
+        333
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_macd_histogram",
+      "type": "function",
+      "name": "_macd_histogram",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        336,
+        341
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_macd_histogram` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_volume_ratio_at",
+      "type": "function",
+      "name": "_volume_ratio_at",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        344,
+        351
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_volume_ratio_at` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_window_return",
+      "type": "function",
+      "name": "_window_return",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        354,
+        361
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_window_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_latest_trade_date",
+      "type": "function",
+      "name": "_latest_trade_date",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        364,
+        367
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_latest_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_is_st_stock",
+      "type": "function",
+      "name": "_is_st_stock",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        370,
+        371
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_is_st_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_is_bse_stock",
+      "type": "function",
+      "name": "_is_bse_stock",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        374,
+        379
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_is_bse_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_has_failed_daily_checks",
+      "type": "function",
+      "name": "_has_failed_daily_checks",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        382,
+        385
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_has_failed_daily_checks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        388,
+        394
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        397,
+        413
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_chan_minute_period",
+      "type": "function",
+      "name": "_chan_minute_period",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        416,
+        420
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_chan_minute_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_minute_metadata_key",
+      "type": "function",
+      "name": "_minute_metadata_key",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        423,
+        424
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_minute_metadata_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/chan_third_buy.py:_minute_metric",
+      "type": "function",
+      "name": "_minute_metric",
+      "filePath": "sats/screening/rules/chan_third_buy.py",
+      "lineRange": [
+        427,
+        435
+      ],
+      "summary": "在 `chan_third_buy.py` 中实现 `_minute_metric` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "type": "file",
+      "name": "ma_volume_relative_strength.py",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "summary": "实现 规则筛选 中与 `ma volume relative strength` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/ma_volume_relative_strength.py:Thresholds",
+      "type": "class",
+      "name": "Thresholds",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        12,
+        19
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中定义 `Thresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/ma_volume_relative_strength.py:MaVolumeRelativeStrengthRule",
+      "type": "class",
+      "name": "MaVolumeRelativeStrengthRule",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        22,
+        145
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中定义 `MaVolumeRelativeStrengthRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        148,
+        167
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        170,
+        181
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_with_moving_averages",
+      "type": "function",
+      "name": "_with_moving_averages",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        184,
+        189
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_with_moving_averages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        192,
+        198
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_window_return",
+      "type": "function",
+      "name": "_window_return",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        201,
+        208
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_window_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_close_position",
+      "type": "function",
+      "name": "_close_position",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        211,
+        218
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_close_position` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_volume_ratio",
+      "type": "function",
+      "name": "_volume_ratio",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        221,
+        228
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_volume_ratio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_pct_change",
+      "type": "function",
+      "name": "_pct_change",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        231,
+        241
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_pct_change` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_latest_trade_date",
+      "type": "function",
+      "name": "_latest_trade_date",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        244,
+        247
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_latest_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_is_platform_breakout",
+      "type": "function",
+      "name": "_is_platform_breakout",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        250,
+        261
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_is_platform_breakout` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/ma_volume_relative_strength.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/screening/rules/ma_volume_relative_strength.py",
+      "lineRange": [
+        264,
+        278
+      ],
+      "summary": "在 `ma_volume_relative_strength.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/monthly_base_breakout.py",
+      "type": "file",
+      "name": "monthly_base_breakout.py",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "summary": "实现 规则筛选 中与 `monthly base breakout` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutThresholds",
+      "type": "class",
+      "name": "MonthlyBaseBreakoutThresholds",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        12,
+        25
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中定义 `MonthlyBaseBreakoutThresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutRule",
+      "type": "class",
+      "name": "MonthlyBaseBreakoutRule",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        28,
+        91
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中定义 `MonthlyBaseBreakoutRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_resolve_monthly",
+      "type": "function",
+      "name": "_resolve_monthly",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        94,
+        100
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_resolve_monthly` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_prepare_monthly",
+      "type": "function",
+      "name": "_prepare_monthly",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        103,
+        124
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_prepare_monthly` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_monthly_from_daily",
+      "type": "function",
+      "name": "_monthly_from_daily",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        127,
+        170
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_monthly_from_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_find_stage_setup",
+      "type": "function",
+      "name": "_find_stage_setup",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        173,
+        214
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_find_stage_setup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_best_failed_setup",
+      "type": "function",
+      "name": "_best_failed_setup",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        217,
+        226
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_best_failed_setup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_base_setup",
+      "type": "function",
+      "name": "_base_setup",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        229,
+        274
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_base_setup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_stage_checks",
+      "type": "function",
+      "name": "_stage_checks",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        277,
+        302
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_stage_checks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_with_moving_averages",
+      "type": "function",
+      "name": "_with_moving_averages",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        305,
+        310
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_with_moving_averages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_pivots",
+      "type": "function",
+      "name": "_pivots",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        313,
+        328
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_pivots` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_neckline_group",
+      "type": "function",
+      "name": "_neckline_group",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        331,
+        342
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_neckline_group` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_alternating_count",
+      "type": "function",
+      "name": "_alternating_count",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        345,
+        356
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_alternating_count` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        359,
+        370
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_latest_trade_date",
+      "type": "function",
+      "name": "_latest_trade_date",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        373,
+        376
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_latest_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        379,
+        385
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/monthly_base_breakout.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/screening/rules/monthly_base_breakout.py",
+      "lineRange": [
+        388,
+        397
+      ],
+      "summary": "在 `monthly_base_breakout.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/price_volume_ma.py",
+      "type": "file",
+      "name": "price_volume_ma.py",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "summary": "实现 规则筛选 中与 `price volume ma` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaThresholds",
+      "type": "class",
+      "name": "PriceVolumeMaThresholds",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        12,
+        19
+      ],
+      "summary": "在 `price_volume_ma.py` 中定义 `PriceVolumeMaThresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaRule",
+      "type": "class",
+      "name": "PriceVolumeMaRule",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        22,
+        136
+      ],
+      "summary": "在 `price_volume_ma.py` 中定义 `PriceVolumeMaRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        139,
+        158
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily_basic",
+      "type": "function",
+      "name": "_prepare_daily_basic",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        161,
+        173
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_prepare_daily_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        176,
+        187
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_with_moving_averages",
+      "type": "function",
+      "name": "_with_moving_averages",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        190,
+        195
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_with_moving_averages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_pct_change",
+      "type": "function",
+      "name": "_pct_change",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        198,
+        208
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_pct_change` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_volume_ratio",
+      "type": "function",
+      "name": "_volume_ratio",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        211,
+        218
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_volume_ratio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_turnover_rate",
+      "type": "function",
+      "name": "_turnover_rate",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        221,
+        225
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_turnover_rate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_latest_trade_date",
+      "type": "function",
+      "name": "_latest_trade_date",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        228,
+        231
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_latest_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_is_st_stock",
+      "type": "function",
+      "name": "_is_st_stock",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        234,
+        236
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_is_st_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_is_bse_stock",
+      "type": "function",
+      "name": "_is_bse_stock",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        239,
+        244
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_is_bse_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        247,
+        253
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_optional_num",
+      "type": "function",
+      "name": "_optional_num",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        256,
+        262
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_optional_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_score_metrics_from_precomputed",
+      "type": "function",
+      "name": "_score_metrics_from_precomputed",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        265,
+        279
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_score_metrics_from_precomputed` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/price_volume_ma.py:_score",
+      "type": "function",
+      "name": "_score",
+      "filePath": "sats/screening/rules/price_volume_ma.py",
+      "lineRange": [
+        282,
+        295
+      ],
+      "summary": "在 `price_volume_ma.py` 中实现 `_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/sequoia_x.py",
+      "type": "file",
+      "name": "sequoia_x.py",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "summary": "实现 规则筛选 中与 `sequoia x` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:TurtleTradeRule",
+      "type": "class",
+      "name": "TurtleTradeRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        10,
+        56
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `TurtleTradeRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:MaVolumeRule",
+      "type": "class",
+      "name": "MaVolumeRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        59,
+        102
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `MaVolumeRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:HighTightFlagRule",
+      "type": "class",
+      "name": "HighTightFlagRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        105,
+        156
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `HighTightFlagRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:LimitUpShakeoutRule",
+      "type": "class",
+      "name": "LimitUpShakeoutRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        159,
+        201
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `LimitUpShakeoutRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:UptrendLimitDownRule",
+      "type": "class",
+      "name": "UptrendLimitDownRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        204,
+        250
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `UptrendLimitDownRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/screening/rules/sequoia_x.py:RpsBreakoutRule",
+      "type": "class",
+      "name": "RpsBreakoutRule",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        253,
+        364
+      ],
+      "summary": "在 `sequoia_x.py` 中定义 `RpsBreakoutRule` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_base_metrics",
+      "type": "function",
+      "name": "_base_metrics",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        367,
+        372
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_base_metrics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_build_result",
+      "type": "function",
+      "name": "_build_result",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        375,
+        396
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_build_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_score_from_checks",
+      "type": "function",
+      "name": "_score_from_checks",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        399,
+        403
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_score_from_checks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_prepare_daily",
+      "type": "function",
+      "name": "_prepare_daily",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        406,
+        424
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_prepare_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_prepare_daily_basic",
+      "type": "function",
+      "name": "_prepare_daily_basic",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        427,
+        439
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_prepare_daily_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_rename_columns",
+      "type": "function",
+      "name": "_rename_columns",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        442,
+        462
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_rename_columns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_latest_trade_date",
+      "type": "function",
+      "name": "_latest_trade_date",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        465,
+        468
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_latest_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_latest_basic_value",
+      "type": "function",
+      "name": "_latest_basic_value",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        471,
+        475
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_latest_basic_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_pct_change",
+      "type": "function",
+      "name": "_pct_change",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        478,
+        486
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_pct_change` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_ratio",
+      "type": "function",
+      "name": "_ratio",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        489,
+        490
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_ratio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/rules/sequoia_x.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/screening/rules/sequoia_x.py",
+      "lineRange": [
+        493,
+        499
+      ],
+      "summary": "在 `sequoia_x.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyThresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyThresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "class:sats/screening/rules/chan_third_buy.py:ChanThirdBuyRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:is_chan_daily_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:is_chan_daily_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_daily_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_daily_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_minute_confirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:evaluate_chan_minute_confirmation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_find_latest_daily_breakout_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_find_latest_daily_breakout_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_prepare_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_prepare_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_macd_histogram",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_macd_histogram",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_volume_ratio_at",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_volume_ratio_at",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_window_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_window_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_latest_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_latest_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_is_st_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_is_st_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_is_bse_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_is_bse_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_has_failed_daily_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_has_failed_daily_checks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_chan_minute_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_chan_minute_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_minute_metadata_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_minute_metadata_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_minute_metric",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "function:sats/screening/rules/chan_third_buy.py:_minute_metric",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "class:sats/screening/rules/ma_volume_relative_strength.py:Thresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "class:sats/screening/rules/ma_volume_relative_strength.py:Thresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "class:sats/screening/rules/ma_volume_relative_strength.py:MaVolumeRelativeStrengthRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "class:sats/screening/rules/ma_volume_relative_strength.py:MaVolumeRelativeStrengthRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_with_moving_averages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_with_moving_averages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_window_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_window_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_close_position",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_close_position",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_volume_ratio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_volume_ratio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_pct_change",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_pct_change",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_latest_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_latest_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_is_platform_breakout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_is_platform_breakout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "function:sats/screening/rules/ma_volume_relative_strength.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutThresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutThresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "class:sats/screening/rules/monthly_base_breakout.py:MonthlyBaseBreakoutRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_resolve_monthly",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_resolve_monthly",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_prepare_monthly",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_prepare_monthly",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_monthly_from_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_monthly_from_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_find_stage_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_find_stage_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_best_failed_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_best_failed_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_base_setup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_base_setup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_stage_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_stage_checks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_with_moving_averages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_with_moving_averages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_pivots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_pivots",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_neckline_group",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_neckline_group",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_alternating_count",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_alternating_count",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_latest_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_latest_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "function:sats/screening/rules/monthly_base_breakout.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaThresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaThresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "class:sats/screening/rules/price_volume_ma.py:PriceVolumeMaRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_prepare_daily_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_with_moving_averages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_with_moving_averages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_pct_change",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_pct_change",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_volume_ratio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_volume_ratio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_turnover_rate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_turnover_rate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_latest_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_latest_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_is_st_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_is_st_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_is_bse_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_is_bse_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_optional_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_optional_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_score_metrics_from_precomputed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_score_metrics_from_precomputed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "function:sats/screening/rules/price_volume_ma.py:_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:TurtleTradeRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:TurtleTradeRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:MaVolumeRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:MaVolumeRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:HighTightFlagRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:HighTightFlagRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:LimitUpShakeoutRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:LimitUpShakeoutRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:UptrendLimitDownRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:UptrendLimitDownRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:RpsBreakoutRule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "class:sats/screening/rules/sequoia_x.py:RpsBreakoutRule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_base_metrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_base_metrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_build_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_build_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_score_from_checks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_score_from_checks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_prepare_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_prepare_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_prepare_daily_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_prepare_daily_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_rename_columns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_rename_columns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_latest_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_latest_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_latest_basic_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_latest_basic_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_pct_change",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_pct_change",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_ratio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_ratio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "function:sats/screening/rules/sequoia_x.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/chan_third_buy.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/ma_volume_relative_strength.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/monthly_base_breakout.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/price_volume_ma.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/rules/sequoia_x.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

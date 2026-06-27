@@ -1,0 +1,2843 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/deep_analysis/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "sats/deep_analysis/models.py",
+      "summary": "定义 深度研究 共享的数据模型与类型结构，供同模块流程复用。",
+      "tags": [
+        "python",
+        "deep-analysis",
+        "research",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/deep_analysis/models.py:DeepAnalysisRequest",
+      "type": "class",
+      "name": "DeepAnalysisRequest",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        9,
+        20
+      ],
+      "summary": "在 `models.py` 中定义 `DeepAnalysisRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "deep-analysis",
+        "research",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/deep_analysis/models.py:DeepDimensionResult",
+      "type": "class",
+      "name": "DeepDimensionResult",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        24,
+        38
+      ],
+      "summary": "在 `models.py` 中定义 `DeepDimensionResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "deep-analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/deep_analysis/models.py:DeepInvestorVote",
+      "type": "class",
+      "name": "DeepInvestorVote",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        42,
+        57
+      ],
+      "summary": "在 `models.py` 中定义 `DeepInvestorVote` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "deep-analysis",
+        "research",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/deep_analysis/models.py:DeepStockAnalysis",
+      "type": "class",
+      "name": "DeepStockAnalysis",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        61,
+        85
+      ],
+      "summary": "在 `models.py` 中定义 `DeepStockAnalysis` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "deep-analysis",
+        "research",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/deep_analysis/models.py:DeepAnalysisResult",
+      "type": "class",
+      "name": "DeepAnalysisResult",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        89,
+        111
+      ],
+      "summary": "在 `models.py` 中定义 `DeepAnalysisResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "deep-analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/models.py:_stock_markdown",
+      "type": "function",
+      "name": "_stock_markdown",
+      "filePath": "sats/deep_analysis/models.py",
+      "lineRange": [
+        114,
+        170
+      ],
+      "summary": "在 `models.py` 中实现 `_stock_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/deep_analysis/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "sats/deep_analysis/service.py",
+      "summary": "封装 深度研究 的主服务流程，对上提供统一业务入口。",
+      "tags": [
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/deep_analysis/service.py:_StockContext",
+      "type": "class",
+      "name": "_StockContext",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        210,
+        234
+      ],
+      "summary": "在 `service.py` 中定义 `_StockContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:run_deep_analysis",
+      "type": "function",
+      "name": "run_deep_analysis",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        64,
+        121
+      ],
+      "summary": "在 `service.py` 中实现 `run_deep_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:write_deep_analysis_artifacts",
+      "type": "function",
+      "name": "write_deep_analysis_artifacts",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        124,
+        134
+      ],
+      "summary": "在 `service.py` 中实现 `write_deep_analysis_artifacts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_load_inputs",
+      "type": "function",
+      "name": "_load_inputs",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        137,
+        151
+      ],
+      "summary": "在 `service.py` 中实现 `_load_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_load_extra_context",
+      "type": "function",
+      "name": "_load_extra_context",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        154,
+        172
+      ],
+      "summary": "在 `service.py` 中实现 `_load_extra_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_analyze_stock",
+      "type": "function",
+      "name": "_analyze_stock",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        175,
+        207
+      ],
+      "summary": "在 `service.py` 中实现 `_analyze_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_build_dimensions",
+      "type": "function",
+      "name": "_build_dimensions",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        237,
+        252
+      ],
+      "summary": "在 `service.py` 中实现 `_build_dimensions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_basic",
+      "type": "function",
+      "name": "_dim_basic",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        255,
+        273
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_financial_quality",
+      "type": "function",
+      "name": "_dim_financial_quality",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        276,
+        302
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_financial_quality` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_kline_technical",
+      "type": "function",
+      "name": "_dim_kline_technical",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        305,
+        339
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_kline_technical` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_market_macro",
+      "type": "function",
+      "name": "_dim_market_macro",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        342,
+        367
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_market_macro` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_peers",
+      "type": "function",
+      "name": "_dim_peers",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        370,
+        373
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_peers` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_fund_holders",
+      "type": "function",
+      "name": "_dim_fund_holders",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        376,
+        382
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_fund_holders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_industry",
+      "type": "function",
+      "name": "_dim_industry",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        385,
+        392
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_industry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_valuation",
+      "type": "function",
+      "name": "_dim_valuation",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        395,
+        417
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_valuation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_governance",
+      "type": "function",
+      "name": "_dim_governance",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        420,
+        431
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_governance` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_capital_flow",
+      "type": "function",
+      "name": "_dim_capital_flow",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        434,
+        447
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_capital_flow` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_moat_risk",
+      "type": "function",
+      "name": "_dim_moat_risk",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        450,
+        473
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_moat_risk` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dim_events",
+      "type": "function",
+      "name": "_dim_events",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        476,
+        484
+      ],
+      "summary": "在 `service.py` 中实现 `_dim_events` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_features",
+      "type": "function",
+      "name": "_features",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        487,
+        509
+      ],
+      "summary": "在 `service.py` 中实现 `_features` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_investor_vote",
+      "type": "function",
+      "name": "_investor_vote",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        512,
+        531
+      ],
+      "summary": "在 `service.py` 中实现 `_investor_vote` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_attach_llm_reviews",
+      "type": "function",
+      "name": "_attach_llm_reviews",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        534,
+        549
+      ],
+      "summary": "在 `service.py` 中实现 `_attach_llm_reviews` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_run_llm_review_loop",
+      "type": "function",
+      "name": "_run_llm_review_loop",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        552,
+        571
+      ],
+      "summary": "在 `service.py` 中实现 `_run_llm_review_loop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_with_llm_review",
+      "type": "function",
+      "name": "_with_llm_review",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        574,
+        577
+      ],
+      "summary": "在 `service.py` 中实现 `_with_llm_review` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_llm_review_comment",
+      "type": "function",
+      "name": "_llm_review_comment",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        580,
+        610
+      ],
+      "summary": "在 `service.py` 中实现 `_llm_review_comment` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_build_optional",
+      "type": "function",
+      "name": "_build_optional",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        613,
+        617
+      ],
+      "summary": "在 `service.py` 中实现 `_build_optional` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_rules_for_investor",
+      "type": "function",
+      "name": "_rules_for_investor",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        620,
+        645
+      ],
+      "summary": "在 `service.py` 中实现 `_rules_for_investor` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_synthesize",
+      "type": "function",
+      "name": "_synthesize",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        648,
+        679
+      ],
+      "summary": "在 `service.py` 中实现 `_synthesize` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_observation_zones",
+      "type": "function",
+      "name": "_observation_zones",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        682,
+        694
+      ],
+      "summary": "在 `service.py` 中实现 `_observation_zones` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dimension",
+      "type": "function",
+      "name": "_dimension",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        697,
+        718
+      ],
+      "summary": "在 `service.py` 中实现 `_dimension` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_supported_common_a_symbols",
+      "type": "function",
+      "name": "_supported_common_a_symbols",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        721,
+        731
+      ],
+      "summary": "在 `service.py` 中实现 `_supported_common_a_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_has_daily_data",
+      "type": "function",
+      "name": "_has_daily_data",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        734,
+        735
+      ],
+      "summary": "在 `service.py` 中实现 `_has_daily_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_safe_call",
+      "type": "function",
+      "name": "_safe_call",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        738,
+        743
+      ],
+      "summary": "在 `service.py` 中实现 `_safe_call` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_stock_name",
+      "type": "function",
+      "name": "_stock_name",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        746,
+        752
+      ],
+      "summary": "在 `service.py` 中实现 `_stock_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_industry",
+      "type": "function",
+      "name": "_industry",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        755,
+        761
+      ],
+      "summary": "在 `service.py` 中实现 `_industry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_stock_hot_sectors",
+      "type": "function",
+      "name": "_stock_hot_sectors",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        764,
+        769
+      ],
+      "summary": "在 `service.py` 中实现 `_stock_hot_sectors` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_data_sources",
+      "type": "function",
+      "name": "_data_sources",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        772,
+        779
+      ],
+      "summary": "在 `service.py` 中实现 `_data_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_growth",
+      "type": "function",
+      "name": "_growth",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        782,
+        801
+      ],
+      "summary": "在 `service.py` 中实现 `_growth` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_risk_flags",
+      "type": "function",
+      "name": "_risk_flags",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        804,
+        814
+      ],
+      "summary": "在 `service.py` 中实现 `_risk_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_vote_headline",
+      "type": "function",
+      "name": "_vote_headline",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        817,
+        829
+      ],
+      "summary": "在 `service.py` 中实现 `_vote_headline` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_verdict",
+      "type": "function",
+      "name": "_verdict",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        832,
+        841
+      ],
+      "summary": "在 `service.py` 中实现 `_verdict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_basic_summary",
+      "type": "function",
+      "name": "_basic_summary",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        844,
+        845
+      ],
+      "summary": "在 `service.py` 中实现 `_basic_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_score_presence",
+      "type": "function",
+      "name": "_score_presence",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        848,
+        849
+      ],
+      "summary": "在 `service.py` 中实现 `_score_presence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_missing",
+      "type": "function",
+      "name": "_missing",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        852,
+        853
+      ],
+      "summary": "在 `service.py` 中实现 `_missing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_has_any_value",
+      "type": "function",
+      "name": "_has_any_value",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        856,
+        857
+      ],
+      "summary": "在 `service.py` 中实现 `_has_any_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_first_text",
+      "type": "function",
+      "name": "_first_text",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        860,
+        865
+      ],
+      "summary": "在 `service.py` 中实现 `_first_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_first_number",
+      "type": "function",
+      "name": "_first_number",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        868,
+        873
+      ],
+      "summary": "在 `service.py` 中实现 `_first_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        876,
+        884
+      ],
+      "summary": "在 `service.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        887,
+        889
+      ],
+      "summary": "在 `service.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_fmt_pct",
+      "type": "function",
+      "name": "_fmt_pct",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        892,
+        894
+      ],
+      "summary": "在 `service.py` 中实现 `_fmt_pct` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_clamp",
+      "type": "function",
+      "name": "_clamp",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        897,
+        898
+      ],
+      "summary": "在 `service.py` 中实现 `_clamp` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        901,
+        910
+      ],
+      "summary": "在 `service.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/deep_analysis/service.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/deep_analysis/service.py",
+      "lineRange": [
+        913,
+        932
+      ],
+      "summary": "在 `service.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "deep-analysis",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/ml.py",
+      "type": "file",
+      "name": "ml.py",
+      "filePath": "sats/factors/ml.py",
+      "summary": "实现 因子研究 中与 `ml` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/factors/ml.py:FactorMLTrainResult",
+      "type": "class",
+      "name": "FactorMLTrainResult",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        23,
+        41
+      ],
+      "summary": "在 `ml.py` 中定义 `FactorMLTrainResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:train_factor_ml_model",
+      "type": "function",
+      "name": "train_factor_ml_model",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        44,
+        147
+      ],
+      "summary": "在 `ml.py` 中实现 `train_factor_ml_model` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/factors/ml.py:predict_factor_ml_model",
+      "type": "function",
+      "name": "predict_factor_ml_model",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        150,
+        244
+      ],
+      "summary": "在 `ml.py` 中实现 `predict_factor_ml_model` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/factors/ml.py:load_factor_ml_run",
+      "type": "function",
+      "name": "load_factor_ml_run",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        247,
+        256
+      ],
+      "summary": "在 `ml.py` 中实现 `load_factor_ml_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_training_frame",
+      "type": "function",
+      "name": "_training_frame",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        259,
+        274
+      ],
+      "summary": "在 `ml.py` 中实现 `_training_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_slice_training",
+      "type": "function",
+      "name": "_slice_training",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        277,
+        285
+      ],
+      "summary": "在 `ml.py` 中实现 `_slice_training` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_slice_validation",
+      "type": "function",
+      "name": "_slice_validation",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        288,
+        292
+      ],
+      "summary": "在 `ml.py` 中实现 `_slice_validation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_prediction_frame",
+      "type": "function",
+      "name": "_prediction_frame",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        295,
+        310
+      ],
+      "summary": "在 `ml.py` 中实现 `_prediction_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_prediction_metrics",
+      "type": "function",
+      "name": "_prediction_metrics",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        313,
+        323
+      ],
+      "summary": "在 `ml.py` 中实现 `_prediction_metrics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_make_model",
+      "type": "function",
+      "name": "_make_model",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        326,
+        336
+      ],
+      "summary": "在 `ml.py` 中实现 `_make_model` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_load_model_payload",
+      "type": "function",
+      "name": "_load_model_payload",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        339,
+        354
+      ],
+      "summary": "在 `ml.py` 中实现 `_load_model_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/ml.py:_resolve_score_date",
+      "type": "function",
+      "name": "_resolve_score_date",
+      "filePath": "sats/factors/ml.py",
+      "lineRange": [
+        357,
+        363
+      ],
+      "summary": "在 `ml.py` 中实现 `_resolve_score_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/panel.py",
+      "type": "file",
+      "name": "panel.py",
+      "filePath": "sats/factors/panel.py",
+      "summary": "实现 因子研究 中与 `panel` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/factors/panel.py:FactorPanelBuildResult",
+      "type": "class",
+      "name": "FactorPanelBuildResult",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        15,
+        20
+      ],
+      "summary": "在 `panel.py` 中定义 `FactorPanelBuildResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:build_factor_panel",
+      "type": "function",
+      "name": "build_factor_panel",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        23,
+        57
+      ],
+      "summary": "在 `panel.py` 中实现 `build_factor_panel` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/panel.py:panel_from_screening_inputs",
+      "type": "function",
+      "name": "panel_from_screening_inputs",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        60,
+        128
+      ],
+      "summary": "在 `panel.py` 中实现 `panel_from_screening_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_wide_from_inputs",
+      "type": "function",
+      "name": "_wide_from_inputs",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        131,
+        156
+      ],
+      "summary": "在 `panel.py` 中实现 `_wide_from_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_panel_dates",
+      "type": "function",
+      "name": "_panel_dates",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        159,
+        164
+      ],
+      "summary": "在 `panel.py` 中实现 `_panel_dates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_names_from_inputs",
+      "type": "function",
+      "name": "_names_from_inputs",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        167,
+        173
+      ],
+      "summary": "在 `panel.py` 中实现 `_names_from_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_labels_from_inputs",
+      "type": "function",
+      "name": "_labels_from_inputs",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        176,
+        187
+      ],
+      "summary": "在 `panel.py` 中实现 `_labels_from_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_augment_with_fundamentals",
+      "type": "function",
+      "name": "_augment_with_fundamentals",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        190,
+        215
+      ],
+      "summary": "在 `panel.py` 中实现 `_augment_with_fundamentals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_augment_with_moneyflow",
+      "type": "function",
+      "name": "_augment_with_moneyflow",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        218,
+        234
+      ],
+      "summary": "在 `panel.py` 中实现 `_augment_with_moneyflow` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_effective_date_wide",
+      "type": "function",
+      "name": "_effective_date_wide",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        237,
+        254
+      ],
+      "summary": "在 `panel.py` 中实现 `_effective_date_wide` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/panel.py:_wide_from_frame",
+      "type": "function",
+      "name": "_wide_from_frame",
+      "filePath": "sats/factors/panel.py",
+      "lineRange": [
+        257,
+        279
+      ],
+      "summary": "在 `panel.py` 中实现 `_wide_from_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepAnalysisRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepAnalysisRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepDimensionResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepDimensionResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepInvestorVote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepInvestorVote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepStockAnalysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepStockAnalysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepAnalysisResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "class:sats/deep_analysis/models.py:DeepAnalysisResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "function:sats/deep_analysis/models.py:_stock_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/models.py",
+      "target": "function:sats/deep_analysis/models.py:_stock_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "class:sats/deep_analysis/service.py:_StockContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "class:sats/deep_analysis/service.py:_StockContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:run_deep_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:run_deep_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:write_deep_analysis_artifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:write_deep_analysis_artifacts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_load_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_load_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_load_extra_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_load_extra_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_analyze_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_analyze_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_build_dimensions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_build_dimensions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_financial_quality",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_financial_quality",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_kline_technical",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_kline_technical",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_market_macro",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_market_macro",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_peers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_peers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_fund_holders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_fund_holders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_industry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_industry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_valuation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_valuation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_governance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_governance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_capital_flow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_capital_flow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_moat_risk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_moat_risk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_events",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dim_events",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_features",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_features",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_investor_vote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_investor_vote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_attach_llm_reviews",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_attach_llm_reviews",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_run_llm_review_loop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_run_llm_review_loop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_with_llm_review",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_with_llm_review",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_llm_review_comment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_llm_review_comment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_build_optional",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_build_optional",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_rules_for_investor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_rules_for_investor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_synthesize",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_synthesize",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_observation_zones",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_observation_zones",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dimension",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dimension",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_supported_common_a_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_supported_common_a_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_has_daily_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_has_daily_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_safe_call",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_safe_call",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_stock_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_stock_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_industry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_industry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_stock_hot_sectors",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_stock_hot_sectors",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_data_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_data_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_growth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_growth",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_risk_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_risk_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_vote_headline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_vote_headline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_verdict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_verdict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_basic_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_basic_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_score_presence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_score_presence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_missing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_missing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_has_any_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_has_any_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_first_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_first_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_first_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_first_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_fmt_pct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_fmt_pct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_clamp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_clamp",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "function:sats/deep_analysis/service.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "class:sats/factors/ml.py:FactorMLTrainResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "class:sats/factors/ml.py:FactorMLTrainResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:train_factor_ml_model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:train_factor_ml_model",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:predict_factor_ml_model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:predict_factor_ml_model",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:load_factor_ml_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:load_factor_ml_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_training_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_training_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_slice_training",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_slice_training",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_slice_validation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_slice_validation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_prediction_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_prediction_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_prediction_metrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_prediction_metrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_make_model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_make_model",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_load_model_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_load_model_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_resolve_score_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "function:sats/factors/ml.py:_resolve_score_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "class:sats/factors/panel.py:FactorPanelBuildResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "class:sats/factors/panel.py:FactorPanelBuildResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:build_factor_panel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:build_factor_panel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:panel_from_screening_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:panel_from_screening_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_wide_from_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_wide_from_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_panel_dates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_panel_dates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_names_from_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_names_from_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_labels_from_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_labels_from_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_augment_with_fundamentals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_augment_with_fundamentals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_augment_with_moneyflow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_augment_with_moneyflow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_effective_date_wide",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_effective_date_wide",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_wide_from_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "function:sats/factors/panel.py:_wide_from_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/deep_analysis/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/service.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/factors/composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/factors/panel.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/ml.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/panel.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

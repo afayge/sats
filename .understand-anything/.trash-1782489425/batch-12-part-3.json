@@ -1,0 +1,1124 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/llm/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/llm/__init__.py",
+      "summary": "定义 `llm` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/llm/chat.py",
+      "type": "file",
+      "name": "chat.py",
+      "filePath": "sats/llm/chat.py",
+      "summary": "实现 LLM 适配 中与 `chat` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/llm/chat.py:ToolCallRequest",
+      "type": "class",
+      "name": "ToolCallRequest",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        17,
+        20
+      ],
+      "summary": "在 `chat.py` 中定义 `ToolCallRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/llm/chat.py:LLMResponse",
+      "type": "class",
+      "name": "LLMResponse",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        24,
+        32
+      ],
+      "summary": "在 `chat.py` 中定义 `LLMResponse` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/llm/chat.py:ChatLLM",
+      "type": "class",
+      "name": "ChatLLM",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        35,
+        122
+      ],
+      "summary": "在 `chat.py` 中定义 `ChatLLM` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/llm/chat.py:LightFallbackChatLLM",
+      "type": "class",
+      "name": "LightFallbackChatLLM",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        125,
+        212
+      ],
+      "summary": "在 `chat.py` 中定义 `LightFallbackChatLLM` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/llm/chat.py:_dedupe_finish_reason",
+      "type": "function",
+      "name": "_dedupe_finish_reason",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        9,
+        13
+      ],
+      "summary": "在 `chat.py` 中实现 `_dedupe_finish_reason` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/chat.py:build_light_fallback_llm",
+      "type": "function",
+      "name": "build_light_fallback_llm",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        215,
+        227
+      ],
+      "summary": "在 `chat.py` 中实现 `build_light_fallback_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/chat.py:build_standard_llm",
+      "type": "function",
+      "name": "build_standard_llm",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        230,
+        241
+      ],
+      "summary": "在 `chat.py` 中实现 `build_standard_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/chat.py:_create_llm_client",
+      "type": "function",
+      "name": "_create_llm_client",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        244,
+        267
+      ],
+      "summary": "在 `chat.py` 中实现 `_create_llm_client` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/chat.py:_call_chat_compatible",
+      "type": "function",
+      "name": "_call_chat_compatible",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        270,
+        298
+      ],
+      "summary": "在 `chat.py` 中实现 `_call_chat_compatible` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/llm/chat.py:_parse_tool_call",
+      "type": "function",
+      "name": "_parse_tool_call",
+      "filePath": "sats/llm/chat.py",
+      "lineRange": [
+        301,
+        312
+      ],
+      "summary": "在 `chat.py` 中实现 `_parse_tool_call` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/llm/model_config.py",
+      "type": "file",
+      "name": "model_config.py",
+      "filePath": "sats/llm/model_config.py",
+      "summary": "实现 LLM 适配 中与 `model config` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/llm/model_config.py:ModelProfile",
+      "type": "class",
+      "name": "ModelProfile",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        25,
+        31
+      ],
+      "summary": "在 `model_config.py` 中定义 `ModelProfile` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/llm/model_config.py:ModelSelection",
+      "type": "class",
+      "name": "ModelSelection",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        35,
+        42
+      ],
+      "summary": "在 `model_config.py` 中定义 `ModelSelection` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:discover_model_profiles",
+      "type": "function",
+      "name": "discover_model_profiles",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        67,
+        86
+      ],
+      "summary": "在 `model_config.py` 中实现 `discover_model_profiles` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:resolve_model_selection",
+      "type": "function",
+      "name": "resolve_model_selection",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        89,
+        111
+      ],
+      "summary": "在 `model_config.py` 中实现 `resolve_model_selection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:current_model_status",
+      "type": "function",
+      "name": "current_model_status",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        114,
+        119
+      ],
+      "summary": "在 `model_config.py` 中实现 `current_model_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:update_default_model_selection",
+      "type": "function",
+      "name": "update_default_model_selection",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        122,
+        140
+      ],
+      "summary": "在 `model_config.py` 中实现 `update_default_model_selection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:_selected_profile_name",
+      "type": "function",
+      "name": "_selected_profile_name",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        143,
+        147
+      ],
+      "summary": "在 `model_config.py` 中实现 `_selected_profile_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:_raise_for_legacy_only_config",
+      "type": "function",
+      "name": "_raise_for_legacy_only_config",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        150,
+        160
+      ],
+      "summary": "在 `model_config.py` 中实现 `_raise_for_legacy_only_config` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:_parse_env_text",
+      "type": "function",
+      "name": "_parse_env_text",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        163,
+        171
+      ],
+      "summary": "在 `model_config.py` 中实现 `_parse_env_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/model_config.py:_update_env_text",
+      "type": "function",
+      "name": "_update_env_text",
+      "filePath": "sats/llm/model_config.py",
+      "lineRange": [
+        174,
+        189
+      ],
+      "summary": "在 `model_config.py` 中实现 `_update_env_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/llm/provider.py",
+      "type": "file",
+      "name": "provider.py",
+      "filePath": "sats/llm/provider.py",
+      "summary": "实现 LLM provider 抽象与调用封装，为模型路由提供统一接口。",
+      "tags": [
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/llm/provider.py:ProviderSpec",
+      "type": "class",
+      "name": "ProviderSpec",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        86,
+        90
+      ],
+      "summary": "在 `provider.py` 中定义 `ProviderSpec` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:build_llm",
+      "type": "function",
+      "name": "build_llm",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        114,
+        138
+      ],
+      "summary": "在 `provider.py` 中实现 `build_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/llm/provider.py:extract_json_object",
+      "type": "function",
+      "name": "extract_json_object",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        141,
+        173
+      ],
+      "summary": "在 `provider.py` 中实现 `extract_json_object` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_raw_input_messages",
+      "type": "function",
+      "name": "_raw_input_messages",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        176,
+        183
+      ],
+      "summary": "在 `provider.py` 中实现 `_raw_input_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_reasoning_from_raw_message",
+      "type": "function",
+      "name": "_reasoning_from_raw_message",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        186,
+        197
+      ],
+      "summary": "在 `provider.py` 中实现 `_reasoning_from_raw_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_sync_provider_env",
+      "type": "function",
+      "name": "_sync_provider_env",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        200,
+        218
+      ],
+      "summary": "在 `provider.py` 中实现 `_sync_provider_env` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_resolve_provider_name",
+      "type": "function",
+      "name": "_resolve_provider_name",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        221,
+        222
+      ],
+      "summary": "在 `provider.py` 中实现 `_resolve_provider_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_resolve_model_name",
+      "type": "function",
+      "name": "_resolve_model_name",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        225,
+        226
+      ],
+      "summary": "在 `provider.py` 中实现 `_resolve_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_ensure_dotenv",
+      "type": "function",
+      "name": "_ensure_dotenv",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        229,
+        237
+      ],
+      "summary": "在 `provider.py` 中实现 `_ensure_dotenv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_load_env_file",
+      "type": "function",
+      "name": "_load_env_file",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        240,
+        251
+      ],
+      "summary": "在 `provider.py` 中实现 `_load_env_file` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_int_env",
+      "type": "function",
+      "name": "_int_env",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        254,
+        258
+      ],
+      "summary": "在 `provider.py` 中实现 `_int_env` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/llm/provider.py:_float_env",
+      "type": "function",
+      "name": "_float_env",
+      "filePath": "sats/llm/provider.py",
+      "lineRange": [
+        261,
+        265
+      ],
+      "summary": "在 `provider.py` 中实现 `_float_env` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "llm",
+        "model-routing",
+        "provider"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:ToolCallRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:ToolCallRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:LLMResponse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:LLMResponse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:ChatLLM",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:ChatLLM",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:LightFallbackChatLLM",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "class:sats/llm/chat.py:LightFallbackChatLLM",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_dedupe_finish_reason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_dedupe_finish_reason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:build_light_fallback_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:build_light_fallback_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:build_standard_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:build_standard_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_create_llm_client",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_create_llm_client",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_call_chat_compatible",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_call_chat_compatible",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_parse_tool_call",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "function:sats/llm/chat.py:_parse_tool_call",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "class:sats/llm/model_config.py:ModelProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "class:sats/llm/model_config.py:ModelProfile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "class:sats/llm/model_config.py:ModelSelection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "class:sats/llm/model_config.py:ModelSelection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:discover_model_profiles",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:discover_model_profiles",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:resolve_model_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:resolve_model_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:current_model_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:current_model_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:update_default_model_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:update_default_model_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_selected_profile_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_selected_profile_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_raise_for_legacy_only_config",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_raise_for_legacy_only_config",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_parse_env_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_parse_env_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_update_env_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/model_config.py",
+      "target": "function:sats/llm/model_config.py:_update_env_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "class:sats/llm/provider.py:ProviderSpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "class:sats/llm/provider.py:ProviderSpec",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:build_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:build_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:extract_json_object",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:extract_json_object",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_raw_input_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_raw_input_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_reasoning_from_raw_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_reasoning_from_raw_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_sync_provider_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_sync_provider_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_resolve_provider_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_resolve_provider_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_resolve_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_resolve_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_ensure_dotenv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_ensure_dotenv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_load_env_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_load_env_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_int_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_int_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_float_env",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "function:sats/llm/provider.py:_float_env",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/llm/__init__.py",
+      "target": "file:sats/llm/chat.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/llm/__init__.py",
+      "target": "file:sats/llm/provider.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/llm/chat.py",
+      "target": "file:sats/llm/provider.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/llm/provider.py",
+      "target": "file:sats/llm/model_config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

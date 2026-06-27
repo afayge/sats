@@ -17,6 +17,7 @@ from sats.natural_output import (
     build_output_semantic_lexicon,
     extract_output_metadata,
     normalize_natural_markdown,
+    render_text_output_for_tty,
     render_natural_output,
     tokenize_semantic_text,
 )
@@ -60,6 +61,32 @@ class NaturalOutputTest(unittest.TestCase):
         rendered = render_natural_output(markdown, channel="cli", tty=False, width=80)
 
         self.assertEqual(rendered, markdown)
+
+    def test_render_text_output_for_tty_styles_plain_list(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "sats.duckdb"
+            DuckDBStorage(db_path).upsert_stock_basic(
+                pd.DataFrame([{"ts_code": "000001.SZ", "symbol": "000001", "name": "平安银行"}])
+            )
+            rendered = render_text_output_for_tty(
+                "1. 000001.SZ 平安银行 涨幅 +1.33%\n状态: 已保存关注股票",
+                db_path=db_path,
+                width=80,
+            )
+
+        text = fragment_list_to_text(rendered)
+        self.assertIn("1. 000001.SZ 平安银行 涨幅 +1.33%", text)
+        self.assertIn("状态: 已保存关注股票", text)
+        self.assertTrue(any(SYMBOL_HIGHLIGHT_STYLE in style and chunk == "000001.SZ" for style, chunk in rendered))
+        self.assertTrue(any(SYMBOL_HIGHLIGHT_STYLE in style and chunk == "平安银行" for style, chunk in rendered))
+        self.assertTrue(any(PERCENT_POSITIVE_HIGHLIGHT_STYLE in style and chunk == "+1.33%" for style, chunk in rendered))
+
+    def test_render_text_output_for_tty_keeps_json_plain(self) -> None:
+        payload = '{"ts_code":"000001.SZ","pct_chg":1.33}\n'
+
+        rendered = render_text_output_for_tty(payload, width=80)
+
+        self.assertEqual(rendered, payload)
 
     def test_render_tty_collapses_wide_table_on_narrow_terminal(self) -> None:
         markdown = "\n".join(

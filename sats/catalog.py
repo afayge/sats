@@ -418,8 +418,8 @@ def _command_consistency() -> dict[str, Any]:
         if isinstance(action, argparse._SubParsersAction):
             cli_commands = list(action.choices)
             break
-    expected_agent_exclusions = {"agent", "chat"}
-    expected_repl_exclusions = {"agent"}
+    expected_agent_exclusions = {"chat"}
+    expected_repl_exclusions: set[str] = set()
     warnings = []
     unexpected_repl = sorted((set(cli_commands) - set(CLI_COMMANDS)) - expected_repl_exclusions)
     unexpected_agent = sorted((set(cli_commands) - set(SATS_COMMANDS)) - expected_agent_exclusions)

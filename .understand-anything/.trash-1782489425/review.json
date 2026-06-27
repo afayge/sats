@@ -1,0 +1,40 @@
+{
+  "issues": [],
+  "warnings": [
+    "Node document:requirements.txt has no edges",
+    "Node document:sats.md has no edges",
+    "Node document:skills/serenity-stock-screen/references/chain-tiers.md has no edges",
+    "Node document:skills/serenity-stock-screen/references/evidence-ladder.md has no edges",
+    "Node document:skills/serenity-stock-screen/references/scoring.md has no edges",
+    "Node file:sats/factors/zoo/__init__.py has no edges",
+    "Node file:sats/factors/zoo/alpha101/__init__.py has no edges",
+    "Node document:sats/factors/zoo/alpha101/LICENSE.md has no edges",
+    "Node file:sats/factors/zoo/barra_style/__init__.py has no edges",
+    "Node file:sats/factors/zoo/gtja191/__init__.py has no edges",
+    "Node document:sats/factors/zoo/gtja191/LICENSE.md has no edges",
+    "Node file:sats/screening/rules/generated/__init__.py has no edges",
+    "Node document:skills/tushare-data/references/数据接口.md has no edges"
+  ],
+  "stats": {
+    "totalNodes": 3594,
+    "totalEdges": 7025,
+    "totalLayers": 8,
+    "tourSteps": 9,
+    "nodeTypes": {
+      "file": 469,
+      "function": 2813,
+      "class": 234,
+      "config": 5,
+      "document": 72,
+      "schema": 1
+    },
+    "edgeTypes": {
+      "contains": 3047,
+      "exports": 3047,
+      "imports": 845,
+      "configures": 8,
+      "documents": 77,
+      "defines_schema": 1
+    }
+  }
+}

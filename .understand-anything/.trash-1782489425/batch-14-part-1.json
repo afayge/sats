@@ -1,0 +1,1646 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/factors/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/factors/__init__.py",
+      "summary": "定义 `factors` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/factors/analysis.py",
+      "type": "file",
+      "name": "analysis.py",
+      "filePath": "sats/factors/analysis.py",
+      "summary": "承载 因子研究 相关的分析流程与结果组织逻辑。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/factors/analysis.py:FactorAnalysisResult",
+      "type": "class",
+      "name": "FactorAnalysisResult",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        14,
+        44
+      ],
+      "summary": "在 `analysis.py` 中定义 `FactorAnalysisResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/analysis.py:compute_forward_returns",
+      "type": "function",
+      "name": "compute_forward_returns",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        47,
+        58
+      ],
+      "summary": "在 `analysis.py` 中实现 `compute_forward_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/analysis.py:compute_ic_series",
+      "type": "function",
+      "name": "compute_ic_series",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        61,
+        76
+      ],
+      "summary": "在 `analysis.py` 中实现 `compute_ic_series` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/analysis.py:compute_group_equity",
+      "type": "function",
+      "name": "compute_group_equity",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        79,
+        107
+      ],
+      "summary": "在 `analysis.py` 中实现 `compute_group_equity` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/analysis.py:analyze_factor_panel",
+      "type": "function",
+      "name": "analyze_factor_panel",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        110,
+        154
+      ],
+      "summary": "在 `analysis.py` 中实现 `analyze_factor_panel` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/analysis.py:_as_of_frame",
+      "type": "function",
+      "name": "_as_of_frame",
+      "filePath": "sats/factors/analysis.py",
+      "lineRange": [
+        157,
+        165
+      ],
+      "summary": "在 `analysis.py` 中实现 `_as_of_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/composite.py",
+      "type": "file",
+      "name": "composite.py",
+      "filePath": "sats/factors/composite.py",
+      "summary": "实现 因子研究 中与 `composite` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/factors/composite.py:FactorPickCandidate",
+      "type": "class",
+      "name": "FactorPickCandidate",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        14,
+        30
+      ],
+      "summary": "在 `composite.py` 中定义 `FactorPickCandidate` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/factors/composite.py:FactorPickResult",
+      "type": "class",
+      "name": "FactorPickResult",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        34,
+        54
+      ],
+      "summary": "在 `composite.py` 中定义 `FactorPickResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/composite.py:cross_section_zscore",
+      "type": "function",
+      "name": "cross_section_zscore",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        57,
+        60
+      ],
+      "summary": "在 `composite.py` 中实现 `cross_section_zscore` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/composite.py:neutralize_by_group",
+      "type": "function",
+      "name": "neutralize_by_group",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        63,
+        79
+      ],
+      "summary": "在 `composite.py` 中实现 `neutralize_by_group` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/composite.py:compute_factor_panels",
+      "type": "function",
+      "name": "compute_factor_panels",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        82,
+        101
+      ],
+      "summary": "在 `composite.py` 中实现 `compute_factor_panels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/composite.py:compose_scores",
+      "type": "function",
+      "name": "compose_scores",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        104,
+        138
+      ],
+      "summary": "在 `composite.py` 中实现 `compose_scores` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/composite.py:pick_top",
+      "type": "function",
+      "name": "pick_top",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        141,
+        174
+      ],
+      "summary": "在 `composite.py` 中实现 `pick_top` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/composite.py:make_pick_result",
+      "type": "function",
+      "name": "make_pick_result",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        177,
+        194
+      ],
+      "summary": "在 `composite.py` 中实现 `make_pick_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/composite.py:_resolve_score_date",
+      "type": "function",
+      "name": "_resolve_score_date",
+      "filePath": "sats/factors/composite.py",
+      "lineRange": [
+        197,
+        201
+      ],
+      "summary": "在 `composite.py` 中实现 `_resolve_score_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/registry.py",
+      "type": "file",
+      "name": "registry.py",
+      "filePath": "sats/factors/registry.py",
+      "summary": "维护 因子研究 的注册表与查找逻辑，统一组织可扩展对象。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/factors/registry.py:FactorMeta",
+      "type": "class",
+      "name": "FactorMeta",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        101,
+        121
+      ],
+      "summary": "在 `registry.py` 中定义 `FactorMeta` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/factors/registry.py:SkipAlpha",
+      "type": "class",
+      "name": "SkipAlpha",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        127,
+        128
+      ],
+      "summary": "在 `registry.py` 中定义 `SkipAlpha` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/factors/registry.py:RegistryError",
+      "type": "class",
+      "name": "RegistryError",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        131,
+        132
+      ],
+      "summary": "在 `registry.py` 中定义 `RegistryError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/factors/registry.py:_LoadError",
+      "type": "class",
+      "name": "_LoadError",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        136,
+        138
+      ],
+      "summary": "在 `registry.py` 中定义 `_LoadError` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/factors/registry.py:Registry",
+      "type": "class",
+      "name": "Registry",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        200,
+        420
+      ],
+      "summary": "在 `registry.py` 中定义 `Registry` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/factors/registry.py:_validate_id_token",
+      "type": "function",
+      "name": "_validate_id_token",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        141,
+        143
+      ],
+      "summary": "在 `registry.py` 中实现 `_validate_id_token` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/registry.py:load_alpha_meta_from_py",
+      "type": "function",
+      "name": "load_alpha_meta_from_py",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        146,
+        182
+      ],
+      "summary": "在 `registry.py` 中实现 `load_alpha_meta_from_py` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/registry.py:_safe_yaml_load",
+      "type": "function",
+      "name": "_safe_yaml_load",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        185,
+        193
+      ],
+      "summary": "在 `registry.py` 中实现 `_safe_yaml_load` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/registry.py:_zoo_dir_default",
+      "type": "function",
+      "name": "_zoo_dir_default",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        196,
+        197
+      ],
+      "summary": "在 `registry.py` 中实现 `_zoo_dir_default` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/registry.py:get_default_registry",
+      "type": "function",
+      "name": "get_default_registry",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        436,
+        447
+      ],
+      "summary": "在 `registry.py` 中实现 `get_default_registry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/registry.py:reset_default_registry",
+      "type": "function",
+      "name": "reset_default_registry",
+      "filePath": "sats/factors/registry.py",
+      "lineRange": [
+        450,
+        454
+      ],
+      "summary": "在 `registry.py` 中实现 `reset_default_registry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "registry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/reporting.py",
+      "type": "file",
+      "name": "reporting.py",
+      "filePath": "sats/factors/reporting.py",
+      "summary": "负责 因子研究 的报表整理与输出格式化逻辑。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/reporting.py:write_factor_analysis_report",
+      "type": "function",
+      "name": "write_factor_analysis_report",
+      "filePath": "sats/factors/reporting.py",
+      "lineRange": [
+        10,
+        46
+      ],
+      "summary": "在 `reporting.py` 中实现 `write_factor_analysis_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/reporting.py:write_factor_pick_report",
+      "type": "function",
+      "name": "write_factor_pick_report",
+      "filePath": "sats/factors/reporting.py",
+      "lineRange": [
+        49,
+        82
+      ],
+      "summary": "在 `reporting.py` 中实现 `write_factor_pick_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "file",
+      "name": "_common.py",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "summary": "实现 Barra 风格因子 ` common` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:require_panel",
+      "type": "function",
+      "name": "require_panel",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        13,
+        17
+      ],
+      "summary": "在 `_common.py` 中实现 `require_panel` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:finite",
+      "type": "function",
+      "name": "finite",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        20,
+        21
+      ],
+      "summary": "在 `_common.py` 中实现 `finite` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:positive",
+      "type": "function",
+      "name": "positive",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        24,
+        25
+      ],
+      "summary": "在 `_common.py` 中实现 `positive` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:inverse",
+      "type": "function",
+      "name": "inverse",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        28,
+        29
+      ],
+      "summary": "在 `_common.py` 中实现 `inverse` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:zscore",
+      "type": "function",
+      "name": "zscore",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        32,
+        35
+      ],
+      "summary": "在 `_common.py` 中实现 `zscore` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:close_returns",
+      "type": "function",
+      "name": "close_returns",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        38,
+        39
+      ],
+      "summary": "在 `_common.py` 中实现 `close_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:benchmark_returns",
+      "type": "function",
+      "name": "benchmark_returns",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        42,
+        52
+      ],
+      "summary": "在 `_common.py` 中实现 `benchmark_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:row_mean_returns",
+      "type": "function",
+      "name": "row_mean_returns",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        55,
+        56
+      ],
+      "summary": "在 `_common.py` 中实现 `row_mean_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/_common.py:all_nan_like",
+      "type": "function",
+      "name": "all_nan_like",
+      "filePath": "sats/factors/zoo/barra_style/_common.py",
+      "lineRange": [
+        59,
+        63
+      ],
+      "summary": "在 `_common.py` 中实现 `all_nan_like` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/beta.py",
+      "type": "file",
+      "name": "beta.py",
+      "filePath": "sats/factors/zoo/barra_style/beta.py",
+      "summary": "实现 Barra 风格因子 `beta` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/beta.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/beta.py",
+      "lineRange": [
+        33,
+        44
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/book_to_price.py",
+      "type": "file",
+      "name": "book_to_price.py",
+      "filePath": "sats/factors/zoo/barra_style/book_to_price.py",
+      "summary": "实现 Barra 风格因子 `book to price` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/book_to_price.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/book_to_price.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/crowding_proxy.py",
+      "type": "file",
+      "name": "crowding_proxy.py",
+      "filePath": "sats/factors/zoo/barra_style/crowding_proxy.py",
+      "summary": "实现 Barra 风格因子 `crowding proxy` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/crowding_proxy.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/crowding_proxy.py",
+      "lineRange": [
+        25,
+        32
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/dividend_yield.py",
+      "type": "file",
+      "name": "dividend_yield.py",
+      "filePath": "sats/factors/zoo/barra_style/dividend_yield.py",
+      "summary": "实现 Barra 风格因子 `dividend yield` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/dividend_yield.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/dividend_yield.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/earnings_yield.py",
+      "type": "file",
+      "name": "earnings_yield.py",
+      "filePath": "sats/factors/zoo/barra_style/earnings_yield.py",
+      "summary": "实现 Barra 风格因子 `earnings yield` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/earnings_yield.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/earnings_yield.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "class:sats/factors/analysis.py:FactorAnalysisResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "class:sats/factors/analysis.py:FactorAnalysisResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_forward_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_forward_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_ic_series",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_ic_series",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_group_equity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:compute_group_equity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:analyze_factor_panel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:analyze_factor_panel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:_as_of_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/analysis.py",
+      "target": "function:sats/factors/analysis.py:_as_of_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "class:sats/factors/composite.py:FactorPickCandidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "class:sats/factors/composite.py:FactorPickCandidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "class:sats/factors/composite.py:FactorPickResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "class:sats/factors/composite.py:FactorPickResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:cross_section_zscore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:cross_section_zscore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:neutralize_by_group",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:neutralize_by_group",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:compute_factor_panels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:compute_factor_panels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:compose_scores",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:compose_scores",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:pick_top",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:pick_top",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:make_pick_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:make_pick_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:_resolve_score_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "function:sats/factors/composite.py:_resolve_score_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:FactorMeta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:FactorMeta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:SkipAlpha",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:SkipAlpha",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:RegistryError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:RegistryError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:_LoadError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:_LoadError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:Registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "class:sats/factors/registry.py:Registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_validate_id_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_validate_id_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:load_alpha_meta_from_py",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:load_alpha_meta_from_py",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_safe_yaml_load",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_safe_yaml_load",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_zoo_dir_default",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:_zoo_dir_default",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:get_default_registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:get_default_registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:reset_default_registry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "function:sats/factors/registry.py:reset_default_registry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "function:sats/factors/reporting.py:write_factor_analysis_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "function:sats/factors/reporting.py:write_factor_analysis_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "function:sats/factors/reporting.py:write_factor_pick_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "function:sats/factors/reporting.py:write_factor_pick_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:require_panel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:require_panel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:finite",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:finite",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:positive",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:positive",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:inverse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:inverse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:zscore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:zscore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:close_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:close_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:benchmark_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:benchmark_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:row_mean_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:row_mean_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:all_nan_like",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "function:sats/factors/zoo/barra_style/_common.py:all_nan_like",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/beta.py",
+      "target": "function:sats/factors/zoo/barra_style/beta.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/beta.py",
+      "target": "function:sats/factors/zoo/barra_style/beta.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/book_to_price.py",
+      "target": "function:sats/factors/zoo/barra_style/book_to_price.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/book_to_price.py",
+      "target": "function:sats/factors/zoo/barra_style/book_to_price.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/crowding_proxy.py",
+      "target": "function:sats/factors/zoo/barra_style/crowding_proxy.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/crowding_proxy.py",
+      "target": "function:sats/factors/zoo/barra_style/crowding_proxy.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/dividend_yield.py",
+      "target": "function:sats/factors/zoo/barra_style/dividend_yield.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/dividend_yield.py",
+      "target": "function:sats/factors/zoo/barra_style/dividend_yield.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/earnings_yield.py",
+      "target": "function:sats/factors/zoo/barra_style/earnings_yield.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/earnings_yield.py",
+      "target": "function:sats/factors/zoo/barra_style/earnings_yield.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/analysis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/__init__.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/composite.py",
+      "target": "file:sats/factors/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/registry.py",
+      "target": "file:sats/factors/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "file:sats/factors/analysis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/reporting.py",
+      "target": "file:sats/factors/composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/_common.py",
+      "target": "file:sats/factors/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/beta.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/book_to_price.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/crowding_proxy.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/dividend_yield.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/earnings_yield.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

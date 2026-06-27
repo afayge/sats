@@ -1,0 +1,5127 @@
+{
+  "name": "sats",
+  "description": "SATS 是一个面向 A 股研究的本地优先工具箱，围绕筛选、行情分析、自然语言研究、知识库、监控、调度与受控交易提供统一工作流。它通过 CLI、REPL 和 FastAPI 三种入口，把市场数据、LLM 能力与本地 DuckDB 存储串在一起。 Note: this project has over 100 source files; consider scoping analysis to a subdirectory for faster results.",
+  "languages": [
+    "json",
+    "markdown",
+    "python",
+    "sql",
+    "toml"
+  ],
+  "frameworks": [
+    "FastAPI",
+    "Pydantic",
+    "Uvicorn"
+  ],
+  "files": [
+    {
+      "path": ".env.example",
+      "language": "config",
+      "sizeLines": 63,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".mimocode/plans/1781272632114-gentle-star.md",
+      "language": "markdown",
+      "sizeLines": 527,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".understand-anything/config.json",
+      "language": "json",
+      "sizeLines": 3,
+      "fileCategory": "config"
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "sizeLines": 112,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "architecture.txt",
+      "language": "txt",
+      "sizeLines": 71,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "artifacts/chat/default/turn_d9559999b61b/deep_stock_analysis.json",
+      "language": "json",
+      "sizeLines": 692,
+      "fileCategory": "config"
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "sizeLines": 65,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/chan/rules/seed.json",
+      "language": "json",
+      "sizeLines": 134,
+      "fileCategory": "config"
+    },
+    {
+      "path": "knowledge/price_action/left_right_double_volume_discipline.md",
+      "language": "markdown",
+      "sizeLines": 240,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/main_force_washout_patterns.md",
+      "language": "markdown",
+      "sizeLines": 465,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/moving_average_520_discipline.md",
+      "language": "markdown",
+      "sizeLines": 267,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/moving_average_signal_patterns.md",
+      "language": "markdown",
+      "sizeLines": 205,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/opening_premium_retention.md",
+      "language": "markdown",
+      "sizeLines": 162,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/retail_candlestick_discipline.md",
+      "language": "markdown",
+      "sizeLines": 267,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/rsi_extreme_reversal_discipline.md",
+      "language": "markdown",
+      "sizeLines": 283,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/trend_execution_five_disciplines.md",
+      "language": "markdown",
+      "sizeLines": 236,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "knowledge/price_action/volume_price_relationship_patterns.md",
+      "language": "markdown",
+      "sizeLines": 175,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "pyproject.toml",
+      "language": "toml",
+      "sizeLines": 45,
+      "fileCategory": "config"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 1468,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "requirements.txt",
+      "language": "txt",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "SATS_工程结构详解.md",
+      "language": "markdown",
+      "sizeLines": 603,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "sats.md",
+      "language": "markdown",
+      "sizeLines": 1590,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "sats/__init__.py",
+      "language": "python",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/__main__.py",
+      "language": "python",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/__init__.py",
+      "language": "python",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/command_runner.py",
+      "language": "python",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/date_policy.py",
+      "language": "python",
+      "sizeLines": 225,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/models.py",
+      "language": "python",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/planner_v2.py",
+      "language": "python",
+      "sizeLines": 1447,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/planner.py",
+      "language": "python",
+      "sizeLines": 2070,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/progress.py",
+      "language": "python",
+      "sizeLines": 367,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/python_runtime.py",
+      "language": "python",
+      "sizeLines": 131,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/runtime.py",
+      "language": "python",
+      "sizeLines": 832,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/synthesis.py",
+      "language": "python",
+      "sizeLines": 1956,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/__init__.py",
+      "language": "python",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/analysis_tools.py",
+      "language": "python",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/base.py",
+      "language": "python",
+      "sizeLines": 283,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/catalog_tools.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/chat_tools.py",
+      "language": "python",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/command_tools.py",
+      "language": "python",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/data_tools.py",
+      "language": "python",
+      "sizeLines": 619,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/factor_tools.py",
+      "language": "python",
+      "sizeLines": 160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/generated/__init__.py",
+      "language": "python",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/generated/loader.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/research_tools.py",
+      "language": "python",
+      "sizeLines": 1669,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/trade_tools.py",
+      "language": "python",
+      "sizeLines": 113,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/web_tools.py",
+      "language": "python",
+      "sizeLines": 144,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/tools/workflow_tools.py",
+      "language": "python",
+      "sizeLines": 323,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/agent/trading.py",
+      "language": "python",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/__init__.py",
+      "language": "python",
+      "sizeLines": 8,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/chan_chat_context.py",
+      "language": "python",
+      "sizeLines": 107,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/chan_llm_review.py",
+      "language": "python",
+      "sizeLines": 338,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/daily_stock_analysis.py",
+      "language": "python",
+      "sizeLines": 253,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/dsa_decision.py",
+      "language": "python",
+      "sizeLines": 552,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/dsa_native.py",
+      "language": "python",
+      "sizeLines": 1251,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/market_llm_context.py",
+      "language": "python",
+      "sizeLines": 764,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/opportunity_discovery.py",
+      "language": "python",
+      "sizeLines": 1955,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/quote_llm_context.py",
+      "language": "python",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/stock_llm_context.py",
+      "language": "python",
+      "sizeLines": 782,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/stock_picking_agent.py",
+      "language": "python",
+      "sizeLines": 1546,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/stock_research_context.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/analysis/trading_committee.py",
+      "language": "python",
+      "sizeLines": 1112,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/api/__init__.py",
+      "language": "python",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/api/app.py",
+      "language": "python",
+      "sizeLines": 164,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/backtesting/__init__.py",
+      "language": "python",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/backtesting/service.py",
+      "language": "python",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/backtesting/strategy_spec.py",
+      "language": "python",
+      "sizeLines": 168,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/catalog.py",
+      "language": "python",
+      "sizeLines": 509,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chan/__init__.py",
+      "language": "python",
+      "sizeLines": 3,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chan/engine.py",
+      "language": "python",
+      "sizeLines": 813,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_artifacts.py",
+      "language": "python",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_components.py",
+      "language": "python",
+      "sizeLines": 2219,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_events.py",
+      "language": "python",
+      "sizeLines": 386,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_planner.py",
+      "language": "python",
+      "sizeLines": 320,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_preprocessor.py",
+      "language": "python",
+      "sizeLines": 806,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_reference.py",
+      "language": "python",
+      "sizeLines": 303,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat_runtime.py",
+      "language": "python",
+      "sizeLines": 758,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/chat.py",
+      "language": "python",
+      "sizeLines": 1749,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/cli.py",
+      "language": "python",
+      "sizeLines": 4547,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/config.py",
+      "language": "python",
+      "sizeLines": 242,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/conversation/__init__.py",
+      "language": "python",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/conversation/runtime.py",
+      "language": "python",
+      "sizeLines": 1771,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/conversation/threads.py",
+      "language": "python",
+      "sizeLines": 257,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/deep_analysis/__init__.py",
+      "language": "python",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/deep_analysis/models.py",
+      "language": "python",
+      "sizeLines": 170,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/deep_analysis/service.py",
+      "language": "python",
+      "sizeLines": 932,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/dependencies.py",
+      "language": "python",
+      "sizeLines": 260,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/__init__.py",
+      "language": "python",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/analysis.py",
+      "language": "python",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/base.py",
+      "language": "python",
+      "sizeLines": 277,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/composite.py",
+      "language": "python",
+      "sizeLines": 201,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/factor_analysis_core.py",
+      "language": "python",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/ml.py",
+      "language": "python",
+      "sizeLines": 363,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/panel.py",
+      "language": "python",
+      "sizeLines": 279,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/profiles.py",
+      "language": "python",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/registry.py",
+      "language": "python",
+      "sizeLines": 457,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/reporting.py",
+      "language": "python",
+      "sizeLines": 82,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/service.py",
+      "language": "python",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_001.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_002.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_003.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_004.py",
+      "language": "python",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_005.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_006.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_007.py",
+      "language": "python",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_008.py",
+      "language": "python",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_009.py",
+      "language": "python",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_010.py",
+      "language": "python",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_011.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_012.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_013.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_014.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_015.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_016.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_017.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_018.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_019.py",
+      "language": "python",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_020.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_021.py",
+      "language": "python",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_022.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_023.py",
+      "language": "python",
+      "sizeLines": 85,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_024.py",
+      "language": "python",
+      "sizeLines": 96,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_025.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_026.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_027.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_028.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_029.py",
+      "language": "python",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_030.py",
+      "language": "python",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_031.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_032.py",
+      "language": "python",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_033.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_034.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_035.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_036.py",
+      "language": "python",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_037.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_038.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_039.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_040.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_041.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_042.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_043.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_044.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_045.py",
+      "language": "python",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_046.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_047.py",
+      "language": "python",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_048.py",
+      "language": "python",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_049.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_050.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_051.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_052.py",
+      "language": "python",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_053.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_054.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_055.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_056.py",
+      "language": "python",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_057.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_058.py",
+      "language": "python",
+      "sizeLines": 88,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_059.py",
+      "language": "python",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_060.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_061.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_062.py",
+      "language": "python",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_063.py",
+      "language": "python",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_064.py",
+      "language": "python",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_065.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_066.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_067.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_068.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_069.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_070.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_071.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_072.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_073.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_074.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_075.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_076.py",
+      "language": "python",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_077.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_078.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_079.py",
+      "language": "python",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_080.py",
+      "language": "python",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_081.py",
+      "language": "python",
+      "sizeLines": 74,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_082.py",
+      "language": "python",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_083.py",
+      "language": "python",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_084.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_085.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_086.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_087.py",
+      "language": "python",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_088.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_089.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_090.py",
+      "language": "python",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_091.py",
+      "language": "python",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_092.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_093.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_094.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_095.py",
+      "language": "python",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_096.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_097.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_098.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_099.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_100.py",
+      "language": "python",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/alpha_101.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/alpha101/LICENSE.md",
+      "language": "markdown",
+      "sizeLines": 80,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/__init__.py",
+      "language": "python",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/_common.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/beta.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/book_to_price.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/crowding_proxy.py",
+      "language": "python",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/dividend_yield.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/earnings_yield.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/growth.py",
+      "language": "python",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/leverage.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/liquidity.py",
+      "language": "python",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/low_size.py",
+      "language": "python",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/momentum.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/quality.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/residual_volatility.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/short_momentum.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/size.py",
+      "language": "python",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/barra_style/value.py",
+      "language": "python",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_001.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_002.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_003.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_004.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_005.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_006.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_007.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_008.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_009.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_010.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_011.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_012.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_013.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_014.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_015.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_016.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_017.py",
+      "language": "python",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_018.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_019.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_020.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_021.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_022.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_023.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_024.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_025.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_026.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_027.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_028.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_029.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_030.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_031.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_032.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_033.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_034.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_035.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_036.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_037.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_038.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_039.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_040.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_041.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_042.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_043.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_044.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_045.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_046.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_047.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_048.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_049.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_050.py",
+      "language": "python",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_051.py",
+      "language": "python",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_052.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_053.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_054.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_055.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_056.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_057.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_058.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_059.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_060.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_061.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_062.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_063.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_064.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_065.py",
+      "language": "python",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_066.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_067.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_068.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_069.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_070.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_071.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_072.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_073.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_074.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_075.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_076.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_077.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_078.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_079.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_080.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_081.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_082.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_083.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_084.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_085.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_086.py",
+      "language": "python",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_087.py",
+      "language": "python",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_088.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_089.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_090.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_091.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_092.py",
+      "language": "python",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_093.py",
+      "language": "python",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_094.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_095.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_096.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_097.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_098.py",
+      "language": "python",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_099.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_100.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_101.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_102.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_103.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_104.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_105.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_106.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_107.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_108.py",
+      "language": "python",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_109.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_110.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_111.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_112.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_113.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_114.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_115.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_116.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_117.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_118.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_119.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_120.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_121.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_122.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_123.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_124.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_125.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_126.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_127.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_128.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_129.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_130.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_131.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_132.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_133.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_134.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_135.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_136.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_137.py",
+      "language": "python",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_138.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_139.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_140.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_141.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_142.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_143.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_144.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_145.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_146.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_147.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_148.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_149.py",
+      "language": "python",
+      "sizeLines": 78,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_150.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_151.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_152.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_153.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_154.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_155.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_156.py",
+      "language": "python",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_157.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_158.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_159.py",
+      "language": "python",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_160.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_161.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_162.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_163.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_164.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_165.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_166.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_167.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_168.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_169.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_170.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_171.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_172.py",
+      "language": "python",
+      "sizeLines": 75,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_173.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_174.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_175.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_176.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_177.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_178.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_179.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_180.py",
+      "language": "python",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_181.py",
+      "language": "python",
+      "sizeLines": 74,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_182.py",
+      "language": "python",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_183.py",
+      "language": "python",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_184.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_185.py",
+      "language": "python",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_186.py",
+      "language": "python",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_187.py",
+      "language": "python",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_188.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_189.py",
+      "language": "python",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_190.py",
+      "language": "python",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/alpha_191.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/factors/zoo/gtja191/LICENSE.md",
+      "language": "markdown",
+      "sizeLines": 96,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "sats/history.py",
+      "language": "python",
+      "sizeLines": 325,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/indicators/__init__.py",
+      "language": "python",
+      "sizeLines": 8,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/indicators/calculator.py",
+      "language": "python",
+      "sizeLines": 521,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/llm/__init__.py",
+      "language": "python",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/llm/chat.py",
+      "language": "python",
+      "sizeLines": 312,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/llm/model_config.py",
+      "language": "python",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/llm/provider.py",
+      "language": "python",
+      "sizeLines": 265,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/market_clock.py",
+      "language": "python",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/memory.py",
+      "language": "python",
+      "sizeLines": 1079,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/minute_periods.py",
+      "language": "python",
+      "sizeLines": 230,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/monitoring/__init__.py",
+      "language": "python",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/monitoring/display.py",
+      "language": "python",
+      "sizeLines": 447,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/monitoring/plans.py",
+      "language": "python",
+      "sizeLines": 431,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/monitoring/service.py",
+      "language": "python",
+      "sizeLines": 1027,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/natural_output.py",
+      "language": "python",
+      "sizeLines": 892,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/natural_task.py",
+      "language": "python",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/output_names.py",
+      "language": "python",
+      "sizeLines": 234,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/output_saver.py",
+      "language": "python",
+      "sizeLines": 638,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/__init__.py",
+      "language": "python",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/execution.py",
+      "language": "python",
+      "sizeLines": 447,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/models.py",
+      "language": "python",
+      "sizeLines": 122,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/reporting.py",
+      "language": "python",
+      "sizeLines": 254,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/service.py",
+      "language": "python",
+      "sizeLines": 1344,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/portfolio/storage.py",
+      "language": "python",
+      "sizeLines": 858,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/progress.py",
+      "language": "python",
+      "sizeLines": 311,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/rag/__init__.py",
+      "language": "python",
+      "sizeLines": 11,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/rag/chan_knowledge.py",
+      "language": "python",
+      "sizeLines": 288,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/rag/knowledge.py",
+      "language": "python",
+      "sizeLines": 1511,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/repl.py",
+      "language": "python",
+      "sizeLines": 1919,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/runtime_status.py",
+      "language": "python",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/scheduler/__init__.py",
+      "language": "python",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/scheduler/service.py",
+      "language": "python",
+      "sizeLines": 442,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/__init__.py",
+      "language": "python",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/base.py",
+      "language": "python",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/generated_rule_runtime.py",
+      "language": "python",
+      "sizeLines": 274,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/registry.py",
+      "language": "python",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rule_composer.py",
+      "language": "python",
+      "sizeLines": 591,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/__init__.py",
+      "language": "python",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/chan_composite.py",
+      "language": "python",
+      "sizeLines": 615,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/chan_signals.py",
+      "language": "python",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/chan_third_buy.py",
+      "language": "python",
+      "sizeLines": 435,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/generated/__init__.py",
+      "language": "python",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/ma_volume_relative_strength.py",
+      "language": "python",
+      "sizeLines": 278,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/monthly_base_breakout.py",
+      "language": "python",
+      "sizeLines": 397,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/price_volume_ma.py",
+      "language": "python",
+      "sizeLines": 295,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/sequoia_x.py",
+      "language": "python",
+      "sizeLines": 499,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/rules/signal_composite.py",
+      "language": "python",
+      "sizeLines": 20,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/screening/service.py",
+      "language": "python",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/serenity/__init__.py",
+      "language": "python",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/serenity/models.py",
+      "language": "python",
+      "sizeLines": 249,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/serenity/scoring.py",
+      "language": "python",
+      "sizeLines": 870,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/serenity/service.py",
+      "language": "python",
+      "sizeLines": 786,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/signals/__init__.py",
+      "language": "python",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/signals/base.py",
+      "language": "python",
+      "sizeLines": 106,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/signals/engine.py",
+      "language": "python",
+      "sizeLines": 1050,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/signals/registry.py",
+      "language": "python",
+      "sizeLines": 281,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/skill_routing.py",
+      "language": "python",
+      "sizeLines": 373,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/skills.py",
+      "language": "python",
+      "sizeLines": 351,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/stock_basic_lookup.py",
+      "language": "python",
+      "sizeLines": 243,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/stock_question.py",
+      "language": "python",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/storage/__init__.py",
+      "language": "python",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/storage/duckdb.py",
+      "language": "python",
+      "sizeLines": 2250,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/storage/schema.sql",
+      "language": "sql",
+      "sizeLines": 1011,
+      "fileCategory": "data"
+    },
+    {
+      "path": "sats/symbols.py",
+      "language": "python",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/__init__.py",
+      "language": "python",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/broker.py",
+      "language": "python",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/miniqmt_client.py",
+      "language": "python",
+      "sizeLines": 284,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/models.py",
+      "language": "python",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/monitor_provider.py",
+      "language": "python",
+      "sizeLines": 172,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/qmt_bridge.py",
+      "language": "python",
+      "sizeLines": 182,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/trading/sync.py",
+      "language": "python",
+      "sizeLines": 153,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/watchlist_editor.py",
+      "language": "python",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/__init__.py",
+      "language": "python",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/cache.py",
+      "language": "python",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/fetch.py",
+      "language": "python",
+      "sizeLines": 214,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/index.py",
+      "language": "python",
+      "sizeLines": 299,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/providers.py",
+      "language": "python",
+      "sizeLines": 373,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/rag_search.py",
+      "language": "python",
+      "sizeLines": 818,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/search.py",
+      "language": "python",
+      "sizeLines": 751,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sats/web/social_hot.py",
+      "language": "python",
+      "sizeLines": 717,
+      "fileCategory": "code"
+    },
+    {
+      "path": "skills/akshare/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 25,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/ashare-pre-st-filter/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 25,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/bottom-volume/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/box-oscillation/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/bull-trend/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 29,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/candlestick/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 17,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/chan-theory/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 19,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/corporate-events/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 21,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/data-routing/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 35,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/deep-stock-analysis/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 37,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/dragon-head/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/elliott-wave/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 32,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/emotion-cycle/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/esg-screener/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/event-driven-detector/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/expectation-repricing/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/financial-statement/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 40,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/fundamental-filter/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 30,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/growth-quality/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/high-dividend-strategy/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/hot-theme/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/insider-trading-analyzer/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/ma-golden-cross/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/market-microstructure/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 26,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/minute-analysis/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 17,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/one-yang-three-yin/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/portfolio-health-check/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/quant-factor-screener/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 43,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/regulatory-knowledge/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 18,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/report-generate/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 23,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/risk-adjusted-return-optimizer/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 35,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/risk-analysis/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 27,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/sats-market-assistant/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 26,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/sector-rotation/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 32,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/sentiment-analysis/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 23,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/sentiment-reality-gap/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/serenity-stock-screen/references/chain-tiers.md",
+      "language": "markdown",
+      "sizeLines": 20,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/serenity-stock-screen/references/evidence-ladder.md",
+      "language": "markdown",
+      "sizeLines": 23,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/serenity-stock-screen/references/scoring.md",
+      "language": "markdown",
+      "sizeLines": 37,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/serenity-stock-screen/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 38,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/shrink-pullback/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/small-cap-growth-identifier/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/suitability-report-generator/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 29,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/tech-hype-vs-fundamentals/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/technical-basic/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/tickflow/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 573,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/tushare-data/references/数据接口.md",
+      "language": "markdown",
+      "sizeLines": 237,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/tushare-data/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 830,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/undervalued-stock-screener/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/valuation-model/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/volatility/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 17,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/volume-breakout/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 28,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "skills/workflow-templates/SKILL.md",
+      "language": "markdown",
+      "sizeLines": 50,
+      "fileCategory": "docs"
+    }
+  ],
+  "totalFiles": 547,
+  "filteredByIgnore": 73,
+  "estimatedComplexity": "very-large",
+  "importMap": {
+    ".env.example": [],
+    ".mimocode/plans/1781272632114-gentle-star.md": [],
+    ".understand-anything/.understandignore": [],
+    ".understand-anything/config.json": [],
+    "AGENTS.md": [],
+    "architecture.txt": [],
+    "artifacts/chat/default/turn_d9559999b61b/deep_stock_analysis.json": [],
+    "CLAUDE.md": [],
+    "knowledge/chan/rules/seed.json": [],
+    "knowledge/price_action/left_right_double_volume_discipline.md": [],
+    "knowledge/price_action/main_force_washout_patterns.md": [],
+    "knowledge/price_action/moving_average_520_discipline.md": [],
+    "knowledge/price_action/moving_average_signal_patterns.md": [],
+    "knowledge/price_action/opening_premium_retention.md": [],
+    "knowledge/price_action/retail_candlestick_discipline.md": [],
+    "knowledge/price_action/rsi_extreme_reversal_discipline.md": [],
+    "knowledge/price_action/trend_execution_five_disciplines.md": [],
+    "knowledge/price_action/volume_price_relationship_patterns.md": [],
+    "pyproject.toml": [],
+    "README.md": [],
+    "requirements.txt": [],
+    "SATS_工程结构详解.md": [],
+    "sats.md": [],
+    "sats/__init__.py": [],
+    "sats/__main__.py": [
+      "sats/cli.py"
+    ],
+    "sats/agent/__init__.py": [
+      "sats/agent/models.py",
+      "sats/agent/runtime.py"
+    ],
+    "sats/agent/command_runner.py": [
+      "sats/agent/models.py"
+    ],
+    "sats/agent/date_policy.py": [
+      "sats/stock_question.py"
+    ],
+    "sats/agent/models.py": [],
+    "sats/agent/planner_v2.py": [
+      "sats/agent/date_policy.py",
+      "sats/agent/models.py",
+      "sats/agent/planner.py",
+      "sats/agent/tools/__init__.py",
+      "sats/agent/tools/base.py",
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/stock_basic_lookup.py",
+      "sats/stock_question.py",
+      "sats/symbols.py"
+    ],
+    "sats/agent/planner.py": [
+      "sats/agent/date_policy.py",
+      "sats/agent/models.py",
+      "sats/agent/tools/__init__.py",
+      "sats/agent/tools/workflow_tools.py",
+      "sats/analysis/market_llm_context.py",
+      "sats/chat_reference.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/minute_periods.py",
+      "sats/natural_task.py",
+      "sats/rag/knowledge.py",
+      "sats/screening/registry.py",
+      "sats/screening/rule_composer.py",
+      "sats/stock_basic_lookup.py",
+      "sats/stock_question.py"
+    ],
+    "sats/agent/progress.py": [],
+    "sats/agent/python_runtime.py": [
+      "sats/agent/models.py"
+    ],
+    "sats/agent/runtime.py": [
+      "sats/agent/command_runner.py",
+      "sats/agent/models.py",
+      "sats/agent/planner.py",
+      "sats/agent/python_runtime.py",
+      "sats/agent/synthesis.py",
+      "sats/agent/tools/__init__.py",
+      "sats/agent/trading.py",
+      "sats/chat_events.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/memory.py",
+      "sats/skills.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/agent/synthesis.py": [
+      "sats/agent/models.py",
+      "sats/chat_artifacts.py",
+      "sats/llm/__init__.py",
+      "sats/natural_output.py",
+      "sats/skill_routing.py",
+      "sats/skills.py",
+      "sats/symbols.py"
+    ],
+    "sats/agent/tools/__init__.py": [
+      "sats/agent/tools/analysis_tools.py",
+      "sats/agent/tools/base.py",
+      "sats/agent/tools/catalog_tools.py",
+      "sats/agent/tools/chat_tools.py",
+      "sats/agent/tools/command_tools.py",
+      "sats/agent/tools/data_tools.py",
+      "sats/agent/tools/factor_tools.py",
+      "sats/agent/tools/generated/__init__.py",
+      "sats/agent/tools/research_tools.py",
+      "sats/agent/tools/trade_tools.py",
+      "sats/agent/tools/web_tools.py",
+      "sats/agent/tools/workflow_tools.py"
+    ],
+    "sats/agent/tools/analysis_tools.py": [
+      "sats/agent/python_runtime.py",
+      "sats/agent/tools/base.py"
+    ],
+    "sats/agent/tools/base.py": [
+      "sats/agent/date_policy.py",
+      "sats/agent/models.py"
+    ],
+    "sats/agent/tools/catalog_tools.py": [
+      "sats/agent/tools/base.py",
+      "sats/catalog.py"
+    ],
+    "sats/agent/tools/chat_tools.py": [
+      "sats/agent/tools/base.py",
+      "sats/chat_components.py",
+      "sats/rag/knowledge.py",
+      "sats/skills.py"
+    ],
+    "sats/agent/tools/command_tools.py": [
+      "sats/agent/tools/base.py"
+    ],
+    "sats/agent/tools/data_tools.py": [
+      "sats/agent/tools/base.py",
+      "sats/minute_periods.py",
+      "sats/stock_basic_lookup.py",
+      "sats/symbols.py"
+    ],
+    "sats/agent/tools/factor_tools.py": [
+      "sats/agent/tools/base.py"
+    ],
+    "sats/agent/tools/generated/__init__.py": [
+      "sats/agent/tools/generated/loader.py"
+    ],
+    "sats/agent/tools/generated/loader.py": [
+      "sats/agent/tools/base.py"
+    ],
+    "sats/agent/tools/research_tools.py": [
+      "sats/agent/date_policy.py",
+      "sats/agent/tools/base.py",
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/stock_llm_context.py",
+      "sats/analysis/stock_picking_agent.py",
+      "sats/backtesting/service.py",
+      "sats/backtesting/strategy_spec.py",
+      "sats/chat_artifacts.py",
+      "sats/chat_components.py",
+      "sats/deep_analysis/__init__.py",
+      "sats/memory.py",
+      "sats/minute_periods.py",
+      "sats/rag/chan_knowledge.py",
+      "sats/serenity/__init__.py",
+      "sats/signals/__init__.py",
+      "sats/stock_basic_lookup.py",
+      "sats/stock_question.py",
+      "sats/symbols.py",
+      "sats/web/__init__.py"
+    ],
+    "sats/agent/tools/trade_tools.py": [
+      "sats/agent/models.py",
+      "sats/agent/tools/base.py"
+    ],
+    "sats/agent/tools/web_tools.py": [
+      "sats/agent/tools/base.py",
+      "sats/web/__init__.py",
+      "sats/web/search.py",
+      "sats/web/social_hot.py"
+    ],
+    "sats/agent/tools/workflow_tools.py": [
+      "sats/agent/tools/base.py",
+      "sats/natural_task.py",
+      "sats/portfolio/__init__.py",
+      "sats/screening/registry.py",
+      "sats/stock_question.py"
+    ],
+    "sats/agent/trading.py": [
+      "sats/agent/models.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py",
+      "sats/trading/__init__.py",
+      "sats/trading/models.py"
+    ],
+    "sats/analysis/__init__.py": [
+      "sats/analysis/daily_stock_analysis.py",
+      "sats/analysis/dsa_native.py"
+    ],
+    "sats/analysis/chan_chat_context.py": [
+      "sats/rag/chan_knowledge.py",
+      "sats/skills.py"
+    ],
+    "sats/analysis/chan_llm_review.py": [
+      "sats/llm/__init__.py",
+      "sats/rag/chan_knowledge.py",
+      "sats/screening/base.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/analysis/daily_stock_analysis.py": [
+      "sats/analysis/dsa_native.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/dsa_decision.py": [],
+    "sats/analysis/dsa_native.py": [
+      "sats/analysis/dsa_decision.py",
+      "sats/config.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/market_llm_context.py": [
+      "sats/config.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/opportunity_discovery.py": [
+      "sats/analysis/market_llm_context.py",
+      "sats/config.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/screening/base.py",
+      "sats/signals/__init__.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/quote_llm_context.py": [
+      "sats/config.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/stock_llm_context.py": [
+      "sats/config.py",
+      "sats/factors/profiles.py",
+      "sats/factors/service.py",
+      "sats/indicators/__init__.py",
+      "sats/minute_periods.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/stock_picking_agent.py": [
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/stock_research_context.py",
+      "sats/config.py",
+      "sats/factors/profiles.py",
+      "sats/factors/service.py",
+      "sats/llm/__init__.py",
+      "sats/rag/knowledge.py",
+      "sats/skills.py",
+      "sats/stock_basic_lookup.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/analysis/stock_research_context.py": [
+      "sats/config.py",
+      "sats/rag/knowledge.py"
+    ],
+    "sats/analysis/trading_committee.py": [
+      "sats/config.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/api/__init__.py": [
+      "sats/api/app.py"
+    ],
+    "sats/api/app.py": [
+      "sats/config.py",
+      "sats/minute_periods.py",
+      "sats/screening/base.py",
+      "sats/screening/registry.py",
+      "sats/screening/service.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/backtesting/__init__.py": [
+      "sats/backtesting/service.py",
+      "sats/backtesting/strategy_spec.py"
+    ],
+    "sats/backtesting/service.py": [
+      "sats/backtesting/strategy_spec.py",
+      "sats/config.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/backtesting/strategy_spec.py": [
+      "sats/stock_question.py",
+      "sats/symbols.py"
+    ],
+    "sats/catalog.py": [
+      "sats/__init__.py",
+      "sats/config.py",
+      "sats/rag/knowledge.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/chan/__init__.py": [
+      "sats/chan/engine.py"
+    ],
+    "sats/chan/engine.py": [
+      "sats/rag/chan_knowledge.py",
+      "sats/screening/base.py",
+      "sats/screening/rules/chan_composite.py",
+      "sats/screening/rules/chan_third_buy.py"
+    ],
+    "sats/chat_artifacts.py": [],
+    "sats/chat_components.py": [
+      "sats/analysis/chan_chat_context.py",
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/quote_llm_context.py",
+      "sats/analysis/stock_llm_context.py",
+      "sats/analysis/stock_picking_agent.py",
+      "sats/analysis/stock_research_context.py",
+      "sats/chat_planner.py",
+      "sats/chat_preprocessor.py",
+      "sats/chat_reference.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/memory.py",
+      "sats/minute_periods.py",
+      "sats/screening/registry.py",
+      "sats/screening/rule_composer.py",
+      "sats/signals/__init__.py",
+      "sats/skill_routing.py",
+      "sats/skills.py",
+      "sats/stock_question.py",
+      "sats/symbols.py"
+    ],
+    "sats/chat_events.py": [],
+    "sats/chat_planner.py": [
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/stock_picking_agent.py",
+      "sats/screening/rule_composer.py",
+      "sats/skill_routing.py",
+      "sats/skills.py",
+      "sats/stock_question.py"
+    ],
+    "sats/chat_preprocessor.py": [
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/chat_reference.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/skill_routing.py",
+      "sats/stock_basic_lookup.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/chat_reference.py": [
+      "sats/config.py",
+      "sats/output_saver.py",
+      "sats/screening/registry.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/chat_runtime.py": [
+      "sats/backtesting/service.py",
+      "sats/backtesting/strategy_spec.py",
+      "sats/chat_artifacts.py",
+      "sats/config.py",
+      "sats/memory.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/chat.py": [
+      "sats/analysis/chan_chat_context.py",
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/quote_llm_context.py",
+      "sats/analysis/stock_llm_context.py",
+      "sats/analysis/stock_picking_agent.py",
+      "sats/analysis/stock_research_context.py",
+      "sats/chat_components.py",
+      "sats/chat_events.py",
+      "sats/chat_planner.py",
+      "sats/chat_preprocessor.py",
+      "sats/chat_reference.py",
+      "sats/chat_runtime.py",
+      "sats/config.py",
+      "sats/factors/profiles.py",
+      "sats/factors/service.py",
+      "sats/llm/__init__.py",
+      "sats/memory.py",
+      "sats/natural_output.py",
+      "sats/screening/rule_composer.py",
+      "sats/signals/__init__.py",
+      "sats/skill_routing.py",
+      "sats/skills.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/cli.py": [
+      "sats/agent/__init__.py",
+      "sats/agent/planner.py",
+      "sats/agent/progress.py",
+      "sats/agent/tools/__init__.py",
+      "sats/analysis/chan_llm_review.py",
+      "sats/analysis/daily_stock_analysis.py",
+      "sats/analysis/dsa_native.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/stock_llm_context.py",
+      "sats/analysis/stock_picking_agent.py",
+      "sats/analysis/trading_committee.py",
+      "sats/catalog.py",
+      "sats/chat_runtime.py",
+      "sats/chat.py",
+      "sats/config.py",
+      "sats/conversation/__init__.py",
+      "sats/conversation/threads.py",
+      "sats/deep_analysis/__init__.py",
+      "sats/dependencies.py",
+      "sats/factors/analysis.py",
+      "sats/factors/composite.py",
+      "sats/factors/ml.py",
+      "sats/factors/panel.py",
+      "sats/factors/profiles.py",
+      "sats/factors/registry.py",
+      "sats/factors/reporting.py",
+      "sats/factors/service.py",
+      "sats/history.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/llm/model_config.py",
+      "sats/memory.py",
+      "sats/monitoring/__init__.py",
+      "sats/output_names.py",
+      "sats/portfolio/__init__.py",
+      "sats/progress.py",
+      "sats/rag/chan_knowledge.py",
+      "sats/rag/knowledge.py",
+      "sats/runtime_status.py",
+      "sats/scheduler/__init__.py",
+      "sats/screening/base.py",
+      "sats/screening/registry.py",
+      "sats/screening/service.py",
+      "sats/serenity/__init__.py",
+      "sats/signals/__init__.py",
+      "sats/skills.py",
+      "sats/stock_basic_lookup.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py",
+      "sats/trading/__init__.py",
+      "sats/trading/monitor_provider.py",
+      "sats/trading/qmt_bridge.py",
+      "sats/trading/sync.py",
+      "sats/watchlist_editor.py",
+      "sats/web/__init__.py"
+    ],
+    "sats/config.py": [
+      "sats/llm/model_config.py"
+    ],
+    "sats/conversation/__init__.py": [
+      "sats/conversation/runtime.py"
+    ],
+    "sats/conversation/runtime.py": [
+      "sats/agent/command_runner.py",
+      "sats/agent/models.py",
+      "sats/agent/planner.py",
+      "sats/agent/synthesis.py",
+      "sats/agent/tools/__init__.py",
+      "sats/agent/trading.py",
+      "sats/chat_events.py",
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/memory.py",
+      "sats/skills.py",
+      "sats/stock_question.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/conversation/threads.py": [
+      "sats/config.py",
+      "sats/memory.py"
+    ],
+    "sats/deep_analysis/__init__.py": [
+      "sats/deep_analysis/models.py",
+      "sats/deep_analysis/service.py"
+    ],
+    "sats/deep_analysis/models.py": [],
+    "sats/deep_analysis/service.py": [
+      "sats/config.py",
+      "sats/deep_analysis/models.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/dependencies.py": [],
+    "sats/factors/__init__.py": [
+      "sats/factors/analysis.py",
+      "sats/factors/base.py",
+      "sats/factors/composite.py",
+      "sats/factors/profiles.py",
+      "sats/factors/registry.py",
+      "sats/factors/service.py"
+    ],
+    "sats/factors/analysis.py": [],
+    "sats/factors/base.py": [],
+    "sats/factors/composite.py": [
+      "sats/factors/registry.py"
+    ],
+    "sats/factors/factor_analysis_core.py": [],
+    "sats/factors/ml.py": [
+      "sats/config.py",
+      "sats/factors/composite.py",
+      "sats/factors/panel.py",
+      "sats/factors/profiles.py",
+      "sats/factors/service.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/factors/panel.py": [
+      "sats/screening/base.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/factors/profiles.py": [],
+    "sats/factors/registry.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/reporting.py": [
+      "sats/factors/analysis.py",
+      "sats/factors/composite.py"
+    ],
+    "sats/factors/service.py": [
+      "sats/factors/composite.py",
+      "sats/factors/panel.py",
+      "sats/factors/profiles.py",
+      "sats/factors/registry.py",
+      "sats/screening/base.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/factors/zoo/__init__.py": [],
+    "sats/factors/zoo/alpha101/__init__.py": [],
+    "sats/factors/zoo/alpha101/alpha_001.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_002.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_003.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_004.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_005.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_006.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_007.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_008.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_009.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_010.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_011.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_012.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_013.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_014.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_015.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_016.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_017.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_018.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_019.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_020.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_021.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_022.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_023.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_024.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_025.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_026.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_027.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_028.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_029.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_030.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_031.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_032.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_033.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_034.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_035.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_036.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_037.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_038.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_039.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_040.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_041.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_042.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_043.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_044.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_045.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_046.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_047.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_048.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_049.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_050.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_051.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_052.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_053.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_054.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_055.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_056.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_057.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_058.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_059.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_060.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_061.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_062.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_063.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_064.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_065.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_066.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_067.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_068.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_069.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_070.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_071.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_072.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_073.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_074.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_075.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_076.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_077.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_078.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_079.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_080.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_081.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_082.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_083.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_084.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_085.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_086.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_087.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_088.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_089.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_090.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_091.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_092.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_093.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_094.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_095.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_096.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_097.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_098.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_099.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_100.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/alpha_101.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/alpha101/LICENSE.md": [],
+    "sats/factors/zoo/barra_style/__init__.py": [],
+    "sats/factors/zoo/barra_style/_common.py": [
+      "sats/factors/registry.py"
+    ],
+    "sats/factors/zoo/barra_style/beta.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/book_to_price.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/crowding_proxy.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/dividend_yield.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/earnings_yield.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/growth.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/leverage.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/liquidity.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/low_size.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/momentum.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/quality.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/residual_volatility.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/short_momentum.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/size.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/state_ownership_proxy.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/barra_style/value.py": [
+      "sats/factors/zoo/barra_style/_common.py"
+    ],
+    "sats/factors/zoo/gtja191/__init__.py": [],
+    "sats/factors/zoo/gtja191/alpha_001.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_002.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_003.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_004.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_005.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_006.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_007.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_008.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_009.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_010.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_011.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_012.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_013.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_014.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_015.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_016.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_017.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_018.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_019.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_020.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_021.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_022.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_023.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_024.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_025.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_026.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_027.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_028.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_029.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_030.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_031.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_032.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_033.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_034.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_035.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_036.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_037.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_038.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_039.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_040.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_041.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_042.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_043.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_044.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_045.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_046.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_047.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_048.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_049.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_050.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_051.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_052.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_053.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_054.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_055.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_056.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_057.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_058.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_059.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_060.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_061.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_062.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_063.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_064.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_065.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_066.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_067.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_068.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_069.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_070.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_071.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_072.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_073.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_074.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_075.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_076.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_077.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_078.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_079.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_080.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_081.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_082.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_083.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_084.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_085.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_086.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_087.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_088.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_089.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_090.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_091.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_092.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_093.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_094.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_095.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_096.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_097.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_098.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_099.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_100.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_101.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_102.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_103.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_104.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_105.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_106.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_107.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_108.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_109.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_110.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_111.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_112.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_113.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_114.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_115.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_116.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_117.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_118.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_119.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_120.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_121.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_122.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_123.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_124.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_125.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_126.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_127.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_128.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_129.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_130.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_131.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_132.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_133.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_134.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_135.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_136.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_137.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_138.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_139.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_140.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_141.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_142.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_143.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_144.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_145.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_146.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_147.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_148.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_149.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_150.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_151.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_152.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_153.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_154.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_155.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_156.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_157.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_158.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_159.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_160.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_161.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_162.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_163.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_164.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_165.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_166.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_167.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_168.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_169.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_170.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_171.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_172.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_173.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_174.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_175.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_176.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_177.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_178.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_179.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_180.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_181.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_182.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_183.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_184.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_185.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_186.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_187.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_188.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_189.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_190.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/alpha_191.py": [
+      "sats/factors/base.py"
+    ],
+    "sats/factors/zoo/gtja191/LICENSE.md": [],
+    "sats/history.py": [
+      "sats/storage/duckdb.py"
+    ],
+    "sats/indicators/__init__.py": [
+      "sats/indicators/calculator.py"
+    ],
+    "sats/indicators/calculator.py": [],
+    "sats/llm/__init__.py": [
+      "sats/llm/chat.py",
+      "sats/llm/provider.py"
+    ],
+    "sats/llm/chat.py": [
+      "sats/llm/provider.py"
+    ],
+    "sats/llm/model_config.py": [],
+    "sats/llm/provider.py": [
+      "sats/llm/model_config.py"
+    ],
+    "sats/market_clock.py": [],
+    "sats/memory.py": [
+      "sats/chat_events.py",
+      "sats/llm/__init__.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/minute_periods.py": [],
+    "sats/monitoring/__init__.py": [
+      "sats/monitoring/display.py",
+      "sats/monitoring/plans.py",
+      "sats/monitoring/service.py"
+    ],
+    "sats/monitoring/display.py": [
+      "sats/config.py",
+      "sats/storage/duckdb.py",
+      "sats/trading/sync.py"
+    ],
+    "sats/monitoring/plans.py": [
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/monitoring/service.py": [
+      "sats/config.py",
+      "sats/llm/__init__.py",
+      "sats/portfolio/execution.py",
+      "sats/portfolio/models.py",
+      "sats/portfolio/storage.py",
+      "sats/rag/chan_knowledge.py",
+      "sats/screening/base.py",
+      "sats/screening/registry.py",
+      "sats/screening/rules/chan_signals.py",
+      "sats/storage/duckdb.py",
+      "sats/trading/sync.py"
+    ],
+    "sats/natural_output.py": [
+      "sats/analysis/market_llm_context.py"
+    ],
+    "sats/natural_task.py": [],
+    "sats/output_names.py": [
+      "sats/analysis/market_llm_context.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/output_saver.py": [
+      "sats/natural_output.py"
+    ],
+    "sats/portfolio/__init__.py": [
+      "sats/portfolio/models.py",
+      "sats/portfolio/service.py",
+      "sats/portfolio/storage.py"
+    ],
+    "sats/portfolio/execution.py": [
+      "sats/portfolio/storage.py"
+    ],
+    "sats/portfolio/models.py": [],
+    "sats/portfolio/reporting.py": [],
+    "sats/portfolio/service.py": [
+      "sats/analysis/market_llm_context.py",
+      "sats/analysis/opportunity_discovery.py",
+      "sats/analysis/trading_committee.py",
+      "sats/config.py",
+      "sats/portfolio/execution.py",
+      "sats/portfolio/models.py",
+      "sats/portfolio/reporting.py",
+      "sats/portfolio/storage.py",
+      "sats/storage/duckdb.py",
+      "sats/trading/__init__.py",
+      "sats/trading/models.py"
+    ],
+    "sats/portfolio/storage.py": [
+      "sats/storage/duckdb.py"
+    ],
+    "sats/progress.py": [],
+    "sats/rag/__init__.py": [
+      "sats/rag/chan_knowledge.py",
+      "sats/rag/knowledge.py"
+    ],
+    "sats/rag/chan_knowledge.py": [],
+    "sats/rag/knowledge.py": [
+      "sats/config.py",
+      "sats/stock_basic_lookup.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/repl.py": [
+      "sats/__init__.py",
+      "sats/agent/__init__.py",
+      "sats/agent/progress.py",
+      "sats/chat_reference.py",
+      "sats/chat_runtime.py",
+      "sats/chat.py",
+      "sats/config.py",
+      "sats/conversation/__init__.py",
+      "sats/history.py",
+      "sats/memory.py",
+      "sats/natural_output.py",
+      "sats/output_saver.py",
+      "sats/progress.py",
+      "sats/runtime_status.py",
+      "sats/scheduler/__init__.py",
+      "sats/stock_question.py",
+      "sats/storage/__init__.py"
+    ],
+    "sats/runtime_status.py": [],
+    "sats/scheduler/__init__.py": [
+      "sats/scheduler/service.py"
+    ],
+    "sats/scheduler/service.py": [
+      "sats/storage/duckdb.py"
+    ],
+    "sats/screening/__init__.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/base.py": [],
+    "sats/screening/generated_rule_runtime.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/registry.py": [
+      "sats/screening/base.py",
+      "sats/screening/rules/chan_composite.py",
+      "sats/screening/rules/chan_signals.py",
+      "sats/screening/rules/chan_third_buy.py",
+      "sats/screening/rules/ma_volume_relative_strength.py",
+      "sats/screening/rules/monthly_base_breakout.py",
+      "sats/screening/rules/price_volume_ma.py",
+      "sats/screening/rules/sequoia_x.py",
+      "sats/screening/rules/signal_composite.py"
+    ],
+    "sats/screening/rule_composer.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/__init__.py": [],
+    "sats/screening/rules/chan_composite.py": [
+      "sats/screening/base.py",
+      "sats/screening/rules/chan_third_buy.py"
+    ],
+    "sats/screening/rules/chan_signals.py": [
+      "sats/chan/engine.py",
+      "sats/screening/base.py",
+      "sats/screening/rules/chan_third_buy.py"
+    ],
+    "sats/screening/rules/chan_third_buy.py": [
+      "sats/minute_periods.py",
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/generated/__init__.py": [],
+    "sats/screening/rules/ma_volume_relative_strength.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/monthly_base_breakout.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/price_volume_ma.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/sequoia_x.py": [
+      "sats/screening/base.py"
+    ],
+    "sats/screening/rules/signal_composite.py": [
+      "sats/screening/base.py",
+      "sats/signals/__init__.py"
+    ],
+    "sats/screening/service.py": [
+      "sats/screening/base.py",
+      "sats/screening/registry.py",
+      "sats/storage/duckdb.py"
+    ],
+    "sats/serenity/__init__.py": [
+      "sats/serenity/models.py",
+      "sats/serenity/service.py"
+    ],
+    "sats/serenity/models.py": [],
+    "sats/serenity/scoring.py": [
+      "sats/serenity/models.py"
+    ],
+    "sats/serenity/service.py": [
+      "sats/analysis/stock_picking_agent.py",
+      "sats/config.py",
+      "sats/indicators/__init__.py",
+      "sats/llm/__init__.py",
+      "sats/screening/base.py",
+      "sats/serenity/models.py",
+      "sats/serenity/scoring.py",
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/signals/__init__.py": [
+      "sats/signals/base.py",
+      "sats/signals/engine.py",
+      "sats/signals/registry.py"
+    ],
+    "sats/signals/base.py": [],
+    "sats/signals/engine.py": [
+      "sats/chan/engine.py",
+      "sats/llm/__init__.py",
+      "sats/screening/base.py",
+      "sats/signals/base.py",
+      "sats/signals/registry.py"
+    ],
+    "sats/signals/registry.py": [
+      "sats/signals/base.py"
+    ],
+    "sats/skill_routing.py": [
+      "sats/skills.py"
+    ],
+    "sats/skills.py": [],
+    "sats/stock_basic_lookup.py": [
+      "sats/config.py",
+      "sats/symbols.py"
+    ],
+    "sats/stock_question.py": [
+      "sats/symbols.py"
+    ],
+    "sats/storage/__init__.py": [
+      "sats/storage/duckdb.py"
+    ],
+    "sats/storage/duckdb.py": [
+      "sats/market_clock.py",
+      "sats/screening/base.py"
+    ],
+    "sats/storage/schema.sql": [],
+    "sats/symbols.py": [],
+    "sats/trading/__init__.py": [
+      "sats/trading/broker.py",
+      "sats/trading/miniqmt_client.py",
+      "sats/trading/models.py"
+    ],
+    "sats/trading/broker.py": [
+      "sats/trading/models.py"
+    ],
+    "sats/trading/miniqmt_client.py": [
+      "sats/config.py",
+      "sats/trading/broker.py",
+      "sats/trading/models.py"
+    ],
+    "sats/trading/models.py": [],
+    "sats/trading/monitor_provider.py": [
+      "sats/storage/duckdb.py",
+      "sats/trading/broker.py",
+      "sats/trading/models.py"
+    ],
+    "sats/trading/qmt_bridge.py": [],
+    "sats/trading/sync.py": [
+      "sats/config.py",
+      "sats/storage/duckdb.py",
+      "sats/trading/broker.py",
+      "sats/trading/miniqmt_client.py",
+      "sats/trading/models.py"
+    ],
+    "sats/watchlist_editor.py": [
+      "sats/storage/duckdb.py",
+      "sats/symbols.py"
+    ],
+    "sats/web/__init__.py": [
+      "sats/web/search.py",
+      "sats/web/social_hot.py"
+    ],
+    "sats/web/cache.py": [],
+    "sats/web/fetch.py": [],
+    "sats/web/index.py": [
+      "sats/storage/duckdb.py",
+      "sats/web/providers.py"
+    ],
+    "sats/web/providers.py": [],
+    "sats/web/rag_search.py": [
+      "sats/llm/__init__.py",
+      "sats/web/fetch.py",
+      "sats/web/index.py",
+      "sats/web/providers.py"
+    ],
+    "sats/web/search.py": [
+      "sats/config.py",
+      "sats/web/cache.py",
+      "sats/web/rag_search.py"
+    ],
+    "sats/web/social_hot.py": [
+      "sats/config.py",
+      "sats/web/cache.py"
+    ],
+    "skills/akshare/SKILL.md": [],
+    "skills/ashare-pre-st-filter/SKILL.md": [],
+    "skills/bottom-volume/SKILL.md": [],
+    "skills/box-oscillation/SKILL.md": [],
+    "skills/bull-trend/SKILL.md": [],
+    "skills/candlestick/SKILL.md": [],
+    "skills/chan-theory/SKILL.md": [],
+    "skills/corporate-events/SKILL.md": [],
+    "skills/data-routing/SKILL.md": [],
+    "skills/deep-stock-analysis/SKILL.md": [],
+    "skills/dragon-head/SKILL.md": [],
+    "skills/elliott-wave/SKILL.md": [],
+    "skills/emotion-cycle/SKILL.md": [],
+    "skills/esg-screener/SKILL.md": [],
+    "skills/event-driven-detector/SKILL.md": [],
+    "skills/expectation-repricing/SKILL.md": [],
+    "skills/financial-statement/SKILL.md": [],
+    "skills/fundamental-filter/SKILL.md": [],
+    "skills/growth-quality/SKILL.md": [],
+    "skills/high-dividend-strategy/SKILL.md": [],
+    "skills/hot-theme/SKILL.md": [],
+    "skills/insider-trading-analyzer/SKILL.md": [],
+    "skills/ma-golden-cross/SKILL.md": [],
+    "skills/market-microstructure/SKILL.md": [],
+    "skills/minute-analysis/SKILL.md": [],
+    "skills/one-yang-three-yin/SKILL.md": [],
+    "skills/portfolio-health-check/SKILL.md": [],
+    "skills/quant-factor-screener/SKILL.md": [],
+    "skills/regulatory-knowledge/SKILL.md": [],
+    "skills/report-generate/SKILL.md": [],
+    "skills/risk-adjusted-return-optimizer/SKILL.md": [],
+    "skills/risk-analysis/SKILL.md": [],
+    "skills/sats-market-assistant/SKILL.md": [],
+    "skills/sector-rotation/SKILL.md": [],
+    "skills/sentiment-analysis/SKILL.md": [],
+    "skills/sentiment-reality-gap/SKILL.md": [],
+    "skills/serenity-stock-screen/references/chain-tiers.md": [],
+    "skills/serenity-stock-screen/references/evidence-ladder.md": [],
+    "skills/serenity-stock-screen/references/scoring.md": [],
+    "skills/serenity-stock-screen/SKILL.md": [],
+    "skills/shrink-pullback/SKILL.md": [],
+    "skills/small-cap-growth-identifier/SKILL.md": [],
+    "skills/suitability-report-generator/SKILL.md": [],
+    "skills/tech-hype-vs-fundamentals/SKILL.md": [],
+    "skills/technical-basic/SKILL.md": [],
+    "skills/tickflow/SKILL.md": [],
+    "skills/tushare-data/references/数据接口.md": [],
+    "skills/tushare-data/SKILL.md": [],
+    "skills/undervalued-stock-screener/SKILL.md": [],
+    "skills/valuation-model/SKILL.md": [],
+    "skills/volatility/SKILL.md": [],
+    "skills/volume-breakout/SKILL.md": [],
+    "skills/workflow-templates/SKILL.md": []
+  }
+}

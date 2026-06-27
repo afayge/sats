@@ -1,0 +1,3305 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/opportunity_discovery.py",
+      "type": "file",
+      "name": "opportunity_discovery.py",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `opportunity discovery` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/opportunity_discovery.py:OpportunityCandidate",
+      "type": "class",
+      "name": "OpportunityCandidate",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        96,
+        164
+      ],
+      "summary": "在 `opportunity_discovery.py` 中定义 `OpportunityCandidate` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/opportunity_discovery.py:OpportunityDiscoveryResult",
+      "type": "class",
+      "name": "OpportunityDiscoveryResult",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        168,
+        237
+      ],
+      "summary": "在 `opportunity_discovery.py` 中定义 `OpportunityDiscoveryResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetResult",
+      "type": "class",
+      "name": "LLMContextBudgetResult",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        241,
+        247
+      ],
+      "summary": "在 `opportunity_discovery.py` 中定义 `LLMContextBudgetResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/opportunity_discovery.py:LLMRankResult",
+      "type": "class",
+      "name": "LLMRankResult",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        251,
+        255
+      ],
+      "summary": "在 `opportunity_discovery.py` 中定义 `LLMRankResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetExceeded",
+      "type": "class",
+      "name": "LLMContextBudgetExceeded",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        258,
+        261
+      ],
+      "summary": "在 `opportunity_discovery.py` 中定义 `LLMContextBudgetExceeded` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:is_opportunity_discovery_question",
+      "type": "function",
+      "name": "is_opportunity_discovery_question",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        264,
+        274
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `is_opportunity_discovery_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:is_generic_hot_sector_discovery_question",
+      "type": "function",
+      "name": "is_generic_hot_sector_discovery_question",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        277,
+        288
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `is_generic_hot_sector_discovery_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:extract_opportunity_discovery_limit",
+      "type": "function",
+      "name": "extract_opportunity_discovery_limit",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        291,
+        310
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `extract_opportunity_discovery_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_has_stock_picking_action",
+      "type": "function",
+      "name": "_has_stock_picking_action",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        313,
+        318
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_has_stock_picking_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_parse_count_number",
+      "type": "function",
+      "name": "_parse_count_number",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        321,
+        327
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_parse_count_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_parse_chinese_count",
+      "type": "function",
+      "name": "_parse_chinese_count",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        330,
+        352
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_parse_chinese_count` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:run_opportunity_discovery",
+      "type": "function",
+      "name": "run_opportunity_discovery",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        355,
+        601
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `run_opportunity_discovery` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:format_opportunity_discovery",
+      "type": "function",
+      "name": "format_opportunity_discovery",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        604,
+        642
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `format_opportunity_discovery` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_format_discovery_table",
+      "type": "function",
+      "name": "_format_discovery_table",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        645,
+        680
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_format_discovery_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_event_label_text",
+      "type": "function",
+      "name": "_event_label_text",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        683,
+        685
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_event_label_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_chan_signal_label_text",
+      "type": "function",
+      "name": "_chan_signal_label_text",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        688,
+        695
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_chan_signal_label_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:write_opportunity_report",
+      "type": "function",
+      "name": "write_opportunity_report",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        698,
+        738
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `write_opportunity_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_signal_input_from_screening_input",
+      "type": "function",
+      "name": "_signal_input_from_screening_input",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        741,
+        748
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_signal_input_from_screening_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_with_lock_fallback",
+      "type": "function",
+      "name": "_load_all_screening_inputs_with_lock_fallback",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        751,
+        782
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_load_all_screening_inputs_with_lock_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_with_lock_fallback",
+      "type": "function",
+      "name": "_load_screening_inputs_with_lock_fallback",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        785,
+        823
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_load_screening_inputs_with_lock_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_from_cache",
+      "type": "function",
+      "name": "_load_screening_inputs_from_cache",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        826,
+        835
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_load_screening_inputs_from_cache` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_from_cache",
+      "type": "function",
+      "name": "_load_all_screening_inputs_from_cache",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        838,
+        871
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_load_all_screening_inputs_from_cache` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_cached_trade_dates_for_screening",
+      "type": "function",
+      "name": "_cached_trade_dates_for_screening",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        874,
+        886
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_cached_trade_dates_for_screening` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_stock_basic_for_daily",
+      "type": "function",
+      "name": "_stock_basic_for_daily",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        889,
+        893
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_stock_basic_for_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_group_frames_by_ts_code",
+      "type": "function",
+      "name": "_group_frames_by_ts_code",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        896,
+        902
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_group_frames_by_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_is_duckdb_lock_error",
+      "type": "function",
+      "name": "_is_duckdb_lock_error",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        905,
+        907
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_is_duckdb_lock_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_no_candidate_message",
+      "type": "function",
+      "name": "_no_candidate_message",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        910,
+        916
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_no_candidate_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_stock_basic_map",
+      "type": "function",
+      "name": "_stock_basic_map",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        919,
+        920
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_stock_basic_map` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_select_local_candidates",
+      "type": "function",
+      "name": "_select_local_candidates",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        923,
+        946
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_select_local_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_pick_diversified_signal_results",
+      "type": "function",
+      "name": "_pick_diversified_signal_results",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        949,
+        975
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_pick_diversified_signal_results` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_enrich_candidates",
+      "type": "function",
+      "name": "_enrich_candidates",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        978,
+        1031
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_enrich_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_candidate_missing_fields",
+      "type": "function",
+      "name": "_candidate_missing_fields",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1034,
+        1042
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_candidate_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_chan_buy_signals",
+      "type": "function",
+      "name": "_chan_buy_signals",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1045,
+        1079
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_chan_buy_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_chan_signal_bonus",
+      "type": "function",
+      "name": "_chan_signal_bonus",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1082,
+        1098
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_chan_signal_bonus` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_chan_score",
+      "type": "function",
+      "name": "_chan_score",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1101,
+        1104
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_chan_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_signal_ranking_score",
+      "type": "function",
+      "name": "_signal_ranking_score",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1107,
+        1120
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_signal_ranking_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_diversified_signal_score",
+      "type": "function",
+      "name": "_diversified_signal_score",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1123,
+        1146
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_diversified_signal_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_signal_diversity_penalty",
+      "type": "function",
+      "name": "_signal_diversity_penalty",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1149,
+        1170
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_signal_diversity_penalty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_candidate_sort_key",
+      "type": "function",
+      "name": "_candidate_sort_key",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1173,
+        1174
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_candidate_sort_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_candidate_quality_score",
+      "type": "function",
+      "name": "_candidate_quality_score",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1177,
+        1180
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_candidate_quality_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_rebalance_ranked_candidates",
+      "type": "function",
+      "name": "_rebalance_ranked_candidates",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1183,
+        1215
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_rebalance_ranked_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_is_over_concentrated",
+      "type": "function",
+      "name": "_is_over_concentrated",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1218,
+        1237
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_is_over_concentrated` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_best_diversifying_candidate",
+      "type": "function",
+      "name": "_best_diversifying_candidate",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1240,
+        1269
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_best_diversifying_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_weakest_repeated_candidate_index",
+      "type": "function",
+      "name": "_weakest_repeated_candidate_index",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1272,
+        1289
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_weakest_repeated_candidate_index` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_groups",
+      "type": "function",
+      "name": "_repeated_candidate_groups",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1292,
+        1298
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_repeated_candidate_groups` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_hot_labels",
+      "type": "function",
+      "name": "_repeated_candidate_hot_labels",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1301,
+        1306
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_repeated_candidate_hot_labels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_board_group",
+      "type": "function",
+      "name": "_board_group",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1309,
+        1323
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_board_group` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_candidate_industry",
+      "type": "function",
+      "name": "_candidate_industry",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1326,
+        1328
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_candidate_industry` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_industry_label",
+      "type": "function",
+      "name": "_industry_label",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1331,
+        1332
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_industry_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_candidate_hot_labels",
+      "type": "function",
+      "name": "_candidate_hot_labels",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1335,
+        1336
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_candidate_hot_labels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_hot_sector_labels",
+      "type": "function",
+      "name": "_hot_sector_labels",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1339,
+        1349
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_hot_sector_labels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_stable_rank_value",
+      "type": "function",
+      "name": "_stable_rank_value",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1352,
+        1354
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_stable_rank_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_indicator_missing_fields",
+      "type": "function",
+      "name": "_indicator_missing_fields",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1357,
+        1365
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_indicator_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_load_indicators",
+      "type": "function",
+      "name": "_load_indicators",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1368,
+        1384
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_load_indicators` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_safe_market_context",
+      "type": "function",
+      "name": "_safe_market_context",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1387,
+        1410
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_safe_market_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_safe_hot_sector_context",
+      "type": "function",
+      "name": "_safe_hot_sector_context",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1413,
+        1434
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_safe_hot_sector_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_rank_with_llm",
+      "type": "function",
+      "name": "_rank_with_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1437,
+        1493
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_rank_with_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_build_opportunity_llm_prompt",
+      "type": "function",
+      "name": "_build_opportunity_llm_prompt",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1496,
+        1524
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_build_opportunity_llm_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_parse_llm_rankings",
+      "type": "function",
+      "name": "_parse_llm_rankings",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1527,
+        1553
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_parse_llm_rankings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:prepare_llm_context_prompt",
+      "type": "function",
+      "name": "prepare_llm_context_prompt",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1556,
+        1604
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `prepare_llm_context_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:estimate_llm_message_tokens",
+      "type": "function",
+      "name": "estimate_llm_message_tokens",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1607,
+        1609
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `estimate_llm_message_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:llm_context_input_budget_tokens",
+      "type": "function",
+      "name": "llm_context_input_budget_tokens",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1612,
+        1613
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `llm_context_input_budget_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_llm_context_input_budget_tokens",
+      "type": "function",
+      "name": "_llm_context_input_budget_tokens",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1616,
+        1623
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_llm_context_input_budget_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_is_context_length_error",
+      "type": "function",
+      "name": "_is_context_length_error",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1626,
+        1632
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_is_context_length_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:is_llm_context_length_error",
+      "type": "function",
+      "name": "is_llm_context_length_error",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1635,
+        1636
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `is_llm_context_length_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_positive_int",
+      "type": "function",
+      "name": "_positive_int",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1639,
+        1644
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_positive_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_safe_float",
+      "type": "function",
+      "name": "_safe_float",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1647,
+        1651
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1654,
+        1663
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_parse_json_object",
+      "type": "function",
+      "name": "_parse_json_object",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1666,
+        1679
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_parse_json_object` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_truncate_text",
+      "type": "function",
+      "name": "_truncate_text",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1682,
+        1686
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_truncate_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_event_for_llm",
+      "type": "function",
+      "name": "_compact_event_for_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1689,
+        1703
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_event_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_for_llm",
+      "type": "function",
+      "name": "_compact_hot_sector_for_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1706,
+        1719
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_hot_sector_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_chan_signal_for_llm",
+      "type": "function",
+      "name": "_compact_chan_signal_for_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1722,
+        1733
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_chan_signal_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_indicator_for_llm",
+      "type": "function",
+      "name": "_compact_indicator_for_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1736,
+        1755
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_indicator_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_indicator",
+      "type": "function",
+      "name": "_compact_indicator",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1758,
+        1768
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_indicator` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_market_context",
+      "type": "function",
+      "name": "_compact_market_context",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1771,
+        1786
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_market_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_index_context",
+      "type": "function",
+      "name": "_compact_index_context",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1789,
+        1803
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_index_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_context",
+      "type": "function",
+      "name": "_compact_hot_sector_context",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1806,
+        1816
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_compact_hot_sector_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_build_llm",
+      "type": "function",
+      "name": "_build_llm",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1819,
+        1825
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_build_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1828,
+        1829
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1832,
+        1833
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1836,
+        1842
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_chat_json",
+      "type": "function",
+      "name": "_chat_json",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1845,
+        1849
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_chat_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_parse_response_json",
+      "type": "function",
+      "name": "_parse_response_json",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1852,
+        1853
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_parse_response_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score",
+      "type": "function",
+      "name": "_hot_sector_score",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1856,
+        1863
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_hot_sector_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score_for_symbol",
+      "type": "function",
+      "name": "_hot_sector_score_for_symbol",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1866,
+        1870
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_hot_sector_score_for_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_hot_sector_label_text",
+      "type": "function",
+      "name": "_hot_sector_label_text",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1873,
+        1879
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_hot_sector_label_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_text_or_dash",
+      "type": "function",
+      "name": "_text_or_dash",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1882,
+        1884
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_text_or_dash` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_display_ljust",
+      "type": "function",
+      "name": "_display_ljust",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1887,
+        1889
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_display_ljust` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_truncate_to_width",
+      "type": "function",
+      "name": "_truncate_to_width",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1892,
+        1906
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_truncate_to_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_display_width",
+      "type": "function",
+      "name": "_display_width",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1909,
+        1913
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_display_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_float",
+      "type": "function",
+      "name": "_float",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1916,
+        1922
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_resolve_trade_date",
+      "type": "function",
+      "name": "_resolve_trade_date",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1925,
+        1945
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_resolve_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/opportunity_discovery.py:_fmt",
+      "type": "function",
+      "name": "_fmt",
+      "filePath": "sats/analysis/opportunity_discovery.py",
+      "lineRange": [
+        1948,
+        1955
+      ],
+      "summary": "在 `opportunity_discovery.py` 中实现 `_fmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/analysis/quote_llm_context.py",
+      "type": "file",
+      "name": "quote_llm_context.py",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `quote llm context` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/quote_llm_context.py:StockQuoteLLMContext",
+      "type": "class",
+      "name": "StockQuoteLLMContext",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        15,
+        17
+      ],
+      "summary": "在 `quote_llm_context.py` 中定义 `StockQuoteLLMContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/quote_llm_context.py:build_stock_quote_llm_context",
+      "type": "function",
+      "name": "build_stock_quote_llm_context",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        20,
+        38
+      ],
+      "summary": "在 `quote_llm_context.py` 中实现 `build_stock_quote_llm_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/quote_llm_context.py:_quote_payload",
+      "type": "function",
+      "name": "_quote_payload",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        41,
+        54
+      ],
+      "summary": "在 `quote_llm_context.py` 中实现 `_quote_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/quote_llm_context.py:_records_by_symbol",
+      "type": "function",
+      "name": "_records_by_symbol",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        57,
+        64
+      ],
+      "summary": "在 `quote_llm_context.py` 中实现 `_records_by_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/quote_llm_context.py:_system_message",
+      "type": "function",
+      "name": "_system_message",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        67,
+        73
+      ],
+      "summary": "在 `quote_llm_context.py` 中实现 `_system_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/quote_llm_context.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/analysis/quote_llm_context.py",
+      "lineRange": [
+        76,
+        86
+      ],
+      "summary": "在 `quote_llm_context.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:OpportunityCandidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:OpportunityCandidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:OpportunityDiscoveryResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:OpportunityDiscoveryResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMRankResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMRankResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetExceeded",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "class:sats/analysis/opportunity_discovery.py:LLMContextBudgetExceeded",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_opportunity_discovery_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_opportunity_discovery_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_generic_hot_sector_discovery_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_generic_hot_sector_discovery_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:extract_opportunity_discovery_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:extract_opportunity_discovery_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_has_stock_picking_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_has_stock_picking_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_count_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_count_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_chinese_count",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_chinese_count",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:run_opportunity_discovery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:run_opportunity_discovery",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:format_opportunity_discovery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:format_opportunity_discovery",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_format_discovery_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_format_discovery_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_event_label_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_event_label_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_signal_label_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_signal_label_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:write_opportunity_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:write_opportunity_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_input_from_screening_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_input_from_screening_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_with_lock_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_with_lock_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_with_lock_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_with_lock_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_from_cache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_screening_inputs_from_cache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_from_cache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_all_screening_inputs_from_cache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_cached_trade_dates_for_screening",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_cached_trade_dates_for_screening",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stock_basic_for_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stock_basic_for_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_group_frames_by_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_group_frames_by_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_duckdb_lock_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_duckdb_lock_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_no_candidate_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_no_candidate_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stock_basic_map",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stock_basic_map",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_select_local_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_select_local_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_pick_diversified_signal_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_pick_diversified_signal_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_enrich_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_enrich_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_buy_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_buy_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_signal_bonus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_signal_bonus",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chan_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_ranking_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_ranking_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_diversified_signal_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_diversified_signal_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_diversity_penalty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_signal_diversity_penalty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_sort_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_sort_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_quality_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_quality_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_rebalance_ranked_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_rebalance_ranked_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_over_concentrated",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_over_concentrated",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_best_diversifying_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_best_diversifying_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_weakest_repeated_candidate_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_weakest_repeated_candidate_index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_groups",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_groups",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_hot_labels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_repeated_candidate_hot_labels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_board_group",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_board_group",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_industry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_industry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_industry_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_industry_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_hot_labels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_candidate_hot_labels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_labels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_labels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stable_rank_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_stable_rank_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_indicator_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_indicator_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_indicators",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_load_indicators",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_market_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_market_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_hot_sector_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_hot_sector_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_rank_with_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_rank_with_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_build_opportunity_llm_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_build_opportunity_llm_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_llm_rankings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_llm_rankings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:prepare_llm_context_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:prepare_llm_context_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:estimate_llm_message_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:estimate_llm_message_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:llm_context_input_budget_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:llm_context_input_budget_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_llm_context_input_budget_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_llm_context_input_budget_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_context_length_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_is_context_length_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_llm_context_length_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:is_llm_context_length_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_positive_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_positive_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_json_object",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_json_object",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_truncate_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_truncate_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_event_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_event_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_chan_signal_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_chan_signal_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_indicator_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_indicator_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_indicator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_indicator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_market_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_market_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_index_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_index_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_compact_hot_sector_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_build_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_build_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chat_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_chat_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_response_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_parse_response_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score_for_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_score_for_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_label_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_hot_sector_label_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_text_or_dash",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_text_or_dash",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_display_ljust",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_display_ljust",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_truncate_to_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_truncate_to_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_display_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_display_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_resolve_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_resolve_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_fmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "function:sats/analysis/opportunity_discovery.py:_fmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "class:sats/analysis/quote_llm_context.py:StockQuoteLLMContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "class:sats/analysis/quote_llm_context.py:StockQuoteLLMContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:build_stock_quote_llm_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:build_stock_quote_llm_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_quote_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_quote_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_records_by_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_records_by_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_system_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_system_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "function:sats/analysis/quote_llm_context.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/opportunity_discovery.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/quote_llm_context.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

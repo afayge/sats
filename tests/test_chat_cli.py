@@ -17,6 +17,34 @@ from sats.storage.duckdb import DuckDBStorage
 from sats.skills import Skill
 
 
+class _FakeTTYStdout:
+    encoding = "utf-8"
+    errors = "strict"
+
+    def __init__(self) -> None:
+        self.values: list[str] = []
+
+    def write(self, text: str) -> int:
+        value = str(text)
+        self.values.append(value)
+        return len(value)
+
+    def flush(self) -> None:
+        return None
+
+    def isatty(self) -> bool:
+        return True
+
+    def fileno(self) -> int:
+        return 1
+
+    def writable(self) -> bool:
+        return True
+
+    def getvalue(self) -> str:
+        return "".join(self.values)
+
+
 class ChatCliTest(unittest.TestCase):
     def test_cli_chat_prints_llm_response(self) -> None:
         stdout = StringIO()
@@ -46,6 +74,64 @@ class ChatCliTest(unittest.TestCase):
         self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 回答", output)
 
+    def test_cli_tty_human_text_uses_natural_text_output(self) -> None:
+        stdout = _FakeTTYStdout()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"))
+        created: list[object] = []
+
+        class _RecordingNaturalTextOutput:
+            def __init__(self, target, *, db_path=None, width=100) -> None:
+                self.target = target
+                self.db_path = db_path
+                self.width = width
+                created.append(self)
+
+            def write(self, text: str) -> int:
+                self.target.write(f"rendered:{text}")
+                return len(text)
+
+            def flush(self) -> None:
+                self.target.flush()
+
+            def isatty(self) -> bool:
+                return True
+
+            def __getattr__(self, name: str):
+                return getattr(self.target, name)
+
+        def dispatch(args, parser) -> int:
+            print("状态: done +1.33%")
+            return 0
+
+        with (
+            patch("sys.stdout", stdout),
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.NaturalTextOutput", _RecordingNaturalTextOutput),
+            patch("sats.cli._dispatch_command", side_effect=dispatch),
+        ):
+            self.assertEqual(main(["result-rules"]), 0)
+
+        self.assertEqual(len(created), 1)
+        self.assertIn("rendered:状态: done +1.33%", stdout.getvalue())
+
+    def test_cli_json_output_skips_natural_text_output(self) -> None:
+        stdout = _FakeTTYStdout()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"))
+
+        def dispatch(args, parser) -> int:
+            print('{"status":"ok"}')
+            return 0
+
+        with (
+            patch("sys.stdout", stdout),
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.NaturalTextOutput", side_effect=AssertionError("JSON output should not be rendered")),
+            patch("sats.cli._dispatch_command", side_effect=dispatch),
+        ):
+            self.assertEqual(main(["catalog", "--json"]), 0)
+
+        self.assertIn('{"status":"ok"}', stdout.getvalue())
+
     def test_cli_chat_can_disable_memory(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
@@ -70,36 +156,28 @@ class ChatCliTest(unittest.TestCase):
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_agent_once") as agent,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "--plan-only", "用", "price_volume_ma", "筛选，并对筛选股票制定明天交易计划"]), 0)
 
-        agent.assert_not_called()
         output = stdout.getvalue()
         self.assertIn("SATS Conversation Plan", output)
         self.assertIn("workflow.screened_stock_analysis", output)
         self.assertIn("分析模式: batch", output)
 
-    def test_cli_chat_agent_flag_uses_agent_runtime(self) -> None:
-        stdout = StringIO()
-        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro")
-        fake = SimpleNamespace(content="回答", tool_call_count=1, data_names=("Agent",), artifacts=(), turn_id="turn", session_id="chat_agent")
+    def test_cli_chat_agent_flag_is_obsolete(self) -> None:
+        with self.assertRaises(SystemExit) as raised:
+            main(["chat", "--agent", "帮我", "解释筛选规则"])
 
-        with (
-            patch("sats.cli.load_settings", return_value=settings),
-            patch("sats.cli.run_agent_once", return_value=fake) as agent,
-            patch("sats.cli.run_conversation_once") as conversation,
-            redirect_stdout(stdout),
-        ):
-            self.assertEqual(main(["chat", "--agent", "帮我", "解释筛选规则"]), 0)
+        self.assertIn("OBSOLETE: sats chat --agent", str(raised.exception))
 
-        agent.assert_called_once()
-        conversation.assert_not_called()
-        output = stdout.getvalue()
-        self.assertIn("`数据: Agent`", output)
+    def test_cli_chat_no_agent_flag_is_obsolete(self) -> None:
+        with self.assertRaises(SystemExit) as raised:
+            main(["chat", "--no-agent", "临时问题"])
 
-    def test_cli_chat_no_agent_can_disable_memory(self) -> None:
+        self.assertIn("OBSOLETE: sats chat --no-agent", str(raised.exception))
+
+    def test_cli_chat_legacy_engine_can_disable_memory(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), openai_model="deepseek-v4-pro")
 
@@ -108,7 +186,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ())) as chat,
             redirect_stdout(stdout),
         ):
-            self.assertEqual(main(["chat", "--no-agent", "--no-memory", "临时问题"]), 0)
+            self.assertEqual(main(["chat", "--engine", "legacy", "--no-memory", "临时问题"]), 0)
 
         chat.assert_called_once_with("临时问题", settings=settings, memory_enabled=False)
         output = stdout.getvalue()
@@ -208,7 +286,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", side_effect=ValueError("缺少真实分钟K数据")) as chat,
         ):
             with self.assertRaises(SystemExit) as raised:
-                main(["chat", "--no-agent", "分析002436"])
+                main(["chat", "--engine", "legacy", "分析002436"])
 
         chat.assert_called_once()
         self.assertEqual(str(raised.exception), "缺少真实分钟K数据")
@@ -324,7 +402,7 @@ class ChatCliTest(unittest.TestCase):
             patch("sats.cli.run_chat_once", return_value=ChatResult("回答", ())) as chat,
             redirect_stdout(stdout),
         ):
-            self.assertEqual(main(["chat", "--no-agent", "--knowledge", "chan", "解释三买"]), 0)
+            self.assertEqual(main(["chat", "--engine", "legacy", "--knowledge", "chan", "解释三买"]), 0)
 
         chat.assert_called_once_with("解释三买", settings=settings, memory_enabled=True, knowledge="chan")
 

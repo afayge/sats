@@ -1,0 +1,531 @@
+{
+  "nodes": [
+    {
+      "id": "document:skills/dragon-head/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/dragon-head/SKILL.md",
+      "summary": "说明 `dragon-head` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/elliott-wave/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/elliott-wave/SKILL.md",
+      "summary": "说明 `elliott-wave` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/emotion-cycle/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/emotion-cycle/SKILL.md",
+      "summary": "说明 `emotion-cycle` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/esg-screener/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/esg-screener/SKILL.md",
+      "summary": "说明 `esg-screener` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/event-driven-detector/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/event-driven-detector/SKILL.md",
+      "summary": "说明 `event-driven-detector` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/expectation-repricing/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/expectation-repricing/SKILL.md",
+      "summary": "说明 `expectation-repricing` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/financial-statement/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/financial-statement/SKILL.md",
+      "summary": "说明 `financial-statement` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/fundamental-filter/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/fundamental-filter/SKILL.md",
+      "summary": "说明 `fundamental-filter` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/growth-quality/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/growth-quality/SKILL.md",
+      "summary": "说明 `growth-quality` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/high-dividend-strategy/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/high-dividend-strategy/SKILL.md",
+      "summary": "说明 `high-dividend-strategy` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/hot-theme/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/hot-theme/SKILL.md",
+      "summary": "说明 `hot-theme` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/insider-trading-analyzer/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/insider-trading-analyzer/SKILL.md",
+      "summary": "说明 `insider-trading-analyzer` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/ma-golden-cross/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/ma-golden-cross/SKILL.md",
+      "summary": "说明 `ma-golden-cross` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/market-microstructure/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/market-microstructure/SKILL.md",
+      "summary": "说明 `market-microstructure` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/minute-analysis/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/minute-analysis/SKILL.md",
+      "summary": "说明 `minute-analysis` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/one-yang-three-yin/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/one-yang-three-yin/SKILL.md",
+      "summary": "说明 `one-yang-three-yin` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/portfolio-health-check/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/portfolio-health-check/SKILL.md",
+      "summary": "说明 `portfolio-health-check` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/quant-factor-screener/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/quant-factor-screener/SKILL.md",
+      "summary": "说明 `quant-factor-screener` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/regulatory-knowledge/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/regulatory-knowledge/SKILL.md",
+      "summary": "说明 `regulatory-knowledge` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/report-generate/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/report-generate/SKILL.md",
+      "summary": "说明 `report-generate` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/risk-adjusted-return-optimizer/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/risk-adjusted-return-optimizer/SKILL.md",
+      "summary": "说明 `risk-adjusted-return-optimizer` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/risk-analysis/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/risk-analysis/SKILL.md",
+      "summary": "说明 `risk-analysis` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/sats-market-assistant/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/sats-market-assistant/SKILL.md",
+      "summary": "说明 `sats-market-assistant` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/sector-rotation/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/sector-rotation/SKILL.md",
+      "summary": "说明 `sector-rotation` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/sentiment-analysis/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/sentiment-analysis/SKILL.md",
+      "summary": "说明 `sentiment-analysis` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:skills/dragon-head/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/elliott-wave/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/emotion-cycle/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/esg-screener/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/event-driven-detector/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/expectation-repricing/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/financial-statement/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/fundamental-filter/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/growth-quality/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/high-dividend-strategy/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/hot-theme/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/insider-trading-analyzer/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/ma-golden-cross/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/market-microstructure/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/minute-analysis/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/one-yang-three-yin/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/portfolio-health-check/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/quant-factor-screener/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/regulatory-knowledge/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/report-generate/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/risk-adjusted-return-optimizer/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/risk-analysis/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/sats-market-assistant/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/sector-rotation/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/sentiment-analysis/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

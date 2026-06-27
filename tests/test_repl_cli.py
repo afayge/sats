@@ -23,6 +23,7 @@ from sats.chat import ChatResult, ChatSession
 from sats.cli import main
 from sats.history import InteractionHistoryStore
 from sats.memory import ChatMemoryStore
+from sats.natural_output import SYMBOL_HIGHLIGHT_STYLE
 from sats.output_saver import CapturedOutput
 from sats.repl import (
     CLI_COMMANDS,
@@ -1923,6 +1924,38 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("1. 000001.SZ 平安银行", stdout.getvalue())
         self.assertIsNotNone(state.last_output)
         self.assertIn("1. 000001.SZ 平安银行", state.last_output.content)
+
+    def test_repl_slash_output_renders_tty_display_but_captures_plain_text(self) -> None:
+        state = ReplState()
+        plain_output: list[str] = []
+        rich_output: list[FormattedText] = []
+
+        def runner(argv: list[str]) -> int:
+            print("1. 000001.SZ 平安银行 +1.33%")
+            return 0
+
+        with patch("sats.repl.load_settings", return_value=SimpleNamespace(db_path=Path("missing.duckdb"))):
+            self.assertTrue(
+                handle_repl_line(
+                    "/results --passed",
+                    runner=runner,
+                    printer=plain_output.append,
+                    formatted_printer=rich_output.append,
+                    state=state,
+                )
+            )
+
+        self.assertEqual(plain_output, [])
+        self.assertTrue(any(SYMBOL_HIGHLIGHT_STYLE in style and text == "000001.SZ" for fragments in rich_output for style, text in fragments))
+        self.assertIsNotNone(state.last_output)
+        self.assertEqual(state.last_output.content.strip(), "1. 000001.SZ 平安银行 +1.33%")
+
+        saved: list[str] = []
+        settings = SimpleNamespace(project_root=Path(tempfile.mkdtemp()))
+        with patch("sats.repl.load_settings", return_value=settings):
+            self.assertTrue(handle_repl_line("/save --format md", printer=saved.append, state=state))
+        saved_path = Path(saved[-1].split("已保存: ", 1)[1])
+        self.assertIn("1. 000001.SZ 平安银行 +1.33%", saved_path.read_text(encoding="utf-8"))
 
     def test_repl_slash_output_supports_isatty_checks(self) -> None:
         state = ReplState()

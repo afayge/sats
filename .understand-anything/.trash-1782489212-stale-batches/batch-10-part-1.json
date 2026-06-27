@@ -1,0 +1,68 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/__init__.py",
+      "summary": "定义 `sats` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "init",
+        "init-py"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/__main__.py",
+      "type": "file",
+      "name": "__main__.py",
+      "filePath": "sats/__main__.py",
+      "summary": "提供 `python -m sats` 模块入口，并把控制权转交给主 CLI。",
+      "tags": [
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/agent/__init__.py",
+      "summary": "定义 `agent` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/__main__.py",
+      "target": "file:sats/cli.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/__init__.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/__init__.py",
+      "target": "file:sats/agent/runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

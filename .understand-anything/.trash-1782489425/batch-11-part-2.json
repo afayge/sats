@@ -1,0 +1,5319 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/planner_v2.py",
+      "type": "file",
+      "name": "planner_v2.py",
+      "filePath": "sats/agent/planner_v2.py",
+      "summary": "提供新版 Agent 规划流程，强化步骤化推理、工具编排与上下文控制。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/agent/planner_v2.py:PlannerV2Intent",
+      "type": "class",
+      "name": "PlannerV2Intent",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        25,
+        47
+      ],
+      "summary": "在 `planner_v2.py` 中定义 `PlannerV2Intent` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/planner_v2.py:PlannerV2Grounding",
+      "type": "class",
+      "name": "PlannerV2Grounding",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        51,
+        64
+      ],
+      "summary": "在 `planner_v2.py` 中定义 `PlannerV2Grounding` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/planner_v2.py:PlannerV2Result",
+      "type": "class",
+      "name": "PlannerV2Result",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        68,
+        92
+      ],
+      "summary": "在 `planner_v2.py` 中定义 `PlannerV2Result` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/planner_v2.py:PlannerV2Engine",
+      "type": "class",
+      "name": "PlannerV2Engine",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        95,
+        198
+      ],
+      "summary": "在 `planner_v2.py` 中定义 `PlannerV2Engine` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:build_agent_plan_v2",
+      "type": "function",
+      "name": "build_agent_plan_v2",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        201,
+        249
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `build_agent_plan_v2` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_build_replan_result",
+      "type": "function",
+      "name": "_build_replan_result",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        252,
+        289
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_build_replan_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_understand",
+      "type": "function",
+      "name": "_understand",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        292,
+        342
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_understand` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_llm_understand",
+      "type": "function",
+      "name": "_llm_understand",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        345,
+        371
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_llm_understand` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_understand_messages",
+      "type": "function",
+      "name": "_understand_messages",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        374,
+        405
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_understand_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_can_use_llm_understand",
+      "type": "function",
+      "name": "_can_use_llm_understand",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        408,
+        414
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_can_use_llm_understand` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_merge_entities",
+      "type": "function",
+      "name": "_merge_entities",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        417,
+        431
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_merge_entities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_tool_capability_summary",
+      "type": "function",
+      "name": "_tool_capability_summary",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        434,
+        465
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_tool_capability_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_local_intent",
+      "type": "function",
+      "name": "_local_intent",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        468,
+        522
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_local_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:apply_nonblocking_defaults",
+      "type": "function",
+      "name": "apply_nonblocking_defaults",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        525,
+        578
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `apply_nonblocking_defaults` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_plan_from_intent",
+      "type": "function",
+      "name": "_plan_from_intent",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        581,
+        604
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_plan_from_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_astock_catalog_plan",
+      "type": "function",
+      "name": "_astock_catalog_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        607,
+        655
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_astock_catalog_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_semantic_grounded_plan",
+      "type": "function",
+      "name": "_semantic_grounded_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        658,
+        779
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_semantic_grounded_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_single_tool_plan",
+      "type": "function",
+      "name": "_single_tool_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        782,
+        800
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_single_tool_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_validate_and_repair_plan",
+      "type": "function",
+      "name": "_validate_and_repair_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        803,
+        851
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_validate_and_repair_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_ensure_final_step",
+      "type": "function",
+      "name": "_ensure_final_step",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        854,
+        857
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_ensure_final_step` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_with_v2_plan_meta",
+      "type": "function",
+      "name": "_with_v2_plan_meta",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        860,
+        869
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_with_v2_plan_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_empty_clarification_plan",
+      "type": "function",
+      "name": "_empty_clarification_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        872,
+        883
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_empty_clarification_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_grounding_for_plan",
+      "type": "function",
+      "name": "_grounding_for_plan",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        886,
+        900
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_grounding_for_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_normalized_message",
+      "type": "function",
+      "name": "_normalized_message",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        903,
+        918
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_normalized_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_load_stock_basic",
+      "type": "function",
+      "name": "_load_stock_basic",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        921,
+        925
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_load_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_resolve_stock_mentions",
+      "type": "function",
+      "name": "_resolve_stock_mentions",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        928,
+        932
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_resolve_stock_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_resolve_candidate_names",
+      "type": "function",
+      "name": "_resolve_candidate_names",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        935,
+        939
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_resolve_candidate_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_candidate_stock_names",
+      "type": "function",
+      "name": "_candidate_stock_names",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        942,
+        960
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_candidate_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_clean_stock_name_candidate",
+      "type": "function",
+      "name": "_clean_stock_name_candidate",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        963,
+        967
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_clean_stock_name_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:detect_blocking_ambiguities",
+      "type": "function",
+      "name": "detect_blocking_ambiguities",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        970,
+        993
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `detect_blocking_ambiguities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_semantic_classification",
+      "type": "function",
+      "name": "_semantic_classification",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        996,
+        1031
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_semantic_classification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_infer_intent",
+      "type": "function",
+      "name": "_infer_intent",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1034,
+        1035
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_infer_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_hot_sector_lookup_text",
+      "type": "function",
+      "name": "_is_hot_sector_lookup_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1038,
+        1046
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_hot_sector_lookup_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_sector_return_ranking_text",
+      "type": "function",
+      "name": "_is_sector_return_ranking_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1049,
+        1061
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_sector_return_ranking_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_sector_ranking_source_text",
+      "type": "function",
+      "name": "_sector_ranking_source_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1064,
+        1066
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_sector_ranking_source_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_sector_ranking_type_text",
+      "type": "function",
+      "name": "_sector_ranking_type_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1069,
+        1071
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_sector_ranking_type_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_sector_ranking_direction_text",
+      "type": "function",
+      "name": "_sector_ranking_direction_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1074,
+        1076
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_sector_ranking_direction_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_sector_ranking_period_text",
+      "type": "function",
+      "name": "_sector_ranking_period_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1079,
+        1090
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_sector_ranking_period_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_chinese_number_text",
+      "type": "function",
+      "name": "_chinese_number_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1093,
+        1103
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_chinese_number_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_auto_program_text",
+      "type": "function",
+      "name": "_is_auto_program_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1106,
+        1107
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_auto_program_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_catalog_query_text",
+      "type": "function",
+      "name": "_catalog_query_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1110,
+        1112
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_catalog_query_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_default_python_program_code",
+      "type": "function",
+      "name": "_default_python_program_code",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1115,
+        1127
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_default_python_program_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_theme_stock_list_text",
+      "type": "function",
+      "name": "_is_theme_stock_list_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1130,
+        1140
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_theme_stock_list_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_hot_sector_opportunity_text",
+      "type": "function",
+      "name": "_is_hot_sector_opportunity_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1143,
+        1145
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_hot_sector_opportunity_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_web_hot_sector_discussion",
+      "type": "function",
+      "name": "_is_web_hot_sector_discussion",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1148,
+        1152
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_web_hot_sector_discussion` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_has_stock_list_target",
+      "type": "function",
+      "name": "_has_stock_list_target",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1155,
+        1156
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_has_stock_list_target` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_has_opportunity_target",
+      "type": "function",
+      "name": "_has_opportunity_target",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1159,
+        1160
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_has_opportunity_target` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_market_dimensions_for_task",
+      "type": "function",
+      "name": "_market_dimensions_for_task",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1163,
+        1168
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_market_dimensions_for_task` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_entity_horizons",
+      "type": "function",
+      "name": "_entity_horizons",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1171,
+        1173
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_entity_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_analysis_periods",
+      "type": "function",
+      "name": "_analysis_periods",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1176,
+        1187
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_analysis_periods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_nonblocking_default_ambiguity",
+      "type": "function",
+      "name": "_is_nonblocking_default_ambiguity",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1190,
+        1202
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_nonblocking_default_ambiguity` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_new_clarification_id",
+      "type": "function",
+      "name": "_new_clarification_id",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1205,
+        1206
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_new_clarification_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_clarification_options_for_ambiguities",
+      "type": "function",
+      "name": "_clarification_options_for_ambiguities",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1209,
+        1214
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_clarification_options_for_ambiguities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_unresolved_reference_request",
+      "type": "function",
+      "name": "_is_unresolved_reference_request",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1217,
+        1223
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_unresolved_reference_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_has_reference_context",
+      "type": "function",
+      "name": "_has_reference_context",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1226,
+        1231
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_has_reference_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_ambiguous_market_or_security_request",
+      "type": "function",
+      "name": "_is_ambiguous_market_or_security_request",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1234,
+        1243
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_ambiguous_market_or_security_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_needs_security_clarification",
+      "type": "function",
+      "name": "_needs_security_clarification",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1246,
+        1255
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_needs_security_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_needs_astock_catalog_first",
+      "type": "function",
+      "name": "_needs_astock_catalog_first",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1258,
+        1263
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_needs_astock_catalog_first` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_needs_astock_catalog_text",
+      "type": "function",
+      "name": "_needs_astock_catalog_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1266,
+        1271
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_needs_astock_catalog_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_requested_provider",
+      "type": "function",
+      "name": "_requested_provider",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1274,
+        1282
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_requested_provider` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_explicit_dataset_id",
+      "type": "function",
+      "name": "_explicit_dataset_id",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1285,
+        1287
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_explicit_dataset_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_catalog_query",
+      "type": "function",
+      "name": "_catalog_query",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1290,
+        1296
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_catalog_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_reference_symbols",
+      "type": "function",
+      "name": "_reference_symbols",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1299,
+        1304
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_reference_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_safe_extract_trade_date",
+      "type": "function",
+      "name": "_safe_extract_trade_date",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1307,
+        1311
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_safe_extract_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_requested_limit",
+      "type": "function",
+      "name": "_requested_limit",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1314,
+        1320
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_requested_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_constraints_from_text",
+      "type": "function",
+      "name": "_constraints_from_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1323,
+        1332
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_constraints_from_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_output_preferences",
+      "type": "function",
+      "name": "_output_preferences",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1335,
+        1344
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_output_preferences` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_skill_hints",
+      "type": "function",
+      "name": "_skill_hints",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1347,
+        1354
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_skill_hints` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_knowledge_hints",
+      "type": "function",
+      "name": "_knowledge_hints",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1357,
+        1364
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_knowledge_hints` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_stock_analysis_like",
+      "type": "function",
+      "name": "_is_stock_analysis_like",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1367,
+        1386
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_stock_analysis_like` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_trade_text",
+      "type": "function",
+      "name": "_is_trade_text",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1389,
+        1391
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_trade_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_looks_like_market_scope",
+      "type": "function",
+      "name": "_looks_like_market_scope",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1394,
+        1396
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_looks_like_market_scope` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_is_replan_request",
+      "type": "function",
+      "name": "_is_replan_request",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1399,
+        1400
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_is_replan_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1403,
+        1408
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_string_list",
+      "type": "function",
+      "name": "_string_list",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1411,
+        1420
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_string_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/planner_v2.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/agent/planner_v2.py",
+      "lineRange": [
+        1423,
+        1431
+      ],
+      "summary": "在 `planner_v2.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/synthesis.py",
+      "type": "file",
+      "name": "synthesis.py",
+      "filePath": "sats/agent/synthesis.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `synthesis` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/agent/synthesis.py:AgentSynthesisResult",
+      "type": "class",
+      "name": "AgentSynthesisResult",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        49,
+        57
+      ],
+      "summary": "在 `synthesis.py` 中定义 `AgentSynthesisResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:synthesize_agent_result",
+      "type": "function",
+      "name": "synthesize_agent_result",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        60,
+        132
+      ],
+      "summary": "在 `synthesis.py` 中实现 `synthesize_agent_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:should_write_agent_report",
+      "type": "function",
+      "name": "should_write_agent_report",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        135,
+        142
+      ],
+      "summary": "在 `synthesis.py` 中实现 `should_write_agent_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:save_agent_report",
+      "type": "function",
+      "name": "save_agent_report",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        145,
+        180
+      ],
+      "summary": "在 `synthesis.py` 中实现 `save_agent_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_synthesis_messages",
+      "type": "function",
+      "name": "_synthesis_messages",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        183,
+        217
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_synthesis_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_analysis_style",
+      "type": "function",
+      "name": "_analysis_style",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        220,
+        247
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_analysis_style` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_has_sector_return_observation",
+      "type": "function",
+      "name": "_has_sector_return_observation",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        250,
+        256
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_has_sector_return_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_internal_analysis_kind",
+      "type": "function",
+      "name": "_internal_analysis_kind",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        259,
+        263
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_internal_analysis_kind` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_style_guide",
+      "type": "function",
+      "name": "_style_guide",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        266,
+        356
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_style_guide` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_evidence_digest",
+      "type": "function",
+      "name": "_evidence_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        359,
+        480
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_evidence_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_matched_skill_selections",
+      "type": "function",
+      "name": "_matched_skill_selections",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        483,
+        508
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_matched_skill_selections` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_skill_context",
+      "type": "function",
+      "name": "_skill_context",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        511,
+        533
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_skill_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_observation_for_llm",
+      "type": "function",
+      "name": "_observation_for_llm",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        536,
+        549
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_observation_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_result_payload",
+      "type": "function",
+      "name": "_result_payload",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        552,
+        555
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_result_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_collect_provenance",
+      "type": "function",
+      "name": "_collect_provenance",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        558,
+        569
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_collect_provenance` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_discovery_digest",
+      "type": "function",
+      "name": "_discovery_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        572,
+        616
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_discovery_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_discovery_candidate",
+      "type": "function",
+      "name": "_compact_discovery_candidate",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        619,
+        649
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_discovery_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_discovery_event",
+      "type": "function",
+      "name": "_compact_discovery_event",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        652,
+        667
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_discovery_event` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_discovery_indicator",
+      "type": "function",
+      "name": "_compact_discovery_indicator",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        670,
+        694
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_discovery_indicator` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_discovery_hot_sector",
+      "type": "function",
+      "name": "_compact_discovery_hot_sector",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        697,
+        708
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_discovery_hot_sector` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_list_items",
+      "type": "function",
+      "name": "_list_items",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        711,
+        712
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_list_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_stock_context_digest",
+      "type": "function",
+      "name": "_stock_context_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        715,
+        720
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_stock_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_stock_context_rows",
+      "type": "function",
+      "name": "_stock_context_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        723,
+        754
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_stock_context_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_market_context_digest",
+      "type": "function",
+      "name": "_market_context_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        757,
+        780
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_market_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_market_index_rows",
+      "type": "function",
+      "name": "_market_index_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        783,
+        809
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_market_index_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_market_rows_from_daily_sample",
+      "type": "function",
+      "name": "_market_rows_from_daily_sample",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        812,
+        851
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_market_rows_from_daily_sample` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_weekly_from_daily_rows",
+      "type": "function",
+      "name": "_weekly_from_daily_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        854,
+        888
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_weekly_from_daily_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_sum_numeric",
+      "type": "function",
+      "name": "_sum_numeric",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        891,
+        900
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_sum_numeric` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_hot_sector_context_digest",
+      "type": "function",
+      "name": "_hot_sector_context_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        903,
+        915
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_hot_sector_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_hot_sector_rows",
+      "type": "function",
+      "name": "_hot_sector_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        918,
+        939
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_hot_sector_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_legacy_hot_sector_rows",
+      "type": "function",
+      "name": "_legacy_hot_sector_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        942,
+        958
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_legacy_hot_sector_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_web_search_digest",
+      "type": "function",
+      "name": "_web_search_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        961,
+        1011
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_web_search_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_web_open_digest",
+      "type": "function",
+      "name": "_web_open_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1014,
+        1049
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_web_open_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:collect_agent_sources",
+      "type": "function",
+      "name": "collect_agent_sources",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1052,
+        1096
+      ],
+      "summary": "在 `synthesis.py` 中实现 `collect_agent_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_source_domain",
+      "type": "function",
+      "name": "_source_domain",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1099,
+        1100
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_source_domain` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_social_hot_digest",
+      "type": "function",
+      "name": "_social_hot_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1103,
+        1141
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_social_hot_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_hot_mentions_digest",
+      "type": "function",
+      "name": "_hot_mentions_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1144,
+        1181
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_hot_mentions_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_signal_digest",
+      "type": "function",
+      "name": "_signal_digest",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1184,
+        1210
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_signal_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_rows",
+      "type": "function",
+      "name": "_compact_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1213,
+        1215
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_items",
+      "type": "function",
+      "name": "_compact_items",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1218,
+        1227
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_indicator_items",
+      "type": "function",
+      "name": "_indicator_items",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1230,
+        1234
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_indicator_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_indicator_coverage",
+      "type": "function",
+      "name": "_indicator_coverage",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1237,
+        1253
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_indicator_coverage` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_observation_symbols",
+      "type": "function",
+      "name": "_observation_symbols",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1256,
+        1258
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_observation_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_normalized_symbol_list",
+      "type": "function",
+      "name": "_normalized_symbol_list",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1261,
+        1262
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_normalized_symbol_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_matching_symbol_rows",
+      "type": "function",
+      "name": "_matching_symbol_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1265,
+        1275
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_matching_symbol_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_payload_cutoff",
+      "type": "function",
+      "name": "_payload_cutoff",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1278,
+        1294
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_payload_cutoff` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_latest_cutoff",
+      "type": "function",
+      "name": "_latest_cutoff",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1297,
+        1302
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_latest_cutoff` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_last_dict",
+      "type": "function",
+      "name": "_last_dict",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1305,
+        1310
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_last_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_pick_fields",
+      "type": "function",
+      "name": "_pick_fields",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1313,
+        1316
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_pick_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_drop_empty",
+      "type": "function",
+      "name": "_drop_empty",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1319,
+        1320
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_drop_empty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_dedupe_dicts",
+      "type": "function",
+      "name": "_dedupe_dicts",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1323,
+        1332
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_dedupe_dicts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_trim_payload",
+      "type": "function",
+      "name": "_trim_payload",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1335,
+        1339
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_trim_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_fallback_summary",
+      "type": "function",
+      "name": "_fallback_summary",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1342,
+        1386
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_fallback_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_fallback_title",
+      "type": "function",
+      "name": "_fallback_title",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1389,
+        1408
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_fallback_title` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_company_fundamentals_fallback",
+      "type": "function",
+      "name": "_append_company_fundamentals_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1411,
+        1482
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_company_fundamentals_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_stock_fallback",
+      "type": "function",
+      "name": "_append_stock_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1485,
+        1533
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_stock_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_native_dsa_tables",
+      "type": "function",
+      "name": "_native_dsa_tables",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1536,
+        1575
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_native_dsa_tables` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_native_dsa_level_rows",
+      "type": "function",
+      "name": "_native_dsa_level_rows",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1578,
+        1590
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_native_dsa_level_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_dsa_sniper_points",
+      "type": "function",
+      "name": "_dsa_sniper_points",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1593,
+        1596
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_dsa_sniper_points` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_dsa_position_strategy",
+      "type": "function",
+      "name": "_dsa_position_strategy",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1599,
+        1602
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_dsa_position_strategy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_hot_sector_names",
+      "type": "function",
+      "name": "_hot_sector_names",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1605,
+        1609
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_hot_sector_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_join_short",
+      "type": "function",
+      "name": "_join_short",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1612,
+        1614
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_join_short` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_market_fallback",
+      "type": "function",
+      "name": "_append_market_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1617,
+        1645
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_market_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_discovery_fallback",
+      "type": "function",
+      "name": "_append_discovery_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1648,
+        1650
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_discovery_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_theme_returns_fallback",
+      "type": "function",
+      "name": "_append_theme_returns_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1653,
+        1702
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_theme_returns_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_sector_returns_fallback",
+      "type": "function",
+      "name": "_append_sector_returns_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1705,
+        1763
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_sector_returns_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_program_analysis_fallback",
+      "type": "function",
+      "name": "_append_program_analysis_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1766,
+        1775
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_program_analysis_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_theme_stock_list_fallback",
+      "type": "function",
+      "name": "_append_theme_stock_list_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1778,
+        1817
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_theme_stock_list_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_backtest_fallback",
+      "type": "function",
+      "name": "_append_backtest_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1820,
+        1822
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_backtest_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_web_fallback",
+      "type": "function",
+      "name": "_append_web_fallback",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1825,
+        1843
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_web_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_requires_public_event_evidence",
+      "type": "function",
+      "name": "_requires_public_event_evidence",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1846,
+        1847
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_requires_public_event_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_append_observation_summary",
+      "type": "function",
+      "name": "_append_observation_summary",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1850,
+        1858
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_append_observation_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_markdown_table",
+      "type": "function",
+      "name": "_markdown_table",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1861,
+        1868
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_markdown_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_table_cell",
+      "type": "function",
+      "name": "_table_cell",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1871,
+        1876
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_table_cell` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_compact_json_line",
+      "type": "function",
+      "name": "_compact_json_line",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1879,
+        1882
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_compact_json_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_observation_label",
+      "type": "function",
+      "name": "_observation_label",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1885,
+        1892
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_observation_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_observation_detail",
+      "type": "function",
+      "name": "_observation_detail",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1895,
+        1905
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_observation_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_make_llm",
+      "type": "function",
+      "name": "_make_llm",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1908,
+        1913
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_make_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_synthesis_model_meta",
+      "type": "function",
+      "name": "_synthesis_model_meta",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1916,
+        1921
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_synthesis_model_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1924,
+        1925
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_needs_synthesis",
+      "type": "function",
+      "name": "_needs_synthesis",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1928,
+        1933
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_needs_synthesis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_is_chat_answer_only",
+      "type": "function",
+      "name": "_is_chat_answer_only",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1936,
+        1938
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_is_chat_answer_only` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_first_observation_content",
+      "type": "function",
+      "name": "_first_observation_content",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1941,
+        1945
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_first_observation_content` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_is_deferred_report_observation",
+      "type": "function",
+      "name": "_is_deferred_report_observation",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1948,
+        1951
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_is_deferred_report_observation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/synthesis.py:_truncate",
+      "type": "function",
+      "name": "_truncate",
+      "filePath": "sats/agent/synthesis.py",
+      "lineRange": [
+        1954,
+        1956
+      ],
+      "summary": "在 `synthesis.py` 中实现 `_truncate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Grounding",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Grounding",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Engine",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "class:sats/agent/planner_v2.py:PlannerV2Engine",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:build_agent_plan_v2",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:build_agent_plan_v2",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_build_replan_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_build_replan_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_understand",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_understand",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_llm_understand",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_llm_understand",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_understand_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_understand_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_can_use_llm_understand",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_can_use_llm_understand",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_merge_entities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_merge_entities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_tool_capability_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_tool_capability_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_local_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_local_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:apply_nonblocking_defaults",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:apply_nonblocking_defaults",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_plan_from_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_plan_from_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_astock_catalog_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_astock_catalog_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_semantic_grounded_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_semantic_grounded_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_single_tool_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_single_tool_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_validate_and_repair_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_validate_and_repair_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_ensure_final_step",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_ensure_final_step",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_with_v2_plan_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_with_v2_plan_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_empty_clarification_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_empty_clarification_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_grounding_for_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_grounding_for_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_normalized_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_normalized_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_load_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_load_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_resolve_stock_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_resolve_stock_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_resolve_candidate_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_resolve_candidate_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_candidate_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_candidate_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_clean_stock_name_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_clean_stock_name_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:detect_blocking_ambiguities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:detect_blocking_ambiguities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_semantic_classification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_semantic_classification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_infer_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_infer_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_hot_sector_lookup_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_hot_sector_lookup_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_sector_return_ranking_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_sector_return_ranking_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_source_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_source_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_type_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_type_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_direction_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_direction_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_period_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_sector_ranking_period_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_chinese_number_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_chinese_number_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_auto_program_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_auto_program_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_catalog_query_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_catalog_query_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_default_python_program_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_default_python_program_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_theme_stock_list_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_theme_stock_list_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_hot_sector_opportunity_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_hot_sector_opportunity_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_web_hot_sector_discussion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_web_hot_sector_discussion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_stock_list_target",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_stock_list_target",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_opportunity_target",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_opportunity_target",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_market_dimensions_for_task",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_market_dimensions_for_task",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_entity_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_entity_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_analysis_periods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_analysis_periods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_nonblocking_default_ambiguity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_nonblocking_default_ambiguity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_new_clarification_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_new_clarification_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_clarification_options_for_ambiguities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_clarification_options_for_ambiguities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_unresolved_reference_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_unresolved_reference_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_reference_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_has_reference_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_ambiguous_market_or_security_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_ambiguous_market_or_security_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_security_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_security_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_astock_catalog_first",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_astock_catalog_first",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_astock_catalog_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_needs_astock_catalog_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_requested_provider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_requested_provider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_explicit_dataset_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_explicit_dataset_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_catalog_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_catalog_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_reference_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_reference_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_safe_extract_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_safe_extract_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_requested_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_requested_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_constraints_from_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_constraints_from_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_output_preferences",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_output_preferences",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_skill_hints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_skill_hints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_knowledge_hints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_knowledge_hints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_stock_analysis_like",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_stock_analysis_like",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_trade_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_trade_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_looks_like_market_scope",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_looks_like_market_scope",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_replan_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_is_replan_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_string_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_string_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "function:sats/agent/planner_v2.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "class:sats/agent/synthesis.py:AgentSynthesisResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "class:sats/agent/synthesis.py:AgentSynthesisResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:synthesize_agent_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:synthesize_agent_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:should_write_agent_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:should_write_agent_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:save_agent_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:save_agent_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_synthesis_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_synthesis_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_analysis_style",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_analysis_style",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_has_sector_return_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_has_sector_return_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_internal_analysis_kind",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_internal_analysis_kind",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_style_guide",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_style_guide",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_evidence_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_evidence_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_matched_skill_selections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_matched_skill_selections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_skill_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_skill_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_result_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_result_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_collect_provenance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_collect_provenance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_discovery_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_discovery_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_indicator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_indicator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_hot_sector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_discovery_hot_sector",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_list_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_list_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_stock_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_stock_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_stock_context_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_stock_context_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_index_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_index_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_rows_from_daily_sample",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_market_rows_from_daily_sample",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_weekly_from_daily_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_weekly_from_daily_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_sum_numeric",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_sum_numeric",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_legacy_hot_sector_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_legacy_hot_sector_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_web_search_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_web_search_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_web_open_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_web_open_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:collect_agent_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:collect_agent_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_source_domain",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_source_domain",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_social_hot_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_social_hot_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_mentions_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_mentions_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_signal_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_signal_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_indicator_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_indicator_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_indicator_coverage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_indicator_coverage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_normalized_symbol_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_normalized_symbol_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_matching_symbol_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_matching_symbol_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_payload_cutoff",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_payload_cutoff",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_latest_cutoff",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_latest_cutoff",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_last_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_last_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_pick_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_pick_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_drop_empty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_drop_empty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dedupe_dicts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dedupe_dicts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_trim_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_trim_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_fallback_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_fallback_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_fallback_title",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_fallback_title",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_company_fundamentals_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_company_fundamentals_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_stock_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_stock_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_native_dsa_tables",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_native_dsa_tables",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_native_dsa_level_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_native_dsa_level_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dsa_sniper_points",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dsa_sniper_points",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dsa_position_strategy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_dsa_position_strategy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_hot_sector_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_join_short",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_join_short",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_market_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_market_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_discovery_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_discovery_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_theme_returns_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_theme_returns_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_sector_returns_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_sector_returns_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_program_analysis_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_program_analysis_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_theme_stock_list_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_theme_stock_list_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_backtest_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_backtest_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_web_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_web_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_requires_public_event_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_requires_public_event_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_observation_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_append_observation_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_markdown_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_markdown_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_table_cell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_table_cell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_json_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_compact_json_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_observation_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_make_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_make_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_synthesis_model_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_synthesis_model_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_needs_synthesis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_needs_synthesis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_is_chat_answer_only",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_is_chat_answer_only",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_first_observation_content",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_first_observation_content",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_is_deferred_report_observation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_is_deferred_report_observation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_truncate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "function:sats/agent/synthesis.py:_truncate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/agent/date_policy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/agent/planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/agent/tools/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/agent/tools/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/planner_v2.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/chat_artifacts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/natural_output.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/skill_routing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/agent/synthesis.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "nodes": [
+    {
+      "id": "document:knowledge/price_action/left_right_double_volume_discipline.md",
+      "type": "document",
+      "name": "left_right_double_volume_discipline.md",
+      "filePath": "knowledge/price_action/left_right_double_volume_discipline.md",
+      "summary": "沉淀 `left right double volume discipline` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/main_force_washout_patterns.md",
+      "type": "document",
+      "name": "main_force_washout_patterns.md",
+      "filePath": "knowledge/price_action/main_force_washout_patterns.md",
+      "summary": "沉淀 `main force washout patterns` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:knowledge/price_action/moving_average_520_discipline.md",
+      "type": "document",
+      "name": "moving_average_520_discipline.md",
+      "filePath": "knowledge/price_action/moving_average_520_discipline.md",
+      "summary": "沉淀 `moving average 520 discipline` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/moving_average_signal_patterns.md",
+      "type": "document",
+      "name": "moving_average_signal_patterns.md",
+      "filePath": "knowledge/price_action/moving_average_signal_patterns.md",
+      "summary": "沉淀 `moving average signal patterns` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/opening_premium_retention.md",
+      "type": "document",
+      "name": "opening_premium_retention.md",
+      "filePath": "knowledge/price_action/opening_premium_retention.md",
+      "summary": "沉淀 `opening premium retention` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/retail_candlestick_discipline.md",
+      "type": "document",
+      "name": "retail_candlestick_discipline.md",
+      "filePath": "knowledge/price_action/retail_candlestick_discipline.md",
+      "summary": "沉淀 `retail candlestick discipline` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/rsi_extreme_reversal_discipline.md",
+      "type": "document",
+      "name": "rsi_extreme_reversal_discipline.md",
+      "filePath": "knowledge/price_action/rsi_extreme_reversal_discipline.md",
+      "summary": "沉淀 `rsi extreme reversal discipline` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/trend_execution_five_disciplines.md",
+      "type": "document",
+      "name": "trend_execution_five_disciplines.md",
+      "filePath": "knowledge/price_action/trend_execution_five_disciplines.md",
+      "summary": "沉淀 `trend execution five disciplines` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:knowledge/price_action/volume_price_relationship_patterns.md",
+      "type": "document",
+      "name": "volume_price_relationship_patterns.md",
+      "filePath": "knowledge/price_action/volume_price_relationship_patterns.md",
+      "summary": "沉淀 `volume price relationship patterns` 的价量与交易纪律笔记，为研究提示和领域知识检索提供背景材料。",
+      "tags": [
+        "documentation",
+        "knowledge",
+        "research",
+        "price-action"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:knowledge/price_action/left_right_double_volume_discipline.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/main_force_washout_patterns.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/moving_average_520_discipline.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/moving_average_signal_patterns.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/opening_premium_retention.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/retail_candlestick_discipline.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/rsi_extreme_reversal_discipline.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/trend_execution_five_disciplines.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:knowledge/price_action/volume_price_relationship_patterns.md",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

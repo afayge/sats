@@ -101,7 +101,8 @@ class ConsoleProgressReporter:
         )
         self._records.append(record)
         step = ConsoleProgressStep(self, record=record)
-        self._emit(record, state="running")
+        if total is None:
+            self._emit(record, state="running")
         return step
 
     def render(self) -> None:
@@ -162,9 +163,8 @@ class ConsoleProgressStep:
         elif self.record.total is not None:
             self.record.detail = f"{max(0, self.record.current)}/{max(0, int(self.record.total))}"
         detail = _compact_space(self.record.detail)
-        if detail and detail != self.record.last_detail_line:
+        if detail:
             self.record.last_detail_line = detail
-            self.reporter._emit(self.record, state="update", detail=detail)
 
     def advance(self, amount: int = 1, *, message: str = "") -> None:
         self.update(self.record.current + int(amount), message=message)

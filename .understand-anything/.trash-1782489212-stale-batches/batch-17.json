@@ -1,0 +1,277 @@
+{
+  "nodes": [
+    {
+      "id": "config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "提供 SATS 运行时环境变量模板，涵盖数据源、LLM、网页检索与交易连接配置。",
+      "tags": [
+        "configuration",
+        "runtime-config",
+        "environment"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "记录与 `AGENTS` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:CLAUDE.md",
+      "type": "document",
+      "name": "CLAUDE.md",
+      "filePath": "CLAUDE.md",
+      "summary": "记录与 `CLAUDE` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "概览 SATS 的定位、能力矩阵、安装方式与主要命令入口，是理解项目的首要文档。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:SATS_工程结构详解.md",
+      "type": "document",
+      "name": "SATS_工程结构详解.md",
+      "filePath": "SATS_工程结构详解.md",
+      "summary": "记录与 `SATS 工程结构详解` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "sats",
+        "item"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:architecture.txt",
+      "type": "document",
+      "name": "architecture.txt",
+      "filePath": "architecture.txt",
+      "summary": "记录与 `architecture` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "architecture",
+        "item"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:pyproject.toml",
+      "type": "config",
+      "name": "pyproject.toml",
+      "filePath": "pyproject.toml",
+      "summary": "声明 SATS 的 Python 包元数据、依赖关系与 console script 入口。",
+      "tags": [
+        "configuration",
+        "build-system",
+        "packaging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "requirements.txt",
+      "summary": "记录与 `requirements` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "requirements",
+        "item"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:sats.md",
+      "type": "document",
+      "name": "sats.md",
+      "filePath": "sats.md",
+      "summary": "记录与 `sats` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "sats",
+        "item"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:.env.example",
+      "target": "file:sats/config.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "file:sats/cli.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "file:sats/repl.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "file:sats/api/app.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "file:sats/agent/runtime.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:sats/chat.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:sats/chat_runtime.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "file:sats/agent/runtime.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:sats/cli.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:sats/repl.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:sats/api/app.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SATS_工程结构详解.md",
+      "target": "file:sats/cli.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SATS_工程结构详解.md",
+      "target": "file:sats/repl.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SATS_工程结构详解.md",
+      "target": "file:sats/api/app.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:SATS_工程结构详解.md",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:architecture.txt",
+      "target": "file:sats/cli.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:architecture.txt",
+      "target": "file:sats/repl.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:architecture.txt",
+      "target": "file:sats/api/app.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:architecture.txt",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:pyproject.toml",
+      "target": "file:sats/__main__.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:pyproject.toml",
+      "target": "file:sats/cli.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:pyproject.toml",
+      "target": "file:sats/api/app.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

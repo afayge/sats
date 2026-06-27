@@ -1,0 +1,1235 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/api/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/api/__init__.py",
+      "summary": "定义 `api` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/api/app.py",
+      "type": "file",
+      "name": "app.py",
+      "filePath": "sats/api/app.py",
+      "summary": "装配 FastAPI 应用与 API 路由，对外暴露 SATS 的 HTTP 服务入口。",
+      "tags": [
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/api/app.py:ScreenRequest",
+      "type": "class",
+      "name": "ScreenRequest",
+      "filePath": "sats/api/app.py",
+      "lineRange": [
+        29,
+        33
+      ],
+      "summary": "在 `app.py` 中定义 `ScreenRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/api/app.py:_rule_required_trade_days",
+      "type": "function",
+      "name": "_rule_required_trade_days",
+      "filePath": "sats/api/app.py",
+      "lineRange": [
+        22,
+        26
+      ],
+      "summary": "在 `app.py` 中实现 `_rule_required_trade_days` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/api/app.py:create_app",
+      "type": "function",
+      "name": "create_app",
+      "filePath": "sats/api/app.py",
+      "lineRange": [
+        36,
+        139
+      ],
+      "summary": "在 `app.py` 中实现 `create_app` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/api/app.py:_screen_summary",
+      "type": "function",
+      "name": "_screen_summary",
+      "filePath": "sats/api/app.py",
+      "lineRange": [
+        142,
+        157
+      ],
+      "summary": "在 `app.py` 中实现 `_screen_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/api/app.py:_frame_records",
+      "type": "function",
+      "name": "_frame_records",
+      "filePath": "sats/api/app.py",
+      "lineRange": [
+        160,
+        164
+      ],
+      "summary": "在 `app.py` 中实现 `_frame_records` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "api",
+        "http",
+        "fastapi"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/chan/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/chan/__init__.py",
+      "summary": "定义 `chan` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/chan/engine.py",
+      "type": "file",
+      "name": "engine.py",
+      "filePath": "sats/chan/engine.py",
+      "summary": "实现 缠论分析 中与 `engine` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chan/engine.py:ChanSignalThresholds",
+      "type": "class",
+      "name": "ChanSignalThresholds",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        85,
+        89
+      ],
+      "summary": "在 `engine.py` 中定义 `ChanSignalThresholds` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chan/engine.py:ChanSignal",
+      "type": "class",
+      "name": "ChanSignal",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        93,
+        121
+      ],
+      "summary": "在 `engine.py` 中定义 `ChanSignal` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:evaluate_chan_signals",
+      "type": "function",
+      "name": "evaluate_chan_signals",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        124,
+        181
+      ],
+      "summary": "在 `engine.py` 中实现 `evaluate_chan_signals` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:chan_signal_daily_candidates",
+      "type": "function",
+      "name": "chan_signal_daily_candidates",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        184,
+        210
+      ],
+      "summary": "在 `engine.py` 中实现 `chan_signal_daily_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_first_sell",
+      "type": "function",
+      "name": "_evaluate_first_sell",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        213,
+        226
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_first_sell` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_first_sell_daily",
+      "type": "function",
+      "name": "_evaluate_first_sell_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        229,
+        289
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_first_sell_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_second_sell",
+      "type": "function",
+      "name": "_evaluate_second_sell",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        292,
+        305
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_second_sell` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_second_sell_daily",
+      "type": "function",
+      "name": "_evaluate_second_sell_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        308,
+        370
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_second_sell_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_third_sell",
+      "type": "function",
+      "name": "_evaluate_third_sell",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        373,
+        386
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_third_sell` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_third_sell_daily",
+      "type": "function",
+      "name": "_evaluate_third_sell_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        389,
+        459
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_third_sell_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_center_high",
+      "type": "function",
+      "name": "_evaluate_center_high",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        462,
+        475
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_center_high` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_center_high_daily",
+      "type": "function",
+      "name": "_evaluate_center_high_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        478,
+        528
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_center_high_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_bottom_fractal",
+      "type": "function",
+      "name": "_evaluate_bottom_fractal",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        531,
+        544
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_bottom_fractal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_bottom_fractal_daily",
+      "type": "function",
+      "name": "_evaluate_bottom_fractal_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        547,
+        584
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_bottom_fractal_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_top_fractal",
+      "type": "function",
+      "name": "_evaluate_top_fractal",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        587,
+        600
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_top_fractal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_top_fractal_daily",
+      "type": "function",
+      "name": "_evaluate_top_fractal_daily",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        603,
+        640
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_top_fractal_daily` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_buy_minute",
+      "type": "function",
+      "name": "_evaluate_buy_minute",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        643,
+        657
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_buy_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evaluate_sell_minute",
+      "type": "function",
+      "name": "_evaluate_sell_minute",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        660,
+        708
+      ],
+      "summary": "在 `engine.py` 中实现 `_evaluate_sell_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_signal_from_result",
+      "type": "function",
+      "name": "_signal_from_result",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        711,
+        738
+      ],
+      "summary": "在 `engine.py` 中实现 `_signal_from_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_position_signal",
+      "type": "function",
+      "name": "_position_signal",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        741,
+        755
+      ],
+      "summary": "在 `engine.py` 中实现 `_position_signal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_evidence_refs",
+      "type": "function",
+      "name": "_evidence_refs",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        758,
+        770
+      ],
+      "summary": "在 `engine.py` 中实现 `_evidence_refs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_common_risk_flags",
+      "type": "function",
+      "name": "_common_risk_flags",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        773,
+        781
+      ],
+      "summary": "在 `engine.py` 中实现 `_common_risk_flags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_segment_return",
+      "type": "function",
+      "name": "_segment_return",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        784,
+        789
+      ],
+      "summary": "在 `engine.py` 中实现 `_segment_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_amplitude",
+      "type": "function",
+      "name": "_amplitude",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        792,
+        798
+      ],
+      "summary": "在 `engine.py` 中实现 `_amplitude` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_positive_area",
+      "type": "function",
+      "name": "_positive_area",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        801,
+        803
+      ],
+      "summary": "在 `engine.py` 中实现 `_positive_area` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chan/engine.py:_volume_ratio_at",
+      "type": "function",
+      "name": "_volume_ratio_at",
+      "filePath": "sats/chan/engine.py",
+      "lineRange": [
+        806,
+        813
+      ],
+      "summary": "在 `engine.py` 中实现 `_volume_ratio_at` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chan",
+        "technical-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/screening/__init__.py",
+      "summary": "定义 `screening` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "function:sats/screening/__init__.py:get_rule",
+      "type": "function",
+      "name": "get_rule",
+      "filePath": "sats/screening/__init__.py",
+      "lineRange": [
+        4,
+        7
+      ],
+      "summary": "在 `__init__.py` 中实现 `get_rule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/screening/__init__.py:list_rules",
+      "type": "function",
+      "name": "list_rules",
+      "filePath": "sats/screening/__init__.py",
+      "lineRange": [
+        10,
+        13
+      ],
+      "summary": "在 `__init__.py` 中实现 `list_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/api/app.py",
+      "target": "class:sats/api/app.py:ScreenRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "class:sats/api/app.py:ScreenRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_rule_required_trade_days",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_rule_required_trade_days",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:create_app",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:create_app",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_screen_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_screen_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_frame_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "function:sats/api/app.py:_frame_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "class:sats/chan/engine.py:ChanSignalThresholds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "class:sats/chan/engine.py:ChanSignalThresholds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "class:sats/chan/engine.py:ChanSignal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "class:sats/chan/engine.py:ChanSignal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:evaluate_chan_signals",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:evaluate_chan_signals",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:chan_signal_daily_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:chan_signal_daily_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_first_sell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_first_sell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_first_sell_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_first_sell_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_second_sell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_second_sell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_second_sell_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_second_sell_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_third_sell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_third_sell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_third_sell_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_third_sell_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_center_high",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_center_high",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_center_high_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_center_high_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_bottom_fractal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_bottom_fractal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_bottom_fractal_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_bottom_fractal_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_top_fractal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_top_fractal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_top_fractal_daily",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_top_fractal_daily",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_buy_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_buy_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_sell_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evaluate_sell_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_signal_from_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_signal_from_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_position_signal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_position_signal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evidence_refs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_evidence_refs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_common_risk_flags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_common_risk_flags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_segment_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_segment_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_amplitude",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_amplitude",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_positive_area",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_positive_area",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_volume_ratio_at",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "function:sats/chan/engine.py:_volume_ratio_at",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/__init__.py",
+      "target": "function:sats/screening/__init__.py:get_rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/__init__.py",
+      "target": "function:sats/screening/__init__.py:get_rule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/__init__.py",
+      "target": "function:sats/screening/__init__.py:list_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/__init__.py",
+      "target": "function:sats/screening/__init__.py:list_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/api/__init__.py",
+      "target": "file:sats/api/app.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/screening/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/api/app.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chan/__init__.py",
+      "target": "file:sats/chan/engine.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "file:sats/screening/rules/chan_composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chan/engine.py",
+      "target": "file:sats/screening/rules/chan_third_buy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/screening/__init__.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

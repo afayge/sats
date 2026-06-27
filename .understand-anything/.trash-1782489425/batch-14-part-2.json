@@ -1,0 +1,611 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/factors/zoo/barra_style/growth.py",
+      "type": "file",
+      "name": "growth.py",
+      "filePath": "sats/factors/zoo/barra_style/growth.py",
+      "summary": "实现 Barra 风格因子 `growth` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/growth.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/growth.py",
+      "lineRange": [
+        24,
+        28
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/leverage.py",
+      "type": "file",
+      "name": "leverage.py",
+      "filePath": "sats/factors/zoo/barra_style/leverage.py",
+      "summary": "实现 Barra 风格因子 `leverage` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/leverage.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/leverage.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/liquidity.py",
+      "type": "file",
+      "name": "liquidity.py",
+      "filePath": "sats/factors/zoo/barra_style/liquidity.py",
+      "summary": "实现 Barra 风格因子 `liquidity` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/liquidity.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/liquidity.py",
+      "lineRange": [
+        24,
+        28
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/low_size.py",
+      "type": "file",
+      "name": "low_size.py",
+      "filePath": "sats/factors/zoo/barra_style/low_size.py",
+      "summary": "实现 Barra 风格因子 `low size` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/low_size.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/low_size.py",
+      "lineRange": [
+        25,
+        27
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/momentum.py",
+      "type": "file",
+      "name": "momentum.py",
+      "filePath": "sats/factors/zoo/barra_style/momentum.py",
+      "summary": "实现 Barra 风格因子 `momentum` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/momentum.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/momentum.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/quality.py",
+      "type": "file",
+      "name": "quality.py",
+      "filePath": "sats/factors/zoo/barra_style/quality.py",
+      "summary": "实现 Barra 风格因子 `quality` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/quality.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/quality.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/residual_volatility.py",
+      "type": "file",
+      "name": "residual_volatility.py",
+      "filePath": "sats/factors/zoo/barra_style/residual_volatility.py",
+      "summary": "实现 Barra 风格因子 `residual volatility` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/residual_volatility.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/residual_volatility.py",
+      "lineRange": [
+        33,
+        45
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/short_momentum.py",
+      "type": "file",
+      "name": "short_momentum.py",
+      "filePath": "sats/factors/zoo/barra_style/short_momentum.py",
+      "summary": "实现 Barra 风格因子 `short momentum` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/short_momentum.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/short_momentum.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/size.py",
+      "type": "file",
+      "name": "size.py",
+      "filePath": "sats/factors/zoo/barra_style/size.py",
+      "summary": "实现 Barra 风格因子 `size` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/size.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/size.py",
+      "lineRange": [
+        25,
+        27
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "type": "file",
+      "name": "state_ownership_proxy.py",
+      "filePath": "sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "summary": "实现 Barra 风格因子 `state ownership proxy` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/state_ownership_proxy.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/value.py",
+      "type": "file",
+      "name": "value.py",
+      "filePath": "sats/factors/zoo/barra_style/value.py",
+      "summary": "实现 Barra 风格因子 `value` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/zoo/barra_style/value.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "sats/factors/zoo/barra_style/value.py",
+      "lineRange": [
+        24,
+        26
+      ],
+      "summary": "实现该研究条目的核心计算公式，基于输入行情矩阵产出最终结果。",
+      "tags": [
+        "function",
+        "calculation",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/zoo/barra_style/growth.py",
+      "target": "function:sats/factors/zoo/barra_style/growth.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/growth.py",
+      "target": "function:sats/factors/zoo/barra_style/growth.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/leverage.py",
+      "target": "function:sats/factors/zoo/barra_style/leverage.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/leverage.py",
+      "target": "function:sats/factors/zoo/barra_style/leverage.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/liquidity.py",
+      "target": "function:sats/factors/zoo/barra_style/liquidity.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/liquidity.py",
+      "target": "function:sats/factors/zoo/barra_style/liquidity.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/low_size.py",
+      "target": "function:sats/factors/zoo/barra_style/low_size.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/low_size.py",
+      "target": "function:sats/factors/zoo/barra_style/low_size.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/momentum.py",
+      "target": "function:sats/factors/zoo/barra_style/momentum.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/momentum.py",
+      "target": "function:sats/factors/zoo/barra_style/momentum.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/quality.py",
+      "target": "function:sats/factors/zoo/barra_style/quality.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/quality.py",
+      "target": "function:sats/factors/zoo/barra_style/quality.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/residual_volatility.py",
+      "target": "function:sats/factors/zoo/barra_style/residual_volatility.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/residual_volatility.py",
+      "target": "function:sats/factors/zoo/barra_style/residual_volatility.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/short_momentum.py",
+      "target": "function:sats/factors/zoo/barra_style/short_momentum.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/short_momentum.py",
+      "target": "function:sats/factors/zoo/barra_style/short_momentum.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/size.py",
+      "target": "function:sats/factors/zoo/barra_style/size.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/size.py",
+      "target": "function:sats/factors/zoo/barra_style/size.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "target": "function:sats/factors/zoo/barra_style/state_ownership_proxy.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "target": "function:sats/factors/zoo/barra_style/state_ownership_proxy.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/value.py",
+      "target": "function:sats/factors/zoo/barra_style/value.py:compute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/value.py",
+      "target": "function:sats/factors/zoo/barra_style/value.py:compute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/growth.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/leverage.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/liquidity.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/low_size.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/momentum.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/quality.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/residual_volatility.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/short_momentum.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/size.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/state_ownership_proxy.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/factors/zoo/barra_style/value.py",
+      "target": "file:sats/factors/zoo/barra_style/_common.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

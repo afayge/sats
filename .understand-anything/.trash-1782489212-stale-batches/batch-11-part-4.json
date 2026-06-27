@@ -1,0 +1,1450 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/chan_chat_context.py",
+      "type": "file",
+      "name": "chan_chat_context.py",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `chan chat context` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/chan_chat_context.py:ChanChatContext",
+      "type": "class",
+      "name": "ChanChatContext",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "lineRange": [
+        43,
+        45
+      ],
+      "summary": "在 `chan_chat_context.py` 中定义 `ChanChatContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_chat_context.py:is_chan_chat_question",
+      "type": "function",
+      "name": "is_chan_chat_question",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "lineRange": [
+        48,
+        52
+      ],
+      "summary": "在 `chan_chat_context.py` 中实现 `is_chan_chat_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_chat_context.py:build_chan_chat_context",
+      "type": "function",
+      "name": "build_chan_chat_context",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "lineRange": [
+        55,
+        80
+      ],
+      "summary": "在 `chan_chat_context.py` 中实现 `build_chan_chat_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/chan_chat_context.py:_fallback_rule_cards",
+      "type": "function",
+      "name": "_fallback_rule_cards",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "lineRange": [
+        83,
+        97
+      ],
+      "summary": "在 `chan_chat_context.py` 中实现 `_fallback_rule_cards` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/chan_chat_context.py:_system_message",
+      "type": "function",
+      "name": "_system_message",
+      "filePath": "sats/analysis/chan_chat_context.py",
+      "lineRange": [
+        100,
+        107
+      ],
+      "summary": "在 `chan_chat_context.py` 中实现 `_system_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/analysis/market_llm_context.py",
+      "type": "file",
+      "name": "market_llm_context.py",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `market llm context` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/market_llm_context.py:MarketLLMContext",
+      "type": "class",
+      "name": "MarketLLMContext",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        89,
+        92
+      ],
+      "summary": "在 `market_llm_context.py` 中定义 `MarketLLMContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:build_market_llm_context",
+      "type": "function",
+      "name": "build_market_llm_context",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        95,
+        128
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `build_market_llm_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:is_market_question",
+      "type": "function",
+      "name": "is_market_question",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        131,
+        140
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `is_market_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:get_a_share_market_context",
+      "type": "function",
+      "name": "get_a_share_market_context",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        143,
+        260
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `get_a_share_market_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:extract_market_horizons",
+      "type": "function",
+      "name": "extract_market_horizons",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        263,
+        279
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `extract_market_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:extract_explicit_market_indices",
+      "type": "function",
+      "name": "extract_explicit_market_indices",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        282,
+        292
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `extract_explicit_market_indices` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:resolve_market_indices",
+      "type": "function",
+      "name": "resolve_market_indices",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        295,
+        306
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `resolve_market_indices` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions",
+      "type": "function",
+      "name": "resolve_market_dimensions",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        309,
+        311
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `resolve_market_dimensions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions_with_warnings",
+      "type": "function",
+      "name": "resolve_market_dimensions_with_warnings",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        314,
+        326
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `resolve_market_dimensions_with_warnings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:resolve_market_horizons",
+      "type": "function",
+      "name": "resolve_market_horizons",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        329,
+        332
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `resolve_market_horizons` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_resolve_indices",
+      "type": "function",
+      "name": "_resolve_indices",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        335,
+        346
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_resolve_indices` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_index_payloads",
+      "type": "function",
+      "name": "_index_payloads",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        349,
+        387
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_index_payloads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_weekly_metrics",
+      "type": "function",
+      "name": "_weekly_metrics",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        390,
+        423
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_weekly_metrics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_technical_metrics",
+      "type": "function",
+      "name": "_technical_metrics",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        426,
+        445
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_technical_metrics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_breadth_metrics",
+      "type": "function",
+      "name": "_breadth_metrics",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        448,
+        460
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_breadth_metrics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_missing_fields",
+      "type": "function",
+      "name": "_missing_fields",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        463,
+        494
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_safe_limit_sentiment",
+      "type": "function",
+      "name": "_safe_limit_sentiment",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        497,
+        504
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_safe_limit_sentiment` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_index_missing_fields",
+      "type": "function",
+      "name": "_index_missing_fields",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        507,
+        513
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_index_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_system_message",
+      "type": "function",
+      "name": "_system_message",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        516,
+        531
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_system_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_combine_daily_frames",
+      "type": "function",
+      "name": "_combine_daily_frames",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        534,
+        547
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_combine_daily_frames` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_market_index_daily_frame",
+      "type": "function",
+      "name": "_market_index_daily_frame",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        550,
+        560
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_market_index_daily_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_freshness_payload",
+      "type": "function",
+      "name": "_freshness_payload",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        563,
+        595
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_freshness_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_frame_freshness",
+      "type": "function",
+      "name": "_frame_freshness",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        598,
+        610
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_frame_freshness` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_hot_sector_freshness",
+      "type": "function",
+      "name": "_hot_sector_freshness",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        613,
+        622
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_hot_sector_freshness` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_market_periods",
+      "type": "function",
+      "name": "_market_periods",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        625,
+        644
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_market_periods` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_records_by_symbol",
+      "type": "function",
+      "name": "_records_by_symbol",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        647,
+        654
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_records_by_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_records_tail",
+      "type": "function",
+      "name": "_records_tail",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        657,
+        662
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_records_tail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_missing_symbols",
+      "type": "function",
+      "name": "_missing_symbols",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        665,
+        669
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_missing_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_rolling_last",
+      "type": "function",
+      "name": "_rolling_last",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        672,
+        675
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_rolling_last` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_safe_float",
+      "type": "function",
+      "name": "_safe_float",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        678,
+        684
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_first_not_none",
+      "type": "function",
+      "name": "_first_not_none",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        687,
+        691
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_first_not_none` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_build_optional",
+      "type": "function",
+      "name": "_build_optional",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        694,
+        698
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_build_optional` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_today",
+      "type": "function",
+      "name": "_today",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        701,
+        702
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_today` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_days_before",
+      "type": "function",
+      "name": "_days_before",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        705,
+        706
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_days_before` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        709,
+        725
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_safe_hot_sector_context",
+      "type": "function",
+      "name": "_safe_hot_sector_context",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        728,
+        739
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_safe_hot_sector_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_hot_sector_source",
+      "type": "function",
+      "name": "_hot_sector_source",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        742,
+        750
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_hot_sector_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/market_llm_context.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/analysis/market_llm_context.py",
+      "lineRange": [
+        753,
+        761
+      ],
+      "summary": "在 `market_llm_context.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "class:sats/analysis/chan_chat_context.py:ChanChatContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "class:sats/analysis/chan_chat_context.py:ChanChatContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:is_chan_chat_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:is_chan_chat_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:build_chan_chat_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:build_chan_chat_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:_fallback_rule_cards",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:_fallback_rule_cards",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:_system_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "function:sats/analysis/chan_chat_context.py:_system_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "class:sats/analysis/market_llm_context.py:MarketLLMContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "class:sats/analysis/market_llm_context.py:MarketLLMContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:build_market_llm_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:build_market_llm_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:is_market_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:is_market_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:get_a_share_market_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:get_a_share_market_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:extract_market_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:extract_market_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:extract_explicit_market_indices",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:extract_explicit_market_indices",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_indices",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_indices",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions_with_warnings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_dimensions_with_warnings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_horizons",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:resolve_market_horizons",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_resolve_indices",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_resolve_indices",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_index_payloads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_index_payloads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_weekly_metrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_weekly_metrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_technical_metrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_technical_metrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_breadth_metrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_breadth_metrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_limit_sentiment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_limit_sentiment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_index_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_index_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_system_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_system_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_combine_daily_frames",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_combine_daily_frames",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_market_index_daily_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_market_index_daily_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_freshness_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_freshness_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_frame_freshness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_frame_freshness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_hot_sector_freshness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_hot_sector_freshness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_market_periods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_market_periods",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_records_by_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_records_by_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_records_tail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_records_tail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_missing_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_missing_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_rolling_last",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_rolling_last",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_first_not_none",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_first_not_none",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_build_optional",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_build_optional",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_today",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_today",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_days_before",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_days_before",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_hot_sector_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_safe_hot_sector_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_hot_sector_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_hot_sector_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "function:sats/analysis/market_llm_context.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/chan_chat_context.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/market_llm_context.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

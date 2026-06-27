@@ -1,0 +1,1085 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/agent/command_runner.py",
+      "type": "file",
+      "name": "command_runner.py",
+      "filePath": "sats/agent/command_runner.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `command runner` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/command_runner.py:CommandRunResult",
+      "type": "class",
+      "name": "CommandRunResult",
+      "filePath": "sats/agent/command_runner.py",
+      "lineRange": [
+        14,
+        23
+      ],
+      "summary": "在 `command_runner.py` 中定义 `CommandRunResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/command_runner.py:AgentCommandRunner",
+      "type": "class",
+      "name": "AgentCommandRunner",
+      "filePath": "sats/agent/command_runner.py",
+      "lineRange": [
+        26,
+        107
+      ],
+      "summary": "在 `command_runner.py` 中定义 `AgentCommandRunner` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/command_runner.py:_blocked_agent_recursion",
+      "type": "function",
+      "name": "_blocked_agent_recursion",
+      "filePath": "sats/agent/command_runner.py",
+      "lineRange": [
+        110,
+        115
+      ],
+      "summary": "在 `command_runner.py` 中实现 `_blocked_agent_recursion` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "sats/agent/models.py",
+      "summary": "定义 Agent 运行时与工具编排 共享的数据模型与类型结构，供同模块流程复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/agent/models.py:AgentExecutionPolicy",
+      "type": "class",
+      "name": "AgentExecutionPolicy",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        8,
+        26
+      ],
+      "summary": "在 `models.py` 中定义 `AgentExecutionPolicy` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:AgentStep",
+      "type": "class",
+      "name": "AgentStep",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        30,
+        46
+      ],
+      "summary": "在 `models.py` 中定义 `AgentStep` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:AgentPlan",
+      "type": "class",
+      "name": "AgentPlan",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        50,
+        71
+      ],
+      "summary": "在 `models.py` 中定义 `AgentPlan` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:AgentObservation",
+      "type": "class",
+      "name": "AgentObservation",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        75,
+        83
+      ],
+      "summary": "在 `models.py` 中定义 `AgentObservation` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:TradeIntent",
+      "type": "class",
+      "name": "TradeIntent",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        87,
+        97
+      ],
+      "summary": "在 `models.py` 中定义 `TradeIntent` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:TradeDecisionAudit",
+      "type": "class",
+      "name": "TradeDecisionAudit",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        101,
+        112
+      ],
+      "summary": "在 `models.py` 中定义 `TradeDecisionAudit` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "agent",
+        "orchestration",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/agent/models.py:AgentResult",
+      "type": "class",
+      "name": "AgentResult",
+      "filePath": "sats/agent/models.py",
+      "lineRange": [
+        116,
+        132
+      ],
+      "summary": "在 `models.py` 中定义 `AgentResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/agent/progress.py",
+      "type": "file",
+      "name": "progress.py",
+      "filePath": "sats/agent/progress.py",
+      "summary": "实现 Agent 运行时与工具编排 中与 `progress` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/agent/progress.py:agent_progress_event_sink",
+      "type": "function",
+      "name": "agent_progress_event_sink",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        8,
+        31
+      ],
+      "summary": "在 `progress.py` 中实现 `agent_progress_event_sink` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_event_key",
+      "type": "function",
+      "name": "_event_key",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        34,
+        56
+      ],
+      "summary": "在 `progress.py` 中实现 `_event_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_event_label",
+      "type": "function",
+      "name": "_event_label",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        59,
+        89
+      ],
+      "summary": "在 `progress.py` 中实现 `_event_label` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_event_detail",
+      "type": "function",
+      "name": "_event_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        92,
+        124
+      ],
+      "summary": "在 `progress.py` 中实现 `_event_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_agent_step_detail",
+      "type": "function",
+      "name": "_agent_step_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        127,
+        152
+      ],
+      "summary": "在 `progress.py` 中实现 `_agent_step_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_conversation_action_detail",
+      "type": "function",
+      "name": "_conversation_action_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        155,
+        177
+      ],
+      "summary": "在 `progress.py` 中实现 `_conversation_action_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_tool_name",
+      "type": "function",
+      "name": "_tool_name",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        180,
+        187
+      ],
+      "summary": "在 `progress.py` 中实现 `_tool_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_result_status",
+      "type": "function",
+      "name": "_result_status",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        190,
+        193
+      ],
+      "summary": "在 `progress.py` 中实现 `_result_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_result_error",
+      "type": "function",
+      "name": "_result_error",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        196,
+        213
+      ],
+      "summary": "在 `progress.py` 中实现 `_result_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_result_summary",
+      "type": "function",
+      "name": "_result_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        216,
+        238
+      ],
+      "summary": "在 `progress.py` 中实现 `_result_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_payload_summary",
+      "type": "function",
+      "name": "_payload_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        241,
+        260
+      ],
+      "summary": "在 `progress.py` 中实现 `_payload_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_stock_picking_summary",
+      "type": "function",
+      "name": "_stock_picking_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        263,
+        271
+      ],
+      "summary": "在 `progress.py` 中实现 `_stock_picking_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_opportunity_summary",
+      "type": "function",
+      "name": "_opportunity_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        274,
+        293
+      ],
+      "summary": "在 `progress.py` 中实现 `_opportunity_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_arguments_summary",
+      "type": "function",
+      "name": "_arguments_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        296,
+        307
+      ],
+      "summary": "在 `progress.py` 中实现 `_arguments_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_value_summary",
+      "type": "function",
+      "name": "_value_summary",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        310,
+        317
+      ],
+      "summary": "在 `progress.py` 中实现 `_value_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_skills_detail",
+      "type": "function",
+      "name": "_skills_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        320,
+        327
+      ],
+      "summary": "在 `progress.py` 中实现 `_skills_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_plan_detail",
+      "type": "function",
+      "name": "_plan_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        330,
+        334
+      ],
+      "summary": "在 `progress.py` 中实现 `_plan_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_artifact_detail",
+      "type": "function",
+      "name": "_artifact_detail",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        337,
+        342
+      ],
+      "summary": "在 `progress.py` 中实现 `_artifact_detail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_json_mapping",
+      "type": "function",
+      "name": "_json_mapping",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        345,
+        354
+      ],
+      "summary": "在 `progress.py` 中实现 `_json_mapping` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_as_mapping",
+      "type": "function",
+      "name": "_as_mapping",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        357,
+        358
+      ],
+      "summary": "在 `progress.py` 中实现 `_as_mapping` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_clean_text",
+      "type": "function",
+      "name": "_clean_text",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        361,
+        362
+      ],
+      "summary": "在 `progress.py` 中实现 `_clean_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/agent/progress.py:_short_text",
+      "type": "function",
+      "name": "_short_text",
+      "filePath": "sats/agent/progress.py",
+      "lineRange": [
+        365,
+        367
+      ],
+      "summary": "在 `progress.py` 中实现 `_short_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "agent",
+        "orchestration"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "class:sats/agent/command_runner.py:CommandRunResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "class:sats/agent/command_runner.py:CommandRunResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "class:sats/agent/command_runner.py:AgentCommandRunner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "class:sats/agent/command_runner.py:AgentCommandRunner",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "function:sats/agent/command_runner.py:_blocked_agent_recursion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "function:sats/agent/command_runner.py:_blocked_agent_recursion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentExecutionPolicy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentExecutionPolicy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentStep",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentStep",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentObservation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentObservation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:TradeIntent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:TradeIntent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:TradeDecisionAudit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:TradeDecisionAudit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/models.py",
+      "target": "class:sats/agent/models.py:AgentResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:agent_progress_event_sink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:agent_progress_event_sink",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_label",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_label",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_event_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_agent_step_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_agent_step_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_conversation_action_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_conversation_action_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_tool_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_tool_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_result_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_payload_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_payload_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_stock_picking_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_stock_picking_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_opportunity_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_opportunity_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_arguments_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_arguments_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_value_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_value_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_skills_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_skills_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_plan_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_plan_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_artifact_detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_artifact_detail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_json_mapping",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_json_mapping",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_as_mapping",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_as_mapping",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_clean_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_clean_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_short_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/agent/progress.py",
+      "target": "function:sats/agent/progress.py:_short_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/agent/command_runner.py",
+      "target": "file:sats/agent/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

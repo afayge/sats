@@ -1,0 +1,1455 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/chat_reference.py",
+      "type": "file",
+      "name": "chat_reference.py",
+      "filePath": "sats/chat_reference.py",
+      "summary": "实现 项目 中与 `chat reference` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_reference.py:ChatReferenceContext",
+      "type": "class",
+      "name": "ChatReferenceContext",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        17,
+        22
+      ],
+      "summary": "在 `chat_reference.py` 中定义 `ChatReferenceContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:build_chat_reference_context",
+      "type": "function",
+      "name": "build_chat_reference_context",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        25,
+        41
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `build_chat_reference_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:is_reference_question",
+      "type": "function",
+      "name": "is_reference_question",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        44,
+        81
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `is_reference_question` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_is_screening_output",
+      "type": "function",
+      "name": "_is_screening_output",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        84,
+        87
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_is_screening_output` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_build_screening_reference",
+      "type": "function",
+      "name": "_build_screening_reference",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        90,
+        123
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_build_screening_reference` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_build_plain_output_reference",
+      "type": "function",
+      "name": "_build_plain_output_reference",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        126,
+        149
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_build_plain_output_reference` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_build_screening_output_reference",
+      "type": "function",
+      "name": "_build_screening_output_reference",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        152,
+        170
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_build_screening_output_reference` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_parse_results_request",
+      "type": "function",
+      "name": "_parse_results_request",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        173,
+        199
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_parse_results_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_parse_screening_request",
+      "type": "function",
+      "name": "_parse_screening_request",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        202,
+        228
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_parse_screening_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_normalize_rule_name",
+      "type": "function",
+      "name": "_normalize_rule_name",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        231,
+        235
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_normalize_rule_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_filter_rows_by_symbols",
+      "type": "function",
+      "name": "_filter_rows_by_symbols",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        238,
+        243
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_filter_rows_by_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_results_system_message",
+      "type": "function",
+      "name": "_results_system_message",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        246,
+        271
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_results_system_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_row_payload",
+      "type": "function",
+      "name": "_row_payload",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        274,
+        283
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_row_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_prefix_policy",
+      "type": "function",
+      "name": "_prefix_policy",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        286,
+        296
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_prefix_policy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_reference.py:_truncate_text",
+      "type": "function",
+      "name": "_truncate_text",
+      "filePath": "sats/chat_reference.py",
+      "lineRange": [
+        299,
+        303
+      ],
+      "summary": "在 `chat_reference.py` 中实现 `_truncate_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-reference",
+        "chat-reference-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/chat_runtime.py",
+      "type": "file",
+      "name": "chat_runtime.py",
+      "filePath": "sats/chat_runtime.py",
+      "summary": "负责聊天运行时的状态组织、工具协作与输出收束。",
+      "tags": [
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:RuntimeContext",
+      "type": "class",
+      "name": "RuntimeContext",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        24,
+        31
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `RuntimeContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:ResearchPlan",
+      "type": "class",
+      "name": "ResearchPlan",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        35,
+        57
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `ResearchPlan` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:RuntimeItem",
+      "type": "class",
+      "name": "RuntimeItem",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        61,
+        65
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `RuntimeItem` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:RuntimeArtifact",
+      "type": "class",
+      "name": "RuntimeArtifact",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        69,
+        85
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `RuntimeArtifact` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:PendingRuntimeAction",
+      "type": "class",
+      "name": "PendingRuntimeAction",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        89,
+        93
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `PendingRuntimeAction` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:RuntimeResult",
+      "type": "class",
+      "name": "RuntimeResult",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        97,
+        104
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `RuntimeResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:ChatResearchRuntime",
+      "type": "class",
+      "name": "ChatResearchRuntime",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        184,
+        418
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `ChatResearchRuntime` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_runtime.py:_ExecutedActionResult",
+      "type": "class",
+      "name": "_ExecutedActionResult",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        522,
+        532
+      ],
+      "summary": "在 `chat_runtime.py` 中定义 `_ExecutedActionResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:is_runtime_request",
+      "type": "function",
+      "name": "is_runtime_request",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        117,
+        127
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `is_runtime_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:build_research_plan",
+      "type": "function",
+      "name": "build_research_plan",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        130,
+        181
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `build_research_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:confirm_pending_runtime_action",
+      "type": "function",
+      "name": "confirm_pending_runtime_action",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        421,
+        449
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `confirm_pending_runtime_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:reject_pending_runtime_action",
+      "type": "function",
+      "name": "reject_pending_runtime_action",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        452,
+        464
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `reject_pending_runtime_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:format_runtime_trace",
+      "type": "function",
+      "name": "format_runtime_trace",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        467,
+        518
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `format_runtime_trace` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_execute_strategy_action",
+      "type": "function",
+      "name": "_execute_strategy_action",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        535,
+        616
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_execute_strategy_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_persist_artifact",
+      "type": "function",
+      "name": "_persist_artifact",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        619,
+        636
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_persist_artifact` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_runtime_artifact",
+      "type": "function",
+      "name": "_runtime_artifact",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        639,
+        647
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_runtime_artifact` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_artifact_from_dict",
+      "type": "function",
+      "name": "_artifact_from_dict",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        650,
+        658
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_artifact_from_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_pending_action_message",
+      "type": "function",
+      "name": "_pending_action_message",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        661,
+        669
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_pending_action_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_tool_batches",
+      "type": "function",
+      "name": "_tool_batches",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        672,
+        686
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_tool_batches` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_assistant_tool_call_message",
+      "type": "function",
+      "name": "_assistant_tool_call_message",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        689,
+        702
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_assistant_tool_call_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_tool_result_message",
+      "type": "function",
+      "name": "_tool_result_message",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        705,
+        711
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_tool_result_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_compact_tool_result",
+      "type": "function",
+      "name": "_compact_tool_result",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        714,
+        724
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_compact_tool_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_tool_result_status",
+      "type": "function",
+      "name": "_tool_result_status",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        727,
+        732
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_tool_result_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_tool_event_arguments",
+      "type": "function",
+      "name": "_tool_event_arguments",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        735,
+        740
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_tool_event_arguments` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_is_blocked_runtime_request",
+      "type": "function",
+      "name": "_is_blocked_runtime_request",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        743,
+        745
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_is_blocked_runtime_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_runtime_model_meta",
+      "type": "function",
+      "name": "_runtime_model_meta",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        748,
+        754
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_runtime_model_meta` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_runtime.py:_elapsed",
+      "type": "function",
+      "name": "_elapsed",
+      "filePath": "sats/chat_runtime.py",
+      "lineRange": [
+        757,
+        758
+      ],
+      "summary": "在 `chat_runtime.py` 中实现 `_elapsed` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-runtime",
+        "chat-runtime-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "class:sats/chat_reference.py:ChatReferenceContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "class:sats/chat_reference.py:ChatReferenceContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:build_chat_reference_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:build_chat_reference_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:is_reference_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:is_reference_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_is_screening_output",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_is_screening_output",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_screening_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_screening_reference",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_plain_output_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_plain_output_reference",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_screening_output_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_build_screening_output_reference",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_parse_results_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_parse_results_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_parse_screening_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_parse_screening_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_normalize_rule_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_normalize_rule_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_filter_rows_by_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_filter_rows_by_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_results_system_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_results_system_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_row_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_row_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_prefix_policy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_prefix_policy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_truncate_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "function:sats/chat_reference.py:_truncate_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:ResearchPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:ResearchPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeArtifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeArtifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:PendingRuntimeAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:PendingRuntimeAction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:RuntimeResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:ChatResearchRuntime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:ChatResearchRuntime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:_ExecutedActionResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "class:sats/chat_runtime.py:_ExecutedActionResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:is_runtime_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:is_runtime_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:build_research_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:build_research_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:confirm_pending_runtime_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:confirm_pending_runtime_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:reject_pending_runtime_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:reject_pending_runtime_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:format_runtime_trace",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:format_runtime_trace",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_execute_strategy_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_execute_strategy_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_persist_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_persist_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_runtime_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_runtime_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_artifact_from_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_artifact_from_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_pending_action_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_pending_action_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_batches",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_batches",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_assistant_tool_call_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_assistant_tool_call_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_result_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_result_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_compact_tool_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_compact_tool_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_result_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_result_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_event_arguments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_tool_event_arguments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_is_blocked_runtime_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_is_blocked_runtime_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_runtime_model_meta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_runtime_model_meta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_elapsed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "function:sats/chat_runtime.py:_elapsed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "file:sats/output_saver.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_reference.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/backtesting/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/backtesting/strategy_spec.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/chat_artifacts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_runtime.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "sats/config.py",
+      "summary": "加载 `.env` 和运行时设置，集中管理数据源、模型与交易相关配置。",
+      "tags": [
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/config.py:Settings",
+      "type": "class",
+      "name": "Settings",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        82,
+        132
+      ],
+      "summary": "在 `config.py` 中定义 `Settings` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/config.py:_env_bool",
+      "type": "function",
+      "name": "_env_bool",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        135,
+        139
+      ],
+      "summary": "在 `config.py` 中实现 `_env_bool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/config.py:_env_int",
+      "type": "function",
+      "name": "_env_int",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        142,
+        149
+      ],
+      "summary": "在 `config.py` 中实现 `_env_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/config.py:_env_choice",
+      "type": "function",
+      "name": "_env_choice",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        152,
+        154
+      ],
+      "summary": "在 `config.py` 中实现 `_env_choice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/config.py:load_settings",
+      "type": "function",
+      "name": "load_settings",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        157,
+        223
+      ],
+      "summary": "在 `config.py` 中实现 `load_settings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/config.py:_resolve_project_root",
+      "type": "function",
+      "name": "_resolve_project_root",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        226,
+        234
+      ],
+      "summary": "在 `config.py` 中实现 `_resolve_project_root` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/config.py:init_env_file",
+      "type": "function",
+      "name": "init_env_file",
+      "filePath": "sats/config.py",
+      "lineRange": [
+        237,
+        242
+      ],
+      "summary": "在 `config.py` 中实现 `init_env_file` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "config",
+        "config-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/deep_analysis/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/deep_analysis/__init__.py",
+      "summary": "定义 `deep_analysis` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "deep-analysis",
+        "research"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/config.py",
+      "target": "class:sats/config.py:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "class:sats/config.py:Settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_bool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_bool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_choice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_env_choice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:load_settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:load_settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_resolve_project_root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:_resolve_project_root",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:init_env_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "function:sats/config.py:init_env_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/config.py",
+      "target": "file:sats/llm/model_config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/__init__.py",
+      "target": "file:sats/deep_analysis/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/deep_analysis/__init__.py",
+      "target": "file:sats/deep_analysis/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

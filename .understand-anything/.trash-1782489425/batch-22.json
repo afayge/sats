@@ -1,0 +1,314 @@
+{
+  "nodes": [
+    {
+      "id": "document:skills/sentiment-reality-gap/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/sentiment-reality-gap/SKILL.md",
+      "summary": "说明 `sentiment-reality-gap` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/serenity-stock-screen/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/serenity-stock-screen/SKILL.md",
+      "summary": "说明 `serenity-stock-screen` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/shrink-pullback/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/shrink-pullback/SKILL.md",
+      "summary": "说明 `shrink-pullback` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/small-cap-growth-identifier/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/small-cap-growth-identifier/SKILL.md",
+      "summary": "说明 `small-cap-growth-identifier` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/suitability-report-generator/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/suitability-report-generator/SKILL.md",
+      "summary": "说明 `suitability-report-generator` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/tech-hype-vs-fundamentals/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/tech-hype-vs-fundamentals/SKILL.md",
+      "summary": "说明 `tech-hype-vs-fundamentals` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/technical-basic/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/technical-basic/SKILL.md",
+      "summary": "说明 `technical-basic` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/tickflow/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/tickflow/SKILL.md",
+      "summary": "说明 `tickflow` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:skills/tushare-data/references/数据接口.md",
+      "type": "document",
+      "name": "数据接口.md",
+      "filePath": "skills/tushare-data/references/数据接口.md",
+      "summary": "记录与 `数据接口` 相关的说明内容，补充 项目 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:skills/tushare-data/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/tushare-data/SKILL.md",
+      "summary": "说明 `tushare-data` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:skills/undervalued-stock-screener/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/undervalued-stock-screener/SKILL.md",
+      "summary": "说明 `undervalued-stock-screener` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/valuation-model/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/valuation-model/SKILL.md",
+      "summary": "说明 `valuation-model` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/volatility/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/volatility/SKILL.md",
+      "summary": "说明 `volatility` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/volume-breakout/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/volume-breakout/SKILL.md",
+      "summary": "说明 `volume-breakout` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/workflow-templates/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/workflow-templates/SKILL.md",
+      "summary": "说明 `workflow-templates` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:skills/sentiment-reality-gap/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/serenity-stock-screen/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/shrink-pullback/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/small-cap-growth-identifier/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/suitability-report-generator/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/tech-hype-vs-fundamentals/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/technical-basic/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/tickflow/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/tushare-data/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/undervalued-stock-screener/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/valuation-model/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/volatility/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/volume-breakout/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/workflow-templates/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

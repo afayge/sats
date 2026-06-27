@@ -1,0 +1,2570 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/serenity/service.py",
+      "type": "file",
+      "name": "service.py",
+      "filePath": "sats/serenity/service.py",
+      "summary": "封装 Serenity 研究 的主服务流程，对上提供统一业务入口。",
+      "tags": [
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/serenity/service.py:run_serenity_screen",
+      "type": "function",
+      "name": "run_serenity_screen",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        37,
+        149
+      ],
+      "summary": "在 `service.py` 中实现 `run_serenity_screen` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/serenity/service.py:write_serenity_artifacts",
+      "type": "function",
+      "name": "write_serenity_artifacts",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        152,
+        168
+      ],
+      "summary": "在 `service.py` 中实现 `write_serenity_artifacts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_resolve_candidate_universe",
+      "type": "function",
+      "name": "_resolve_candidate_universe",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        171,
+        238
+      ],
+      "summary": "在 `service.py` 中实现 `_resolve_candidate_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_explicit_candidate_rows",
+      "type": "function",
+      "name": "_explicit_candidate_rows",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        241,
+        263
+      ],
+      "summary": "在 `service.py` 中实现 `_explicit_candidate_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_local_theme_candidates",
+      "type": "function",
+      "name": "_local_theme_candidates",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        266,
+        295
+      ],
+      "summary": "在 `service.py` 中实现 `_local_theme_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_preliminary_shortlist",
+      "type": "function",
+      "name": "_preliminary_shortlist",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        298,
+        341
+      ],
+      "summary": "在 `service.py` 中实现 `_preliminary_shortlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_preliminary_payload",
+      "type": "function",
+      "name": "_preliminary_payload",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        344,
+        366
+      ],
+      "summary": "在 `service.py` 中实现 `_preliminary_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_enhance_and_score",
+      "type": "function",
+      "name": "_enhance_and_score",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        369,
+        453
+      ],
+      "summary": "在 `service.py` 中实现 `_enhance_and_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_enhanced_payload",
+      "type": "function",
+      "name": "_enhanced_payload",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        456,
+        519
+      ],
+      "summary": "在 `service.py` 中实现 `_enhanced_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_attach_llm_reviews",
+      "type": "function",
+      "name": "_attach_llm_reviews",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        522,
+        561
+      ],
+      "summary": "在 `service.py` 中实现 `_attach_llm_reviews` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_llm_review_comment",
+      "type": "function",
+      "name": "_llm_review_comment",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        564,
+        589
+      ],
+      "summary": "在 `service.py` 中实现 `_llm_review_comment` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_store_screening_results",
+      "type": "function",
+      "name": "_store_screening_results",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        592,
+        622
+      ],
+      "summary": "在 `service.py` 中实现 `_store_screening_results` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_layer_priorities",
+      "type": "function",
+      "name": "_layer_priorities",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        625,
+        641
+      ],
+      "summary": "在 `service.py` 中实现 `_layer_priorities` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_statement_frame",
+      "type": "function",
+      "name": "_statement_frame",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        644,
+        646
+      ],
+      "summary": "在 `service.py` 中实现 `_statement_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_latest_row",
+      "type": "function",
+      "name": "_latest_row",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        649,
+        657
+      ],
+      "summary": "在 `service.py` 中实现 `_latest_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_market_cap_yi",
+      "type": "function",
+      "name": "_market_cap_yi",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        660,
+        664
+      ],
+      "summary": "在 `service.py` 中实现 `_market_cap_yi` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_theme_from_query",
+      "type": "function",
+      "name": "_theme_from_query",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        667,
+        678
+      ],
+      "summary": "在 `service.py` 中实现 `_theme_from_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_theme_terms",
+      "type": "function",
+      "name": "_theme_terms",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        681,
+        696
+      ],
+      "summary": "在 `service.py` 中实现 `_theme_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_normalize_symbol_input",
+      "type": "function",
+      "name": "_normalize_symbol_input",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        699,
+        704
+      ],
+      "summary": "在 `service.py` 中实现 `_normalize_symbol_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_supported_common_a_symbols",
+      "type": "function",
+      "name": "_supported_common_a_symbols",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        707,
+        731
+      ],
+      "summary": "在 `service.py` 中实现 `_supported_common_a_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_is_supported_symbol",
+      "type": "function",
+      "name": "_is_supported_symbol",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        734,
+        741
+      ],
+      "summary": "在 `service.py` 中实现 `_is_supported_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_dedupe_candidates",
+      "type": "function",
+      "name": "_dedupe_candidates",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        744,
+        753
+      ],
+      "summary": "在 `service.py` 中实现 `_dedupe_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_safe_list",
+      "type": "function",
+      "name": "_safe_list",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        756,
+        761
+      ],
+      "summary": "在 `service.py` 中实现 `_safe_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_safe_dict",
+      "type": "function",
+      "name": "_safe_dict",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        764,
+        769
+      ],
+      "summary": "在 `service.py` 中实现 `_safe_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_safe_frame",
+      "type": "function",
+      "name": "_safe_frame",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        772,
+        777
+      ],
+      "summary": "在 `service.py` 中实现 `_safe_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/serenity/service.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/serenity/service.py",
+      "lineRange": [
+        780,
+        786
+      ],
+      "summary": "在 `service.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "serenity",
+        "research",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/skill_routing.py",
+      "type": "file",
+      "name": "skill_routing.py",
+      "filePath": "sats/skill_routing.py",
+      "summary": "实现 项目 中与 `skill routing` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/skill_routing.py:SkillRouteContext",
+      "type": "class",
+      "name": "SkillRouteContext",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        56,
+        63
+      ],
+      "summary": "在 `skill_routing.py` 中定义 `SkillRouteContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/skill_routing.py:SkillSelection",
+      "type": "class",
+      "name": "SkillSelection",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        67,
+        71
+      ],
+      "summary": "在 `skill_routing.py` 中定义 `SkillSelection` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/skill_routing.py:SkillRoutingResult",
+      "type": "class",
+      "name": "SkillRoutingResult",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        75,
+        86
+      ],
+      "summary": "在 `skill_routing.py` 中定义 `SkillRoutingResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:select_skills",
+      "type": "function",
+      "name": "select_skills",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        89,
+        173
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `select_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/skill_routing.py:collections_for_skill_ids",
+      "type": "function",
+      "name": "collections_for_skill_ids",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        176,
+        177
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `collections_for_skill_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_normalized_intent",
+      "type": "function",
+      "name": "_normalized_intent",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        180,
+        201
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_normalized_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_evidence_terms",
+      "type": "function",
+      "name": "_evidence_terms",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        204,
+        222
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_evidence_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_rank_selections",
+      "type": "function",
+      "name": "_rank_selections",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        225,
+        248
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_rank_selections` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_collections_for_skill_ids",
+      "type": "function",
+      "name": "_collections_for_skill_ids",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        251,
+        272
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_collections_for_skill_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_skill_named_in_text",
+      "type": "function",
+      "name": "_skill_named_in_text",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        275,
+        278
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_skill_named_in_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_compatible_intent",
+      "type": "function",
+      "name": "_compatible_intent",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        281,
+        288
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_compatible_intent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_stronger_mode",
+      "type": "function",
+      "name": "_stronger_mode",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        291,
+        295
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_stronger_mode` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_market_request",
+      "type": "function",
+      "name": "_is_market_request",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        298,
+        300
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_market_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_stock_request",
+      "type": "function",
+      "name": "_is_stock_request",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        303,
+        323
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_stock_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_financial_request",
+      "type": "function",
+      "name": "_is_financial_request",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        326,
+        328
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_financial_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_dsa_request",
+      "type": "function",
+      "name": "_is_dsa_request",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        331,
+        352
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_dsa_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_factor_request",
+      "type": "function",
+      "name": "_is_factor_request",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        355,
+        357
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_factor_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_is_command_help",
+      "type": "function",
+      "name": "_is_command_help",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        360,
+        362
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_is_command_help` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skill_routing.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/skill_routing.py",
+      "lineRange": [
+        365,
+        373
+      ],
+      "summary": "在 `skill_routing.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skill-routing",
+        "skill-routing-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/skills.py",
+      "type": "file",
+      "name": "skills.py",
+      "filePath": "sats/skills.py",
+      "summary": "实现 项目 中与 `skills` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/skills.py:Skill",
+      "type": "class",
+      "name": "Skill",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        9,
+        23
+      ],
+      "summary": "在 `skills.py` 中定义 `Skill` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:default_skills_dir",
+      "type": "function",
+      "name": "default_skills_dir",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        59,
+        60
+      ],
+      "summary": "在 `skills.py` 中实现 `default_skills_dir` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:load_skills",
+      "type": "function",
+      "name": "load_skills",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        63,
+        72
+      ],
+      "summary": "在 `skills.py` 中实现 `load_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:parse_skill_file",
+      "type": "function",
+      "name": "parse_skill_file",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        75,
+        138
+      ],
+      "summary": "在 `skills.py` 中实现 `parse_skill_file` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/skills.py:match_skills",
+      "type": "function",
+      "name": "match_skills",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        141,
+        166
+      ],
+      "summary": "在 `skills.py` 中实现 `match_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/skills.py:format_skill_list",
+      "type": "function",
+      "name": "format_skill_list",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        169,
+        188
+      ],
+      "summary": "在 `skills.py` 中实现 `format_skill_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:skill_summaries",
+      "type": "function",
+      "name": "skill_summaries",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        191,
+        199
+      ],
+      "summary": "在 `skills.py` 中实现 `skill_summaries` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:find_skill",
+      "type": "function",
+      "name": "find_skill",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        202,
+        207
+      ],
+      "summary": "在 `skills.py` 中实现 `find_skill` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_normalize",
+      "type": "function",
+      "name": "_normalize",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        210,
+        211
+      ],
+      "summary": "在 `skills.py` 中实现 `_normalize` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_parse_front_matter",
+      "type": "function",
+      "name": "_parse_front_matter",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        214,
+        226
+      ],
+      "summary": "在 `skills.py` 中实现 `_parse_front_matter` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_parse_legacy_metadata",
+      "type": "function",
+      "name": "_parse_legacy_metadata",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        229,
+        286
+      ],
+      "summary": "在 `skills.py` 中实现 `_parse_legacy_metadata` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/skills.py:_parse_triggers",
+      "type": "function",
+      "name": "_parse_triggers",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        289,
+        293
+      ],
+      "summary": "在 `skills.py` 中实现 `_parse_triggers` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_strip_yaml_scalar",
+      "type": "function",
+      "name": "_strip_yaml_scalar",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        296,
+        300
+      ],
+      "summary": "在 `skills.py` 中实现 `_strip_yaml_scalar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_parse_auto_load",
+      "type": "function",
+      "name": "_parse_auto_load",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        303,
+        305
+      ],
+      "summary": "在 `skills.py` 中实现 `_parse_auto_load` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_parse_int",
+      "type": "function",
+      "name": "_parse_int",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        308,
+        312
+      ],
+      "summary": "在 `skills.py` 中实现 `_parse_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_category_order",
+      "type": "function",
+      "name": "_category_order",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        315,
+        327
+      ],
+      "summary": "在 `skills.py` 中实现 `_category_order` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_skill_match_terms",
+      "type": "function",
+      "name": "_skill_match_terms",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        330,
+        342
+      ],
+      "summary": "在 `skills.py` 中实现 `_skill_match_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/skills.py:_description_tokens",
+      "type": "function",
+      "name": "_description_tokens",
+      "filePath": "sats/skills.py",
+      "lineRange": [
+        345,
+        351
+      ],
+      "summary": "在 `skills.py` 中实现 `_description_tokens` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "skills",
+        "skills-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/stock_basic_lookup.py",
+      "type": "file",
+      "name": "stock_basic_lookup.py",
+      "filePath": "sats/stock_basic_lookup.py",
+      "summary": "实现 项目 中与 `stock basic lookup` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/stock_basic_lookup.py:StockNameResolution",
+      "type": "class",
+      "name": "StockNameResolution",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        14,
+        16
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中定义 `StockNameResolution` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:load_stock_basic_frame",
+      "type": "function",
+      "name": "load_stock_basic_frame",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        19,
+        48
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `load_stock_basic_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:resolve_stock_names",
+      "type": "function",
+      "name": "resolve_stock_names",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        51,
+        84
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `resolve_stock_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:resolve_symbol_or_name_values",
+      "type": "function",
+      "name": "resolve_symbol_or_name_values",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        87,
+        117
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `resolve_symbol_or_name_values` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:stock_basic_rows_to_documents",
+      "type": "function",
+      "name": "stock_basic_rows_to_documents",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        120,
+        154
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `stock_basic_rows_to_documents` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:match_stock_name",
+      "type": "function",
+      "name": "match_stock_name",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        157,
+        174
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `match_stock_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:names_from_stock_basic",
+      "type": "function",
+      "name": "names_from_stock_basic",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        177,
+        186
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `names_from_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:resolve_stock_mentions",
+      "type": "function",
+      "name": "resolve_stock_mentions",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        189,
+        203
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `resolve_stock_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:_clean_stock_basic",
+      "type": "function",
+      "name": "_clean_stock_basic",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        206,
+        214
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `_clean_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:_looks_symbol",
+      "type": "function",
+      "name": "_looks_symbol",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        217,
+        219
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `_looks_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:_symbol_mentions",
+      "type": "function",
+      "name": "_symbol_mentions",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        222,
+        232
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `_symbol_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/stock_basic_lookup.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/stock_basic_lookup.py",
+      "lineRange": [
+        235,
+        243
+      ],
+      "summary": "在 `stock_basic_lookup.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "stock-basic-lookup",
+        "stock-basic-lookup-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:run_serenity_screen",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:run_serenity_screen",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:write_serenity_artifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:write_serenity_artifacts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_resolve_candidate_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_resolve_candidate_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_explicit_candidate_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_explicit_candidate_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_local_theme_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_local_theme_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_preliminary_shortlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_preliminary_shortlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_preliminary_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_preliminary_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_enhance_and_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_enhance_and_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_enhanced_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_enhanced_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_attach_llm_reviews",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_attach_llm_reviews",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_llm_review_comment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_llm_review_comment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_store_screening_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_store_screening_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_layer_priorities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_layer_priorities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_statement_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_statement_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_latest_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_latest_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_market_cap_yi",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_market_cap_yi",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_theme_from_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_theme_from_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_theme_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_theme_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_normalize_symbol_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_normalize_symbol_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_supported_common_a_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_supported_common_a_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_is_supported_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_is_supported_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_dedupe_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_dedupe_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_safe_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "function:sats/serenity/service.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillRouteContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillRouteContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillSelection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillSelection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillRoutingResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "class:sats/skill_routing.py:SkillRoutingResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:select_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:select_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:collections_for_skill_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:collections_for_skill_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_normalized_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_normalized_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_evidence_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_evidence_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_rank_selections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_rank_selections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_collections_for_skill_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_collections_for_skill_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_skill_named_in_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_skill_named_in_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_compatible_intent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_compatible_intent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_stronger_mode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_stronger_mode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_market_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_market_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_stock_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_stock_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_financial_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_financial_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_dsa_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_dsa_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_factor_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_factor_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_command_help",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_is_command_help",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "function:sats/skill_routing.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "class:sats/skills.py:Skill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "class:sats/skills.py:Skill",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:default_skills_dir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:default_skills_dir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:load_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:load_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:parse_skill_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:parse_skill_file",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:match_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:match_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:format_skill_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:format_skill_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:skill_summaries",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:skill_summaries",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:find_skill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:find_skill",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_normalize",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_normalize",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_front_matter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_front_matter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_legacy_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_legacy_metadata",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_triggers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_triggers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_strip_yaml_scalar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_strip_yaml_scalar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_auto_load",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_auto_load",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_parse_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_category_order",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_category_order",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_skill_match_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_skill_match_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_description_tokens",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/skills.py",
+      "target": "function:sats/skills.py:_description_tokens",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "class:sats/stock_basic_lookup.py:StockNameResolution",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "class:sats/stock_basic_lookup.py:StockNameResolution",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:load_stock_basic_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:load_stock_basic_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_stock_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_stock_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_symbol_or_name_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_symbol_or_name_values",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:stock_basic_rows_to_documents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:stock_basic_rows_to_documents",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:match_stock_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:match_stock_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:names_from_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:names_from_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_stock_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:resolve_stock_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_clean_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_clean_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_looks_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_looks_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_symbol_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_symbol_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "function:sats/stock_basic_lookup.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/serenity/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/serenity/scoring.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/serenity/service.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/skill_routing.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/stock_basic_lookup.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

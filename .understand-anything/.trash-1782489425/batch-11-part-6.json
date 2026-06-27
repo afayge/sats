@@ -1,0 +1,3398 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/stock_llm_context.py",
+      "type": "file",
+      "name": "stock_llm_context.py",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `stock llm context` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/stock_llm_context.py:StockLLMContext",
+      "type": "class",
+      "name": "StockLLMContext",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        39,
+        43
+      ],
+      "summary": "在 `stock_llm_context.py` 中定义 `StockLLMContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/stock_llm_context.py:PeriodReturnRequest",
+      "type": "class",
+      "name": "PeriodReturnRequest",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        47,
+        51
+      ],
+      "summary": "在 `stock_llm_context.py` 中定义 `PeriodReturnRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:build_stock_llm_context",
+      "type": "function",
+      "name": "build_stock_llm_context",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        54,
+        104
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `build_stock_llm_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:ensure_stock_analysis_data",
+      "type": "function",
+      "name": "ensure_stock_analysis_data",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        107,
+        181
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `ensure_stock_analysis_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_load_required_minute_frames",
+      "type": "function",
+      "name": "_load_required_minute_frames",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        184,
+        208
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_load_required_minute_frames` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_build_stock_contexts",
+      "type": "function",
+      "name": "_build_stock_contexts",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        211,
+        264
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_build_stock_contexts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_factor_summary_for_inputs",
+      "type": "function",
+      "name": "_factor_summary_for_inputs",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        267,
+        289
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_factor_summary_for_inputs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_load_minute_frame",
+      "type": "function",
+      "name": "_load_minute_frame",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        292,
+        334
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_load_minute_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_load_quotes",
+      "type": "function",
+      "name": "_load_quotes",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        337,
+        348
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_load_quotes` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_system_message",
+      "type": "function",
+      "name": "_system_message",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        351,
+        360
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_system_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:extract_period_return_requests",
+      "type": "function",
+      "name": "extract_period_return_requests",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        363,
+        374
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `extract_period_return_requests` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_append_period_request",
+      "type": "function",
+      "name": "_append_period_request",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        377,
+        381
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_append_period_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_request_from_match",
+      "type": "function",
+      "name": "_period_request_from_match",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        384,
+        413
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_request_from_match` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_amount",
+      "type": "function",
+      "name": "_period_amount",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        416,
+        433
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_amount` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_context",
+      "type": "function",
+      "name": "_period_context",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        436,
+        440
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_lookback_days",
+      "type": "function",
+      "name": "_period_lookback_days",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        443,
+        453
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_lookback_days` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_resolve_effective_trade_date",
+      "type": "function",
+      "name": "_resolve_effective_trade_date",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        456,
+        464
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_resolve_effective_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_context_trade_date",
+      "type": "function",
+      "name": "_context_trade_date",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        467,
+        469
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_context_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_resolve_trade_date",
+      "type": "function",
+      "name": "_resolve_trade_date",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        472,
+        473
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_resolve_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_use_realtime",
+      "type": "function",
+      "name": "_use_realtime",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        476,
+        478
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_use_realtime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_as_of_trade_time",
+      "type": "function",
+      "name": "_as_of_trade_time",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        481,
+        485
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_as_of_trade_time` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_days_before",
+      "type": "function",
+      "name": "_days_before",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        488,
+        489
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_days_before` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_returns",
+      "type": "function",
+      "name": "_period_returns",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        492,
+        520
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_returns` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_return",
+      "type": "function",
+      "name": "_period_return",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        523,
+        561
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_return` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_period_calendar_start",
+      "type": "function",
+      "name": "_period_calendar_start",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        564,
+        575
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_period_calendar_start` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_add_months",
+      "type": "function",
+      "name": "_add_months",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        578,
+        583
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_add_months` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_parse_date",
+      "type": "function",
+      "name": "_parse_date",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        586,
+        590
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_parse_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_previous_weekday",
+      "type": "function",
+      "name": "_previous_weekday",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        593,
+        599
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_previous_weekday` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_safe_float",
+      "type": "function",
+      "name": "_safe_float",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        602,
+        608
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_safe_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_drop_empty",
+      "type": "function",
+      "name": "_drop_empty",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        611,
+        612
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_drop_empty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_records_tail",
+      "type": "function",
+      "name": "_records_tail",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        615,
+        624
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_records_tail` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_filter_symbol_minute",
+      "type": "function",
+      "name": "_filter_symbol_minute",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        627,
+        630
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_filter_symbol_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:minute_curve_metadata",
+      "type": "function",
+      "name": "minute_curve_metadata",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        633,
+        660
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `minute_curve_metadata` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_minute_curve_frame",
+      "type": "function",
+      "name": "_minute_curve_frame",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        663,
+        673
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_minute_curve_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_minute_curve_payload",
+      "type": "function",
+      "name": "_minute_curve_payload",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        676,
+        697
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_minute_curve_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_chan_minute_period",
+      "type": "function",
+      "name": "_chan_minute_period",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        700,
+        703
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_chan_minute_period` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_filter_minute_as_of",
+      "type": "function",
+      "name": "_filter_minute_as_of",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        706,
+        713
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_filter_minute_as_of` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_combine_minute_frames",
+      "type": "function",
+      "name": "_combine_minute_frames",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        716,
+        726
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_combine_minute_frames` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_symbols_missing_minute",
+      "type": "function",
+      "name": "_symbols_missing_minute",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        729,
+        733
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_symbols_missing_minute` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_price_context",
+      "type": "function",
+      "name": "_price_context",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        736,
+        744
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_price_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_data_sources",
+      "type": "function",
+      "name": "_data_sources",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        747,
+        752
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_data_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_missing_fields",
+      "type": "function",
+      "name": "_missing_fields",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        755,
+        766
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_missing_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_llm_context.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/analysis/stock_llm_context.py",
+      "lineRange": [
+        769,
+        782
+      ],
+      "summary": "在 `stock_llm_context.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/analysis/stock_picking_agent.py",
+      "type": "file",
+      "name": "stock_picking_agent.py",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "summary": "实现自然语言选股与机会发现流程，把信号、主题与 LLM 排序串成研究闭环。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/stock_picking_agent.py:ThemeUniverseStock",
+      "type": "class",
+      "name": "ThemeUniverseStock",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        124,
+        150
+      ],
+      "summary": "在 `stock_picking_agent.py` 中定义 `ThemeUniverseStock` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/stock_picking_agent.py:ThemeUniverse",
+      "type": "class",
+      "name": "ThemeUniverse",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        154,
+        194
+      ],
+      "summary": "在 `stock_picking_agent.py` 中定义 `ThemeUniverse` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/stock_picking_agent.py:StockPickingPlan",
+      "type": "class",
+      "name": "StockPickingPlan",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        198,
+        222
+      ],
+      "summary": "在 `stock_picking_agent.py` 中定义 `StockPickingPlan` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/stock_picking_agent.py:StockPickingAgentResult",
+      "type": "class",
+      "name": "StockPickingAgentResult",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        226,
+        306
+      ],
+      "summary": "在 `stock_picking_agent.py` 中定义 `StockPickingAgentResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:build_stock_picking_plan",
+      "type": "function",
+      "name": "build_stock_picking_plan",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        309,
+        334
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `build_stock_picking_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:run_stock_picking_agent",
+      "type": "function",
+      "name": "run_stock_picking_agent",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        337,
+        502
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `run_stock_picking_agent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:format_stock_picking_agent_result",
+      "type": "function",
+      "name": "format_stock_picking_agent_result",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        505,
+        526
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `format_stock_picking_agent_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:resolve_theme_universe",
+      "type": "function",
+      "name": "resolve_theme_universe",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        529,
+        583
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `resolve_theme_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_resolve_ths_theme_universe",
+      "type": "function",
+      "name": "_resolve_ths_theme_universe",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        586,
+        625
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_resolve_ths_theme_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_basic",
+      "type": "function",
+      "name": "_load_ths_sector_basic",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        628,
+        663
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_ths_sector_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_members",
+      "type": "function",
+      "name": "_load_ths_sector_members",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        666,
+        677
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_ths_sector_members` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_resolve_sw_theme_universe",
+      "type": "function",
+      "name": "_resolve_sw_theme_universe",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        680,
+        717
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_resolve_sw_theme_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_basic",
+      "type": "function",
+      "name": "_load_sw_sector_basic",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        720,
+        734
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_sw_sector_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_members",
+      "type": "function",
+      "name": "_load_sw_sector_members",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        737,
+        748
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_sw_sector_members` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_theme_stocks_from_ths_members",
+      "type": "function",
+      "name": "_theme_stocks_from_ths_members",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        751,
+        778
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_theme_stocks_from_ths_members` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_match_ths_sector",
+      "type": "function",
+      "name": "_match_ths_sector",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        781,
+        804
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_match_ths_sector` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_resolve_llm_theme_universe",
+      "type": "function",
+      "name": "_resolve_llm_theme_universe",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        807,
+        860
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_resolve_llm_theme_universe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_stock_basic_for_theme",
+      "type": "function",
+      "name": "_load_stock_basic_for_theme",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        863,
+        877
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_stock_basic_for_theme` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_validate_llm_theme_stocks",
+      "type": "function",
+      "name": "_validate_llm_theme_stocks",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        880,
+        945
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_validate_llm_theme_stocks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_clean_theme_stock_basic",
+      "type": "function",
+      "name": "_clean_theme_stock_basic",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        948,
+        959
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_clean_theme_stock_basic` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_name_conflicts_with_code",
+      "type": "function",
+      "name": "_name_conflicts_with_code",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        962,
+        966
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_name_conflicts_with_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_extract_theme_from_query",
+      "type": "function",
+      "name": "_extract_theme_from_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        969,
+        992
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_extract_theme_from_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_discovery_query",
+      "type": "function",
+      "name": "_is_generic_short_up_discovery_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        995,
+        1006
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_is_generic_short_up_discovery_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_clean_theme_candidate",
+      "type": "function",
+      "name": "_clean_theme_candidate",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1009,
+        1049
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_clean_theme_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_canonical_theme",
+      "type": "function",
+      "name": "_canonical_theme",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1052,
+        1057
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_canonical_theme` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_theme_alias_key",
+      "type": "function",
+      "name": "_theme_alias_key",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1060,
+        1062
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_theme_alias_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_theme_phrase",
+      "type": "function",
+      "name": "_is_generic_short_up_theme_phrase",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1065,
+        1071
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_is_generic_short_up_theme_phrase` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_theme_key",
+      "type": "function",
+      "name": "_theme_key",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1074,
+        1075
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_theme_key` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_strip_sector_suffix",
+      "type": "function",
+      "name": "_strip_sector_suffix",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1078,
+        1083
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_strip_sector_suffix` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_is_a_share_ts_code",
+      "type": "function",
+      "name": "_is_a_share_ts_code",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1086,
+        1087
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_is_a_share_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_format_theme_universe_line",
+      "type": "function",
+      "name": "_format_theme_universe_line",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1090,
+        1107
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_format_theme_universe_line` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_load_project_skills",
+      "type": "function",
+      "name": "_load_project_skills",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1110,
+        1112
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_load_project_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_safe_research_context",
+      "type": "function",
+      "name": "_safe_research_context",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1115,
+        1128
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_safe_research_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_profile_from_query",
+      "type": "function",
+      "name": "_profile_from_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1131,
+        1141
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_profile_from_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_horizon_from_query",
+      "type": "function",
+      "name": "_horizon_from_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1144,
+        1152
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_horizon_from_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_profile_skill_ids",
+      "type": "function",
+      "name": "_profile_skill_ids",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1155,
+        1172
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_profile_skill_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_collections_for_profile",
+      "type": "function",
+      "name": "_collections_for_profile",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1175,
+        1187
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_collections_for_profile` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_constraints_from_query",
+      "type": "function",
+      "name": "_constraints_from_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1190,
+        1205
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_constraints_from_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_ranking_policy",
+      "type": "function",
+      "name": "_ranking_policy",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1208,
+        1218
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_ranking_policy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_profile_query",
+      "type": "function",
+      "name": "_profile_query",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1221,
+        1222
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_profile_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_rank_locally",
+      "type": "function",
+      "name": "_rank_locally",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1225,
+        1229
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_rank_locally` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_apply_factor_overlay",
+      "type": "function",
+      "name": "_apply_factor_overlay",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1232,
+        1287
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_apply_factor_overlay` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_profile_score",
+      "type": "function",
+      "name": "_profile_score",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1290,
+        1311
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_profile_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_rank_with_agent_llm",
+      "type": "function",
+      "name": "_rank_with_agent_llm",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1314,
+        1372
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_rank_with_agent_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_build_agent_llm_prompt",
+      "type": "function",
+      "name": "_build_agent_llm_prompt",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1375,
+        1406
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_build_agent_llm_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_short_text",
+      "type": "function",
+      "name": "_short_text",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1409,
+        1413
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_short_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_compact_evidence_source",
+      "type": "function",
+      "name": "_compact_evidence_source",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1416,
+        1425
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_compact_evidence_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_parse_agent_llm_rankings",
+      "type": "function",
+      "name": "_parse_agent_llm_rankings",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1428,
+        1461
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_parse_agent_llm_rankings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_merge_reason",
+      "type": "function",
+      "name": "_merge_reason",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1464,
+        1473
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_merge_reason` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_float",
+      "type": "function",
+      "name": "_float",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1476,
+        1482
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_float` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_build_llm",
+      "type": "function",
+      "name": "_build_llm",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1485,
+        1491
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_build_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1494,
+        1495
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1498,
+        1499
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1502,
+        1508
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_chat_json",
+      "type": "function",
+      "name": "_chat_json",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1511,
+        1515
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_chat_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_parse_response_json",
+      "type": "function",
+      "name": "_parse_response_json",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1518,
+        1519
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_parse_response_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_parse_json_object",
+      "type": "function",
+      "name": "_parse_json_object",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1522,
+        1535
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_parse_json_object` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_picking_agent.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/analysis/stock_picking_agent.py",
+      "lineRange": [
+        1538,
+        1546
+      ],
+      "summary": "在 `stock_picking_agent.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "class:sats/analysis/stock_llm_context.py:StockLLMContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "class:sats/analysis/stock_llm_context.py:StockLLMContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "class:sats/analysis/stock_llm_context.py:PeriodReturnRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "class:sats/analysis/stock_llm_context.py:PeriodReturnRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:build_stock_llm_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:build_stock_llm_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:ensure_stock_analysis_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:ensure_stock_analysis_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_required_minute_frames",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_required_minute_frames",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_build_stock_contexts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_build_stock_contexts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_factor_summary_for_inputs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_factor_summary_for_inputs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_minute_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_minute_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_quotes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_load_quotes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_system_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_system_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:extract_period_return_requests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:extract_period_return_requests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_append_period_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_append_period_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_request_from_match",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_request_from_match",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_amount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_amount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_lookback_days",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_lookback_days",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_resolve_effective_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_resolve_effective_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_context_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_context_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_resolve_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_resolve_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_use_realtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_use_realtime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_as_of_trade_time",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_as_of_trade_time",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_days_before",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_days_before",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_returns",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_returns",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_return",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_return",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_calendar_start",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_period_calendar_start",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_add_months",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_add_months",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_parse_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_parse_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_previous_weekday",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_previous_weekday",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_safe_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_safe_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_drop_empty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_drop_empty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_records_tail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_records_tail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_filter_symbol_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_filter_symbol_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:minute_curve_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:minute_curve_metadata",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_minute_curve_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_minute_curve_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_minute_curve_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_minute_curve_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_chan_minute_period",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_chan_minute_period",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_filter_minute_as_of",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_filter_minute_as_of",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_combine_minute_frames",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_combine_minute_frames",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_symbols_missing_minute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_symbols_missing_minute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_price_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_price_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_data_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_data_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_missing_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_missing_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "function:sats/analysis/stock_llm_context.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:ThemeUniverseStock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:ThemeUniverseStock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:ThemeUniverse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:ThemeUniverse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:StockPickingPlan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:StockPickingPlan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:StockPickingAgentResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "class:sats/analysis/stock_picking_agent.py:StockPickingAgentResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:build_stock_picking_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:build_stock_picking_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:run_stock_picking_agent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:run_stock_picking_agent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:format_stock_picking_agent_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:format_stock_picking_agent_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:resolve_theme_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:resolve_theme_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_ths_theme_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_ths_theme_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_members",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_ths_sector_members",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_sw_theme_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_sw_theme_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_members",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_sw_sector_members",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_stocks_from_ths_members",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_stocks_from_ths_members",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_match_ths_sector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_match_ths_sector",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_llm_theme_universe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_resolve_llm_theme_universe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_stock_basic_for_theme",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_stock_basic_for_theme",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_validate_llm_theme_stocks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_validate_llm_theme_stocks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_clean_theme_stock_basic",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_clean_theme_stock_basic",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_name_conflicts_with_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_name_conflicts_with_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_extract_theme_from_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_extract_theme_from_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_discovery_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_discovery_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_clean_theme_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_clean_theme_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_canonical_theme",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_canonical_theme",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_alias_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_alias_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_theme_phrase",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_generic_short_up_theme_phrase",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_theme_key",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_strip_sector_suffix",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_strip_sector_suffix",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_a_share_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_is_a_share_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_format_theme_universe_line",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_format_theme_universe_line",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_project_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_load_project_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_safe_research_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_safe_research_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_from_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_from_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_horizon_from_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_horizon_from_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_skill_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_skill_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_collections_for_profile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_collections_for_profile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_constraints_from_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_constraints_from_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_ranking_policy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_ranking_policy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_rank_locally",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_rank_locally",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_apply_factor_overlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_apply_factor_overlay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_profile_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_rank_with_agent_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_rank_with_agent_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_build_agent_llm_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_build_agent_llm_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_short_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_short_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_compact_evidence_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_compact_evidence_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_agent_llm_rankings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_agent_llm_rankings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_merge_reason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_merge_reason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_float",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_float",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_build_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_build_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_chat_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_chat_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_response_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_response_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_json_object",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_parse_json_object",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "function:sats/analysis/stock_picking_agent.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_llm_context.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/analysis/stock_research_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_picking_agent.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

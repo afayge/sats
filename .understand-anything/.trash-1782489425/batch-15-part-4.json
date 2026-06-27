@@ -1,0 +1,3020 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/web/rag_search.py",
+      "type": "file",
+      "name": "rag_search.py",
+      "filePath": "sats/web/rag_search.py",
+      "summary": "实现 网页搜索与抓取 中与 `rag search` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:search_rag",
+      "type": "function",
+      "name": "search_rag",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        20,
+        160
+      ],
+      "summary": "在 `rag_search.py` 中实现 `search_rag` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:open_page",
+      "type": "function",
+      "name": "open_page",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        163,
+        266
+      ],
+      "summary": "在 `rag_search.py` 中实现 `open_page` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:clear_web_cache",
+      "type": "function",
+      "name": "clear_web_cache",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        269,
+        288
+      ],
+      "summary": "在 `rag_search.py` 中实现 `clear_web_cache` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:expand_queries",
+      "type": "function",
+      "name": "expand_queries",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        291,
+        319
+      ],
+      "summary": "在 `rag_search.py` 中实现 `expand_queries` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:rank_chunks",
+      "type": "function",
+      "name": "rank_chunks",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        322,
+        376
+      ],
+      "summary": "在 `rag_search.py` 中实现 `rank_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:rerank_chunks",
+      "type": "function",
+      "name": "rerank_chunks",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        379,
+        417
+      ],
+      "summary": "在 `rag_search.py` 中实现 `rerank_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:synthesize_answer",
+      "type": "function",
+      "name": "synthesize_answer",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        420,
+        454
+      ],
+      "summary": "在 `rag_search.py` 中实现 `synthesize_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:validate_citations",
+      "type": "function",
+      "name": "validate_citations",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        457,
+        463
+      ],
+      "summary": "在 `rag_search.py` 中实现 `validate_citations` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_load_documents",
+      "type": "function",
+      "name": "_load_documents",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        466,
+        539
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_load_documents` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_chunk_and_query_vectors",
+      "type": "function",
+      "name": "_chunk_and_query_vectors",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        542,
+        571
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_chunk_and_query_vectors` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_embed_texts",
+      "type": "function",
+      "name": "_embed_texts",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        574,
+        595
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_embed_texts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_embedding_selection",
+      "type": "function",
+      "name": "_embedding_selection",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        598,
+        625
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_embedding_selection` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_keyword_scores",
+      "type": "function",
+      "name": "_keyword_scores",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        628,
+        657
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_keyword_scores` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_query_terms",
+      "type": "function",
+      "name": "_query_terms",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        660,
+        665
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_query_terms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_select_diverse",
+      "type": "function",
+      "name": "_select_diverse",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        668,
+        679
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_select_diverse` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_bounded_chunks",
+      "type": "function",
+      "name": "_bounded_chunks",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        682,
+        704
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_bounded_chunks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_build_sources",
+      "type": "function",
+      "name": "_build_sources",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        707,
+        737
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_build_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_fallback_answer",
+      "type": "function",
+      "name": "_fallback_answer",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        740,
+        752
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_fallback_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_light_llm",
+      "type": "function",
+      "name": "_light_llm",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        755,
+        760
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_light_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_has_llm_settings",
+      "type": "function",
+      "name": "_has_llm_settings",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        763,
+        764
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_has_llm_settings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_cosine",
+      "type": "function",
+      "name": "_cosine",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        767,
+        773
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_cosine` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_error_payload",
+      "type": "function",
+      "name": "_error_payload",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        776,
+        806
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_error_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_iso",
+      "type": "function",
+      "name": "_iso",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        809,
+        814
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_iso` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/rag_search.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "sats/web/rag_search.py",
+      "lineRange": [
+        817,
+        818
+      ],
+      "summary": "在 `rag_search.py` 中实现 `_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/search.py",
+      "type": "file",
+      "name": "search.py",
+      "filePath": "sats/web/search.py",
+      "summary": "负责网页搜索入口与多源结果整合，为网络证据检索提供统一接口。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/search.py:search",
+      "type": "function",
+      "name": "search",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        45,
+        173
+      ],
+      "summary": "在 `search.py` 中实现 `search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/search.py:_responses_search",
+      "type": "function",
+      "name": "_responses_search",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        176,
+        235
+      ],
+      "summary": "在 `search.py` 中实现 `_responses_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/search.py:_parse_responses_response",
+      "type": "function",
+      "name": "_parse_responses_response",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        238,
+        351
+      ],
+      "summary": "在 `search.py` 中实现 `_parse_responses_response` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/search.py:_ddgs_payload",
+      "type": "function",
+      "name": "_ddgs_payload",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        354,
+        424
+      ],
+      "summary": "在 `search.py` 中实现 `_ddgs_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/search.py:_ddg_search",
+      "type": "function",
+      "name": "_ddg_search",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        427,
+        447
+      ],
+      "summary": "在 `search.py` 中实现 `_ddg_search` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_normalize_result",
+      "type": "function",
+      "name": "_normalize_result",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        450,
+        464
+      ],
+      "summary": "在 `search.py` 中实现 `_normalize_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_normalize_action",
+      "type": "function",
+      "name": "_normalize_action",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        467,
+        477
+      ],
+      "summary": "在 `search.py` 中实现 `_normalize_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_normalize_citation",
+      "type": "function",
+      "name": "_normalize_citation",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        480,
+        493
+      ],
+      "summary": "在 `search.py` 中实现 `_normalize_citation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_normalize_source",
+      "type": "function",
+      "name": "_normalize_source",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        496,
+        513
+      ],
+      "summary": "在 `search.py` 中实现 `_normalize_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_dedupe_sources",
+      "type": "function",
+      "name": "_dedupe_sources",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        516,
+        533
+      ],
+      "summary": "在 `search.py` 中实现 `_dedupe_sources` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_assign_source_ids",
+      "type": "function",
+      "name": "_assign_source_ids",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        536,
+        542
+      ],
+      "summary": "在 `search.py` 中实现 `_assign_source_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_insert_citation_ids",
+      "type": "function",
+      "name": "_insert_citation_ids",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        545,
+        566
+      ],
+      "summary": "在 `search.py` 中实现 `_insert_citation_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_object_dict",
+      "type": "function",
+      "name": "_object_dict",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        569,
+        579
+      ],
+      "summary": "在 `search.py` 中实现 `_object_dict` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_responses_input",
+      "type": "function",
+      "name": "_responses_input",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        582,
+        593
+      ],
+      "summary": "在 `search.py` 中实现 `_responses_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_responses_configured",
+      "type": "function",
+      "name": "_responses_configured",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        596,
+        604
+      ],
+      "summary": "在 `search.py` 中实现 `_responses_configured` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_select_backend",
+      "type": "function",
+      "name": "_select_backend",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        607,
+        612
+      ],
+      "summary": "在 `search.py` 中实现 `_select_backend` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_clean_backend",
+      "type": "function",
+      "name": "_clean_backend",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        615,
+        617
+      ],
+      "summary": "在 `search.py` 中实现 `_clean_backend` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_resolve_context_size",
+      "type": "function",
+      "name": "_resolve_context_size",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        620,
+        630
+      ],
+      "summary": "在 `search.py` 中实现 `_resolve_context_size` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_cache_ttl",
+      "type": "function",
+      "name": "_cache_ttl",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        633,
+        638
+      ],
+      "summary": "在 `search.py` 中实现 `_cache_ttl` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_clamp_limit",
+      "type": "function",
+      "name": "_clamp_limit",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        641,
+        647
+      ],
+      "summary": "在 `search.py` 中实现 `_clamp_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_clean_domain",
+      "type": "function",
+      "name": "_clean_domain",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        650,
+        655
+      ],
+      "summary": "在 `search.py` 中实现 `_clean_domain` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_clean_freshness",
+      "type": "function",
+      "name": "_clean_freshness",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        658,
+        671
+      ],
+      "summary": "在 `search.py` 中实现 `_clean_freshness` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_domain_query",
+      "type": "function",
+      "name": "_domain_query",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        674,
+        678
+      ],
+      "summary": "在 `search.py` 中实现 `_domain_query` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_url_matches_domains",
+      "type": "function",
+      "name": "_url_matches_domains",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        681,
+        683
+      ],
+      "summary": "在 `search.py` 中实现 `_url_matches_domains` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_is_garbage_result",
+      "type": "function",
+      "name": "_is_garbage_result",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        686,
+        688
+      ],
+      "summary": "在 `search.py` 中实现 `_is_garbage_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_error_payload",
+      "type": "function",
+      "name": "_error_payload",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        691,
+        720
+      ],
+      "summary": "在 `search.py` 中实现 `_error_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/search.py:_safe_int",
+      "type": "function",
+      "name": "_safe_int",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        723,
+        727
+      ],
+      "summary": "在 `search.py` 中实现 `_safe_int` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_is_parameter_compatibility_error",
+      "type": "function",
+      "name": "_is_parameter_compatibility_error",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        730,
+        747
+      ],
+      "summary": "在 `search.py` 中实现 `_is_parameter_compatibility_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/search.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "sats/web/search.py",
+      "lineRange": [
+        750,
+        751
+      ],
+      "summary": "在 `search.py` 中实现 `_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/web/social_hot.py",
+      "type": "file",
+      "name": "social_hot.py",
+      "filePath": "sats/web/social_hot.py",
+      "summary": "实现 网页搜索与抓取 中与 `social hot` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:social_hot",
+      "type": "function",
+      "name": "social_hot",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        50,
+        75
+      ],
+      "summary": "在 `social_hot.py` 中实现 `social_hot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:hot_mentions",
+      "type": "function",
+      "name": "hot_mentions",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        78,
+        113
+      ],
+      "summary": "在 `social_hot.py` 中实现 `hot_mentions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_platform_hot",
+      "type": "function",
+      "name": "_platform_hot",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        116,
+        151
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_platform_hot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_http_json",
+      "type": "function",
+      "name": "_http_json",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        154,
+        169
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_http_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_http_json_with_seed",
+      "type": "function",
+      "name": "_http_json_with_seed",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        172,
+        203
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_http_json_with_seed` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_http_text",
+      "type": "function",
+      "name": "_http_text",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        206,
+        222
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_http_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_weibo",
+      "type": "function",
+      "name": "_fetch_weibo",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        225,
+        238
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_weibo` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_zhihu",
+      "type": "function",
+      "name": "_fetch_zhihu",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        241,
+        252
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_zhihu` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_baidu",
+      "type": "function",
+      "name": "_fetch_baidu",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        255,
+        271
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_baidu` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_baidu_rows",
+      "type": "function",
+      "name": "_baidu_rows",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        274,
+        291
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_baidu_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_douyin",
+      "type": "function",
+      "name": "_fetch_douyin",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        294,
+        303
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_douyin` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_toutiao",
+      "type": "function",
+      "name": "_fetch_toutiao",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        306,
+        317
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_toutiao` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_bilibili",
+      "type": "function",
+      "name": "_fetch_bilibili",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        320,
+        328
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_bilibili` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_xueqiu_stock",
+      "type": "function",
+      "name": "_fetch_xueqiu_stock",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        331,
+        345
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_xueqiu_stock` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_fetch_xueqiu_spot",
+      "type": "function",
+      "name": "_fetch_xueqiu_spot",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        348,
+        353
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_fetch_xueqiu_spot` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_item",
+      "type": "function",
+      "name": "_item",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        368,
+        381
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_item` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_platforms",
+      "type": "function",
+      "name": "_platforms",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        384,
+        396
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_platforms` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_platform_id",
+      "type": "function",
+      "name": "_platform_id",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        399,
+        404
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_platform_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_platform_ids",
+      "type": "function",
+      "name": "_platform_ids",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        407,
+        414
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_platform_ids` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_limit",
+      "type": "function",
+      "name": "_limit",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        417,
+        422
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_mention_keywords",
+      "type": "function",
+      "name": "_mention_keywords",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        425,
+        438
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_mention_keywords` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_platform_error",
+      "type": "function",
+      "name": "_platform_error",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        441,
+        450
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_platform_error` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_stock_items",
+      "type": "function",
+      "name": "_xueqiu_stock_items",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        453,
+        479
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_stock_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_spot_items",
+      "type": "function",
+      "name": "_xueqiu_spot_items",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        482,
+        502
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_spot_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_stock_api_items",
+      "type": "function",
+      "name": "_xueqiu_stock_api_items",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        505,
+        526
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_stock_api_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_stock_text_items",
+      "type": "function",
+      "name": "_xueqiu_stock_text_items",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        529,
+        554
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_stock_text_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_spot_text_items",
+      "type": "function",
+      "name": "_xueqiu_spot_text_items",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        557,
+        580
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_spot_text_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_json_rows_from_html",
+      "type": "function",
+      "name": "_json_rows_from_html",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        583,
+        587
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_json_rows_from_html` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_embedded_json_payloads",
+      "type": "function",
+      "name": "_embedded_json_payloads",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        590,
+        610
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_embedded_json_payloads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_balanced_json_blob",
+      "type": "function",
+      "name": "_balanced_json_blob",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        613,
+        641
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_balanced_json_blob` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_json_loads",
+      "type": "function",
+      "name": "_json_loads",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        644,
+        648
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_json_loads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_walk_json",
+      "type": "function",
+      "name": "_walk_json",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        651,
+        658
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_walk_json` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_first_text",
+      "type": "function",
+      "name": "_first_text",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        661,
+        666
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_first_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_first_number",
+      "type": "function",
+      "name": "_first_number",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        669,
+        674
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_first_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_heat_score",
+      "type": "function",
+      "name": "_heat_score",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        677,
+        684
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_heat_score` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_visible_text",
+      "type": "function",
+      "name": "_visible_text",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        687,
+        692
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_visible_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_xueqiu_extra",
+      "type": "function",
+      "name": "_xueqiu_extra",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        695,
+        713
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_xueqiu_extra` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/web/social_hot.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "sats/web/social_hot.py",
+      "lineRange": [
+        716,
+        717
+      ],
+      "summary": "在 `social_hot.py` 中实现 `_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "web",
+        "search"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:search_rag",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:search_rag",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:open_page",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:open_page",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:clear_web_cache",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:clear_web_cache",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:expand_queries",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:expand_queries",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:rank_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:rank_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:rerank_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:rerank_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:synthesize_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:synthesize_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:validate_citations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:validate_citations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_load_documents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_load_documents",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_chunk_and_query_vectors",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_chunk_and_query_vectors",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_embed_texts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_embed_texts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_embedding_selection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_embedding_selection",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_keyword_scores",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_keyword_scores",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_query_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_query_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_select_diverse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_select_diverse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_bounded_chunks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_bounded_chunks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_build_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_build_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_fallback_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_fallback_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_light_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_light_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_has_llm_settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_has_llm_settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_cosine",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_cosine",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_error_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_error_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_iso",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_iso",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "function:sats/web/rag_search.py:_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_parse_responses_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_parse_responses_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_ddgs_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_ddgs_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_ddg_search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_ddg_search",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_citation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_citation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_normalize_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_dedupe_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_dedupe_sources",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_assign_source_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_assign_source_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_insert_citation_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_insert_citation_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_object_dict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_object_dict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_configured",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_responses_configured",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_select_backend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_select_backend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_backend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_backend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_resolve_context_size",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_resolve_context_size",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_cache_ttl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_cache_ttl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clamp_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clamp_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_domain",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_domain",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_freshness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_clean_freshness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_domain_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_domain_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_url_matches_domains",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_url_matches_domains",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_is_garbage_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_is_garbage_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_error_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_error_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_safe_int",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_safe_int",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_is_parameter_compatibility_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_is_parameter_compatibility_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "function:sats/web/search.py:_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:social_hot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:social_hot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:hot_mentions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:hot_mentions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_hot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_hot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_json_with_seed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_json_with_seed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_http_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_weibo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_weibo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_zhihu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_zhihu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_baidu",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_baidu",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_baidu_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_baidu_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_douyin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_douyin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_toutiao",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_toutiao",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_bilibili",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_bilibili",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_xueqiu_stock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_xueqiu_stock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_xueqiu_spot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_fetch_xueqiu_spot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_item",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_item",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platforms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platforms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_ids",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_ids",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_mention_keywords",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_mention_keywords",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_platform_error",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_spot_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_spot_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_api_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_api_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_text_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_stock_text_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_spot_text_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_spot_text_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_json_rows_from_html",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_json_rows_from_html",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_embedded_json_payloads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_embedded_json_payloads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_balanced_json_blob",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_balanced_json_blob",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_json_loads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_json_loads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_walk_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_walk_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_first_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_first_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_first_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_first_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_heat_score",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_heat_score",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_visible_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_visible_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_extra",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_xueqiu_extra",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "function:sats/web/social_hot.py:_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "file:sats/web/fetch.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "file:sats/web/index.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/rag_search.py",
+      "target": "file:sats/web/providers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "file:sats/web/cache.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/search.py",
+      "target": "file:sats/web/rag_search.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/web/social_hot.py",
+      "target": "file:sats/web/cache.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

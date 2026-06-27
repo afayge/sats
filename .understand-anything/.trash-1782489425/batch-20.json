@@ -1,0 +1,558 @@
+{
+  "nodes": [
+    {
+      "id": "document:.mimocode/plans/1781272632114-gentle-star.md",
+      "type": "document",
+      "name": "1781272632114-gentle-star.md",
+      "filePath": ".mimocode/plans/1781272632114-gentle-star.md",
+      "summary": "记录外部协作工具生成的计划草稿，为后续实现或讨论提供上下文。",
+      "tags": [
+        "documentation",
+        "1781272632114-gentle-star",
+        "item"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "声明 understand-anything 的分析忽略规则，用于收窄代码图谱范围。",
+      "tags": [
+        "source-file",
+        "understandignore",
+        "item"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.understand-anything/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": ".understand-anything/config.json",
+      "summary": "保存 understand-anything 的输出语言与分析配置。",
+      "tags": [
+        "configuration",
+        "config",
+        "item"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:artifacts/chat/default/turn_d9559999b61b/deep_stock_analysis.json",
+      "type": "config",
+      "name": "deep_stock_analysis.json",
+      "filePath": "artifacts/chat/default/turn_d9559999b61b/deep_stock_analysis.json",
+      "summary": "保存 `deep_stock_analysis.json` 对应的结构化配置，用于约束相关流程的行为或输出。",
+      "tags": [
+        "configuration",
+        "deep-stock-analysis",
+        "item"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "config:knowledge/chan/rules/seed.json",
+      "type": "config",
+      "name": "seed.json",
+      "filePath": "knowledge/chan/rules/seed.json",
+      "summary": "保存缠论相关知识与规则种子数据，用于初始化领域知识内容。",
+      "tags": [
+        "configuration",
+        "knowledge",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/factors/factor_analysis_core.py",
+      "type": "file",
+      "name": "factor_analysis_core.py",
+      "filePath": "sats/factors/factor_analysis_core.py",
+      "summary": "实现 因子研究 中与 `factor analysis core` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/factors/factor_analysis_core.py:compute_ic_series",
+      "type": "function",
+      "name": "compute_ic_series",
+      "filePath": "sats/factors/factor_analysis_core.py",
+      "lineRange": [
+        8,
+        47
+      ],
+      "summary": "在 `factor_analysis_core.py` 中实现 `compute_ic_series` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/factors/factor_analysis_core.py:compute_group_equity",
+      "type": "function",
+      "name": "compute_group_equity",
+      "filePath": "sats/factors/factor_analysis_core.py",
+      "lineRange": [
+        50,
+        98
+      ],
+      "summary": "在 `factor_analysis_core.py` 中实现 `compute_group_equity` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/factors/zoo/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/factors/zoo/__init__.py",
+      "summary": "定义 `zoo` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/factors/zoo/alpha101/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/factors/zoo/alpha101/__init__.py",
+      "summary": "定义 `alpha101` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "document:sats/factors/zoo/alpha101/LICENSE.md",
+      "type": "document",
+      "name": "LICENSE.md",
+      "filePath": "sats/factors/zoo/alpha101/LICENSE.md",
+      "summary": "记录与 `LICENSE` 相关的说明内容，补充 因子研究 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/factors/zoo/barra_style/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/factors/zoo/barra_style/__init__.py",
+      "summary": "实现 Barra 风格因子 `  init  ` 的计算逻辑，为风格暴露与横截面分析提供输入。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative",
+        "barra-style",
+        "calculation"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "file:sats/factors/zoo/gtja191/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/factors/zoo/gtja191/__init__.py",
+      "summary": "定义 `gtja191` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "document:sats/factors/zoo/gtja191/LICENSE.md",
+      "type": "document",
+      "name": "LICENSE.md",
+      "filePath": "sats/factors/zoo/gtja191/LICENSE.md",
+      "summary": "记录与 `LICENSE` 相关的说明内容，补充 因子研究 的背景、方法或使用约定。",
+      "tags": [
+        "documentation",
+        "factors",
+        "quantitative"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/screening/rules/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/screening/rules/__init__.py",
+      "summary": "定义 `rules` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "function:sats/screening/rules/__init__.py:__getattr__",
+      "type": "function",
+      "name": "__getattr__",
+      "filePath": "sats/screening/rules/__init__.py",
+      "lineRange": [
+        16,
+        61
+      ],
+      "summary": "在 `__init__.py` 中实现 `__getattr__` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/screening/rules/generated/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/screening/rules/generated/__init__.py",
+      "summary": "定义 `generated` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "screening",
+        "rules"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    },
+    {
+      "id": "schema:sats/storage/schema.sql",
+      "type": "schema",
+      "name": "schema.sql",
+      "filePath": "sats/storage/schema.sql",
+      "summary": "集中声明 DuckDB 数据库的表结构与初始化模式，是本地存储层的模式定义。",
+      "tags": [
+        "schema-definition",
+        "storage",
+        "duckdb"
+      ],
+      "complexity": "complex",
+      "languageNotes": "SQL 模式文件把 DuckDB 表结构集中声明，便于初始化与迁移保持一致。"
+    },
+    {
+      "id": "document:skills/akshare/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/akshare/SKILL.md",
+      "summary": "说明 `akshare` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/ashare-pre-st-filter/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/ashare-pre-st-filter/SKILL.md",
+      "summary": "说明 `ashare-pre-st-filter` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/bottom-volume/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/bottom-volume/SKILL.md",
+      "summary": "说明 `bottom-volume` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/box-oscillation/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/box-oscillation/SKILL.md",
+      "summary": "说明 `box-oscillation` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/bull-trend/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/bull-trend/SKILL.md",
+      "summary": "说明 `bull-trend` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/candlestick/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/candlestick/SKILL.md",
+      "summary": "说明 `candlestick` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/chan-theory/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/chan-theory/SKILL.md",
+      "summary": "说明 `chan-theory` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/corporate-events/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/corporate-events/SKILL.md",
+      "summary": "说明 `corporate-events` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/data-routing/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/data-routing/SKILL.md",
+      "summary": "说明 `data-routing` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:skills/deep-stock-analysis/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": "skills/deep-stock-analysis/SKILL.md",
+      "summary": "说明 `deep-stock-analysis` skill 的触发方式、输入约定与执行步骤，用于扩展 SATS 的领域能力。",
+      "tags": [
+        "documentation",
+        "skill",
+        "prompting",
+        "workflow"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/factors/factor_analysis_core.py",
+      "target": "function:sats/factors/factor_analysis_core.py:compute_ic_series",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/factor_analysis_core.py",
+      "target": "function:sats/factors/factor_analysis_core.py:compute_ic_series",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/factors/factor_analysis_core.py",
+      "target": "function:sats/factors/factor_analysis_core.py:compute_group_equity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/factors/factor_analysis_core.py",
+      "target": "function:sats/factors/factor_analysis_core.py:compute_group_equity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/screening/rules/__init__.py",
+      "target": "function:sats/screening/rules/__init__.py:__getattr__",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/screening/rules/__init__.py",
+      "target": "function:sats/screening/rules/__init__.py:__getattr__",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "schema:sats/storage/schema.sql",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "document:.mimocode/plans/1781272632114-gentle-star.md",
+      "target": "file:sats/agent/planner_v2.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:.understand-anything/.understandignore",
+      "target": "config:.understand-anything/config.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.understand-anything/config.json",
+      "target": "file:.understand-anything/.understandignore",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:artifacts/chat/default/turn_d9559999b61b/deep_stock_analysis.json",
+      "target": "file:sats/deep_analysis/service.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:knowledge/chan/rules/seed.json",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:skills/akshare/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/ashare-pre-st-filter/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/bottom-volume/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/box-oscillation/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/bull-trend/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/candlestick/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/chan-theory/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/corporate-events/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/data-routing/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:skills/deep-stock-analysis/SKILL.md",
+      "target": "file:sats/skills.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

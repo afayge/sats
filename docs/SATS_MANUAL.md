@@ -330,19 +330,10 @@ sats discover 新能源板块有哪些机会
 ```bash
 sats chat <消息>                # 默认 conversation 对话
 sats chat --engine legacy <消息> # 使用旧聊天引擎
-sats chat --agent <消息>        # 显式启用 Agent runtime
 sats chat --trace <turn_id>     # 查看历史 turn 详情
 sats chat --confirm <action_id> # 确认待执行动作
 sats chat --reject <action_id>  # 拒绝待执行动作
 ```
-
-### 5.12 `agent` — Agent 执行
-
-```bash
-sats agent <任务描述>
-```
-
-进入 Agent 计划-执行循环，支持多步骤任务分解和工具调用。
 
 ### 5.13 `model` — 模型管理
 
@@ -1139,18 +1130,7 @@ Agent 可用的工具定义在 `sats/agent/tools/`，包括：
 
 ### 17.4 用法
 
-```bash
-sats agent 分析最近三天涨幅超过5%的股票
-```
-
-```python
-from sats.agent import run_agent_once
-
-result = run_agent_once(
-    "筛选PE低于15且ROE大于15%的股票",
-    settings=settings,
-)
-```
+公共自然语言入口使用 `sats chat` 和 REPL 普通输入。底层 Agent 类型和工具注册表仍供 conversation runtime、内部工具和测试复用。
 
 ---
 

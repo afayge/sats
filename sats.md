@@ -436,14 +436,13 @@ sats discover --hot-sector-days 3 --limit 15
 
 ### 4.16 `chat` — 自然语言对话
 
-自然语言对话接口，默认走 Codex-style conversation 引擎；旧聊天路径和 autonomous Agent runtime 需要显式启用。
+自然语言对话接口，默认走 Codex-style conversation 引擎；旧聊天路径通过 `--engine legacy` 显式启用。
 
 | 参数 | 类型 | 默认值 | 必填 | 说明 |
 |------|------|--------|------|------|
 | `--no-memory` | flag | False | 否 | 禁用本地聊天记忆 |
 | `--knowledge` | str | None | 否 | 指定知识库名称/ID |
 | `--engine` | choice | `conversation` | 否 | 对话引擎: `conversation`, `legacy` |
-| `--agent` | flag | False | 否 | 显式启用 autonomous Agent runtime |
 | `--confirm` | str | None | 否 | 确认待处理的运行时动作 |
 | `--reject` | str | None | 否 | 拒绝待处理的运行时动作 |
 | `--trace` | str | None | 否 | 显示聊天轮次追踪 |
@@ -464,44 +463,12 @@ sats discover --hot-sector-days 3 --limit 15
 ```bash
 sats chat 今天大盘走势怎么样
 sats chat --engine legacy 解释一下 MACD 指标
-sats chat --agent 生成一份000001均线研究报告并保存
 sats chat --knowledge chan-theory 三买的定义是什么
 sats chat --confirm action_001
 sats chat --auto-trade buy --broker qmt 买入 100 股平安银行
 sats chat --plan-only 帮我分析今天的机会
 sats chat --trace turn_20260612_001
 ```
-
----
-
-### 4.17 `agent` — 显式 Agent 任务
-
-通过自主 Agent 执行自然语言目标。
-
-| 参数 | 类型 | 默认值 | 必填 | 说明 |
-|------|------|--------|------|------|
-| `--auto-trade` | str | `""` | 否 | 启用的交易动作: `buy`, `sell` |
-| `--broker` | choice | `noop` | 否 | 交易券商: `noop`, `qmt` |
-| `--live-trading` | flag | False | 否 | 允许 QMT 实盘下单 |
-| `--max-order-value` | float | 20000.0 | 否 | 最大买入金额 |
-| `--max-position-pct` | float | 0.2 | 否 | 最大持仓占比 |
-| `--sell-ratio` | float | 1.0 | 否 | 卖出比例 |
-| `--max-iterations` | int | 6 | 否 | Agent 最大步骤数 |
-| `--command-timeout` | int | 120 | 否 | 单个命令超时秒数 |
-| `--python-timeout` | int | 30 | 否 | Python 执行超时秒数 |
-| `--plan-only` | flag | False | 否 | 仅构建并打印 Agent 计划 |
-| `--dry-run` | flag | False | 否 | 跳过高风险副作用 |
-| `message` | positional | — | **是** | 自然语言 Agent 目标 (剩余参数) |
-
-**示例：**
-```bash
-sats agent 帮我分析贵州茅台最近的技术面
-sats agent --max-iterations 3 筛选今天涨停板的股票
-sats agent --plan-only 分析半导体板块
-sats agent --dry-run 买入 100 股平安银行
-```
-
----
 
 ### 4.18 `web` — 网络搜索 & 社交热榜
 
@@ -936,7 +903,7 @@ sats serve --host 0.0.0.0 --port 8000
 
 ---
 
-## 五、REPL 内置命令 (11个)
+## 五、REPL 内置命令 (10个)
 
 | 命令 | 参数 | 功能 |
 |------|------|------|
@@ -945,15 +912,13 @@ sats serve --host 0.0.0.0 --port 8000
 | `/clear` | — | 清屏 |
 | `/save` | `--format` (md/pdf), `--path`, `--source` (output/report) | 保存上次输出 |
 | `/new` | `[title]` | 创建新聊天会话 |
-| `/goal` | `[text]` / `status` / `cancel` / `clear` | 设置/查看/清除 Agent 目标 |
-| `/plan` | `[text]` | 构建 Agent 计划 (等同 `agent --plan-only`) |
+| `/plan` | `[text]` | 构建 conversation 计划 |
 | `/confirm` | `ACTION_ID` | 确认待处理动作 |
 | `/reject` | `ACTION_ID` | 拒绝待处理动作 |
 | `/trace` | `[turn_id]` | 显示聊天追踪 |
 
 ```bash
 sats> /help
-sats> /goal 帮我每天收盘后分析缠论信号
 sats> /plan 分析半导体板块机会
 sats> /save --format pdf
 sats> /confirm action_001
@@ -1559,7 +1524,7 @@ AStockDataProvider (统一门面)
 | 模式 | 说明 |
 |------|------|
 | **单一入口** | CLI/REPL/Chat 共用 `cli.main(argv)` |
-| **Conversation 默认路由** | 默认对话走 conversation 引擎，`sats agent` / `sats chat --agent` 显式启用 Agent |
+| **Conversation 默认路由** | 默认对话走 conversation 引擎，旧聊天路径使用 `sats chat --engine legacy` |
 | **DuckDB 万能存储** | 30+ 张表覆盖所有数据域 |
 | **数据门面** | `AStockDataProvider` 统一入口 |
 | **输入边界标准化** | `sats.symbols` 标准化股票代码 |

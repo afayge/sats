@@ -1,0 +1,1970 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/analysis/stock_research_context.py",
+      "type": "file",
+      "name": "stock_research_context.py",
+      "filePath": "sats/analysis/stock_research_context.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `stock research context` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/stock_research_context.py:StockResearchContext",
+      "type": "class",
+      "name": "StockResearchContext",
+      "filePath": "sats/analysis/stock_research_context.py",
+      "lineRange": [
+        16,
+        23
+      ],
+      "summary": "在 `stock_research_context.py` 中定义 `StockResearchContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/stock_research_context.py:build_stock_research_context",
+      "type": "function",
+      "name": "build_stock_research_context",
+      "filePath": "sats/analysis/stock_research_context.py",
+      "lineRange": [
+        26,
+        52
+      ],
+      "summary": "在 `stock_research_context.py` 中实现 `build_stock_research_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:sats/analysis/trading_committee.py",
+      "type": "file",
+      "name": "trading_committee.py",
+      "filePath": "sats/analysis/trading_committee.py",
+      "summary": "实现 研究分析与 LLM 上下文 中与 `trading committee` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/analysis/trading_committee.py:LLMDiagnostics",
+      "type": "class",
+      "name": "LLMDiagnostics",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        25,
+        41
+      ],
+      "summary": "在 `trading_committee.py` 中定义 `LLMDiagnostics` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/trading_committee.py:TradingCommitteeRequest",
+      "type": "class",
+      "name": "TradingCommitteeRequest",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        45,
+        56
+      ],
+      "summary": "在 `trading_committee.py` 中定义 `TradingCommitteeRequest` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/trading_committee.py:TradingCommitteeStockReport",
+      "type": "class",
+      "name": "TradingCommitteeStockReport",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        60,
+        77
+      ],
+      "summary": "在 `trading_committee.py` 中定义 `TradingCommitteeStockReport` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/analysis/trading_committee.py:TradingCommitteeResult",
+      "type": "class",
+      "name": "TradingCommitteeResult",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        81,
+        116
+      ],
+      "summary": "在 `trading_committee.py` 中定义 `TradingCommitteeResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/analysis/trading_committee.py:_StockCommitteeContext",
+      "type": "class",
+      "name": "_StockCommitteeContext",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        311,
+        406
+      ],
+      "summary": "在 `trading_committee.py` 中定义 `_StockCommitteeContext` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:run_trading_committee",
+      "type": "function",
+      "name": "run_trading_committee",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        119,
+        227
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `run_trading_committee` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:write_trading_committee_artifacts",
+      "type": "function",
+      "name": "write_trading_committee_artifacts",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        230,
+        240
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `write_trading_committee_artifacts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_run_stock_committee",
+      "type": "function",
+      "name": "_run_stock_committee",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        243,
+        308
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_run_stock_committee` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_run_analysts",
+      "type": "function",
+      "name": "_run_analysts",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        409,
+        445
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_run_analysts` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_run_research_team",
+      "type": "function",
+      "name": "_run_research_team",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        448,
+        494
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_run_research_team` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_run_trader",
+      "type": "function",
+      "name": "_run_trader",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        497,
+        515
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_run_trader` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_run_risk_team",
+      "type": "function",
+      "name": "_run_risk_team",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        518,
+        560
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_run_risk_team` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_load_extra_context",
+      "type": "function",
+      "name": "_load_extra_context",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        563,
+        581
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_load_extra_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_market_report",
+      "type": "function",
+      "name": "_fallback_market_report",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        584,
+        597
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_market_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_fundamental_report",
+      "type": "function",
+      "name": "_fallback_fundamental_report",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        600,
+        609
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_fundamental_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_news_report",
+      "type": "function",
+      "name": "_fallback_news_report",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        612,
+        620
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_news_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_sentiment_report",
+      "type": "function",
+      "name": "_fallback_sentiment_report",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        623,
+        632
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_sentiment_report` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_bull_case",
+      "type": "function",
+      "name": "_fallback_bull_case",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        635,
+        643
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_bull_case` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_bear_case",
+      "type": "function",
+      "name": "_fallback_bear_case",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        646,
+        654
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_bear_case` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_investment_plan",
+      "type": "function",
+      "name": "_fallback_investment_plan",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        657,
+        667
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_investment_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_trader_proposal",
+      "type": "function",
+      "name": "_fallback_trader_proposal",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        670,
+        687
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_trader_proposal` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_aggressive_case",
+      "type": "function",
+      "name": "_fallback_aggressive_case",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        690,
+        691
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_aggressive_case` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_conservative_case",
+      "type": "function",
+      "name": "_fallback_conservative_case",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        694,
+        695
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_conservative_case` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_neutral_case",
+      "type": "function",
+      "name": "_fallback_neutral_case",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        698,
+        699
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_neutral_case` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_fallback_final_decision",
+      "type": "function",
+      "name": "_fallback_final_decision",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        702,
+        714
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_fallback_final_decision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_local_rating",
+      "type": "function",
+      "name": "_local_rating",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        717,
+        743
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_local_rating` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_debate_prompt",
+      "type": "function",
+      "name": "_debate_prompt",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        746,
+        752
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_debate_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_risk_prompt",
+      "type": "function",
+      "name": "_risk_prompt",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        755,
+        768
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_risk_prompt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_reports_text",
+      "type": "function",
+      "name": "_reports_text",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        771,
+        772
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_reports_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_llm_or_fallback",
+      "type": "function",
+      "name": "_llm_or_fallback",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        775,
+        801
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_llm_or_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_build_llm",
+      "type": "function",
+      "name": "_build_llm",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        804,
+        818
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_build_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_resolve_llm_timeout",
+      "type": "function",
+      "name": "_resolve_llm_timeout",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        821,
+        824
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_resolve_llm_timeout` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_llm_diagnostics_from_settings",
+      "type": "function",
+      "name": "_llm_diagnostics_from_settings",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        827,
+        835
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_llm_diagnostics_from_settings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_llm_error_diagnostics",
+      "type": "function",
+      "name": "_llm_error_diagnostics",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        838,
+        846
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_llm_error_diagnostics` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_first_llm_failure",
+      "type": "function",
+      "name": "_first_llm_failure",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        849,
+        854
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_first_llm_failure` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_short_error_message",
+      "type": "function",
+      "name": "_short_error_message",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        857,
+        862
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_short_error_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_llm_unavailable_notice",
+      "type": "function",
+      "name": "_llm_unavailable_notice",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        865,
+        870
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_llm_unavailable_notice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_stock_markdown",
+      "type": "function",
+      "name": "_stock_markdown",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        873,
+        912
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_stock_markdown` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_technical_extra",
+      "type": "function",
+      "name": "_technical_extra",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        915,
+        930
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_technical_extra` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_supported_common_a_symbols",
+      "type": "function",
+      "name": "_supported_common_a_symbols",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        933,
+        941
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_supported_common_a_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_has_daily_data",
+      "type": "function",
+      "name": "_has_daily_data",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        944,
+        945
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_has_daily_data` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_safe_call",
+      "type": "function",
+      "name": "_safe_call",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        948,
+        953
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_safe_call` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_unavailable_context",
+      "type": "function",
+      "name": "_unavailable_context",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        956,
+        957
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_unavailable_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_compact_payload",
+      "type": "function",
+      "name": "_compact_payload",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        960,
+        976
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_compact_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_short_scalar",
+      "type": "function",
+      "name": "_short_scalar",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        979,
+        986
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_short_scalar` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_symbol_payload",
+      "type": "function",
+      "name": "_symbol_payload",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        989,
+        997
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_symbol_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_stock_hot_sectors",
+      "type": "function",
+      "name": "_stock_hot_sectors",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1000,
+        1007
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_stock_hot_sectors` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_payload_missing",
+      "type": "function",
+      "name": "_payload_missing",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1010,
+        1018
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_payload_missing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_payload_source",
+      "type": "function",
+      "name": "_payload_source",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1021,
+        1030
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_payload_source` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_extract_rating",
+      "type": "function",
+      "name": "_extract_rating",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1033,
+        1041
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_extract_rating` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_ensure_prefix",
+      "type": "function",
+      "name": "_ensure_prefix",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1044,
+        1046
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_ensure_prefix` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_content_text",
+      "type": "function",
+      "name": "_content_text",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1049,
+        1062
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_content_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_optional_num",
+      "type": "function",
+      "name": "_optional_num",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1065,
+        1071
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_optional_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_num",
+      "type": "function",
+      "name": "_num",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1074,
+        1080
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_num` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1083,
+        1089
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_jsonable",
+      "type": "function",
+      "name": "_jsonable",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1092,
+        1106
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_jsonable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/analysis/trading_committee.py:_days_before",
+      "type": "function",
+      "name": "_days_before",
+      "filePath": "sats/analysis/trading_committee.py",
+      "lineRange": [
+        1109,
+        1112
+      ],
+      "summary": "在 `trading_committee.py` 中实现 `_days_before` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "analysis",
+        "research"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "class:sats/analysis/stock_research_context.py:StockResearchContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "class:sats/analysis/stock_research_context.py:StockResearchContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "function:sats/analysis/stock_research_context.py:build_stock_research_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "function:sats/analysis/stock_research_context.py:build_stock_research_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:LLMDiagnostics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:LLMDiagnostics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeStockReport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeStockReport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:TradingCommitteeResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:_StockCommitteeContext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "class:sats/analysis/trading_committee.py:_StockCommitteeContext",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:run_trading_committee",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:run_trading_committee",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:write_trading_committee_artifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:write_trading_committee_artifacts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_stock_committee",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_stock_committee",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_analysts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_analysts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_research_team",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_research_team",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_trader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_trader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_risk_team",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_run_risk_team",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_load_extra_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_load_extra_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_market_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_market_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_fundamental_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_fundamental_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_news_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_news_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_sentiment_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_sentiment_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_bull_case",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_bull_case",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_bear_case",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_bear_case",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_investment_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_investment_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_trader_proposal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_trader_proposal",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_aggressive_case",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_aggressive_case",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_conservative_case",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_conservative_case",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_neutral_case",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_neutral_case",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_final_decision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_fallback_final_decision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_local_rating",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_local_rating",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_debate_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_debate_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_risk_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_risk_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_reports_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_reports_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_or_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_or_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_build_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_build_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_resolve_llm_timeout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_resolve_llm_timeout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_diagnostics_from_settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_diagnostics_from_settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_error_diagnostics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_error_diagnostics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_first_llm_failure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_first_llm_failure",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_short_error_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_short_error_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_unavailable_notice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_llm_unavailable_notice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_stock_markdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_stock_markdown",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_technical_extra",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_technical_extra",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_supported_common_a_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_supported_common_a_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_has_daily_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_has_daily_data",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_safe_call",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_safe_call",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_unavailable_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_unavailable_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_compact_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_compact_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_short_scalar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_short_scalar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_symbol_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_symbol_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_stock_hot_sectors",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_stock_hot_sectors",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_payload_missing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_payload_missing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_payload_source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_payload_source",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_extract_rating",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_extract_rating",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_ensure_prefix",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_ensure_prefix",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_content_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_content_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_optional_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_optional_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_num",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_num",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_jsonable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_jsonable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_days_before",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "function:sats/analysis/trading_committee.py:_days_before",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/stock_research_context.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/analysis/trading_committee.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

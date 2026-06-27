@@ -1,0 +1,5494 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/chat_events.py",
+      "type": "file",
+      "name": "chat_events.py",
+      "filePath": "sats/chat_events.py",
+      "summary": "实现 项目 中与 `chat events` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_events.py:ChatTurn",
+      "type": "class",
+      "name": "ChatTurn",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        36,
+        40
+      ],
+      "summary": "在 `chat_events.py` 中定义 `ChatTurn` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_events.py:ChatTurnEvent",
+      "type": "class",
+      "name": "ChatTurnEvent",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        44,
+        56
+      ],
+      "summary": "在 `chat_events.py` 中定义 `ChatTurnEvent` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_events.py:ChatTurnRecorder",
+      "type": "class",
+      "name": "ChatTurnRecorder",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        62,
+        373
+      ],
+      "summary": "在 `chat_events.py` 中定义 `ChatTurnRecorder` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_events.py:_new_id",
+      "type": "function",
+      "name": "_new_id",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        376,
+        377
+      ],
+      "summary": "在 `chat_events.py` 中实现 `_new_id` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_events.py:_now",
+      "type": "function",
+      "name": "_now",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        380,
+        381
+      ],
+      "summary": "在 `chat_events.py` 中实现 `_now` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_events.py:_clean_choice",
+      "type": "function",
+      "name": "_clean_choice",
+      "filePath": "sats/chat_events.py",
+      "lineRange": [
+        384,
+        386
+      ],
+      "summary": "在 `chat_events.py` 中实现 `_clean_choice` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-events",
+        "chat-events-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/cli.py",
+      "type": "file",
+      "name": "cli.py",
+      "filePath": "sats/cli.py",
+      "summary": "注册一次性 CLI 子命令并分发到各业务处理器，是 SATS 的命令行入口。",
+      "tags": [
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:_rule_required_trade_days",
+      "type": "function",
+      "name": "_rule_required_trade_days",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        160,
+        164
+      ],
+      "summary": "在 `cli.py` 中实现 `_rule_required_trade_days` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_progress_for_args",
+      "type": "function",
+      "name": "_progress_for_args",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        167,
+        170
+      ],
+      "summary": "在 `cli.py` 中实现 `_progress_for_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_progress_request",
+      "type": "function",
+      "name": "_progress_request",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        173,
+        226
+      ],
+      "summary": "在 `cli.py` 中实现 `_progress_request` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_announce_analyzing",
+      "type": "function",
+      "name": "_announce_analyzing",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        229,
+        231
+      ],
+      "summary": "在 `cli.py` 中实现 `_announce_analyzing` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_add_monitor_trade_args",
+      "type": "function",
+      "name": "_add_monitor_trade_args",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        234,
+        239
+      ],
+      "summary": "在 `cli.py` 中实现 `_add_monitor_trade_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_add_agent_args",
+      "type": "function",
+      "name": "_add_agent_args",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        242,
+        253
+      ],
+      "summary": "在 `cli.py` 中实现 `_add_agent_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:build_parser",
+      "type": "function",
+      "name": "build_parser",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        256,
+        838
+      ],
+      "summary": "在 `cli.py` 中实现 `build_parser` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        841,
+        864
+      ],
+      "summary": "负责驱动 `cli.py` 中的主执行流程。",
+      "tags": [
+        "function",
+        "entry-point",
+        "python",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_dispatch_command",
+      "type": "function",
+      "name": "_dispatch_command",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        867,
+        937
+      ],
+      "summary": "在 `cli.py` 中实现 `_dispatch_command` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_init",
+      "type": "function",
+      "name": "cmd_init",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        940,
+        947
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_init` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_resolve_analysis_trade_date",
+      "type": "function",
+      "name": "_resolve_analysis_trade_date",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        950,
+        969
+      ],
+      "summary": "在 `cli.py` 中实现 `_resolve_analysis_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_canonical_chan_rule_name",
+      "type": "function",
+      "name": "_canonical_chan_rule_name",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        972,
+        977
+      ],
+      "summary": "在 `cli.py` 中实现 `_canonical_chan_rule_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_latest_cached_trade_date",
+      "type": "function",
+      "name": "_latest_cached_trade_date",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        980,
+        991
+      ],
+      "summary": "在 `cli.py` 中实现 `_latest_cached_trade_date` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_previous_weekday",
+      "type": "function",
+      "name": "_previous_weekday",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        994,
+        998
+      ],
+      "summary": "在 `cli.py` 中实现 `_previous_weekday` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_screen",
+      "type": "function",
+      "name": "cmd_screen",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1001,
+        1032
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_screen` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_results",
+      "type": "function",
+      "name": "cmd_results",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1035,
+        1047
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_results` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_result_rules",
+      "type": "function",
+      "name": "cmd_result_rules",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1050,
+        1054
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_result_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_quote",
+      "type": "function",
+      "name": "cmd_quote",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1057,
+        1093
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_quote` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_period_change",
+      "type": "function",
+      "name": "cmd_period_change",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1096,
+        1142
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_period_change` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_analyze",
+      "type": "function",
+      "name": "cmd_analyze",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1145,
+        1212
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_analyze` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_analyze_dsa",
+      "type": "function",
+      "name": "cmd_analyze_dsa",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1215,
+        1255
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_analyze_dsa` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_dsa",
+      "type": "function",
+      "name": "cmd_dsa",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1258,
+        1331
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_dsa` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_deep_analysis",
+      "type": "function",
+      "name": "cmd_deep_analysis",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1334,
+        1376
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_deep_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_serenity_screen",
+      "type": "function",
+      "name": "cmd_serenity_screen",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1379,
+        1428
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_serenity_screen` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_trading_committee",
+      "type": "function",
+      "name": "cmd_trading_committee",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1431,
+        1475
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_trading_committee` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_analyze_chan",
+      "type": "function",
+      "name": "cmd_analyze_chan",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1478,
+        1545
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_analyze_chan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_chan_kb",
+      "type": "function",
+      "name": "cmd_chan_kb",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1548,
+        1563
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_chan_kb` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_discover",
+      "type": "function",
+      "name": "cmd_discover",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1566,
+        1621
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_discover` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_chat",
+      "type": "function",
+      "name": "cmd_chat",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1624,
+        1711
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_chat` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_agent",
+      "type": "function",
+      "name": "cmd_agent",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1714,
+        1734
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_agent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_threads",
+      "type": "function",
+      "name": "cmd_threads",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1737,
+        1780
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_threads` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_web",
+      "type": "function",
+      "name": "cmd_web",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1783,
+        1834
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_web` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:format_web_result",
+      "type": "function",
+      "name": "format_web_result",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1837,
+        1929
+      ],
+      "summary": "在 `cli.py` 中实现 `format_web_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:_chat_result_from_runtime",
+      "type": "function",
+      "name": "_chat_result_from_runtime",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1932,
+        1942
+      ],
+      "summary": "在 `cli.py` 中实现 `_chat_result_from_runtime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_chat_result_from_conversation",
+      "type": "function",
+      "name": "_chat_result_from_conversation",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1945,
+        1958
+      ],
+      "summary": "在 `cli.py` 中实现 `_chat_result_from_conversation` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_should_prompt_cli_clarification",
+      "type": "function",
+      "name": "_should_prompt_cli_clarification",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1961,
+        1969
+      ],
+      "summary": "在 `cli.py` 中实现 `_should_prompt_cli_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_continue_cli_clarification",
+      "type": "function",
+      "name": "_continue_cli_clarification",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1972,
+        1988
+      ],
+      "summary": "在 `cli.py` 中实现 `_continue_cli_clarification` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_chat_result_from_agent",
+      "type": "function",
+      "name": "_chat_result_from_agent",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        1991,
+        2004
+      ],
+      "summary": "在 `cli.py` 中实现 `_chat_result_from_agent` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_confirm_chat_action",
+      "type": "function",
+      "name": "_confirm_chat_action",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2007,
+        2012
+      ],
+      "summary": "在 `cli.py` 中实现 `_confirm_chat_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_reject_chat_action",
+      "type": "function",
+      "name": "_reject_chat_action",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2015,
+        2020
+      ],
+      "summary": "在 `cli.py` 中实现 `_reject_chat_action` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_emit_chat_result",
+      "type": "function",
+      "name": "_emit_chat_result",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2023,
+        2030
+      ],
+      "summary": "在 `cli.py` 中实现 `_emit_chat_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_terminal_width",
+      "type": "function",
+      "name": "_terminal_width",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2033,
+        2037
+      ],
+      "summary": "在 `cli.py` 中实现 `_terminal_width` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_agent_policy_from_args",
+      "type": "function",
+      "name": "_agent_policy_from_args",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2040,
+        2052
+      ],
+      "summary": "在 `cli.py` 中实现 `_agent_policy_from_args` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_agent_plan_only",
+      "type": "function",
+      "name": "_format_agent_plan_only",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2055,
+        2063
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_agent_plan_only` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_agent_plan",
+      "type": "function",
+      "name": "_format_agent_plan",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2066,
+        2104
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_agent_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_model",
+      "type": "function",
+      "name": "cmd_model",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2107,
+        2129
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_model` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_default_env_path",
+      "type": "function",
+      "name": "_default_env_path",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2132,
+        2136
+      ],
+      "summary": "在 `cli.py` 中实现 `_default_env_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_memory",
+      "type": "function",
+      "name": "cmd_memory",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2139,
+        2165
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_memory` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_history",
+      "type": "function",
+      "name": "cmd_history",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2168,
+        2197
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_history` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_knowledge",
+      "type": "function",
+      "name": "cmd_knowledge",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2200,
+        2233
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_knowledge` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_indicators",
+      "type": "function",
+      "name": "cmd_indicators",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2236,
+        2268
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_indicators` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_factor",
+      "type": "function",
+      "name": "cmd_factor",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2271,
+        2309
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_factor` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_factor_ml",
+      "type": "function",
+      "name": "_cmd_factor_ml",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2312,
+        2405
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_factor_ml` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_factor_analyze",
+      "type": "function",
+      "name": "_cmd_factor_analyze",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2408,
+        2475
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_factor_analyze` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_factor_pick",
+      "type": "function",
+      "name": "_cmd_factor_pick",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2478,
+        2603
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_factor_pick` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:_load_factor_panel",
+      "type": "function",
+      "name": "_load_factor_panel",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2606,
+        2624
+      ],
+      "summary": "在 `cli.py` 中实现 `_load_factor_panel` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_factor_ic_weights",
+      "type": "function",
+      "name": "_factor_ic_weights",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2627,
+        2655
+      ],
+      "summary": "在 `cli.py` 中实现 `_factor_ic_weights` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_write_factor_screening",
+      "type": "function",
+      "name": "_write_factor_screening",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2658,
+        2680
+      ],
+      "summary": "在 `cli.py` 中实现 `_write_factor_screening` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_skills",
+      "type": "function",
+      "name": "cmd_skills",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2683,
+        2687
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_skills` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_watchlist",
+      "type": "function",
+      "name": "cmd_watchlist",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2690,
+        2722
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_monitor",
+      "type": "function",
+      "name": "cmd_monitor",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2725,
+        2749
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_monitor` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_positions",
+      "type": "function",
+      "name": "_cmd_monitor_positions",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2752,
+        2761
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_positions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_watchlist",
+      "type": "function",
+      "name": "_cmd_monitor_watchlist",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2764,
+        2780
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_watchlist` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_buy_candidates",
+      "type": "function",
+      "name": "_cmd_monitor_buy_candidates",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2783,
+        2791
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_buy_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_plans",
+      "type": "function",
+      "name": "_cmd_monitor_plans",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2794,
+        2859
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_plans` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_start",
+      "type": "function",
+      "name": "_cmd_monitor_start",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2862,
+        2913
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_start` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_run",
+      "type": "function",
+      "name": "_cmd_monitor_run",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2916,
+        2942
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_build_monitor_trading_provider",
+      "type": "function",
+      "name": "_build_monitor_trading_provider",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2945,
+        2963
+      ],
+      "summary": "在 `cli.py` 中实现 `_build_monitor_trading_provider` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_stop",
+      "type": "function",
+      "name": "_cmd_monitor_stop",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2966,
+        2978
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_stop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_qmt",
+      "type": "function",
+      "name": "cmd_qmt",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        2981,
+        3069
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_qmt` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_monitor_display",
+      "type": "function",
+      "name": "cmd_monitor_display",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3072,
+        3084
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_monitor_display` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_display_start",
+      "type": "function",
+      "name": "_cmd_monitor_display_start",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3087,
+        3112
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_display_start` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_display_run",
+      "type": "function",
+      "name": "_cmd_monitor_display_run",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3115,
+        3131
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_display_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_monitor_display_stop",
+      "type": "function",
+      "name": "_cmd_monitor_display_stop",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3134,
+        3146
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_monitor_display_stop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_schedule",
+      "type": "function",
+      "name": "cmd_schedule",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3149,
+        3181
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_schedule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_add",
+      "type": "function",
+      "name": "_cmd_schedule_add",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3184,
+        3213
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_add` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_enable",
+      "type": "function",
+      "name": "_cmd_schedule_enable",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3216,
+        3222
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_enable` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_run",
+      "type": "function",
+      "name": "_cmd_schedule_run",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3225,
+        3232
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_run` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_start",
+      "type": "function",
+      "name": "_cmd_schedule_start",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3235,
+        3256
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_start` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_run_loop",
+      "type": "function",
+      "name": "_cmd_schedule_run_loop",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3259,
+        3276
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_run_loop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_schedule_stop",
+      "type": "function",
+      "name": "_cmd_schedule_stop",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3279,
+        3296
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_schedule_stop` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_portfolio",
+      "type": "function",
+      "name": "cmd_portfolio",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3299,
+        3367
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_portfolio` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_portfolio_plans",
+      "type": "function",
+      "name": "_cmd_portfolio_plans",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3370,
+        3384
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_portfolio_plans` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_portfolio_orders",
+      "type": "function",
+      "name": "_cmd_portfolio_orders",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3387,
+        3407
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_portfolio_orders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_portfolio_schedule",
+      "type": "function",
+      "name": "_cmd_portfolio_schedule",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3410,
+        3464
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_portfolio_schedule` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_catalog",
+      "type": "function",
+      "name": "cmd_catalog",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3467,
+        3486
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_catalog` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:cmd_serve",
+      "type": "function",
+      "name": "cmd_serve",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3489,
+        3495
+      ],
+      "summary": "在 `cli.py` 中实现 `cmd_serve` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_stock_list",
+      "type": "function",
+      "name": "_format_stock_list",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3498,
+        3508
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_stock_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_signal_input_from_screening_input",
+      "type": "function",
+      "name": "_signal_input_from_screening_input",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3511,
+        3518
+      ],
+      "summary": "在 `cli.py` 中实现 `_signal_input_from_screening_input` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_result_stock_list",
+      "type": "function",
+      "name": "_format_result_stock_list",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3521,
+        3554
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_result_stock_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_quote_table",
+      "type": "function",
+      "name": "_format_quote_table",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3557,
+        3601
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_quote_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_period_change_rows",
+      "type": "function",
+      "name": "_period_change_rows",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3604,
+        3651
+      ],
+      "summary": "在 `cli.py` 中实现 `_period_change_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_nearest_trade_row",
+      "type": "function",
+      "name": "_nearest_trade_row",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3654,
+        3657
+      ],
+      "summary": "在 `cli.py` 中实现 `_nearest_trade_row` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_period_change_table",
+      "type": "function",
+      "name": "_format_period_change_table",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3660,
+        3689
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_period_change_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_display_ljust",
+      "type": "function",
+      "name": "_display_ljust",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3692,
+        3693
+      ],
+      "summary": "在 `cli.py` 中实现 `_display_ljust` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_matched_labels",
+      "type": "function",
+      "name": "_matched_labels",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3696,
+        3705
+      ],
+      "summary": "在 `cli.py` 中实现 `_matched_labels` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_numbered_values",
+      "type": "function",
+      "name": "_format_numbered_values",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3708,
+        3711
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_numbered_values` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_list",
+      "type": "function",
+      "name": "_format_factor_list",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3714,
+        3747
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_show",
+      "type": "function",
+      "name": "_format_factor_show",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3750,
+        3767
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_show` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_analysis",
+      "type": "function",
+      "name": "_format_factor_analysis",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3770,
+        3783
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_analysis` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_picks",
+      "type": "function",
+      "name": "_format_factor_picks",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3786,
+        3813
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_picks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_optional_dependency_status",
+      "type": "function",
+      "name": "_format_optional_dependency_status",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3816,
+        3834
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_optional_dependency_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_ml_train",
+      "type": "function",
+      "name": "_format_factor_ml_train",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3837,
+        3856
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_ml_train` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_factor_ml_evaluate",
+      "type": "function",
+      "name": "_format_factor_ml_evaluate",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3859,
+        3880
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_factor_ml_evaluate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_quote_moving_average_lookup",
+      "type": "function",
+      "name": "_quote_moving_average_lookup",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3883,
+        3902
+      ],
+      "summary": "在 `cli.py` 中实现 `_quote_moving_average_lookup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_normalize_quote_daily_frame",
+      "type": "function",
+      "name": "_normalize_quote_daily_frame",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3905,
+        3918
+      ],
+      "summary": "在 `cli.py` 中实现 `_normalize_quote_daily_frame` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_rolling_ma_value",
+      "type": "function",
+      "name": "_rolling_ma_value",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3921,
+        3925
+      ],
+      "summary": "在 `cli.py` 中实现 `_rolling_ma_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_records_by_symbol",
+      "type": "function",
+      "name": "_records_by_symbol",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3928,
+        3936
+      ],
+      "summary": "在 `cli.py` 中实现 `_records_by_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_stock_name_lookup",
+      "type": "function",
+      "name": "_stock_name_lookup",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3939,
+        3948
+      ],
+      "summary": "在 `cli.py` 中实现 `_stock_name_lookup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_coalesce_text",
+      "type": "function",
+      "name": "_coalesce_text",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3951,
+        3958
+      ],
+      "summary": "在 `cli.py` 中实现 `_coalesce_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_symbols",
+      "type": "function",
+      "name": "_parse_symbols",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3961,
+        3965
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_symbols_or_names",
+      "type": "function",
+      "name": "_parse_symbols_or_names",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3968,
+        3981
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_symbols_or_names` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_indices",
+      "type": "function",
+      "name": "_parse_indices",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        3984,
+        3998
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_indices` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_looks_symbol_value",
+      "type": "function",
+      "name": "_looks_symbol_value",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4001,
+        4003
+      ],
+      "summary": "在 `cli.py` 中实现 `_looks_symbol_value` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_symbol_or_name",
+      "type": "function",
+      "name": "_parse_symbol_or_name",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4006,
+        4007
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_symbol_or_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_symbol",
+      "type": "function",
+      "name": "_parse_symbol",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4010,
+        4011
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_symbol` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_settings_with_db_path",
+      "type": "function",
+      "name": "_settings_with_db_path",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4014,
+        4022
+      ],
+      "summary": "在 `cli.py` 中实现 `_settings_with_db_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_storage_db_path",
+      "type": "function",
+      "name": "_storage_db_path",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4025,
+        4026
+      ],
+      "summary": "在 `cli.py` 中实现 `_storage_db_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_csv",
+      "type": "function",
+      "name": "_parse_csv",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4029,
+        4033
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_csv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_optional_csv",
+      "type": "function",
+      "name": "_parse_optional_csv",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4036,
+        4037
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_optional_csv` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_parse_tags",
+      "type": "function",
+      "name": "_parse_tags",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4040,
+        4041
+      ],
+      "summary": "在 `cli.py` 中实现 `_parse_tags` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_should_prompt_watchlist_import",
+      "type": "function",
+      "name": "_should_prompt_watchlist_import",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4044,
+        4049
+      ],
+      "summary": "在 `cli.py` 中实现 `_should_prompt_watchlist_import` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_validate_monitor_rules",
+      "type": "function",
+      "name": "_validate_monitor_rules",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4052,
+        4055
+      ],
+      "summary": "在 `cli.py` 中实现 `_validate_monitor_rules` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_monitor_table",
+      "type": "function",
+      "name": "_format_monitor_table",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4058,
+        4072
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_monitor_table` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_monitor_runtime",
+      "type": "function",
+      "name": "_format_monitor_runtime",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4075,
+        4081
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_monitor_runtime` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_portfolio_result",
+      "type": "function",
+      "name": "_format_portfolio_result",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4084,
+        4118
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_portfolio_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_portfolio_candidates",
+      "type": "function",
+      "name": "_format_portfolio_candidates",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4121,
+        4133
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_portfolio_candidates` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_portfolio_runs",
+      "type": "function",
+      "name": "_format_portfolio_runs",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4136,
+        4148
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_portfolio_runs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_portfolio_positions",
+      "type": "function",
+      "name": "_format_portfolio_positions",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4151,
+        4162
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_portfolio_positions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_portfolio_trades",
+      "type": "function",
+      "name": "_format_portfolio_trades",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4165,
+        4176
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_portfolio_trades` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_cmd_qmt_order",
+      "type": "function",
+      "name": "_cmd_qmt_order",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4179,
+        4261
+      ],
+      "summary": "在 `cli.py` 中实现 `_cmd_qmt_order` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/cli.py:_dry_run_broker",
+      "type": "function",
+      "name": "_dry_run_broker",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4264,
+        4269
+      ],
+      "summary": "在 `cli.py` 中实现 `_dry_run_broker` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_qmt_asset",
+      "type": "function",
+      "name": "_format_qmt_asset",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4272,
+        4277
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_qmt_asset` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_qmt_positions",
+      "type": "function",
+      "name": "_format_qmt_positions",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4280,
+        4288
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_qmt_positions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_qmt_orders",
+      "type": "function",
+      "name": "_format_qmt_orders",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4291,
+        4299
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_qmt_orders` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_qmt_trades",
+      "type": "function",
+      "name": "_format_qmt_trades",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4302,
+        4309
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_qmt_trades` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_fmt_money",
+      "type": "function",
+      "name": "_fmt_money",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4312,
+        4316
+      ],
+      "summary": "在 `cli.py` 中实现 `_fmt_money` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_fmt_optional_price",
+      "type": "function",
+      "name": "_fmt_optional_price",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4319,
+        4325
+      ],
+      "summary": "在 `cli.py` 中实现 `_fmt_optional_price` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_fmt_pct",
+      "type": "function",
+      "name": "_fmt_pct",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4328,
+        4332
+      ],
+      "summary": "在 `cli.py` 中实现 `_fmt_pct` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_fmt_optional_pct",
+      "type": "function",
+      "name": "_fmt_optional_pct",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4335,
+        4341
+      ],
+      "summary": "在 `cli.py` 中实现 `_fmt_optional_pct` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_scheduled_tasks",
+      "type": "function",
+      "name": "_format_scheduled_tasks",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4344,
+        4379
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_scheduled_tasks` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_scheduled_runs",
+      "type": "function",
+      "name": "_format_scheduled_runs",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4382,
+        4394
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_scheduled_runs` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_model_status",
+      "type": "function",
+      "name": "_format_model_status",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4397,
+        4408
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_model_status` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_model_profiles",
+      "type": "function",
+      "name": "_format_model_profiles",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4411,
+        4424
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_model_profiles` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_model_ping",
+      "type": "function",
+      "name": "_model_ping",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4427,
+        4452
+      ],
+      "summary": "在 `cli.py` 中实现 `_model_ping` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/cli.py:_format_model_ping",
+      "type": "function",
+      "name": "_format_model_ping",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4455,
+        4476
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_model_ping` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_exception_message",
+      "type": "function",
+      "name": "_format_exception_message",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4479,
+        4484
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_exception_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_scheduled_run_summary",
+      "type": "function",
+      "name": "_scheduled_run_summary",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4487,
+        4492
+      ],
+      "summary": "在 `cli.py` 中实现 `_scheduled_run_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_fmt_number",
+      "type": "function",
+      "name": "_fmt_number",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4495,
+        4500
+      ],
+      "summary": "在 `cli.py` 中实现 `_fmt_number` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_analysis_rankings",
+      "type": "function",
+      "name": "_format_analysis_rankings",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4503,
+        4515
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_analysis_rankings` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_analysis_ranking_lines",
+      "type": "function",
+      "name": "_format_analysis_ranking_lines",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4518,
+        4529
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_analysis_ranking_lines` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/cli.py:_format_chan_reviews",
+      "type": "function",
+      "name": "_format_chan_reviews",
+      "filePath": "sats/cli.py",
+      "lineRange": [
+        4532,
+        4543
+      ],
+      "summary": "在 `cli.py` 中实现 `_format_chan_reviews` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "entry-point",
+        "command-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/conversation/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "sats/conversation/__init__.py",
+      "summary": "定义 `conversation` 包的公开导出与模块边界，作为该包的聚合入口。",
+      "tags": [
+        "python",
+        "conversation",
+        "runtime"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Python 包通过 `__init__.py` 暴露公共符号并定义模块边界。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurnEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurnEvent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurnRecorder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "class:sats/chat_events.py:ChatTurnRecorder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_new_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_new_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_now",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_now",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_clean_choice",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_events.py",
+      "target": "function:sats/chat_events.py:_clean_choice",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_rule_required_trade_days",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_rule_required_trade_days",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_progress_for_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_progress_for_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_progress_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_progress_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_announce_analyzing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_announce_analyzing",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_add_monitor_trade_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_add_monitor_trade_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_add_agent_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_add_agent_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:build_parser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:build_parser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_dispatch_command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_dispatch_command",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_init",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_init",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_resolve_analysis_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_resolve_analysis_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_canonical_chan_rule_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_canonical_chan_rule_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_latest_cached_trade_date",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_latest_cached_trade_date",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_previous_weekday",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_previous_weekday",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_screen",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_screen",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_results",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_results",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_result_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_result_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_quote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_quote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_period_change",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_period_change",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze_dsa",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze_dsa",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_dsa",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_dsa",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_deep_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_deep_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_serenity_screen",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_serenity_screen",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_trading_committee",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_trading_committee",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze_chan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_analyze_chan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_chan_kb",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_chan_kb",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_discover",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_discover",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_chat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_chat",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_agent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_agent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_threads",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_threads",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_web",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_web",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:format_web_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:format_web_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_runtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_runtime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_conversation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_conversation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_should_prompt_cli_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_should_prompt_cli_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_continue_cli_clarification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_continue_cli_clarification",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_agent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_chat_result_from_agent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_confirm_chat_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_confirm_chat_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_reject_chat_action",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_reject_chat_action",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_emit_chat_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_emit_chat_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_terminal_width",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_terminal_width",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_agent_policy_from_args",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_agent_policy_from_args",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_agent_plan_only",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_agent_plan_only",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_agent_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_agent_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_model",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_default_env_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_default_env_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_memory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_memory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_history",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_knowledge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_knowledge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_indicators",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_indicators",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_factor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_factor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_ml",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_ml",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_analyze",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_analyze",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_pick",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_factor_pick",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_load_factor_panel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_load_factor_panel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_factor_ic_weights",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_factor_ic_weights",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_write_factor_screening",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_write_factor_screening",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_skills",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_skills",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_monitor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_monitor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_positions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_positions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_watchlist",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_watchlist",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_buy_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_buy_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_plans",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_plans",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_start",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_start",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_build_monitor_trading_provider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_build_monitor_trading_provider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_stop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_stop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_qmt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_qmt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_monitor_display",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_monitor_display",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_start",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_start",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_stop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_monitor_display_stop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_schedule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_schedule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_add",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_add",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_enable",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_enable",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_start",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_start",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_run_loop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_run_loop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_stop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_schedule_stop",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_portfolio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_portfolio",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_plans",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_plans",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_orders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_orders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_schedule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_portfolio_schedule",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_catalog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_catalog",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_serve",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:cmd_serve",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_stock_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_stock_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_signal_input_from_screening_input",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_signal_input_from_screening_input",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_result_stock_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_result_stock_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_quote_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_quote_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_period_change_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_period_change_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_nearest_trade_row",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_nearest_trade_row",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_period_change_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_period_change_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_display_ljust",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_display_ljust",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_matched_labels",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_matched_labels",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_numbered_values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_numbered_values",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_show",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_show",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_analysis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_analysis",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_picks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_picks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_optional_dependency_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_optional_dependency_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_ml_train",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_ml_train",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_ml_evaluate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_factor_ml_evaluate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_quote_moving_average_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_quote_moving_average_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_normalize_quote_daily_frame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_normalize_quote_daily_frame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_rolling_ma_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_rolling_ma_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_records_by_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_records_by_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_stock_name_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_stock_name_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_coalesce_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_coalesce_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbols_or_names",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbols_or_names",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_indices",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_indices",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_looks_symbol_value",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_looks_symbol_value",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbol_or_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbol_or_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbol",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_symbol",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_settings_with_db_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_settings_with_db_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_storage_db_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_storage_db_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_csv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_csv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_optional_csv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_optional_csv",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_tags",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_parse_tags",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_should_prompt_watchlist_import",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_should_prompt_watchlist_import",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_validate_monitor_rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_validate_monitor_rules",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_monitor_table",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_monitor_table",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_monitor_runtime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_monitor_runtime",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_candidates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_candidates",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_runs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_runs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_positions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_positions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_trades",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_portfolio_trades",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_qmt_order",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_cmd_qmt_order",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_dry_run_broker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_dry_run_broker",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_asset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_asset",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_positions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_positions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_orders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_orders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_trades",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_qmt_trades",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_money",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_money",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_optional_price",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_optional_price",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_pct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_pct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_optional_pct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_optional_pct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_scheduled_tasks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_scheduled_tasks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_scheduled_runs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_scheduled_runs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_profiles",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_profiles",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_model_ping",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_model_ping",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_ping",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_model_ping",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_exception_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_exception_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_scheduled_run_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_scheduled_run_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_number",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_fmt_number",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_analysis_rankings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_analysis_rankings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_analysis_ranking_lines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_analysis_ranking_lines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_chan_reviews",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "function:sats/cli.py:_format_chan_reviews",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/agent/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/agent/planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/agent/progress.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/agent/tools/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/chan_llm_review.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/daily_stock_analysis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/dsa_native.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/stock_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/analysis/trading_committee.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/catalog.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/chat_runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/chat.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/conversation/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/conversation/threads.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/deep_analysis/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/dependencies.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/analysis.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/composite.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/ml.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/panel.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/profiles.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/reporting.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/factors/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/history.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/indicators/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/llm/model_config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/monitoring/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/output_names.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/portfolio/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/progress.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/rag/chan_knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/rag/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/runtime_status.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/scheduler/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/screening/base.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/screening/service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/serenity/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/stock_basic_lookup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/storage/duckdb.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/trading/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/trading/monitor_provider.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/trading/qmt_bridge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/trading/sync.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/watchlist_editor.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/cli.py",
+      "target": "file:sats/web/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/conversation/__init__.py",
+      "target": "file:sats/conversation/runtime.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

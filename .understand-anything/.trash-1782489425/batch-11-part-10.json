@@ -1,0 +1,3253 @@
+{
+  "nodes": [
+    {
+      "id": "file:sats/chat_artifacts.py",
+      "type": "file",
+      "name": "chat_artifacts.py",
+      "filePath": "sats/chat_artifacts.py",
+      "summary": "实现 项目 中与 `chat artifacts` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_artifacts.py:ArtifactWriteResult",
+      "type": "class",
+      "name": "ArtifactWriteResult",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        12,
+        28
+      ],
+      "summary": "在 `chat_artifacts.py` 中定义 `ArtifactWriteResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:chat_report_dir",
+      "type": "function",
+      "name": "chat_report_dir",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        31,
+        32
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `chat_report_dir` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:chat_artifact_dir",
+      "type": "function",
+      "name": "chat_artifact_dir",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        35,
+        36
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `chat_artifact_dir` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:save_markdown_artifact",
+      "type": "function",
+      "name": "save_markdown_artifact",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        39,
+        65
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `save_markdown_artifact` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:save_json_artifact",
+      "type": "function",
+      "name": "save_json_artifact",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        68,
+        90
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `save_json_artifact` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:save_csv_artifact",
+      "type": "function",
+      "name": "save_csv_artifact",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        93,
+        124
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `save_csv_artifact` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:validate_chat_artifact_path",
+      "type": "function",
+      "name": "validate_chat_artifact_path",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        127,
+        133
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `validate_chat_artifact_path` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:_safe_target",
+      "type": "function",
+      "name": "_safe_target",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        136,
+        143
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `_safe_target` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:_safe_filename",
+      "type": "function",
+      "name": "_safe_filename",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        146,
+        157
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `_safe_filename` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:_safe_part",
+      "type": "function",
+      "name": "_safe_part",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        160,
+        164
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `_safe_part` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:_summary",
+      "type": "function",
+      "name": "_summary",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        167,
+        169
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_artifacts.py:_is_relative_to",
+      "type": "function",
+      "name": "_is_relative_to",
+      "filePath": "sats/chat_artifacts.py",
+      "lineRange": [
+        172,
+        177
+      ],
+      "summary": "在 `chat_artifacts.py` 中实现 `_is_relative_to` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-artifacts",
+        "chat-artifacts-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sats/chat_components.py",
+      "type": "file",
+      "name": "chat_components.py",
+      "filePath": "sats/chat_components.py",
+      "summary": "实现 项目 中与 `chat components` 相关的逻辑，供 SATS 的对应工作流复用。",
+      "tags": [
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:sats/chat_components.py:ChatRequestRoute",
+      "type": "class",
+      "name": "ChatRequestRoute",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        113,
+        176
+      ],
+      "summary": "在 `chat_components.py` 中定义 `ChatRequestRoute` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/chat_components.py:ChatEvidenceBundle",
+      "type": "class",
+      "name": "ChatEvidenceBundle",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        180,
+        215
+      ],
+      "summary": "在 `chat_components.py` 中定义 `ChatEvidenceBundle` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:sats/chat_components.py:ChatSynthesisResult",
+      "type": "class",
+      "name": "ChatSynthesisResult",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        219,
+        225
+      ],
+      "summary": "在 `chat_components.py` 中定义 `ChatSynthesisResult` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "data-model",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:sats/chat_components.py:RuleGenerationOutcome",
+      "type": "class",
+      "name": "RuleGenerationOutcome",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        229,
+        235
+      ],
+      "summary": "在 `chat_components.py` 中定义 `RuleGenerationOutcome` 类型，用于承载该模块的核心职责。",
+      "tags": [
+        "class",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:preprocess_chat_route",
+      "type": "function",
+      "name": "preprocess_chat_route",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        238,
+        276
+      ],
+      "summary": "在 `chat_components.py` 中实现 `preprocess_chat_route` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_chat_request_route",
+      "type": "function",
+      "name": "build_chat_request_route",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        279,
+        344
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_chat_request_route` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:resolve_stock_question_from_preprocess",
+      "type": "function",
+      "name": "resolve_stock_question_from_preprocess",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        347,
+        380
+      ],
+      "summary": "在 `chat_components.py` 中实现 `resolve_stock_question_from_preprocess` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:collect_chat_evidence",
+      "type": "function",
+      "name": "collect_chat_evidence",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        383,
+        583
+      ],
+      "summary": "在 `chat_components.py` 中实现 `collect_chat_evidence` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:_indicators_from_stock_context",
+      "type": "function",
+      "name": "_indicators_from_stock_context",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        586,
+        621
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_indicators_from_stock_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:synthesize_chat_response",
+      "type": "function",
+      "name": "synthesize_chat_response",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        624,
+        720
+      ],
+      "summary": "在 `chat_components.py` 中实现 `synthesize_chat_response` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:_synthesis_model_policy",
+      "type": "function",
+      "name": "_synthesis_model_policy",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        723,
+        726
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_synthesis_model_policy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_normalize_tool_chat_result",
+      "type": "function",
+      "name": "_normalize_tool_chat_result",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        729,
+        742
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_normalize_tool_chat_result` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_stock_context_component",
+      "type": "function",
+      "name": "build_stock_context_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        745,
+        760
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_stock_context_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_market_context_component",
+      "type": "function",
+      "name": "build_market_context_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        763,
+        783
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_market_context_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_opportunity_component",
+      "type": "function",
+      "name": "build_opportunity_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        786,
+        821
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_opportunity_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_chan_context_component",
+      "type": "function",
+      "name": "build_chan_context_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        824,
+        828
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_chan_context_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_knowledge_context_component",
+      "type": "function",
+      "name": "build_knowledge_context_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        831,
+        849
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_knowledge_context_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:run_internal_analysis_component",
+      "type": "function",
+      "name": "run_internal_analysis_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        852,
+        977
+      ],
+      "summary": "在 `chat_components.py` 中实现 `run_internal_analysis_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:run_rule_generation_component",
+      "type": "function",
+      "name": "run_rule_generation_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        980,
+        1071
+      ],
+      "summary": "在 `chat_components.py` 中实现 `run_rule_generation_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:build_plain_chat_answer",
+      "type": "function",
+      "name": "build_plain_chat_answer",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1074,
+        1114
+      ],
+      "summary": "在 `chat_components.py` 中实现 `build_plain_chat_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:match_skills_for_route",
+      "type": "function",
+      "name": "match_skills_for_route",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1117,
+        1129
+      ],
+      "summary": "在 `chat_components.py` 中实现 `match_skills_for_route` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:skill_context",
+      "type": "function",
+      "name": "skill_context",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1132,
+        1147
+      ],
+      "summary": "在 `chat_components.py` 中实现 `skill_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:skill_digest",
+      "type": "function",
+      "name": "skill_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1150,
+        1171
+      ],
+      "summary": "在 `chat_components.py` 中实现 `skill_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:chat_tool_definitions",
+      "type": "function",
+      "name": "chat_tool_definitions",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1174,
+        1316
+      ],
+      "summary": "在 `chat_components.py` 中实现 `chat_tool_definitions` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:execute_chat_tool",
+      "type": "function",
+      "name": "execute_chat_tool",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1319,
+        1329
+      ],
+      "summary": "在 `chat_components.py` 中实现 `execute_chat_tool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_execute_chat_tool",
+      "type": "function",
+      "name": "_execute_chat_tool",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1332,
+        1442
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_execute_chat_tool` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:sats/chat_components.py:_build_synthesis_messages",
+      "type": "function",
+      "name": "_build_synthesis_messages",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1445,
+        1496
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_build_synthesis_messages` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:_chat_evidence_digest",
+      "type": "function",
+      "name": "_chat_evidence_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1499,
+        1517
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_chat_evidence_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_reference_symbol_policy",
+      "type": "function",
+      "name": "_reference_symbol_policy",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1520,
+        1528
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_reference_symbol_policy` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_allowed_reference_symbols",
+      "type": "function",
+      "name": "_allowed_reference_symbols",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1531,
+        1541
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_allowed_reference_symbols` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_stock_context_digest",
+      "type": "function",
+      "name": "_stock_context_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1544,
+        1578
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_stock_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:_indicator_digest",
+      "type": "function",
+      "name": "_indicator_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1581,
+        1606
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_indicator_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:_indicator_coverage",
+      "type": "function",
+      "name": "_indicator_coverage",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1609,
+        1625
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_indicator_coverage` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_normalized_symbol_list",
+      "type": "function",
+      "name": "_normalized_symbol_list",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1628,
+        1629
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_normalized_symbol_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_valid_symbol_list",
+      "type": "function",
+      "name": "_valid_symbol_list",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1632,
+        1633
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_valid_symbol_list` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_is_valid_ts_code",
+      "type": "function",
+      "name": "_is_valid_ts_code",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1636,
+        1638
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_is_valid_ts_code` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_matching_symbol_rows",
+      "type": "function",
+      "name": "_matching_symbol_rows",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1641,
+        1651
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_matching_symbol_rows` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_market_context_digest",
+      "type": "function",
+      "name": "_market_context_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1654,
+        1671
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_market_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_opportunity_digest",
+      "type": "function",
+      "name": "_opportunity_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1674,
+        1676
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_opportunity_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_chat_discovery_digest",
+      "type": "function",
+      "name": "_chat_discovery_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1679,
+        1718
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_chat_discovery_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:_compact_chat_discovery_candidate",
+      "type": "function",
+      "name": "_compact_chat_discovery_candidate",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1721,
+        1743
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_compact_chat_discovery_candidate` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_compact_chat_discovery_event",
+      "type": "function",
+      "name": "_compact_chat_discovery_event",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1746,
+        1760
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_compact_chat_discovery_event` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_compact_chat_discovery_indicator",
+      "type": "function",
+      "name": "_compact_chat_discovery_indicator",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1763,
+        1786
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_compact_chat_discovery_indicator` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_compact_chat_hot_sector",
+      "type": "function",
+      "name": "_compact_chat_hot_sector",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1789,
+        1799
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_compact_chat_hot_sector` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_chan_context_digest",
+      "type": "function",
+      "name": "_chan_context_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1802,
+        1805
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_chan_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_knowledge_context_digest",
+      "type": "function",
+      "name": "_knowledge_context_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1808,
+        1827
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_knowledge_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_quote_context_digest",
+      "type": "function",
+      "name": "_quote_context_digest",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1830,
+        1832
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_quote_context_digest` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_fallback_chat_summary",
+      "type": "function",
+      "name": "_fallback_chat_summary",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1835,
+        1845
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_fallback_chat_summary` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_matched_skills_for_route",
+      "type": "function",
+      "name": "_matched_skills_for_route",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1848,
+        1852
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_matched_skills_for_route` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_resolve_stock_followup",
+      "type": "function",
+      "name": "_resolve_stock_followup",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1855,
+        1865
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_resolve_stock_followup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_should_include_knowledge_context",
+      "type": "function",
+      "name": "_should_include_knowledge_context",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1868,
+        1873
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_should_include_knowledge_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_knowledge_collections_for_route",
+      "type": "function",
+      "name": "_knowledge_collections_for_route",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1876,
+        1892
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_knowledge_collections_for_route` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_knowledge_context_limit",
+      "type": "function",
+      "name": "_knowledge_context_limit",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1895,
+        1900
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_knowledge_context_limit` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_context_payload_for_llm",
+      "type": "function",
+      "name": "_context_payload_for_llm",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1903,
+        1919
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_context_payload_for_llm` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_run_component",
+      "type": "function",
+      "name": "_run_component",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1922,
+        1946
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_run_component` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:sats/chat_components.py:_emit_context_started",
+      "type": "function",
+      "name": "_emit_context_started",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1949,
+        1957
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_emit_context_started` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_emit_context_completed",
+      "type": "function",
+      "name": "_emit_context_completed",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1960,
+        1969
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_emit_context_completed` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_persist_rule_plan",
+      "type": "function",
+      "name": "_persist_rule_plan",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1972,
+        1983
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_persist_rule_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_replace_rule_plan",
+      "type": "function",
+      "name": "_replace_rule_plan",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1986,
+        1992
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_replace_rule_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_find_latest_pending_rule_plan",
+      "type": "function",
+      "name": "_find_latest_pending_rule_plan",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        1995,
+        1997
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_find_latest_pending_rule_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_find_pending_rule_plan",
+      "type": "function",
+      "name": "_find_pending_rule_plan",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2000,
+        2010
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_find_pending_rule_plan` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_rule_plan_payload",
+      "type": "function",
+      "name": "_rule_plan_payload",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2013,
+        2025
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_rule_plan_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_rule_plan_from_payload",
+      "type": "function",
+      "name": "_rule_plan_from_payload",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2028,
+        2041
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_rule_plan_from_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_generated_rule_payload",
+      "type": "function",
+      "name": "_generated_rule_payload",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2044,
+        2049
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_generated_rule_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_build_quote_context",
+      "type": "function",
+      "name": "_build_quote_context",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2052,
+        2056
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_build_quote_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_signal_input_from_stock_payload",
+      "type": "function",
+      "name": "_signal_input_from_stock_payload",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2059,
+        2071
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_signal_input_from_stock_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_memory_context",
+      "type": "function",
+      "name": "_memory_context",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2074,
+        2079
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_memory_context` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_dedupe",
+      "type": "function",
+      "name": "_dedupe",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2082,
+        2090
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_dedupe` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_drop_empty",
+      "type": "function",
+      "name": "_drop_empty",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2093,
+        2094
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_drop_empty` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_pick_fields",
+      "type": "function",
+      "name": "_pick_fields",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2097,
+        2100
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_pick_fields` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_list_items",
+      "type": "function",
+      "name": "_list_items",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2103,
+        2104
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_list_items` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_truncate_text",
+      "type": "function",
+      "name": "_truncate_text",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2107,
+        2109
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_truncate_text` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_trim_payload",
+      "type": "function",
+      "name": "_trim_payload",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2112,
+        2116
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_trim_payload` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_main_model_name",
+      "type": "function",
+      "name": "_main_model_name",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2119,
+        2120
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_main_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_light_model_name",
+      "type": "function",
+      "name": "_light_model_name",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2123,
+        2124
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_light_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_timeout_model_name",
+      "type": "function",
+      "name": "_timeout_model_name",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2127,
+        2130
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_timeout_model_name` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_llm_timeout_seconds",
+      "type": "function",
+      "name": "_llm_timeout_seconds",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2133,
+        2139
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_llm_timeout_seconds` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_today_yyyymmdd",
+      "type": "function",
+      "name": "_today_yyyymmdd",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2142,
+        2143
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_today_yyyymmdd` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_is_timeout_exception",
+      "type": "function",
+      "name": "_is_timeout_exception",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2146,
+        2150
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_is_timeout_exception` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_timeout_message",
+      "type": "function",
+      "name": "_timeout_message",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2153,
+        2157
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_timeout_message` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_is_stock_followup",
+      "type": "function",
+      "name": "_is_stock_followup",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2182,
+        2186
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_is_stock_followup` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_looks_like_rule_plan_revision",
+      "type": "function",
+      "name": "_looks_like_rule_plan_revision",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2189,
+        2191
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_looks_like_rule_plan_revision` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_opportunity_discovery_content_or_fallback",
+      "type": "function",
+      "name": "_opportunity_discovery_content_or_fallback",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2194,
+        2210
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_opportunity_discovery_content_or_fallback` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:sats/chat_components.py:_is_substantive_opportunity_answer",
+      "type": "function",
+      "name": "_is_substantive_opportunity_answer",
+      "filePath": "sats/chat_components.py",
+      "lineRange": [
+        2213,
+        2219
+      ],
+      "summary": "在 `chat_components.py` 中实现 `_is_substantive_opportunity_answer` 的核心逻辑，供同模块流程调用。",
+      "tags": [
+        "function",
+        "python",
+        "chat-components",
+        "chat-components-py"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "class:sats/chat_artifacts.py:ArtifactWriteResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "class:sats/chat_artifacts.py:ArtifactWriteResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:chat_report_dir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:chat_report_dir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:chat_artifact_dir",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:chat_artifact_dir",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_markdown_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_markdown_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_json_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_json_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_csv_artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:save_csv_artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:validate_chat_artifact_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:validate_chat_artifact_path",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_target",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_target",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_filename",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_filename",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_part",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_safe_part",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_is_relative_to",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_artifacts.py",
+      "target": "function:sats/chat_artifacts.py:_is_relative_to",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatRequestRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatRequestRoute",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatEvidenceBundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatEvidenceBundle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatSynthesisResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:ChatSynthesisResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:RuleGenerationOutcome",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "class:sats/chat_components.py:RuleGenerationOutcome",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:preprocess_chat_route",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:preprocess_chat_route",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_chat_request_route",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_chat_request_route",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:resolve_stock_question_from_preprocess",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:resolve_stock_question_from_preprocess",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:collect_chat_evidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:collect_chat_evidence",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicators_from_stock_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicators_from_stock_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:synthesize_chat_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:synthesize_chat_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_synthesis_model_policy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_synthesis_model_policy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_normalize_tool_chat_result",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_normalize_tool_chat_result",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_stock_context_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_stock_context_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_market_context_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_market_context_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_opportunity_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_opportunity_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_chan_context_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_chan_context_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_knowledge_context_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_knowledge_context_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:run_internal_analysis_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:run_internal_analysis_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:run_rule_generation_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:run_rule_generation_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_plain_chat_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:build_plain_chat_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:match_skills_for_route",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:match_skills_for_route",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:skill_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:skill_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:skill_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:skill_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:chat_tool_definitions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:chat_tool_definitions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:execute_chat_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:execute_chat_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_execute_chat_tool",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_execute_chat_tool",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_build_synthesis_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_build_synthesis_messages",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chat_evidence_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chat_evidence_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_reference_symbol_policy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_reference_symbol_policy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_allowed_reference_symbols",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_allowed_reference_symbols",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_stock_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_stock_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicator_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicator_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicator_coverage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_indicator_coverage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_normalized_symbol_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_normalized_symbol_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_valid_symbol_list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_valid_symbol_list",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_valid_ts_code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_valid_ts_code",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_matching_symbol_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_matching_symbol_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_market_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_market_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_opportunity_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_opportunity_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chat_discovery_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chat_discovery_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_candidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_candidate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_indicator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_discovery_indicator",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_hot_sector",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_compact_chat_hot_sector",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chan_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_chan_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_quote_context_digest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_quote_context_digest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_fallback_chat_summary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_fallback_chat_summary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_matched_skills_for_route",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_matched_skills_for_route",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_resolve_stock_followup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_resolve_stock_followup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_should_include_knowledge_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_should_include_knowledge_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_collections_for_route",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_collections_for_route",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_context_limit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_knowledge_context_limit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_context_payload_for_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_context_payload_for_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_run_component",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_run_component",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_emit_context_started",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_emit_context_started",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_emit_context_completed",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_emit_context_completed",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_persist_rule_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_persist_rule_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_replace_rule_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_replace_rule_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_find_latest_pending_rule_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_find_latest_pending_rule_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_find_pending_rule_plan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_find_pending_rule_plan",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_rule_plan_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_rule_plan_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_rule_plan_from_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_rule_plan_from_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_generated_rule_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_generated_rule_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_build_quote_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_build_quote_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_signal_input_from_stock_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_signal_input_from_stock_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_memory_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_memory_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_dedupe",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_dedupe",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_drop_empty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_drop_empty",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_pick_fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_pick_fields",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_list_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_list_items",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_truncate_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_truncate_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_trim_payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_trim_payload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_main_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_main_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_light_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_light_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_timeout_model_name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_timeout_model_name",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_llm_timeout_seconds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_llm_timeout_seconds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_today_yyyymmdd",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_today_yyyymmdd",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_timeout_exception",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_timeout_exception",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_timeout_message",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_timeout_message",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_stock_followup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_stock_followup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_looks_like_rule_plan_revision",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_looks_like_rule_plan_revision",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_opportunity_discovery_content_or_fallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_opportunity_discovery_content_or_fallback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_substantive_opportunity_answer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "function:sats/chat_components.py:_is_substantive_opportunity_answer",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/chan_chat_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/market_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/opportunity_discovery.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/quote_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/stock_llm_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/stock_picking_agent.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/analysis/stock_research_context.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/chat_planner.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/chat_preprocessor.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/chat_reference.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/llm/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/memory.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/minute_periods.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/screening/registry.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/screening/rule_composer.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/signals/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/skill_routing.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/skills.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/stock_question.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:sats/chat_components.py",
+      "target": "file:sats/symbols.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}
