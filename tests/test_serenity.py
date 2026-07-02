@@ -243,7 +243,7 @@ class SerenityServiceTest(unittest.TestCase):
             "AI 半导体",
         )
 
-    def test_explicit_symbols_run_two_stage_screen_and_write_artifacts(self) -> None:
+    def test_explicit_symbols_run_two_stage_screen_and_write_cli_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             settings = SimpleNamespace(db_path=Path(tmp) / "sats.duckdb", project_root=Path(tmp))
             storage = DuckDBStorage(settings.db_path)
@@ -417,9 +417,9 @@ class SerenityEntrypointTest(unittest.TestCase):
             [step.tool_name for step in automatic.steps if step.kind == "tool"],
             ["research.serenity_screen"],
         )
-        self.assertIn(
-            "research.discover_opportunities",
+        self.assertEqual(
             [step.tool_name for step in ordinary.steps if step.kind == "tool"],
+            ["research.market_context", "analysis.python_program"],
         )
         self.assertIn(
             "workflow.screened_stock_analysis",
@@ -456,6 +456,7 @@ class SerenityEntrypointTest(unittest.TestCase):
 
         self.assertEqual(result.status, "done")
         self.assertEqual(result.data_names, ("serenity_screen",))
+        self.assertEqual(result.artifacts, ())
         payload = json.loads(result.content)
         self.assertEqual(
             payload["serenity_screen"]["message"],

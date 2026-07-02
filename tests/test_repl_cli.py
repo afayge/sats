@@ -655,19 +655,20 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(calls, [["results", "--passed"]])
         self.assertEqual(output, [])
 
-    def test_repl_plan_prints_conversation_plan_by_default(self) -> None:
+    def test_repl_plan_prints_plan_mode_by_default(self) -> None:
         calls: list[list[str]] = []
         output: list[str] = []
 
-        keep_running = handle_repl_line(
-            "/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划",
-            runner=lambda argv: calls.append(argv) or 0,
-            printer=output.append,
-        )
+        with patch("sats.repl.format_plan_mode_result", return_value="# SATS Plan Mode\n\n## 目标\n- 规划"):
+            keep_running = handle_repl_line(
+                "/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划",
+                runner=lambda argv: calls.append(argv) or 0,
+                printer=output.append,
+            )
 
         self.assertTrue(keep_running)
         self.assertEqual(calls, [])
-        self.assertIn("SATS Conversation Plan", "\n".join(output))
+        self.assertIn("SATS Plan Mode", "\n".join(output))
 
     def test_repl_allows_analyze_dsa_command(self) -> None:
         calls: list[list[str]] = []
@@ -684,6 +685,20 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("/analyze-dsa", help_text())
         self.assertNotIn("/analyze-screened", help_text())
         self.assertEqual(calls, [["analyze-dsa", "--trade-date", "20260514"]])
+
+    def test_repl_allows_skillhub_command(self) -> None:
+        calls: list[list[str]] = []
+
+        keep_running = handle_repl_line(
+            "/skillhub status",
+            runner=lambda argv: calls.append(argv) or 0,
+            printer=lambda _: None,
+        )
+
+        self.assertTrue(keep_running)
+        self.assertIn("skillhub", CLI_COMMANDS)
+        self.assertIn("/skillhub", help_text())
+        self.assertEqual(calls, [["skillhub", "status"]])
 
     def test_repl_allows_analyze_commands_with_stocks(self) -> None:
         calls: list[list[str]] = []

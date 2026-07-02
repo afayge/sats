@@ -183,6 +183,59 @@ class _RefreshIndexProvider:
         return pd.DataFrame()
 
 
+class _DailyOnlyIndexProvider:
+    def load_index_daily(self, index_codes, *, start_date, end_date):
+        rows = []
+        for offset, code in enumerate(index_codes):
+            close = 3000.0 + offset * 100.0
+            rows.append(
+                {
+                    "index_code": code,
+                    "trade_date": str(end_date),
+                    "open": close - 5.0,
+                    "high": close + 8.0,
+                    "low": close - 10.0,
+                    "close": close,
+                    "vol": 10_000.0 + offset,
+                    "amount": 20_000.0 + offset,
+                    "pct_chg": 0.2 + offset,
+                }
+            )
+        frame = pd.DataFrame(rows)
+        frame.attrs["data_source"] = "daily_index_provider"
+        return frame
+
+    def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+        return pd.DataFrame()
+
+
+class _PartialIndexQuoteProvider(_DailyOnlyIndexProvider):
+    def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+        symbols = list(symbols or [])
+        if not symbols:
+            return pd.DataFrame()
+        frame = pd.DataFrame(
+            [
+                {
+                    "ts_code": symbols[0],
+                    "trade_date": "20260521",
+                    "close": 3600.0,
+                    "price": 3600.0,
+                    "pct_chg": 1.23,
+                    "amount": 99_000.0,
+                    "data_source": "live_index_quote",
+                }
+            ]
+        )
+        frame.attrs["data_source"] = "live_index_quote"
+        return frame
+
+
+class _PartialIndexDailyProvider(_DailyOnlyIndexProvider):
+    def load_index_daily(self, index_codes, *, start_date, end_date):
+        return super().load_index_daily(list(index_codes or [])[:1], start_date=start_date, end_date=end_date)
+
+
 class _FailOnIndexProvider:
     def __init__(self) -> None:
         self.index_daily_calls = 0
@@ -280,6 +333,55 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertEqual(provider.index_daily_calls, 0)
         self.assertEqual(frame.attrs["data_source"], "duckdb_cache")
         self.assertTrue(frame.attrs["market_data_provenance"][0]["cache_hit"])
+
+    def test_market_context_falls_back_to_index_daily_when_index_quote_empty(self) -> None:
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["core_indices"],
+            indices=["上证指数", "深证成指"],
+            astock_provider=_DailyOnlyIndexProvider(),
+        )
+
+        by_code = {item["ts_code"]: item for item in payload["indices"]}
+        self.assertEqual(payload["data_sources"]["index_quote"], "index_daily_latest_quote_fallback")
+        self.assertNotIn("index_quote:000001.SH", payload["missing_fields"])
+        self.assertNotIn("index_quote:399001.SZ", payload["missing_fields"])
+        self.assertEqual(by_code["000001.SH"]["quote"]["close"], 3000.0)
+        self.assertEqual(by_code["000001.SH"]["quote"]["price"], 3000.0)
+        self.assertEqual(by_code["000001.SH"]["quote"]["data_source"], "index_daily_latest_quote_fallback")
+        self.assertEqual(by_code["399001.SZ"]["latest"]["close"], 3100.0)
+
+    def test_market_context_keeps_live_index_quote_and_fills_missing_quotes_from_daily(self) -> None:
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["core_indices"],
+            indices=["上证指数", "深证成指"],
+            astock_provider=_PartialIndexQuoteProvider(),
+        )
+
+        by_code = {item["ts_code"]: item for item in payload["indices"]}
+        self.assertEqual(payload["data_sources"]["index_quote"], "live_index_quote+index_daily_latest_quote_fallback")
+        self.assertEqual(by_code["000001.SH"]["quote"]["close"], 3600.0)
+        self.assertEqual(by_code["000001.SH"]["quote"]["pct_chg"], 1.23)
+        self.assertEqual(by_code["399001.SZ"]["quote"]["close"], 3100.0)
+        self.assertEqual(by_code["399001.SZ"]["quote"]["data_source"], "index_daily_latest_quote_fallback")
+        self.assertNotIn("index_quote:000001.SH", payload["missing_fields"])
+        self.assertNotIn("index_quote:399001.SZ", payload["missing_fields"])
+
+    def test_market_context_reports_index_quote_missing_when_daily_and_live_quote_absent(self) -> None:
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["core_indices"],
+            indices=["上证指数", "深证成指"],
+            astock_provider=_PartialIndexDailyProvider(),
+        )
+
+        self.assertNotIn("index_quote:000001.SH", payload["missing_fields"])
+        self.assertIn("index_daily:399001.SZ", payload["missing_fields"])
+        self.assertIn("index_quote:399001.SZ", payload["missing_fields"])
 
     def test_build_market_context_contains_indices_breadth_and_data_sources(self) -> None:
         context = build_market_llm_context(
@@ -494,6 +596,8 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertEqual(payload["market_breadth"]["turnover_comparison"]["status"], "ok")
         self.assertEqual(payload["market_breadth"]["turnover_comparison"]["basis"], "full_day_vs_previous_full_day")
         self.assertNotIn("market_breadth", payload["missing_fields"])
+        self.assertNotIn("index_quote:000001.SH", payload["missing_fields"])
+        self.assertEqual(payload["indices"][0]["quote"]["data_source"], "index_daily_latest_quote_fallback")
 
 
 if __name__ == "__main__":

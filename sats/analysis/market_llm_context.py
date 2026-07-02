@@ -197,7 +197,7 @@ def get_a_share_market_context(
         if daily.empty:
             raise ValueError(f"{trade_date} 无法获取 A 股核心指数真实日线数据，已停止调用 LLM。")
         effective_trade_date = str(daily["trade_date"].astype(str).max() or trade_date)
-        quotes = resolver.load_realtime_quotes(symbols)
+        quotes = resolver.load_index_quotes(symbols, index_daily=daily)
         quote_source = str(quotes.attrs.get("data_source") or "unavailable") if not quotes.empty else "unavailable"
     breadth: dict[str, Any] = {}
     breadth_source = "not_requested"

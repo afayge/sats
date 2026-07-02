@@ -9,7 +9,7 @@ import pandas as pd
 
 from sats.agent.date_policy import resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy, AgentPlan, AgentStep
-from sats.agent.planner import build_agent_plan as build_legacy_agent_plan
+from sats.agent.planner import _hot_sector_opportunity_steps, build_agent_plan as build_legacy_agent_plan
 from sats.agent.tools import AgentToolRegistry
 from sats.agent.tools.base import find_fabricated_market_data, validate_tool_arguments
 from sats.analysis.market_llm_context import DEFAULT_MARKET_DIMENSIONS, is_market_question
@@ -437,7 +437,6 @@ def _tool_capability_summary(tool_registry: AgentToolRegistry | None) -> str:
         "research.sector_return_ranking",
         "research.theme_stock_list",
         "research.theme_stock_returns",
-        "research.discover_opportunities",
         "analysis.python_program",
         "data.astock_catalog",
         "data.astock_fetch",
@@ -450,7 +449,6 @@ def _tool_capability_summary(tool_registry: AgentToolRegistry | None) -> str:
         "research.sector_return_ranking": "枚举概念/行业板块指数并计算区间涨跌幅排行。",
         "research.theme_stock_list": "解析主题相关 A 股股票池；不做短线机会筛选或预测。",
         "research.theme_stock_returns": "解析主题相关 A 股股票池并计算个股区间涨跌幅。",
-        "research.discover_opportunities": "运行自然语言 A 股机会发现，返回候选排序。",
         "analysis.python_program": "没有合适现成工具时执行只读受限 Python 分析程序。",
         "web.search": "搜索公开网页证据；不能替代行情数据。",
         "web.social_hot": "获取公开社交热榜。",
@@ -747,19 +745,24 @@ def _semantic_grounded_plan(intent: PlannerV2Intent, *, policy: AgentExecutionPo
             model_name="local",
         )
     if task == "opportunity_discovery":
-        limit = int(intent.entities.get("requested_limit") or 0)
-        return _single_tool_plan(
-            intent,
-            policy=policy,
-            step=AgentStep(
-                step_id="discover",
-                kind="tool",
-                title="运行机会发现",
-                tool_name="research.discover_opportunities",
-                arguments={"query": text, "limit": limit},
-                side_effect="write_artifact",
+        return AgentPlan(
+            objective=intent.objective,
+            success_criteria=("基于已注册工具返回热点板块候选观察名单；缺失真实数据时说明具体缺口。",),
+            assumptions=tuple(
+                _dedupe(
+                    [
+                        *intent.assumptions,
+                        "短线候选仅供研究观察，不构成上涨保证或投资建议。",
+                    ]
+                )
             ),
-            success_criteria=("运行自然语言机会发现并返回候选排序。",),
+            steps=(*_hot_sector_opportunity_steps(text), AgentStep(step_id="final", kind="final", title="总结结果")),
+            risk_level="high" if policy.auto_trade else intent.risk_level,
+            requires_live_trading=bool(policy.live_trading),
+            phase="planner_v2",
+            model_policy="local",
+            model_profile="local",
+            model_name="local",
         )
     if task == "web_hot_sector_discussion":
         return _single_tool_plan(
@@ -1313,6 +1316,9 @@ def _safe_extract_trade_date(message: str) -> str:
 
 def _requested_limit(message: str) -> int | None:
     match = re.search(r"(?:top|前)\s*(\d{1,3})", str(message or ""), flags=re.IGNORECASE)
+    if match:
+        return max(1, min(200, int(match.group(1))))
+    match = re.search(r"(\d{1,3})\s*(?:支|只|个)(?:股票|候选|个股)?", str(message or ""))
     if match:
         return max(1, min(200, int(match.group(1))))
     if "几只" in str(message or ""):

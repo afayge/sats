@@ -34,8 +34,9 @@ flowchart TD
   REPL["sats/repl.py\n交互式 REPL"]
   API["sats/api/app.py\nFastAPI"]
 
-  Chat["sats/chat.py\nChatSession"]
-  Planner["chat_preprocessor.py\nchat_planner.py\nchat_reference.py"]
+  Conversation["sats/conversation/runtime.py\nCodex-style conversation loop"]
+  LegacyChat["sats/chat.py\nlegacy ChatSession"]
+  ChatContext["chat_reference.py\n上文引用"]
   Skills["sats/skills.py\nskills/*"]
   LLM["sats/llm/\nChatLLM / provider"]
 
@@ -60,15 +61,18 @@ flowchart TD
   User --> REPL
   User --> API
 
-  REPL --> Chat
-  CLI --> Chat
-  API --> Chat
+  REPL --> Conversation
+  CLI --> Conversation
+  Scheduler --> Conversation
+  API --> LegacyChat
 
-  Chat --> Planner
-  Chat --> Skills
-  Chat --> LLM
-  Chat --> Analysis
-  Chat --> WebRAG
+  Conversation --> ChatContext
+  Conversation --> Skills
+  Conversation --> LLM
+  Conversation --> Analysis
+  Conversation --> WebRAG
+  LegacyChat --> Skills
+  LegacyChat --> LLM
 
   CLI --> Screening
   CLI --> Analysis
@@ -110,7 +114,7 @@ flowchart TD
 - 入口层：`sats/cli.py`、`sats/repl.py`、`sats/api/app.py` 负责解析用户输入和调用服务。
 - 数据层：业务模块统一通过 `AStockDataProvider` 请求 A 股数据。
 - 分析层：`screening`、`signals`、`analysis`、`indicators` 执行本地计算和 LLM 上下文构建。
-- LLM 层：`sats/llm/` 封装模型调用，`skills` 提供领域提示，`chat` 负责规划和编排。
+- LLM 层：`sats/llm/` 封装模型调用，`skills` 提供领域提示，默认自然语言由 conversation loop 逐轮选择动作并由 runtime 执行守卫。
 - 存储层：`DuckDBStorage` 负责表结构、缓存、筛选结果、聊天记忆、监控和调度记录。
 - 展示层：CLI 文本、REPL、进度面板、`monitor-display`、FastAPI 响应。
 
@@ -135,9 +139,10 @@ flowchart TD
 | `sats/indicators/` | 技术指标计算，CLI `/indicators` 与自然语言个股分析共享底层计算能力。 |
 | `sats/llm/` | LLM provider 抽象、OpenAI-compatible 调用、JSON 提取等工具。 |
 | `sats/web/` | 原生网络 RAG：DDGS/Bing/可选 API 搜索源、安全抓取、HTML/PDF 正文提取、独立网页索引、混合召回、重排和引用。 |
-| `sats/chat.py` | `ChatSession` 主编排：预处理、规划、取数、skills、工具调用、LLM 分析、记忆。 |
+| `sats/conversation/runtime.py` | 默认自然语言 runtime：模型逐轮选择 `call_tool`、澄清、确认或最终回答；runtime 执行注册工具、权限门控、trace 和 observation 回填。 |
+| `sats/chat.py` | legacy `ChatSession` 编排：预处理、取数、skills、工具调用、LLM 分析、记忆；通过 `sats chat --engine legacy` 显式使用。 |
 | `sats/chat_preprocessor.py` | 自然语言任务预处理，抽取意图、股票代码/名称、数据需求和 skill hints。 |
-| `sats/chat_planner.py` | 规则式聊天计划器，决定需要哪些上下文和内部分析能力。 |
+| `sats/chat_planner.py` | legacy/internal 聊天计划器，保留给旧 `ChatSession` 路径；不属于默认 conversation 执行链路。 |
 | `sats/chat_reference.py` | REPL 上下文引用，支持“上面/刚才/这些股票”等对上一条输出的引用。 |
 | `sats/skills.py` | 本地 skill 列表、匹配和加载。实际 skill 文档位于 `skills/*/SKILL.md`。 |
 | `sats/output_saver.py` | REPL 输出保存为 Markdown/PDF。 |
@@ -197,7 +202,7 @@ flowchart TD
 
 流程：
 
-1. 聊天预处理和计划器识别为机会发现。
+1. 默认 conversation loop 由模型选择已注册研究工具；legacy chat 路径仍可通过预处理和旧计划器识别机会发现。
 2. 自然语言选股 Agent 先匹配 skills / knowledge collections，并解析是否存在 `MLCC相关股票`、`固态电池概念股` 这类主题股票池。
 3. 若有主题，Agent 先查真实同花顺行业/概念板块；精确命中时用 THS 成分股限定扫描，未命中时才直接询问 LLM “该主题相关 A 股股票有哪些”，并用本地 `stock_basic` 校验 LLM 明确列出的具体股票。缺失时不退回相似大板块，也不从 LLM 返回的板块名扩展股票。
 4. 没有主题或主题股票池确认后，再调用 `run_opportunity_discovery()`：无 `symbols` 时全市场读取数据，有 `symbols` 时只读取完整限定股票池，并运行同一套 Analyze 中短期上涨信号。完整主题股票池保存在 `theme_universe.stocks`，短线候选保存在 `opportunity_discovery.candidates`。
@@ -229,7 +234,7 @@ flowchart TD
 - `sats chan-kb search ...`
 - 聊天中的缠论问题。
 
-缠论分析由 `sats/chan/engine.py` 和 `sats/analysis/chan_*` 相关模块完成。知识检索使用 `sats/rag/chan_knowledge.py`，聊天计划器识别缠论意图后会加载 `chan-theory` skill，并构建缠论上下文。
+缠论分析由 `sats/chan/engine.py` 和 `sats/analysis/chan_*` 相关模块完成。知识检索使用 `sats/rag/chan_knowledge.py`；默认 conversation loop 可调用注册研究工具获取缠论上下文，legacy chat 路径仍可通过旧计划器加载 `chan-theory` skill。
 
 ### 技术指标
 
@@ -240,7 +245,7 @@ flowchart TD
 
 `/indicators` 是显式指标命令；自然语言股票分析不会 shell 调用该命令，但会复用 `sats/indicators/calculator.py` 里的 `IndicatorCalculator`，在个股上下文中提供 MA、量能、RSI、MACD 等计算结果。
 
-### 聊天规划、预处理与 Skills
+### Legacy 聊天预处理与 Skills
 
 主要入口：
 
@@ -248,13 +253,15 @@ flowchart TD
 - REPL 普通输入
 - REPL `/chat ...`
 
-聊天执行顺序：
+以下流程描述 `sats chat --engine legacy ...` 显式旧聊天路径；默认自然语言入口见下一节 conversation loop。
+
+Legacy 聊天执行顺序：
 
 1. `ChatSession` 先处理自然语言生成筛选规则等特殊流程。
 2. `chat_preprocessor` 使用短超时 LLM 做结构化预处理，抽取意图、股票代码、股票名称、交易日、是否引用上下文、是否需要大盘/指标/机会发现等。
 3. 本地校验覆盖 LLM 输出：显式代码优先，上一条 REPL 引用其次，股票名称最后通过 DuckDB `stock_basic` 和 `AStockDataProvider` 解析。
 4. `chat_reference` 在 REPL 中处理“上面/刚才/这些/列表”等引用上一条输出的问题；上一条是 `/results` 时会回查 `screening_results` 获取分数和规则。
-5. `chat_planner` 合并预处理 hints 与规则判断，形成 `ChatPlan`。
+5. legacy `chat_planner` 合并预处理 hints 与规则判断，形成 `ChatPlan`。
 6. `skills_for_plan()` 和 `match_skills()` 决定加载哪些 skill。
 7. 根据计划构建个股、大盘、机会发现、缠论、财务等真实数据上下文。
 8. LLM 只基于已注入的数据和可调用的白名单工具分析，不执行任意命令。
@@ -276,14 +283,20 @@ flowchart TD
 
 1. 用户从三类入口进入：`sats chat "..."`、REPL 普通输入、REPL `/chat ...`。
 2. REPL 会先检查这轮输入是否引用“上面/上述/刚才/这些股票/列表/结果”等上文；如果命中，就从上一条输出里提取股票代码、筛选结果或报告路径，构造 `ChatReferenceContext`。
-3. `run_conversation_once()` 创建 turn trace、加载 `AgentExecutionPolicy`、skills、`AgentToolRegistry` 和初始 legacy `build_agent_plan()` 预览；`--plan-only` 只输出这份预览，不执行工具。
+3. `run_conversation_once()` 创建 turn trace、加载 `AgentExecutionPolicy`、skills 和 `AgentToolRegistry`，并构造轻量 `ConversationRunSpec`；兼容字段 `ConversationResult.plan` 只保留 objective/phase，不包含预生成工具步骤。
 4. 默认 conversation loop 每轮要求模型只输出一个 JSON action：`call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`。
 5. SATS runtime 校验 action：工具名必须来自 registry，参数必须满足 schema 和业务 guard；不确定 A 股数据接口时必须先 `data.astock_catalog`，再 `data.astock_fetch`。
-6. `readonly` 和 `write_artifact` 工具自动执行；`write_db`、`long_running`、`command`、`live_trade` 会创建 pending action，等待 `sats chat --confirm` 或 REPL `/confirm`。
+6. 普通研究工具默认只返回数据和证据，不单独写 `reports/`；明确保存/导出时才调用 `research.write_report`。`readonly` 和 `write_artifact` 工具自动执行；`write_db`、`long_running`、`command`、`live_trade` 会创建 pending action，等待 `sats chat --confirm` 或 REPL `/confirm`。
 7. 每次工具调用都会生成 observation，写入 `chat_turn_items` / `chat_turn_events`，并回填给下一轮模型决策；工具错误可继续让模型选择替代工具或最终说明。
 8. 缺少股票、日期、检索词或 operation 等关键参数时，loop 返回澄清请求；用户通过 `sats chat --answer` 或 REPL `/answer` 补充后继续。
-9. 模型输出 `final_answer` 时直接形成最终回答；若没有可用 final，则使用 `synthesize_agent_result()` 基于 observations 做兜底综合。
+9. 模型输出 `final_answer` 时形成最终回答；若已有真实数据 observation 需要统一综合，或没有可用 final，则使用 `synthesize_agent_result()` 基于 observations 做兜底综合。
 10. 回答完成后，REPL 会记录本轮输出，供下一轮“分析上面股票”“输出为 PDF”“查看上面结果”继续复用；trace、artifact 和 pending action 均可通过 `/trace`、`/confirm`、`/reject` 查看或处理。
+
+Plan mode：
+
+- `/plan ...` 和 `sats chat --plan-only ...` 调用 `run_plan_mode_once()`，只输出 Markdown 计划，不执行工具，也不生成可自动执行的 `AgentPlan.steps`。
+- Plan mode 可基于用户输入、上文引用和工具摘要提出目标、当前判断、建议步骤、测试/验收、假设；信息不足时应返回澄清问题。
+- 后续正常 `chat` 执行时，计划文本只作为用户上下文参考，真正动作仍由 conversation loop 逐轮选择并由 runtime 守卫。
 
 关键约束：
 
@@ -456,11 +469,12 @@ from sats.data.astock_provider import AStockDataProvider
 
 ### 新增聊天工具或自然语言能力
 
-- 先更新 `chat_preprocessor` 和 `chat_planner` 的结构化意图。
-- 只允许白名单内部能力，不开放任意命令执行。
+- 先把能力注册为明确 schema 的 SATS 工具，补齐 side_effect、确认策略和必要 runtime guard；默认 conversation loop 会按工具摘要选择动作。
+- 只允许白名单内部能力，不开放任意命令执行；涉及 A 股数据接口时优先补充 `data.astock_catalog` / `data.astock_fetch` 能力说明。
 - 需要 A 股数据时走 `AStockDataProvider`。
 - 需要领域说明时增加或更新 skill。
 - 核心数据缺失时停止 LLM；辅助数据缺失时注入 `missing_fields`。
+- 只有维护 `--engine legacy` 路径时，才同步更新 `chat_preprocessor` / `chat_planner`。
 
 ### 新增监控或调度能力
 

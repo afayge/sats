@@ -139,6 +139,36 @@ class MarketDataResolver:
             return _mark(fetched, dataset="index_daily", source=str(fetched.attrs.get("data_source") or "astock_provider"), cache_hit=False)
         return _mark(cached, dataset="index_daily", source="duckdb_cache_incomplete", cache_hit=not cached.empty)
 
+    def load_index_quotes(self, index_codes: list[str], *, index_daily: pd.DataFrame | None = None) -> pd.DataFrame:
+        clean_codes = normalize_symbols(index_codes, required=False)
+        frames: list[pd.DataFrame] = []
+        sources: list[str] = []
+        try:
+            fetched = self.provider.load_realtime_quotes(symbols=clean_codes)
+        except Exception:
+            fetched = pd.DataFrame()
+        if fetched is not None and not fetched.empty:
+            fetched = _normalize_quote_frame(fetched)
+            if "ts_code" not in fetched.columns and "index_code" in fetched.columns:
+                fetched["ts_code"] = fetched["index_code"]
+            if "ts_code" in fetched.columns:
+                fetched = fetched[fetched["ts_code"].astype(str).isin(clean_codes)].copy()
+            if not fetched.empty and "ts_code" in fetched.columns:
+                fetched = fetched.sort_values("ts_code").drop_duplicates(subset=["ts_code"], keep="last")
+                source = str(fetched.attrs.get("data_source") or "astock_provider")
+                fetched.attrs["data_source"] = source
+                frames.append(fetched)
+                sources.append(source)
+        present = set(_symbols_from_frame(frames[0])) if frames else set()
+        missing = [code for code in clean_codes if code not in present]
+        fallback = _index_daily_latest_quote_frame(index_daily, missing)
+        if not fallback.empty:
+            frames.append(fallback)
+            sources.append("index_daily_latest_quote_fallback")
+        source = "+".join(dict.fromkeys(item for item in sources if item)) or "unavailable"
+        result = pd.concat(frames, ignore_index=True, sort=False) if frames else pd.DataFrame()
+        return _mark(result, dataset="index_quote", source=source, cache_hit=False)
+
     def load_market_breadth(
         self,
         *,
@@ -415,6 +445,44 @@ def _normalize_quote_frame(frame: pd.DataFrame) -> pd.DataFrame:
     if "volume" not in data.columns and "vol" in data.columns:
         data["volume"] = data["vol"]
     return data
+
+
+def _index_daily_latest_quote_frame(index_daily: pd.DataFrame | None, symbols: list[str]) -> pd.DataFrame:
+    if index_daily is None or index_daily.empty or not symbols:
+        return pd.DataFrame()
+    data = _normalize_index_frame(index_daily)
+    if "index_code" not in data.columns or "trade_date" not in data.columns:
+        return pd.DataFrame()
+    data = data[data["index_code"].astype(str).isin(symbols)].copy()
+    if data.empty:
+        return pd.DataFrame()
+    data = data.sort_values(["index_code", "trade_date"]).drop_duplicates(subset=["index_code"], keep="last")
+    data["ts_code"] = data["index_code"].astype(str)
+    if "price" not in data.columns and "close" in data.columns:
+        data["price"] = data["close"]
+    if "volume" not in data.columns and "vol" in data.columns:
+        data["volume"] = data["vol"]
+    data["data_source"] = "index_daily_latest_quote_fallback"
+    columns = [
+        "ts_code",
+        "trade_date",
+        "open",
+        "high",
+        "low",
+        "close",
+        "price",
+        "vol",
+        "volume",
+        "amount",
+        "pct_chg",
+        "data_source",
+    ]
+    for column in columns:
+        if column not in data.columns:
+            data[column] = None
+    result = data[columns].sort_values("ts_code").reset_index(drop=True)
+    result.attrs["data_source"] = "index_daily_latest_quote_fallback"
+    return result
 
 
 def _symbols_from_frame(frame: pd.DataFrame) -> list[str]:

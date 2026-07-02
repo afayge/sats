@@ -1981,7 +1981,7 @@ def _adapt_ths_sector_daily(frame: pd.DataFrame | None, *, sector_code: str) -> 
             "high": _numeric_column(data, ["high", "最高"]),
             "low": _numeric_column(data, ["low", "最低"]),
             "close": pd.to_numeric(data[close_col], errors="coerce"),
-            "pct_chg": _numeric_column(data, ["pct_chg", "change", "涨跌幅"]),
+            "pct_chg": _numeric_column(data, ["pct_chg", "pct_change", "涨跌幅"]),
             "vol": _numeric_column(data, ["vol", "volume", "成交量"]),
             "amount": _numeric_column(data, ["amount", "成交额"]),
             "data_source": HOT_SECTOR_DATA_SOURCE,
@@ -2097,9 +2097,7 @@ def _score_hot_sectors(basic: pd.DataFrame, daily: pd.DataFrame, *, sector_type:
             continue
         ret_5d = (latest / five_base - 1.0) * 100.0
         ret_3d = (latest / three_base - 1.0) * 100.0
-        pct_series = pd.to_numeric(ordered.get("pct_chg"), errors="coerce")
-        if pct_series.isna().all():
-            pct_series = closes.pct_change().fillna(0) * 100
+        pct_series = _sector_pct_change_series(ordered)
         latest_pct = _num(pct_series.iloc[-1])
         up_days_5 = int((pct_series.tail(5) > 0).sum())
         up_days_3 = int((pct_series.tail(3) > 0).sum())
@@ -2122,6 +2120,19 @@ def _score_hot_sectors(basic: pd.DataFrame, daily: pd.DataFrame, *, sector_type:
     if not rows:
         return pd.DataFrame()
     return pd.DataFrame(rows).sort_values(["heat_score", "return_5d", "sector_code"], ascending=[False, False, True]).head(limit).reset_index(drop=True)
+
+
+def _sector_pct_change_series(ordered: pd.DataFrame) -> pd.Series:
+    closes = pd.to_numeric(ordered["close"], errors="coerce")
+    inferred = closes.pct_change().fillna(0) * 100
+    pct_series = pd.to_numeric(ordered.get("pct_chg"), errors="coerce")
+    if pct_series.isna().all():
+        return inferred
+    pct_series = pct_series.fillna(inferred)
+    stale_scale = pct_series.abs() > 80
+    if bool(stale_scale.any()):
+        pct_series = pct_series.mask(stale_scale, inferred)
+    return pct_series
 
 
 def _sector_records(frame: pd.DataFrame) -> list[dict[str, Any]]:
@@ -2165,6 +2176,7 @@ def _build_stock_hot_sector_map(hot: pd.DataFrame, members: pd.DataFrame) -> dic
         item = {
             "sector_code": str(sector.get("sector_code") or ""),
             "name": str(sector.get("name") or ""),
+            "stock_name": str(row.get("name") or ""),
             "sector_type": str(sector.get("sector_type") or ""),
             "heat_score": _round_float(sector.get("heat_score")),
             "return_5d": _round_float(sector.get("return_5d")),

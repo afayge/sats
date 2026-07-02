@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Mapping
 from zoneinfo import ZoneInfo
 
@@ -16,6 +16,11 @@ DATE_RE = re.compile(r"^\s*(20\d{2})([-/]?)(\d{2})\2(\d{2})\s*$")
 DATE_FIND_RE = re.compile(r"(?<!\d)(20\d{2})([-/]?)(\d{2})\2(\d{2})(?!\d)")
 INTRADAY_RE = re.compile(r"(?<!\d)(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?(?!\d)")
 SUPPORTED_HORIZONS = ("today", "tomorrow", "day_after_tomorrow", "next_week")
+RELATIVE_DATE_LITERALS: tuple[tuple[tuple[str, ...], int], ...] = (
+    (("前天", "day_before_yesterday", "day before yesterday"), 2),
+    (("昨天", "昨日", "yesterday"), 1),
+    (("今天", "今日", "today", "current"), 0),
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,12 +43,16 @@ def agent_today() -> str:
     return datetime.now(SHANGHAI_TZ).strftime("%Y%m%d")
 
 
-def normalize_agent_date(value: Any) -> str:
+def normalize_agent_date(value: Any, *, today: str | None = None) -> str:
     raw = str(value or "").strip()
     match = DATE_RE.match(raw)
-    if not match:
-        raise ValueError(f"日期格式无效: {raw}")
-    normalized = "".join([match.group(1), match.group(3), match.group(4)])
+    if match:
+        normalized = "".join([match.group(1), match.group(3), match.group(4)])
+    else:
+        relative = _relative_date_literal(raw, today=today)
+        if not relative:
+            raise ValueError(f"日期格式无效: {raw}")
+        normalized = relative
     try:
         datetime.strptime(normalized, "%Y%m%d")
     except ValueError as exc:
@@ -81,7 +90,7 @@ def sanitize_agent_tool_arguments(
         _apply_forecast_policy(str(tool_name or ""), args, time_context, changes)
 
     try:
-        args = _normalize_date_fields(args, changes)
+        args = _normalize_date_fields(args, changes, today=time_context.today)
     except ValueError as exc:
         return SanitizedToolArguments(arguments=args, error=str(exc))
 
@@ -132,22 +141,22 @@ def _apply_forecast_policy(tool_name: str, args: dict[str, Any], context: AgentT
         changes.append("removed generated trade_date for forecast discovery")
 
 
-def _normalize_date_fields(value: Any, changes: list[str], *, key: str = "") -> Any:
+def _normalize_date_fields(value: Any, changes: list[str], *, key: str = "", today: str | None = None) -> Any:
     if isinstance(value, dict):
         result: dict[str, Any] = {}
         for raw_key, item in value.items():
             child_key = str(raw_key or "")
-            result[child_key] = _normalize_date_fields(item, changes, key=child_key)
+            result[child_key] = _normalize_date_fields(item, changes, key=child_key, today=today)
         return result
     if isinstance(value, list):
-        return [_normalize_date_fields(item, changes, key=key) for item in value]
+        return [_normalize_date_fields(item, changes, key=key, today=today) for item in value]
     if key in DATE_FIELD_NAMES and value not in (None, ""):
-        normalized = normalize_agent_date(value)
+        normalized = normalize_agent_date(value, today=today)
         if normalized != str(value).strip():
             changes.append(f"normalized {key} to YYYYMMDD")
         return normalized
     if key in TIME_FIELD_NAMES and value not in (None, "") and DATE_RE.match(str(value or "")):
-        normalized = normalize_agent_date(value)
+        normalized = normalize_agent_date(value, today=today)
         if normalized != str(value).strip():
             changes.append(f"normalized {key} date to YYYYMMDD")
         return normalized
@@ -159,7 +168,7 @@ def _explicit_dates(text: str, *, today: str | None = None) -> tuple[str, ...]:
     seen: set[str] = set()
     for match in DATE_FIND_RE.finditer(str(text or "")):
         try:
-            normalized = normalize_agent_date(match.group(0))
+            normalized = normalize_agent_date(match.group(0), today=today)
         except ValueError:
             continue
         if normalized not in seen:
@@ -203,6 +212,26 @@ def _requires_intraday_arguments(arguments: Mapping[str, Any]) -> bool:
     if isinstance(periods, (list, tuple)) and any(str(item).lower().endswith("m") for item in periods):
         return True
     return False
+
+
+def _relative_date_literal(value: str, *, today: str | None = None) -> str:
+    normalized = re.sub(r"\s+", " ", str(value or "").strip().lower())
+    if not normalized:
+        return ""
+    for terms, offset in RELATIVE_DATE_LITERALS:
+        if normalized in terms:
+            base = _base_date(today)
+            return (base - timedelta(days=offset)).strftime("%Y%m%d")
+    return ""
+
+
+def _base_date(today: str | None) -> datetime:
+    raw = str(today or agent_today()).strip()
+    match = DATE_RE.match(raw)
+    if not match:
+        raise ValueError(f"日期格式无效: {today}")
+    normalized = "".join([match.group(1), match.group(3), match.group(4)])
+    return datetime.strptime(normalized, "%Y%m%d")
 
 
 def _copy_jsonable(value: Any) -> Any:

@@ -10,7 +10,7 @@ import pandas as pd
 from sats.data.astock_provider import AStockDataProvider
 from sats.data.akshare_datasets import AKSHARE_DATASETS, list_akshare_datasets
 from sats.data.akshare_provider import AkShareDataProvider
-from sats.data.limit_sentiment import classify_limit_sentiment_stage
+from sats.data.limit_sentiment import build_quote_limit_sentiment_payload, classify_limit_sentiment_stage
 from sats.indicators import IndicatorInput
 from sats.storage.duckdb import DuckDBStorage
 
@@ -383,6 +383,23 @@ class AStockDataProviderTest(unittest.TestCase):
         self.assertEqual(classify_limit_sentiment_stage(40, 30, 10), "正常")
         self.assertEqual(classify_limit_sentiment_stage(90, 90, 40), "冰冰点")
         self.assertEqual(classify_limit_sentiment_stage(90, 90, 60), "冰点")
+
+    def test_quote_limit_sentiment_marks_strong_breadth_as_high_volatility_divergence(self) -> None:
+        frame = pd.DataFrame(
+            {"pct_chg": [10.0] * 666 + [-10.0] * 107 + [2.5] * 3436 + [-0.5] * 1300}
+        )
+
+        payload = build_quote_limit_sentiment_payload(
+            trade_date="20260701",
+            frame=frame,
+            data_source="tickflow_current_1d_quote+realtime_quote_fallback",
+        )
+
+        self.assertEqual(payload["limit_up_count"], 666)
+        self.assertEqual(payload["limit_down_count"], 107)
+        self.assertEqual(payload["emotion_stage"], "高波动分化")
+        self.assertEqual(payload["fallback_stage_adjustment"]["from"], "冰点")
+        self.assertIn("分歧", payload["stage_advice"])
 
     def test_realtime_quotes_prefer_tickflow(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

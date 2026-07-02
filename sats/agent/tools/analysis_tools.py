@@ -22,7 +22,10 @@ def analysis_tool_specs() -> list[AgentToolSpec]:
             name="analysis.python_program",
             description=(
                 "执行只读受限 Python 分析程序；只能读取 SATS resolver 和前序 observations，"
-                "用于没有合适现成工具时做有界数据整理、排序和计算。"
+                "用于没有合适现成工具时做有界数据整理、排序和计算。允许导入已安装模块，"
+                "但禁止文件、进程、网络和动态执行等危险行为；"
+                "读取前序工具结构化结果时优先使用 context['observations_by_step'][step_id]"
+                "['payload']['result']['payload']，不要解析 content JSON 字符串。"
             ),
             category="analysis",
             side_effect="readonly",
@@ -60,11 +63,13 @@ def _python_program(context: AgentToolContext, arguments: dict[str, Any]) -> Age
     timeout = _positive_int(arguments.get("timeout_seconds"), default=30, maximum=120)
     row_limit = _positive_int(arguments.get("row_limit"), default=200, maximum=1000)
     runtime = RestrictedPythonRuntime(resolver=resolver, timeout_seconds=timeout)
+    observation_rows = _observation_dicts(context.observations)
     result = runtime.run(
         str(arguments.get("code") or ""),
         context={
             "task": str(arguments.get("task") or context.message or ""),
-            "observations": [item.to_dict() if hasattr(item, "to_dict") else item for item in context.observations],
+            "observations": observation_rows,
+            "observations_by_step": _observations_by_step(observation_rows),
             "observation_refs": [str(item) for item in (arguments.get("observation_refs") or [])],
             "row_limit": row_limit,
         },
@@ -82,6 +87,24 @@ def _python_program(context: AgentToolContext, arguments: dict[str, Any]) -> Age
         payload={"python_program": payload},
         data_names=("python_program",),
     )
+
+
+def _observation_dicts(observations: tuple[Any, ...]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in observations:
+        if hasattr(item, "to_dict"):
+            value = item.to_dict()
+        elif isinstance(item, dict):
+            value = dict(item)
+        else:
+            value = {"value": item}
+        if isinstance(value, dict):
+            rows.append(value)
+    return rows
+
+
+def _observations_by_step(observations: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {str(item.get("step_id")): item for item in observations if str(item.get("step_id") or "").strip()}
 
 
 class _ResolverProxy:

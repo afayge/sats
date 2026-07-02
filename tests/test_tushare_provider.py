@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from sats.data.tushare_provider import TushareDataProvider
+from sats.data.tushare_provider import TushareDataProvider, _adapt_ths_sector_daily, _score_hot_sectors
 from sats.data.tushare_stock_datasets import list_tushare_datasets, list_tushare_stock_datasets
 from sats.screening.registry import get_rule
 from sats.storage.duckdb import DuckDBStorage
@@ -960,6 +960,7 @@ class TushareDataProviderTest(unittest.TestCase):
                 context["hot_concepts"][1]["heat_score"],
             )
             self.assertEqual(context["stock_hot_sectors"]["000938.SZ"][0]["name"], "AI算力")
+            self.assertEqual(context["stock_hot_sectors"]["000938.SZ"][0]["stock_name"], "紫光股份")
             self.assertEqual(storage.get_sector_basic(sector_types=["concept"])["sector_code"].tolist(), ["885001.TI", "885002.TI"])
             self.assertFalse(storage.get_sector_daily(["885001.TI"], trade_dates=["20260430"]).empty)
             self.assertEqual(storage.get_sector_members(["885001.TI"]).iloc[0]["ts_code"], "000938.SZ")
@@ -971,6 +972,37 @@ class TushareDataProviderTest(unittest.TestCase):
 
             self.assertEqual(cached_context["data_sources"]["sector_basic"], "duckdb_cache_or_unavailable")
             self.assertEqual(cached_context["stock_hot_sectors"]["000938.SZ"][0]["name"], "AI算力")
+
+    def test_ths_sector_daily_uses_pct_change_not_change_points(self) -> None:
+        frame = pd.DataFrame(
+            {
+                "ts_code": ["885001.TI", "885001.TI"],
+                "trade_date": ["20260601", "20260602"],
+                "close": [10000.0, 10200.0],
+                "change": [0.0, 200.0],
+                "pct_change": [0.0, 2.0],
+            }
+        )
+
+        daily = _adapt_ths_sector_daily(frame, sector_code="885001.TI")
+
+        self.assertEqual(daily["pct_chg"].tolist(), [0.0, 2.0])
+
+    def test_hot_sector_score_recomputes_stale_cached_pct_change_scale(self) -> None:
+        basic = pd.DataFrame([{"sector_code": "885001.TI", "name": "AI算力"}])
+        daily = pd.DataFrame(
+            {
+                "sector_code": ["885001.TI"] * 5,
+                "trade_date": ["20260601", "20260602", "20260603", "20260604", "20260605"],
+                "close": [100.0, 101.0, 102.0, 103.0, 105.0],
+                "pct_chg": [0.0, 100.0, 100.0, 100.0, 200.0],
+            }
+        )
+
+        scored = _score_hot_sectors(basic, daily, sector_type="concept", limit=5)
+
+        self.assertAlmostEqual(float(scored.iloc[0]["latest_pct_chg"]), (105.0 / 103.0 - 1.0) * 100.0, places=4)
+        self.assertLess(float(scored.iloc[0]["heat_score"]), 20.0)
 
     def test_load_sw_sector_basic_and_members_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

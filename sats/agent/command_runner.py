@@ -35,6 +35,10 @@ class AgentCommandRunner:
         blocked = _blocked_agent_recursion(clean)
         if blocked:
             return CommandRunResult(tuple(clean), 2, stderr=blocked, status="error")
+        report_guarded = _guard_report_writing_command(clean)
+        if isinstance(report_guarded, CommandRunResult):
+            return report_guarded
+        clean = report_guarded
         guarded = self._guard_trading_command(clean)
         if isinstance(guarded, CommandRunResult):
             return guarded
@@ -113,3 +117,86 @@ def _blocked_agent_recursion(argv: list[str]) -> str:
     if argv[0] == "chat":
         return "agent command cannot recursively run sats chat; use chat.answer tool"
     return ""
+
+
+def _guard_report_writing_command(argv: list[str]) -> list[str] | CommandRunResult:
+    command = argv[0]
+    if command in {"dsa", "analyze-dsa", "analyze-chan"}:
+        return _blocked_report_command(argv, command)
+    if command == "portfolio" and _portfolio_report_phase(argv):
+        return _blocked_report_command(argv, "portfolio run --phase report")
+    if command in {"analyze", "deep-analysis", "serenity-screen", "trading-committee"}:
+        return _ensure_noreport(argv)
+    if command == "discover":
+        return _ensure_discover_noreport(argv)
+    if len(argv) >= 2 and command == "factor" and argv[1] in {"analyze", "pick"}:
+        return _ensure_noreport(argv)
+    return argv
+
+
+def _blocked_report_command(argv: list[str], command: str) -> CommandRunResult:
+    return CommandRunResult(
+        tuple(argv),
+        2,
+        stderr=(
+            f"agent command cannot run report-writing CLI path: {command}; "
+            "use SATS data tools for evidence and research.write_report only after final synthesis when a file is explicitly requested"
+        ),
+        status="error",
+    )
+
+
+def _ensure_noreport(argv: list[str]) -> list[str]:
+    if "--noreport" in argv:
+        return argv
+    return [*argv, "--noreport"]
+
+
+def _ensure_discover_noreport(argv: list[str]) -> list[str]:
+    if "--noreport" in argv:
+        return argv
+    insert_at = _discover_query_start(argv)
+    return [*argv[:insert_at], "--noreport", *argv[insert_at:]]
+
+
+def _discover_query_start(argv: list[str]) -> int:
+    value_options = {
+        "--trade-date",
+        "--signals",
+        "--limit",
+        "--candidate-limit",
+        "--lookback-days",
+        "--hot-sector-days",
+        "--db",
+    }
+    index = 1
+    while index < len(argv):
+        token = argv[index]
+        if token in value_options:
+            index += 2
+            continue
+        if any(token.startswith(f"{option}=") for option in value_options):
+            index += 1
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        break
+    return index
+
+
+def _portfolio_report_phase(argv: list[str]) -> bool:
+    if len(argv) < 2 or argv[1] != "run":
+        return False
+    phase = "afternoon-buy"
+    index = 2
+    while index < len(argv):
+        token = argv[index]
+        if token == "--phase" and index + 1 < len(argv):
+            phase = argv[index + 1]
+            break
+        if token.startswith("--phase="):
+            phase = token.split("=", 1)[1]
+            break
+        index += 1
+    return str(phase or "").strip().lower() in {"report", "close"}

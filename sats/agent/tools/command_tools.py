@@ -30,6 +30,7 @@ SATS_COMMANDS = (
     "indicators",
     "factor",
     "skills",
+    "skillhub",
     "watchlist",
     "monitor",
     "monitor-display",
@@ -58,6 +59,7 @@ def command_tool_specs() -> list[AgentToolSpec]:
             name="sats_command.run",
             description=(
                 "通过 SATS argv runner 执行任一非递归 SATS CLI 命令；不走 shell，禁止递归 chat；agent 已停用。"
+                "报告型命令会自动追加 --noreport，无法无报告运行的报告入口会被拒绝；需要落盘时用 research.write_report。"
                 f"可用顶层命令：{', '.join(SATS_COMMANDS)}。"
             ),
             category="command",

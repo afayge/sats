@@ -98,11 +98,44 @@ def is_daily_portfolio_request(text: str) -> bool:
 
 def _daily_portfolio(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     mode = str(arguments.get("trading_mode") or "paper").strip().lower()
-    result = DailyPortfolioAgent(
+    requested_phase = str(arguments.get("phase") or "afternoon-buy").strip().lower()
+    agent = DailyPortfolioAgent(
         settings=context.settings,
         storage=context.storage,
-    ).run(
-        phase=str(arguments.get("phase") or "afternoon-buy"),
+    )
+    if requested_phase in {"report", "close"}:
+        status_payload = agent.status(mode=mode)
+        payload = {
+            "phase": requested_phase,
+            "trade_date": str(arguments.get("trade_date") or "").strip(),
+            "trading_mode": mode,
+            "report_policy": "Agent 工具只返回组合日报素材；如需落盘报告，请在最终汇总后调用 research.write_report。",
+            "status": status_payload,
+        }
+        lines = [
+            "组合日报素材已返回，未生成 Markdown 报告文件。",
+            f"mode={mode}",
+            f"pending_intents={status_payload.get('pending_intents', 0)}",
+        ]
+        latest_run = status_payload.get("latest_run") or {}
+        if latest_run:
+            lines.append(
+                "latest_run="
+                + " ".join(
+                    str(latest_run.get(key) or "")
+                    for key in ("trade_date", "phase", "status")
+                    if latest_run.get(key)
+                )
+            )
+        return AgentToolResult(
+            status="done",
+            content="\n".join(lines),
+            payload={"daily_portfolio": payload},
+            data_names=("盘中组合", "组合日报素材"),
+        )
+
+    result = agent.run(
+        phase=requested_phase,
         trade_date=str(arguments.get("trade_date") or "").strip() or None,
         config=PortfolioConfig(
             trading_mode=mode,

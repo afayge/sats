@@ -18,6 +18,9 @@ from sats.symbols import normalize_symbols
 
 FULL_SKILL_CHAR_LIMIT = 2400
 MAX_FULL_SKILLS = 4
+THIRD_PARTY_OPENAI_SYNTHESIS_BUDGET_CHARS = 28_000
+THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS = 12_000
+OFFICIAL_OPENAI_BASE_URLS = {"https://api.openai.com/v1", "https://api.openai.com"}
 
 SYNTHESIS_SYSTEM_PROMPT = (
     "你是 SATS Agent 的最终分析器。你只能基于下面提供的 SATS 工具 observations、skills 方法论和真实数据 provenance 作答；"
@@ -36,11 +39,14 @@ SYNTHESIS_SYSTEM_PROMPT = (
     "如果 sector_return_ranking 中有 ranking，应逐行列出板块指数排行；板块排行问题不得使用 theme_stock_returns.candidate_count 或 web_evidence 作为结论依据。"
     "对投资相关判断必须说明仅供研究，不构成投资建议。"
     "回答要像排版清晰的研究分析正文，而不是工具执行日志；不要输出 step id、[done]、原始 JSON 大段内容。"
+    "如果用户问的是 SATS 支持的 skills、tools 或能力目录，应输出能力说明而不是投资研究报告骨架；"
+    "要区分本地 skills 方法论层与 Agent tools 执行层，并说明联网搜索、受限 Python 自编程和安全边界。"
     "优先使用中文 Markdown 标题、表格、引用块和粗体突出结论。"
     "输出必须尽量遵循统一骨架：H1 标题、引用式核心结论、badge 元信息、"
     "“结论摘要 / 关键证据 / 文字图表 / 风险与限制 / 下一步”这些一级段落。"
     "文字图表优先使用 ASCII/Unicode 比例条或 sparkline。"
 )
+SYNTHESIS_CONTEXT_PREFIX = "以下是 SATS Agent 已经获取/计算的真实上下文和方法论摘要：\n"
 
 REPORT_TERMS = ("报告", "保存", "导出", "写成", "生成研究")
 
@@ -55,6 +61,14 @@ class AgentSynthesisResult:
     model_policy: str = ""
     model_profile: str = ""
     model_name: str = ""
+    error_type: str = ""
+    error_message: str = ""
+    prompt_chars: int = 0
+    prompt_budget_chars: int = 0
+    compact_mode: str = "full"
+    retry_count: int = 0
+    base_url_class: str = ""
+    attempt_errors: tuple[dict[str, str], ...] = ()
 
 
 def synthesize_agent_result(
@@ -89,11 +103,15 @@ def synthesize_agent_result(
             used_llm=False,
             model_policy="none",
         )
+    compact_mode = _initial_synthesis_compact_mode(settings)
+    prompt_budget = _synthesis_prompt_budget(settings, compact_mode=compact_mode)
     messages = _synthesis_messages(
         message=message,
         plan=plan,
         observations=observations,
         matched_skill_selections=matched_skill_selections,
+        compact_mode=compact_mode,
+        budget_chars=prompt_budget,
     )
     if llm_factory is None:
         return AgentSynthesisResult(
@@ -102,32 +120,96 @@ def synthesize_agent_result(
             messages=tuple(messages),
             used_llm=False,
             model_policy="none",
+            prompt_chars=_message_chars(messages),
+            prompt_budget_chars=prompt_budget or 0,
+            compact_mode=compact_mode,
+            base_url_class=_synthesis_base_url_class(settings),
         )
     model_meta = _synthesis_model_meta(settings)
+    error_type = ""
+    error_message = ""
+    retry_count = 0
+    attempt_errors: list[dict[str, str]] = []
+    final_messages = messages
+    prompt_chars = _message_chars(messages)
     try:
         llm = _make_llm(llm_factory, settings)
         try:
-            response = llm.chat(messages, timeout=getattr(settings, "llm_timeout_seconds", None))
-        except TypeError:
-            response = llm.chat(messages)
+            response = _call_synthesis_llm(llm, messages, settings=settings)
+        except Exception as exc:
+            if not _should_retry_synthesis(exc):
+                raise
+            attempt_errors.append(_synthesis_error_payload(exc))
+            retry_count = 1
+            compact_mode = "ultra_compact"
+            prompt_budget = THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS
+            final_messages = _synthesis_messages(
+                message=message,
+                plan=plan,
+                observations=observations,
+                matched_skill_selections=matched_skill_selections,
+                compact_mode=compact_mode,
+                budget_chars=prompt_budget,
+            )
+            prompt_chars = _message_chars(final_messages)
+            response = _call_synthesis_llm(llm, final_messages, settings=settings)
         model_meta = _synthesis_model_meta(settings, llm=llm)
         content = str(getattr(response, "content", "") or "").strip()
-    except Exception:
+        if not content and _should_retry_synthesis(None):
+            attempt_errors.append({"error_type": "EmptyLLMResponse", "error_message": "final synthesis LLM returned empty content"})
+            retry_count = 1
+            compact_mode = "ultra_compact"
+            prompt_budget = THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS
+            final_messages = _synthesis_messages(
+                message=message,
+                plan=plan,
+                observations=observations,
+                matched_skill_selections=matched_skill_selections,
+                compact_mode=compact_mode,
+                budget_chars=prompt_budget,
+            )
+            prompt_chars = _message_chars(final_messages)
+            response = _call_synthesis_llm(llm, final_messages, settings=settings)
+            content = str(getattr(response, "content", "") or "").strip()
+            if not content:
+                attempt_errors.append({"error_type": "EmptyLLMResponse", "error_message": "compact final synthesis LLM returned empty content"})
+    except Exception as exc:
+        error_type = exc.__class__.__name__
+        error_message = _exception_message(exc)
+        attempt_errors.append(_synthesis_error_payload(exc))
         content = ""
+    if not content and attempt_errors and not error_message:
+        last_error = attempt_errors[-1]
+        error_type = str(last_error.get("error_type") or "")
+        error_message = str(last_error.get("error_message") or "")
     if not content:
         content = _fallback_summary(plan.objective, observations, matched_skills)
         return AgentSynthesisResult(
             content=content,
             skill_names=tuple(skill.name for skill in matched_skills),
-            messages=tuple(messages),
+            messages=tuple(final_messages),
             used_llm=False,
+            error_type=error_type,
+            error_message=error_message,
+            prompt_chars=prompt_chars,
+            prompt_budget_chars=prompt_budget or 0,
+            compact_mode=compact_mode,
+            retry_count=retry_count,
+            base_url_class=_synthesis_base_url_class(settings),
+            attempt_errors=tuple(attempt_errors),
             **model_meta,
         )
     return AgentSynthesisResult(
         content=content,
         skill_names=tuple(skill.name for skill in matched_skills),
-        messages=tuple(messages),
+        messages=tuple(final_messages),
         used_llm=True,
+        prompt_chars=prompt_chars,
+        prompt_budget_chars=prompt_budget or 0,
+        compact_mode=compact_mode,
+        retry_count=retry_count,
+        base_url_class=_synthesis_base_url_class(settings),
+        attempt_errors=tuple(attempt_errors),
         **model_meta,
     )
 
@@ -186,9 +268,13 @@ def _synthesis_messages(
     plan: AgentPlan,
     observations: tuple[AgentObservation, ...],
     matched_skill_selections: list[SkillSelection],
+    compact_mode: str = "full",
+    budget_chars: int | None = None,
 ) -> list[dict[str, Any]]:
     analysis_style = _analysis_style(message, observations)
     style_guide = _style_guide(analysis_style)
+    evidence_digest = _evidence_digest(observations)
+    user_content = _synthesis_user_content(message, analysis_style=analysis_style)
     context = {
         "objective": plan.objective,
         "success_criteria": list(plan.success_criteria),
@@ -196,30 +282,128 @@ def _synthesis_messages(
         "analysis_style": analysis_style,
         "style_guide": style_guide,
         "skills": _skill_context(matched_skill_selections),
-        "evidence_digest": _evidence_digest(observations),
-        "observations": [_observation_for_llm(item) for item in observations if not _is_deferred_report_observation(item)],
+        "evidence_digest": _compact_evidence_digest(evidence_digest, compact_mode=compact_mode),
     }
+    if compact_mode == "full":
+        context["observations"] = [_observation_for_llm(item) for item in observations if not _is_deferred_report_observation(item)]
+    else:
+        context["context_policy"] = (
+            "observations_summary contains payload size/key metadata only; evidence_digest is the authoritative compact evidence."
+        )
+        context["observations_summary"] = [
+            _observation_summary_for_llm(item, compact_mode=compact_mode)
+            for item in observations
+            if not _is_deferred_report_observation(item)
+        ]
+    context = _fit_synthesis_context_to_budget(
+        context,
+        budget_chars=budget_chars,
+        overhead_chars=len(SYNTHESIS_SYSTEM_PROMPT) + len(SYNTHESIS_CONTEXT_PREFIX) + len(user_content),
+        compact_mode=compact_mode,
+    )
     return [
         {"role": "system", "content": SYNTHESIS_SYSTEM_PROMPT},
         {
             "role": "system",
-            "content": "以下是 SATS Agent 已经获取/计算的真实上下文和方法论摘要：\n" + json.dumps(context, ensure_ascii=False, default=str),
+            "content": SYNTHESIS_CONTEXT_PREFIX + json.dumps(context, ensure_ascii=False, default=str),
         },
-        {
-            "role": "user",
-            "content": (
-                f"用户问题：{message}\n"
-                "请严格按 style_guide 输出详细中文 Markdown 分析。必须直接给结论和表格化证据，"
-                "并尽量保持统一骨架：标题、核心结论引用、badge 元信息、结论摘要、关键证据、文字图表、风险与限制、下一步。"
-                "并把缺失数据写成“数据缺失/未命中”。不要输出工具执行日志。"
-            ),
-        },
+        {"role": "user", "content": user_content},
     ]
+
+
+def _synthesis_user_content(message: str, *, analysis_style: str = "") -> str:
+    if analysis_style == "capability_overview":
+        return (
+            f"用户问题：{message}\n"
+            "请输出中文 Markdown 能力总览。必须说明 local skills 是方法论/路由上下文，"
+            "Agent tools 是可执行能力；覆盖网络搜索、能力目录、A股数据访问、受限 Python 自编程、"
+            "命令路由、工作流/报告、调度和受保护交易等类别。不要输出投资研究报告骨架，"
+            "不要把 tools 描述成已执行外部能力，必须说明所有执行都受 SATS 注册工具和安全策略约束。"
+        )
+    return (
+        f"用户问题：{message}\n"
+        "请严格按 style_guide 输出详细中文 Markdown 分析。必须直接给结论和表格化证据，"
+        "并尽量保持统一骨架：标题、核心结论引用、badge 元信息、结论摘要、关键证据、文字图表、风险与限制、下一步。"
+        "并把缺失数据写成“数据缺失/未命中”。不要输出工具执行日志。"
+    )
+
+
+def _call_synthesis_llm(llm: Any, messages: list[dict[str, Any]], *, settings: Any) -> Any:
+    try:
+        return llm.chat(messages, timeout=getattr(settings, "llm_timeout_seconds", None))
+    except TypeError:
+        return llm.chat(messages)
+
+
+def _message_chars(messages: list[dict[str, Any]] | tuple[dict[str, Any], ...]) -> int:
+    return sum(len(str(item.get("content") or "")) for item in messages)
+
+
+def _initial_synthesis_compact_mode(settings: Any) -> str:
+    return "gateway_compact" if _is_third_party_openai_compatible(settings) else "full"
+
+
+def _synthesis_prompt_budget(settings: Any, *, compact_mode: str) -> int | None:
+    if compact_mode == "ultra_compact":
+        return THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS
+    if _is_third_party_openai_compatible(settings):
+        return THIRD_PARTY_OPENAI_SYNTHESIS_BUDGET_CHARS
+    return None
+
+
+def _is_third_party_openai_compatible(settings: Any) -> bool:
+    provider = str(getattr(settings, "llm_provider", "") or "").strip().lower()
+    if provider != "openai":
+        return False
+    base_url = _normalized_base_url(str(getattr(settings, "openai_base_url", "") or ""))
+    return bool(base_url and base_url not in OFFICIAL_OPENAI_BASE_URLS)
+
+
+def _synthesis_base_url_class(settings: Any) -> str:
+    provider = str(getattr(settings, "llm_provider", "") or "").strip().lower()
+    if provider != "openai":
+        return provider or "unknown"
+    base_url = _normalized_base_url(str(getattr(settings, "openai_base_url", "") or ""))
+    if not base_url:
+        return "openai_default"
+    return "openai_official" if base_url in OFFICIAL_OPENAI_BASE_URLS else "openai_compatible_third_party"
+
+
+def _normalized_base_url(value: str) -> str:
+    return str(value or "").strip().rstrip("/").lower()
+
+
+def _should_retry_synthesis(exc: Exception | None) -> bool:
+    if exc is None:
+        return True
+    text = _exception_message(exc, limit=1000).lower()
+    retry_markers = (
+        "status_code=500",
+        "upstream error",
+        "do request failed",
+        "request was blocked",
+        "connection error",
+        "timeout",
+        "timed out",
+        "context",
+        "maximum context",
+        "token",
+        "length",
+        "too large",
+        "payload",
+    )
+    return any(marker in text for marker in retry_markers)
+
+
+def _synthesis_error_payload(exc: Exception) -> dict[str, str]:
+    return {"error_type": exc.__class__.__name__, "error_message": _exception_message(exc)}
 
 
 def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) -> str:
     tools = {str(item.payload.get("tool_name") or "") for item in observations}
     text = str(message or "")
+    if _has_capability_observation(observations):
+        return "capability_overview"
     if "research.sector_return_ranking" in tools:
         return "sector_returns"
     if "analysis.python_program" in tools:
@@ -247,6 +431,14 @@ def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) ->
     return "general_research"
 
 
+def _has_capability_observation(observations: tuple[AgentObservation, ...]) -> bool:
+    for item in observations:
+        tool_name = str(item.payload.get("tool_name") or "")
+        if tool_name == "catalog.capabilities" or tool_name in {"chat.list_skills", "chat.load_skill"}:
+            return True
+    return False
+
+
 def _has_sector_return_observation(observations: tuple[AgentObservation, ...]) -> bool:
     for item in observations:
         if item.kind != "tool" or item.status != "done":
@@ -267,8 +459,17 @@ def _style_guide(style: str) -> dict[str, Any]:
     common = {
         "format": "中文 Markdown；用表格呈现指标和证据；少用长段落；不要输出工具日志。",
         "required_footer": "必须以“以上仅供研究，不构成投资建议。”或同义风险提示收尾。",
-        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；只有 requested_dimensions/missing_fields、真实空 payload 或工具错误表明缺失时，才写数据缺失或未命中；明确请求股票未出现在摘要中只能写摘要未展开/未纳入摘要，不要写成数据缺失；不要把摘要字段名差异当成数据缺失；market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额，只有 turnover_comparison.status=ok 时才能定性放量/缩量/成交萎缩。",
+        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；只有 requested_dimensions/missing_fields、真实空 payload 或工具错误表明缺失时，才写数据缺失或未命中；optional_fields_not_requested 或 optional_minute_* 只表示本次未请求，不得写成数据缺失/未命中；明确请求股票未出现在摘要中只能写摘要未展开/未纳入摘要，不要写成数据缺失；不要把摘要字段名差异当成数据缺失；market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额，只有 turnover_comparison.status=ok 时才能定性放量/缩量/成交萎缩。",
     }
+    if style == "capability_overview":
+        return {
+            "format": "中文 Markdown；用简短段落和表格说明能力；不要输出工具日志。",
+            "required_footer": "不需要投资免责声明；必须说明所有执行都通过 SATS 注册工具和安全策略。",
+            "data_policy": "只能基于 catalog.capabilities、chat.list_skills/load_skill 和 observations 中的能力目录作答；不要声称已执行外部搜索、数据抓取、交易或报告写入。",
+            "title": "用 SATS 支持的 Skills 与 Agent 能力总览写 H1 标题。",
+            "sections": ["能力总览", "Skills 与 Tools 的区别", "关键能力", "安全边界", "查看完整列表"],
+            "table_hints": ["能力类别表需覆盖 web.search/web.open、data.astock_catalog/data.astock_fetch、analysis.python_program、catalog.capabilities、sats_command.run、workflow/research、schedule 和 trade 受保护能力"],
+        }
     if style == "stock_analysis":
         return {
             **common,
@@ -381,6 +582,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "discovery": {},
         "chan_context": {},
         "knowledge_context": {},
+        "capabilities": {"counts": {}, "summary": {}, "sections": {}, "warnings": []},
         "web_evidence": [],
         "web_sources": web_sources,
         "rule_generation": {},
@@ -420,6 +622,10 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         elif tool_name == "research.knowledge_context":
             context = payload.get("knowledge_context") if isinstance(payload.get("knowledge_context"), dict) else payload
             digest["knowledge_context"] = _trim_payload(context, max_chars=5000)
+        elif tool_name == "catalog.capabilities":
+            _merge_capability_digest(digest, payload)
+        elif tool_name in {"chat.list_skills", "chat.load_skill"}:
+            _merge_skill_tool_digest(digest, obs, payload)
         elif tool_name == "web.search":
             digest["web_evidence"].extend(_web_search_digest(payload, source_ids=web_source_ids))
         elif tool_name == "web.open":
@@ -478,6 +684,54 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
     digest["provenance"] = _dedupe_dicts(digest["provenance"])[:12]
     digest["web_evidence"] = _dedupe_dicts(digest["web_evidence"])[:24]
     return digest
+
+
+def _merge_capability_digest(digest: dict[str, Any], payload: dict[str, Any]) -> None:
+    catalog = payload.get("catalog") if isinstance(payload.get("catalog"), dict) else payload
+    if not isinstance(catalog, dict):
+        return
+    capability = digest.get("capabilities") if isinstance(digest.get("capabilities"), dict) else {}
+    digest["capabilities"] = capability
+    counts = capability.setdefault("counts", {})
+    if isinstance(counts, dict) and isinstance(catalog.get("counts"), dict):
+        counts.update({str(key): value for key, value in catalog["counts"].items()})
+    section = str(catalog.get("section") or "").strip() or "summary"
+    data = catalog.get("data") if isinstance(catalog.get("data"), dict) else {}
+    sections = capability.setdefault("sections", {})
+    if not isinstance(sections, dict):
+        sections = {}
+        capability["sections"] = sections
+    if section == "summary":
+        summary = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+        capability["summary"] = _trim_payload(summary, max_chars=9000)
+        for key, value in summary.items():
+            if isinstance(value, dict) and value.get("total") is not None and isinstance(counts, dict):
+                counts.setdefault(str(key), value.get("total"))
+        sections["summary"] = _trim_payload(summary, max_chars=9000)
+    else:
+        section_payload = data.get(section) if isinstance(data.get(section), dict) else {}
+        sections[section] = _trim_payload(section_payload, max_chars=9000)
+        normalized_key = section.replace("-", "_")
+        capability[normalized_key] = _trim_payload(section_payload, max_chars=9000)
+    consistency = catalog.get("consistency") if isinstance(catalog.get("consistency"), dict) else {}
+    warnings = consistency.get("warnings") if isinstance(consistency.get("warnings"), list) else []
+    if warnings:
+        existing = capability.setdefault("warnings", [])
+        if isinstance(existing, list):
+            existing.extend(str(item) for item in warnings if str(item or "").strip())
+
+
+def _merge_skill_tool_digest(digest: dict[str, Any], observation: AgentObservation, payload: dict[str, Any]) -> None:
+    capability = digest.get("capabilities") if isinstance(digest.get("capabilities"), dict) else {}
+    digest["capabilities"] = capability
+    tool_name = str(observation.payload.get("tool_name") or "")
+    if tool_name == "chat.list_skills":
+        capability["skill_summary_text"] = _truncate(observation.content, 6000)
+        skills = payload.get("skills")
+        if isinstance(skills, list):
+            capability["skill_names"] = [str(item) for item in skills[:50]]
+    elif tool_name == "chat.load_skill":
+        capability["loaded_skill"] = _trim_payload(payload, max_chars=5000)
 
 
 def _matched_skill_selections(message: str, observations: tuple[AgentObservation, ...], skills: tuple[Skill, ...]) -> list[SkillSelection]:
@@ -547,6 +801,298 @@ def _observation_for_llm(observation: AgentObservation) -> dict[str, Any]:
         "content": _truncate(observation.content, 1200),
         "payload": llm_payload,
     }
+
+
+def _observation_summary_for_llm(observation: AgentObservation, *, compact_mode: str) -> dict[str, Any]:
+    result = observation.payload.get("result") if isinstance(observation.payload.get("result"), dict) else {}
+    payload = result.get("payload") if isinstance(result.get("payload"), dict) else observation.payload
+    preview_limit = 220 if compact_mode == "ultra_compact" else 500
+    return _drop_empty(
+        {
+            "step_id": observation.step_id,
+            "kind": observation.kind,
+            "status": observation.status,
+            "tool_name": observation.payload.get("tool_name") or "",
+            "data_names": list(observation.payload.get("data_names") or result.get("data_names") or []),
+            "content_preview": _truncate(observation.content, preview_limit),
+            "content_chars": len(str(observation.content or "")),
+            "payload_chars": _json_chars(payload),
+            "payload_keys": sorted(str(key) for key in payload.keys())[:20] if isinstance(payload, dict) else [],
+            "result_status": result.get("status") if isinstance(result, dict) else "",
+        }
+    )
+
+
+def _json_chars(value: Any) -> int:
+    try:
+        return len(json.dumps(value, ensure_ascii=False, default=str))
+    except Exception:
+        return len(str(value or ""))
+
+
+def _compact_evidence_digest(digest: dict[str, Any], *, compact_mode: str) -> dict[str, Any]:
+    if compact_mode == "full":
+        return digest
+    ultra = compact_mode == "ultra_compact"
+    return _drop_empty(
+        {
+            "data_cutoff": digest.get("data_cutoff"),
+            "provenance": _compact_provenance(digest.get("provenance"), limit=10 if ultra else 24),
+            "quotes": _list_items(digest.get("quotes"))[:4 if ultra else 8],
+            "stock_context": _compact_stock_context_digest(digest.get("stock_context") or [], compact_mode=compact_mode),
+            "deep_stock_analysis": _trim_payload(digest.get("deep_stock_analysis") or {}, max_chars=1800 if ultra else 3500),
+            "serenity_screen": _trim_payload(digest.get("serenity_screen") or {}, max_chars=1800 if ultra else 3500),
+            "market_context": _compact_market_digest(digest.get("market_context") or {}, compact_mode=compact_mode),
+            "index_daily": _list_items(digest.get("index_daily"))[:8 if ultra else 20],
+            "indicators": _trim_payload(digest.get("indicators") or [], max_chars=1800 if ultra else 3600),
+            "indicator_coverage": digest.get("indicator_coverage"),
+            "analyze_signals": _trim_payload(digest.get("analyze_signals") or [], max_chars=1600 if ultra else 3200),
+            "native_dsa": _trim_payload(digest.get("native_dsa") or {}, max_chars=1800 if ultra else 3500),
+            "factor_summary": _trim_payload(digest.get("factor_summary") or {}, max_chars=1200 if ultra else 2500),
+            "company_fundamentals": _trim_payload(digest.get("company_fundamentals") or {}, max_chars=1600 if ultra else 3200),
+            "theme_stock_list": _trim_payload(digest.get("theme_stock_list") or {}, max_chars=1600 if ultra else 3200),
+            "theme_stock_returns": _trim_payload(digest.get("theme_stock_returns") or {}, max_chars=1600 if ultra else 3200),
+            "sector_return_ranking": _trim_payload(digest.get("sector_return_ranking") or {}, max_chars=2200 if ultra else 4500),
+            "python_program": _trim_payload(digest.get("python_program") or {}, max_chars=1600 if ultra else 3200),
+            "discovery": _trim_payload(digest.get("discovery") or {}, max_chars=2200 if ultra else 4500),
+            "chan_context": _trim_payload(digest.get("chan_context") or {}, max_chars=1600 if ultra else 3200),
+            "knowledge_context": _trim_payload(digest.get("knowledge_context") or {}, max_chars=1200 if ultra else 2400),
+            "capabilities": _trim_payload(digest.get("capabilities") or {}, max_chars=2200 if ultra else 5000),
+            "web_evidence": _list_items(digest.get("web_evidence"))[:4 if ultra else 8],
+            "web_sources": _list_items(digest.get("web_sources"))[:4 if ultra else 8],
+            "rule_generation": _trim_payload(digest.get("rule_generation") or {}, max_chars=1200 if ultra else 2400),
+            "backtest": _trim_payload(digest.get("backtest") or {}, max_chars=1600 if ultra else 3200),
+            "errors": _list_items(digest.get("errors"))[:6],
+        }
+    )
+
+
+def _compact_market_digest(value: Any, *, compact_mode: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    ultra = compact_mode == "ultra_compact"
+    return _drop_empty(
+        {
+            "trade_date": value.get("trade_date"),
+            "requested_as_of_date": value.get("requested_as_of_date"),
+            "periods": value.get("periods"),
+            "core_indices": _compact_market_index_digest(value.get("core_indices"), compact_mode=compact_mode),
+            "market_breadth": _trim_payload(value.get("market_breadth") or {}, max_chars=700 if ultra else 1400),
+            "limit_sentiment": _trim_payload(value.get("limit_sentiment") or {}, max_chars=700 if ultra else 1400),
+            "hot_sector_context": _trim_payload(value.get("hot_sector_context") or {}, max_chars=1000 if ultra else 2200),
+            "hot_sectors": _compact_hot_sector_digest(value.get("hot_sectors"), compact_mode=compact_mode),
+            "requested_indices": value.get("requested_indices"),
+            "requested_dimensions": value.get("requested_dimensions"),
+            "requested_horizons": value.get("requested_horizons"),
+            "missing_fields": value.get("missing_fields"),
+            "warnings": _list_items(value.get("warnings"))[:4],
+            "data_sources": _trim_payload(value.get("data_sources") or {}, max_chars=800 if ultra else 1600),
+        }
+    )
+
+
+def _compact_stock_context_digest(value: Any, *, compact_mode: str) -> list[dict[str, Any]]:
+    ultra = compact_mode == "ultra_compact"
+    rows: list[dict[str, Any]] = []
+    for item in _list_items(value)[:3 if ultra else 6]:
+        if not isinstance(item, dict):
+            continue
+        indicator = item.get("indicator") if isinstance(item.get("indicator"), dict) else {}
+        rows.append(
+            _drop_empty(
+                {
+                    "ts_code": item.get("ts_code"),
+                    "name": item.get("name"),
+                    "requested_trade_date": item.get("requested_trade_date"),
+                    "trade_date": item.get("trade_date"),
+                    "latest_daily": item.get("latest_daily"),
+                    "indicator": _pick_fields(
+                        indicator,
+                        ("close", "ma5", "ma10", "ma20", "ma60", "macd", "macd_dif", "macd_dea", "rsi6", "rsi12", "kdj_j", "boll_upper", "boll_mid", "boll_lower"),
+                    ),
+                    "period_returns": _trim_payload(item.get("period_returns") or {}, max_chars=500 if ultra else 1000),
+                    "minute_curves": _trim_payload(item.get("minute_curves") or {}, max_chars=700 if ultra else 1400),
+                    "missing_fields": item.get("missing_fields"),
+                    "optional_fields_not_requested": item.get("optional_fields_not_requested"),
+                }
+            )
+        )
+    return rows
+
+
+def _compact_market_index_digest(value: Any, *, compact_mode: str) -> list[dict[str, Any]]:
+    ultra = compact_mode == "ultra_compact"
+    rows: list[dict[str, Any]] = []
+    for item in _list_items(value)[:6 if ultra else 8]:
+        if not isinstance(item, dict):
+            continue
+        latest = item.get("latest") if isinstance(item.get("latest"), dict) else {}
+        weekly = item.get("weekly") if isinstance(item.get("weekly"), dict) else {}
+        technical = item.get("technical") if isinstance(item.get("technical"), dict) else {}
+        rows.append(
+            _drop_empty(
+                {
+                    "ts_code": item.get("ts_code"),
+                    "name": item.get("name"),
+                    "trade_date": item.get("trade_date"),
+                    "close": item.get("close"),
+                    "pct_chg": item.get("pct_chg"),
+                    "amount": item.get("amount"),
+                    "vol": item.get("vol"),
+                    "latest": _pick_fields(latest, ("close", "pct_chg", "amount", "vol")),
+                    "weekly": _pick_fields(weekly, ("start_date", "end_date", "pct_change", "pct_chg", "status")),
+                    "daily_tail": _compact_market_daily_tail(item.get("daily_tail"), limit=3 if ultra else 5),
+                    "technical": _compact_technical_digest(technical, max_chars=180 if ultra else 320),
+                    "missing_fields": item.get("missing_fields"),
+                }
+            )
+        )
+    return rows
+
+
+def _compact_market_daily_tail(value: Any, *, limit: int) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in _list_items(value)[-limit:]:
+        if not isinstance(item, dict):
+            continue
+        rows.append(_pick_fields(item, ("trade_date", "open", "high", "low", "close", "pct_chg", "amount", "vol")))
+    return rows
+
+
+def _compact_technical_digest(value: dict[str, Any], *, max_chars: int) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    compact = _pick_fields(
+        value,
+        (
+            "status",
+            "trend",
+            "signal",
+            "summary",
+            "close",
+            "ma5",
+            "ma10",
+            "ma20",
+            "ma60",
+            "macd",
+            "macd_dif",
+            "macd_dea",
+            "rsi6",
+            "support",
+            "resistance",
+        ),
+    )
+    if "summary" in compact:
+        compact["summary"] = _truncate(compact["summary"], max_chars)
+    return _trim_payload(compact, max_chars=max_chars + 300)
+
+
+def _compact_hot_sector_digest(value: Any, *, compact_mode: str) -> list[dict[str, Any]]:
+    ultra = compact_mode == "ultra_compact"
+    rows: list[dict[str, Any]] = []
+    for item in _list_items(value)[:6 if ultra else 12]:
+        if not isinstance(item, dict):
+            rows.append({"name": _truncate(item, 80)})
+            continue
+        rows.append(
+            _drop_empty(
+                {
+                    "name": item.get("name"),
+                    "sector_type": item.get("sector_type") or item.get("type"),
+                    "latest_pct_chg": item.get("latest_pct_chg") or item.get("pct_chg"),
+                    "heat_score": item.get("heat_score") or item.get("score"),
+                    "reason": _truncate(item.get("reason"), 120 if ultra else 180),
+                }
+            )
+        )
+    return rows
+
+
+def _compact_provenance(value: Any, *, limit: int) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in _list_items(value):
+        if not isinstance(item, dict):
+            continue
+        compact = _pick_fields(
+            item,
+            (
+                "tool",
+                "provider",
+                "dataset",
+                "source",
+                "data_source",
+                "ts_code",
+                "name",
+                "trade_date",
+                "start_date",
+                "end_date",
+                "rows",
+                "status",
+            ),
+        )
+        key = json.dumps(compact, ensure_ascii=False, sort_keys=True, default=str)
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(compact)
+        if len(rows) >= limit:
+            break
+    return rows
+
+
+def _fit_synthesis_context_to_budget(
+    context: dict[str, Any],
+    *,
+    budget_chars: int | None,
+    overhead_chars: int,
+    compact_mode: str,
+) -> dict[str, Any]:
+    if not budget_chars:
+        return context
+    context_budget = budget_chars - overhead_chars
+    if context_budget <= 0:
+        return {"context_policy": "prompt budget consumed by fixed synthesis instructions"}
+    if _json_chars(context) <= context_budget:
+        return context
+    fitted = dict(context)
+    fitted["skills"] = _truncate(fitted.get("skills"), 1200 if compact_mode == "ultra_compact" else 2200)
+    if "observations_summary" in fitted:
+        fitted["observations_summary"] = _trim_payload(fitted.get("observations_summary") or [], max_chars=1200 if compact_mode == "ultra_compact" else 2400)
+    if _json_chars(fitted) <= context_budget:
+        return fitted
+    fitted["evidence_digest"] = _trim_payload(
+        fitted.get("evidence_digest") or {},
+        max_chars=max(600, context_budget - 2200),
+    )
+    if _json_chars(fitted) <= context_budget:
+        return fitted
+    minimal = _drop_empty(
+        {
+            "objective": fitted.get("objective"),
+            "analysis_style": fitted.get("analysis_style"),
+            "style_guide": _trim_payload(fitted.get("style_guide") or {}, max_chars=1000),
+            "context_policy": fitted.get("context_policy") or "hard-trimmed to provider prompt budget",
+            "evidence_digest": _trim_payload(fitted.get("evidence_digest") or {}, max_chars=max(400, context_budget - 1800)),
+            "observations_summary": _trim_payload(fitted.get("observations_summary") or [], max_chars=800),
+        }
+    )
+    if _json_chars(minimal) <= context_budget:
+        return minimal
+    tiny = _drop_empty(
+        {
+            "objective": _truncate(fitted.get("objective"), 240),
+            "analysis_style": fitted.get("analysis_style"),
+            "context_policy": "hard-trimmed to provider prompt budget",
+            "observations_summary": _trim_payload(fitted.get("observations_summary") or [], max_chars=320),
+            "evidence_digest": {
+                "summary": _truncate(fitted.get("evidence_digest"), max(200, context_budget - 1200)),
+            },
+        }
+    )
+    if _json_chars(tiny) <= context_budget:
+        return tiny
+    return {"context_policy": "hard-trimmed to provider prompt budget"}
 
 
 def _result_payload(observation: AgentObservation) -> dict[str, Any]:
@@ -747,11 +1293,42 @@ def _stock_context_rows(stocks: Any, *, requested_symbols: list[str] | tuple[str
                         ("close", "ma5", "ma10", "ma20", "ma60", "macd", "macd_dif", "macd_dea", "rsi6", "rsi12", "kdj_j", "boll_upper", "boll_mid", "boll_lower"),
                     ),
                     "period_returns": _trim_payload(item.get("period_returns") or {}, max_chars=2500),
+                    "minute_curves": _minute_curves_digest(item.get("minute_curves")),
+                    "data_sources": _trim_payload(item.get("data_sources") or {}, max_chars=1200),
                     "missing_fields": item.get("missing_fields"),
+                    "optional_fields_not_requested": item.get("optional_fields_not_requested"),
                 }
             )
         )
     return rows
+
+
+def _minute_curves_digest(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    result: dict[str, Any] = {}
+    for period, curve in value.items():
+        if not isinstance(curve, dict):
+            continue
+        rows = curve.get("rows") if isinstance(curve.get("rows"), list) else []
+        tail_rows = [
+            _pick_fields(row, ("trade_time", "open", "high", "low", "close", "vol", "amount"))
+            for row in rows[-3:]
+            if isinstance(row, dict)
+        ]
+        result[str(period)] = _drop_empty(
+            {
+                "period": curve.get("period") or period,
+                "source": curve.get("source"),
+                "row_count": curve.get("row_count") if curve.get("row_count") is not None else len(rows),
+                "start_trade_time": curve.get("start_trade_time"),
+                "end_trade_time": curve.get("end_trade_time"),
+                "is_sufficient": curve.get("is_sufficient"),
+                "required_min_rows": curve.get("required_min_rows"),
+                "tail": tail_rows,
+            }
+        )
+    return _drop_empty(result)
 
 
 def _market_context_digest(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1342,6 +1919,8 @@ def _trim_payload(value: Any, *, max_chars: int = 18000) -> Any:
 def _fallback_summary(objective: str, observations: tuple[AgentObservation, ...], matched_skills: list[Skill]) -> str:
     style = _analysis_style(objective, observations)
     digest = _evidence_digest(observations)
+    if style == "capability_overview":
+        return _fallback_capability_overview(objective, digest, observations)
     lines = [f"# {_fallback_title(style, objective)}", ""]
     cutoff = str(digest.get("data_cutoff") or "以 SATS 已获取数据为准")
     lines.extend([f"> 已围绕“{objective}”完成 SATS 真实数据工具调用；数据截止 {cutoff}。", "", "`风格: 研究输出`", ""])
@@ -1403,9 +1982,142 @@ def _fallback_title(style: str, objective: str) -> str:
         return "板块指数区间表现排行"
     if style == "program_analysis":
         return "受限程序分析结果"
+    if style == "capability_overview":
+        return "SATS 支持的 Skills 与 Agent 能力总览"
     if style == "backtest":
         return "策略回测研究报告"
     return str(objective or "SATS Agent 分析结果")
+
+
+def _fallback_capability_overview(objective: str, digest: dict[str, Any], observations: tuple[AgentObservation, ...]) -> str:
+    capabilities = digest.get("capabilities") if isinstance(digest.get("capabilities"), dict) else {}
+    counts = capabilities.get("counts") if isinstance(capabilities.get("counts"), dict) else {}
+    summary = capabilities.get("summary") if isinstance(capabilities.get("summary"), dict) else {}
+    skills_payload = capabilities.get("skills") if isinstance(capabilities.get("skills"), dict) else {}
+    skill_categories = _capability_category_counts(capabilities, "skills")
+    agent_tool_categories = _capability_category_counts(capabilities, "agent-tools")
+    provider_counts = _capability_provider_counts(capabilities)
+    skill_examples = [
+        item
+        for item in (skills_payload.get("items") if isinstance(skills_payload.get("items"), list) else [])
+        if isinstance(item, dict)
+    ][:8]
+    lines = [
+        "# SATS 支持的 Skills 与 Agent 能力总览",
+        "",
+        f"> 已根据 SATS capability catalog 回答“{objective}”。这里的 skills 是方法论/路由上下文；真正执行动作的是受注册表约束的 Agent tools。",
+        "",
+        "## 能力总览",
+        "",
+        "| 类别 | 当前数量 | 说明 |",
+        "|---|---:|---|",
+        f"| CLI 命令 | {_capability_count(counts, summary, 'commands')} | `python -m sats`、`sats` 和 REPL slash command 共用的命令面。 |",
+        f"| Agent tools | {_capability_count(counts, summary, 'agent-tools')} | 自然对话可调用的受控工具，包括数据、研究、网页、命令、工作流和交易守卫。 |",
+        f"| 本地 skills | {_capability_count(counts, summary, 'skills')} | `skills/<skill_id>/SKILL.md` 方法论卡片，提供分析框架和路由提示。 |",
+        f"| 知识库 | {_capability_count(counts, summary, 'knowledge')} | 本地 RAG 知识集合。 |",
+        f"| 数据接口 | {_capability_count(counts, summary, 'providers')} | A 股结构化数据入口，优先经 `AStockDataProvider` 和 `data.astock_*` 工具。 |",
+        f"| 筛选规则/信号/因子 | {_capability_count(counts, summary, 'screening-rules')} / {_capability_count(counts, summary, 'signals')} / {_capability_count(counts, summary, 'factors')} | 选股、信号解释和因子研究能力。 |",
+        "",
+        "## Skills 与 Tools 的区别",
+        "",
+        "- **Skills**：是本地方法论和任务路由上下文，例如策略、风险、数据源、工作流说明；它们不会单独获取行情或执行外部动作。",
+        "- **Agent tools**：是可执行能力，必须经过 SATS 注册表、参数校验和安全策略；自然对话会根据问题选择工具、观察结果，再综合回答。",
+        "- **真实 A 股数据**：必须通过 `data.astock_catalog` 发现白名单接口，再通过 `data.astock_fetch` 或专门的 SATS 数据/研究工具获取；不能绕过 provider 边界。",
+        "",
+        "## 关键能力",
+        "",
+        "| 能力 | 入口/工具 | 边界 |",
+        "|---|---|---|",
+        "| 能力目录发现 | `catalog.capabilities`, `sats catalog` | 查看命令、tools、skills、知识库、providers、规则、信号、因子和 API。 |",
+        "| 本地 skills 检索 | `sats skills`, `chat.list_skills`, `chat.load_skill` | 只读取本地 `SKILL.md` 方法论，不代表已执行外部问财或行情能力。 |",
+        "| 联网搜索与页面读取 | `web.search`, `web.open`, `web.social_hot`, `web.hot_mentions` | 公开网页是不可信证据；行情、K 线、资金流仍走 SATS 结构化数据层。 |",
+        "| A 股数据访问 | `data.astock_catalog`, `data.astock_fetch`, `AStockDataProvider` | 只能调用注册 dataset/operation，不在参数里传 API key、token 或任意后端方法名。 |",
+        "| 受限 Python 自编程 | `analysis.python_program` | 只读、有限时、可读 resolver 和前序 observations；禁止文件、进程、网络和动态执行。 |",
+        "| 研究工作流和报告 | `research.*`, `workflow.*`, `research.write_report` | 默认只返回证据；只有用户明确要求保存/导出时才落盘报告。 |",
+        "| CLI 命令路由 | `sats_command.catalog`, `sats_command.run` | 通过 argv runner 调用非递归 SATS 命令，不走任意 shell，禁止递归 `chat`。 |",
+        "| 定时与交易守卫 | `schedule`, `trade.*`, `qmt` | 定时任务走 SATS 内部入口；实盘交易需要权限和人工确认。 |",
+        "",
+    ]
+    if skill_categories:
+        lines.extend(["## Skill 分类", "", _capability_counts_line(skill_categories), ""])
+    if agent_tool_categories:
+        lines.extend(["## Agent Tool 分类", "", _capability_counts_line(agent_tool_categories), ""])
+    if provider_counts:
+        lines.extend(["## 数据 Provider 分布", "", _capability_counts_line(provider_counts), ""])
+    if skill_examples:
+        rows = [
+            {
+                "id": item.get("id"),
+                "category": item.get("category"),
+                "description": item.get("description") or item.get("name"),
+            }
+            for item in skill_examples
+        ]
+        lines.extend(["## Skill 示例", ""])
+        lines.extend(_markdown_table(rows, ("id", "category", "description")))
+        if skills_payload.get("truncated"):
+            offset = int(skills_payload.get("offset") or 0) + int(skills_payload.get("returned") or len(skill_examples))
+            lines.extend(["", f"还有更多 skills；可用 `sats catalog --section skills --offset {offset}` 继续分页。"])
+        lines.append("")
+    warnings = capabilities.get("warnings") if isinstance(capabilities.get("warnings"), list) else []
+    lines.extend(
+        [
+            "## 安全边界",
+            "",
+            "- 自然对话不是简单工具转发：它会读 capability catalog、选择工具、处理错误 observation，并把证据综合成回答。",
+            "- 网络搜索、受限 Python、命令路由、报告写入和交易相关能力都必须经过 SATS 注册工具和安全策略；没有任意 shell、任意网页指令执行或无限制 Python。",
+            "- 涉及股票代码输出时仍必须同时展示证券名称；涉及真实行情或财务字段时必须来自 SATS 数据 observation。",
+            "",
+            "## 查看完整列表",
+            "",
+            "- `sats catalog --json`：机器可读总目录。",
+            "- `sats catalog --section skills`：分页查看本地 skills。",
+            "- `sats catalog --section agent-tools`：查看自然对话可执行 tools。",
+            "- `sats skills`：查看本地 SATS skills 的文本列表。",
+        ]
+    )
+    if warnings:
+        lines.extend(["", "## 目录一致性提示", ""])
+        lines.extend(f"- {item}" for item in warnings[:6])
+    if not any(str(obs.payload.get("tool_name") or "") == "catalog.capabilities" for obs in observations):
+        lines.extend(["", "## 限制", "", "- 本轮没有 capability catalog observation；以上仅为保守能力说明。"])
+    return "\n".join(lines).strip()
+
+
+def _capability_count(counts: dict[str, Any], summary: dict[str, Any], key: str) -> Any:
+    if isinstance(counts, dict) and counts.get(key) is not None:
+        return counts.get(key)
+    value = summary.get(key) if isinstance(summary.get(key), dict) else {}
+    if isinstance(value, dict) and value.get("total") is not None:
+        return value.get("total")
+    return 0
+
+
+def _capability_category_counts(capabilities: dict[str, Any], key: str) -> dict[str, Any]:
+    summary = capabilities.get("summary") if isinstance(capabilities.get("summary"), dict) else {}
+    value = summary.get(key) if isinstance(summary.get(key), dict) else {}
+    if isinstance(value.get("by_category"), dict):
+        return dict(value["by_category"])
+    section_key = key.replace("-", "_")
+    section = capabilities.get(section_key) if isinstance(capabilities.get(section_key), dict) else {}
+    if isinstance(section.get("by_category"), dict):
+        return dict(section["by_category"])
+    return {}
+
+
+def _capability_provider_counts(capabilities: dict[str, Any]) -> dict[str, Any]:
+    summary = capabilities.get("summary") if isinstance(capabilities.get("summary"), dict) else {}
+    providers = summary.get("providers") if isinstance(summary.get("providers"), dict) else {}
+    if isinstance(providers.get("by_provider"), dict):
+        return dict(providers["by_provider"])
+    section = capabilities.get("providers") if isinstance(capabilities.get("providers"), dict) else {}
+    if isinstance(section.get("by_provider"), dict):
+        return dict(section["by_provider"])
+    return {}
+
+
+def _capability_counts_line(counts: dict[str, Any]) -> str:
+    return "、".join(f"{key}={value}" for key, value in counts.items()) if counts else "暂无分类统计。"
 
 
 def _append_company_fundamentals_fallback(lines: list[str], digest: dict[str, Any]) -> None:
@@ -1766,9 +2478,15 @@ def _append_sector_returns_fallback(lines: list[str], digest: dict[str, Any]) ->
 def _append_program_analysis_fallback(lines: list[str], digest: dict[str, Any]) -> None:
     payload = digest.get("python_program") if isinstance(digest.get("python_program"), dict) else {}
     rows = payload.get("rows") if isinstance(payload.get("rows"), list) else []
-    lines.extend(["## 程序结果表", ""])
+    if payload.get("kind") == "hot_sector_candidates":
+        lines.extend(["## 候选排序表", ""])
+    else:
+        lines.extend(["## 程序结果表", ""])
     if rows and all(isinstance(item, dict) for item in rows):
-        columns = tuple(str(column) for column in rows[0].keys())[:12]
+        if payload.get("kind") == "hot_sector_candidates":
+            columns = ("rank", "ts_code", "name", "score", "hot_sectors", "sector_heat", "recent_return", "volume_status", "reason", "risk")
+        else:
+            columns = tuple(str(column) for column in rows[0].keys())[:12]
         lines.extend(_markdown_table(rows, columns) or ["受限程序未返回可表格化结果。"])
     else:
         lines.append(str(payload.get("summary") or payload.get("result") or "受限程序未返回可表格化结果。"))
@@ -1925,10 +2643,19 @@ def _main_model_name(settings: Any) -> str:
     return str(getattr(settings, "openai_model", "") or "LLM")
 
 
+def _exception_message(exc: Exception, *, limit: int = 500) -> str:
+    text = " ".join(str(exc).split()) or exc.__class__.__name__
+    if len(text) > limit:
+        return text[:limit].rstrip() + "..."
+    return text
+
+
 def _needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:
     for obs in observations:
         tool = str(obs.payload.get("tool_name") or "")
-        if tool.startswith(("research.", "data.", "factor.", "trade.", "web.")) or obs.kind in {"python", "trade"}:
+        if tool.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.")) or obs.kind in {"python", "trade"}:
+            return True
+        if tool in {"chat.list_skills", "chat.load_skill"}:
             return True
     return False
 

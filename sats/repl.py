@@ -35,7 +35,7 @@ from sats.config import load_settings
 from sats.conversation import (
     confirm_pending_conversation_action,
     continue_conversation_after_clarification,
-    format_conversation_plan,
+    format_plan_mode_result,
     reject_pending_conversation_action,
     run_conversation_once,
 )
@@ -73,6 +73,7 @@ CLI_COMMANDS = [
     "indicators",
     "factor",
     "skills",
+    "skillhub",
     "watchlist",
     "monitor",
     "monitor-display",
@@ -99,7 +100,7 @@ HELP_COMMANDS = [
     ("/reject", "取消待执行动作"),
     ("/answer", "回答澄清问题并继续"),
     ("/trace", "查看对话 turn trace"),
-    ("/plan", "只生成 Conversation 计划"),
+    ("/plan", "进入 Plan mode（只规划，不执行）"),
     ("/engine", "切换自然语言引擎"),
     ("/clear", "清屏"),
     ("/save", "保存上一条输出"),
@@ -129,6 +130,7 @@ HELP_COMMANDS = [
     ("/indicators", "计算技术指标"),
     ("/factor", "股票因子分析/选股"),
     ("/skills", "查看本地 skills"),
+    ("/skillhub", "同步问财 SkillHub skills"),
     ("/watchlist", "编辑关注列表"),
     ("/monitor", "实时监控"),
     ("/monitor-display", "监控信息显示"),
@@ -178,7 +180,7 @@ HELP_EXAMPLES = [
     ("/web hot --platforms xueqiu --limit 20", "雪球热股/热点"),
     ("/web mentions --keyword 贵州茅台", "热榜关键词命中"),
     ("筛选短线机会并保存报告", "自然语言自主执行 Agent"),
-    ("/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划", "只生成自然任务计划"),
+    ("/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划", "Plan mode 只规划不执行"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
     ("/trace", "查看最近一次对话 trace"),
     ("/watchlist", "编辑关注列表"),
@@ -212,6 +214,8 @@ HELP_EXAMPLES = [
     ("/knowledge search --query 三买 --knowledge chan", "搜索本地知识库"),
     ("/knowledge ingest --knowledge chan --path knowledge/chan/rules", "导入知识库文档"),
     ("/knowledge sync-stock-basic", "同步股票名称代码库"),
+    ("/skillhub status", "查看 SkillHub 本地安装状态"),
+    ("/skillhub install --all --dry-run", "预览同步问财 SkillHub skills"),
     ("/catalog --section providers --provider tushare --query 资金流 --json", "查询数据接口目录"),
 ]
 
@@ -315,6 +319,9 @@ COMPLETION_DESCRIPTIONS = {
     "--horizon": "收益标签周期",
     "--groups": "分组数量",
     "--category": "信号分类",
+    "--classify": "SkillHub 分类",
+    "--all": "同步全部 SkillHub skills",
+    "--prune-generated": "清理旧生成 SkillHub skills",
     "--json": "输出 JSON",
     "--noreport": "不生成报告",
     "--explain-rating": "显示评级解释",
@@ -373,7 +380,7 @@ COMPLETION_DESCRIPTIONS = {
     "--max-iterations": "Agent 最大步骤数",
     "--command-timeout": "Agent 命令超时秒数",
     "--python-timeout": "Agent Python 超时秒数",
-    "--plan-only": "只生成计划",
+    "--plan-only": "Plan mode 只规划不执行",
     "--engine": "对话引擎",
     "--dry-run": "跳过高风险副作用",
     "--lists": "列表名称",
@@ -1138,7 +1145,7 @@ def handle_repl_line(
                 output = "错误: plan message is required"
             else:
                 settings = getattr(_active_chat_session(chat_session, state), "settings", None) or load_settings()
-                output = format_conversation_plan(message, settings=settings)
+                output = format_plan_mode_result(message, settings=settings)
                 printer(output)
                 _remember_output(state, output, request=text, source="/plan")
                 _record_interaction_history(

@@ -43,6 +43,11 @@ WEB_EMBEDDING_API_KEY=
 WEB_EMBEDDING_MODEL=
 WEB_FASTEMBED_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 
+# Iwencai SkillHub
+IWENCAI_BASE_URL=https://openapi.iwencai.com
+IWENCAI_API_KEY=
+IWENCAI_SKILLHUB_CLI=iwencai-skillhub-cli
+
 # LLM model profiles
 DEEPSEEK_PROVIDER=deepseek
 DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
@@ -130,6 +135,9 @@ class Settings:
     web_embedding_api_key: str = ""
     web_embedding_model: str = ""
     web_fastembed_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    iwencai_base_url: str = "https://openapi.iwencai.com"
+    iwencai_api_key: str = ""
+    iwencai_skillhub_cli: str = "iwencai-skillhub-cli"
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -199,6 +207,9 @@ def load_settings(project_root: Path | None = None, env_path: Path | None = None
             "WEB_FASTEMBED_MODEL",
             "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         ).strip(),
+        iwencai_base_url=os.getenv("IWENCAI_BASE_URL", "https://openapi.iwencai.com").strip(),
+        iwencai_api_key=os.getenv("IWENCAI_API_KEY", "").strip(),
+        iwencai_skillhub_cli=os.getenv("IWENCAI_SKILLHUB_CLI", "iwencai-skillhub-cli").strip(),
         llm_provider=main_model.provider,
         llm_profile=main_model.profile_name,
         light_llm_provider=light_model.provider,

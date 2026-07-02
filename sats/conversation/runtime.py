@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable
 
 from sats.agent.command_runner import AgentCommandRunner
+from sats.agent.date_policy import agent_today, normalize_agent_date, resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy, AgentObservation, AgentPlan, AgentStep
-from sats.agent.planner import _is_sector_return_ranking_request, _sector_return_ranking_step, build_agent_plan
 from sats.agent.synthesis import collect_agent_sources, synthesize_agent_result
 from sats.agent.tools import AgentToolContext, AgentToolResult, build_default_tool_registry
 from sats.agent.trading import AgentTradingExecutor
@@ -19,24 +20,86 @@ from sats.llm import ChatLLM, build_standard_llm, extract_json_object
 from sats.memory import ChatMemoryStore
 from sats.skills import default_skills_dir, load_skills
 from sats.storage.duckdb import DuckDBStorage
+from sats.stock_basic_lookup import load_stock_basic_frame, resolve_stock_mentions
 from sats.stock_question import extract_stock_symbols
+from sats.symbols import normalize_ts_code
 
 
 CONVERSATION_ACTION_TYPE = "conversation_tool"
 CONVERSATION_CLARIFICATION_ACTION_TYPE = "conversation_clarification"
-CONFIRM_SIDE_EFFECTS = {"write_db", "long_running", "command", "live_trade"}
+CONFIRM_SIDE_EFFECTS = {"live_trade"}
 SUBAGENT_KINDS = {"subagent", "delegate"}
 MAX_SUBAGENT_STEPS = 4
 MAX_INVALID_ACTIONS = 2
 CONVERSATION_ACTIONS = {"call_tool", "ask_clarification", "request_confirmation", "final_answer"}
-SECTOR_RANKING_MISROUTE_TOOLS = {
-    "research.theme_stock_returns",
-    "research.theme_stock_list",
-    "research.discover_opportunities",
-    "web.search",
-    "web.open",
-    "web.hot_mentions",
+PLAN_MODE_FORBIDDEN_SIDE_EFFECTS = {"write_db", "write_artifact", "command", "long_running", "live_trade"}
+CONVERSATION_RESEARCH_TIME_TOOLS = {
+    "research.stock_context",
+    "research.internal_analysis",
+    "research.deep_stock_analysis",
 }
+TODAY_AS_OF_TERMS = ("今天", "今日", "当天", "当日")
+RECENT_AS_OF_TERMS = ("过去几天", "过去几日", "最近几天", "最近几日", "近几天", "近几日", "这几天", "这几日")
+CAPABILITY_REQUEST_TERMS = (
+    "skill",
+    "skills",
+    "技能",
+    "能力",
+    "capability",
+    "capabilities",
+    "tool",
+    "tools",
+    "工具",
+    "能做什么",
+)
+CAPABILITY_INVENTORY_TERMS = (
+    "列出",
+    "支持",
+    "哪些",
+    "有什么",
+    "有哪些",
+    "查看",
+    "目录",
+    "总览",
+    "概览",
+    "清单",
+    "能做什么",
+    "可以做什么",
+    "list",
+    "show",
+    "available",
+    "supported",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class ConversationRunSpec:
+    message: str
+    policy: AgentExecutionPolicy
+    reference_context: dict[str, Any] = field(default_factory=dict)
+    available_tools: tuple[str, ...] = ()
+    observations: tuple[dict[str, Any], ...] = ()
+    phase: str = "conversation_loop"
+
+    def to_plan(self) -> AgentPlan:
+        """Compatibility shell for ConversationResult.plan.
+
+        The conversation runtime no longer pre-generates tool steps. Keep only
+        the objective and phase so older callers can still read result.plan
+        without treating it as an executable plan.
+        """
+
+        return AgentPlan(objective=self.message, phase=self.phase)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "message": self.message,
+            "policy": self.policy.to_dict(),
+            "reference_context": dict(self.reference_context),
+            "available_tools": list(self.available_tools),
+            "observations": [dict(item) for item in self.observations],
+            "phase": self.phase,
+        }
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,17 +218,26 @@ def run_conversation_once(
             llm_factory=llm_factory,
         )
         registry = build_default_tool_registry()
-        plan = build_agent_plan(
-            text,
-            settings=settings,
-            policy=policy,
-            llm_factory=None,
-            tool_registry=registry,
-            reference_context=reference_context,
+        run_spec = _conversation_run_spec(text, policy=policy, registry=registry, reference_context=reference_context)
+        plan = run_spec.to_plan()
+        recorder.emit(
+            "plan_ready",
+            item_type="run_spec",
+            item_name="conversation",
+            status="done",
+            content=plan.objective,
+            payload={"run_spec": run_spec.to_dict(), "plan": plan.to_dict()},
         )
-        plan = replace(plan, phase="conversation_planner", model_policy="local", model_profile="local", model_name="local")
-        plan = _normalize_conversation_plan(plan, text)
-        recorder.emit("plan_ready", item_type="plan", item_name="conversation", status="done", content=plan.objective, payload=plan.to_dict())
+        _preseed_capability_observations(
+            text,
+            plan=plan,
+            registry=registry,
+            context=context,
+            recorder=recorder,
+            observations=observations,
+            artifacts=artifacts,
+            data_names=data_names,
+        )
 
         if llm_factory is not None:
             loop = _run_conversation_loop(
@@ -183,16 +255,18 @@ def run_conversation_once(
             )
             interruption = loop.interruption
         else:
-            loop = _LoopOutcome(model_policy="none")
-            interruption = _execute_plan_until_confirmation(
-                plan,
-                registry=registry,
-                context=context,
-                recorder=recorder,
-                observations=observations,
-                artifacts=artifacts,
-                data_names=data_names,
+            content = "conversation loop requires an LLM action model; no tools were executed."
+            observations.append(
+                AgentObservation(
+                    step_id="llm_unavailable",
+                    kind="runtime",
+                    status="error",
+                    content=content,
+                    payload={"phase": "conversation_loop", "reason": "llm_factory_none"},
+                )
             )
+            loop = _LoopOutcome(final_content=content, synthesize_final=False, model_policy="none")
+            interruption = None
         if interruption is not None:
             content = interruption.content
             action_id = interruption.action_id
@@ -229,19 +303,61 @@ def run_conversation_once(
             model_profile = loop.model_profile
             model_name = loop.model_name
         else:
-            synthesis = synthesize_agent_result(
-                message=text,
-                plan=plan,
-                observations=tuple(observations),
-                skills=tuple(context.skills),
-                settings=settings,
-                llm_factory=llm_factory,
+            synthesis_started = time.monotonic()
+            recorder.emit(
+                "context_started",
+                item_type="agent_synthesis",
+                item_name="final_synthesis",
+                status="running",
+                payload={"phase": "synthesis"},
             )
+            try:
+                synthesis = synthesize_agent_result(
+                    message=text,
+                    plan=plan,
+                    observations=tuple(observations),
+                    skills=tuple(context.skills),
+                    settings=settings,
+                    llm_factory=llm_factory,
+                )
+            except Exception as exc:
+                recorder.emit(
+                    "context_completed",
+                    item_type="agent_synthesis",
+                    item_name="final_synthesis",
+                    status="error",
+                    content=str(exc),
+                    payload={"phase": "synthesis", "error_type": exc.__class__.__name__, "error_message": str(exc)},
+                    duration_seconds=max(0.0, time.monotonic() - synthesis_started),
+                )
+                raise
+            _emit_synthesis_error(recorder, synthesis)
             content = synthesis.content or _fallback_content(observations)
             skill_names = synthesis.skill_names
             model_policy = synthesis.model_policy
             model_profile = synthesis.model_profile
             model_name = synthesis.model_name
+            recorder.emit(
+                "context_completed",
+                item_type="agent_synthesis",
+                item_name="final_synthesis",
+                status="done",
+                content=content,
+                payload={
+                    "used_llm": bool(getattr(synthesis, "used_llm", False)),
+                    "skills": list(getattr(synthesis, "skill_names", ()) or ()),
+                    "phase": str(getattr(synthesis, "phase", "synthesis") or "synthesis"),
+                    "model_policy": str(getattr(synthesis, "model_policy", "") or ""),
+                    "model_profile": str(getattr(synthesis, "model_profile", "") or ""),
+                    "model_name": str(getattr(synthesis, "model_name", "") or ""),
+                    "prompt_chars": int(getattr(synthesis, "prompt_chars", 0) or 0),
+                    "prompt_budget_chars": int(getattr(synthesis, "prompt_budget_chars", 0) or 0),
+                    "compact_mode": str(getattr(synthesis, "compact_mode", "") or ""),
+                    "retry_count": int(getattr(synthesis, "retry_count", 0) or 0),
+                    "base_url_class": str(getattr(synthesis, "base_url_class", "") or ""),
+                },
+                duration_seconds=max(0.0, time.monotonic() - synthesis_started),
+            )
         user_message_id, assistant_message_id = _persist_messages(store, session_id, text, content)
         result = ConversationResult(
             content=content,
@@ -265,6 +381,111 @@ def run_conversation_once(
         raise
 
 
+def _conversation_run_spec(
+    message: str,
+    *,
+    policy: AgentExecutionPolicy,
+    registry: Any,
+    reference_context: Any | None,
+    observations: tuple[AgentObservation, ...] = (),
+) -> ConversationRunSpec:
+    return ConversationRunSpec(
+        message=message,
+        policy=policy,
+        reference_context=_reference_context_payload(reference_context),
+        available_tools=_registry_tool_names(registry),
+        observations=tuple(_compact_observations(observations)),
+    )
+
+
+def _emit_synthesis_error(recorder: ChatTurnRecorder, synthesis: Any) -> None:
+    error_message = str(getattr(synthesis, "error_message", "") or "").strip()
+    if not error_message:
+        return
+    error_type = str(getattr(synthesis, "error_type", "") or "").strip()
+    model_policy = str(getattr(synthesis, "model_policy", "") or "")
+    model_profile = str(getattr(synthesis, "model_profile", "") or "")
+    model_name = str(getattr(synthesis, "model_name", "") or "")
+    attempt_errors = getattr(synthesis, "attempt_errors", ()) or ()
+    recorder.emit(
+        "llm_completed",
+        item_type="agent_synthesis",
+        item_name="final_synthesis",
+        status="error",
+        content=f"final synthesis LLM failed: {error_message}",
+        payload={
+            "phase": "synthesis",
+            "model_policy": model_policy,
+            "model_profile": model_profile,
+            "model_name": model_name,
+            "error_type": error_type,
+            "error_message": error_message,
+            "prompt_chars": int(getattr(synthesis, "prompt_chars", 0) or 0),
+            "prompt_budget_chars": int(getattr(synthesis, "prompt_budget_chars", 0) or 0),
+            "compact_mode": str(getattr(synthesis, "compact_mode", "") or ""),
+            "retry_count": int(getattr(synthesis, "retry_count", 0) or 0),
+            "base_url_class": str(getattr(synthesis, "base_url_class", "") or ""),
+            "attempt_errors": [dict(item) for item in attempt_errors if isinstance(item, dict)],
+            "fallback": "local_summary",
+        },
+    )
+
+
+def run_plan_mode_once(
+    message: str,
+    *,
+    settings: Settings,
+    policy: AgentExecutionPolicy | None = None,
+    reference_context: Any | None = None,
+    llm_factory: Callable[..., Any] | None = ChatLLM,
+) -> str:
+    text = str(message or "").strip()
+    if not text:
+        raise ValueError("plan mode message is required")
+    settings = settings or load_settings()
+    policy = policy or AgentExecutionPolicy()
+    registry = build_default_tool_registry()
+    run_spec = _conversation_run_spec(text, policy=policy, registry=registry, reference_context=reference_context)
+    allowed_tools = _plan_mode_allowed_tools(registry)
+    if llm_factory is None:
+        return _fallback_plan_mode_result(text, allowed_tools=allowed_tools)
+    try:
+        llm = _make_conversation_llm(llm_factory, settings)
+        response = llm.chat(
+            _plan_mode_messages(
+                message=text,
+                run_spec=run_spec,
+                registry=registry,
+                allowed_tools=allowed_tools,
+                reference_context=reference_context,
+            ),
+            timeout=getattr(settings, "llm_timeout_seconds", None),
+        )
+        content = str(getattr(response, "content", "") or "").strip()
+    except Exception as exc:
+        return _fallback_plan_mode_result(text, allowed_tools=allowed_tools, note=f"Plan mode LLM unavailable: {exc}")
+    if not content:
+        return _fallback_plan_mode_result(text, allowed_tools=allowed_tools, note="Plan mode LLM returned empty content.")
+    return _normalize_plan_mode_result(content, objective=text)
+
+
+def format_plan_mode_result(
+    message: str,
+    *,
+    settings: Settings,
+    policy: AgentExecutionPolicy | None = None,
+    reference_context: Any | None = None,
+    llm_factory: Callable[..., Any] | None = ChatLLM,
+) -> str:
+    return run_plan_mode_once(
+        message,
+        settings=settings,
+        policy=policy,
+        reference_context=reference_context,
+        llm_factory=llm_factory,
+    )
+
+
 def format_conversation_plan(
     message: str,
     *,
@@ -272,74 +493,9 @@ def format_conversation_plan(
     policy: AgentExecutionPolicy | None = None,
     reference_context: Any | None = None,
 ) -> str:
-    registry = build_default_tool_registry()
-    plan = build_agent_plan(
-        message,
-        settings=settings,
-        policy=policy or AgentExecutionPolicy(),
-        llm_factory=None,
-        tool_registry=registry,
-        reference_context=reference_context,
-    )
-    plan = _normalize_conversation_plan(plan, message)
-    lines = ["SATS Conversation Plan", "", f"目标: {plan.objective}"]
-    if plan.analysis_mode:
-        lines.append(f"分析模式: {plan.analysis_mode}")
-    if plan.assumptions:
-        lines.extend(["", "假设:"])
-        lines.extend(f"- {item}" for item in plan.assumptions)
-    lines.extend(["", "步骤:"])
-    for index, step in enumerate(plan.steps, start=1):
-        if step.kind == "final":
-            lines.append(f"{index}. final: {step.title or '总结结果'}")
-            continue
-        if step.kind in SUBAGENT_KINDS:
-            lines.append(f"{index}. subagent - {step.title or step.step_id}")
-            continue
-        tool = f" {step.tool_name}" if step.tool_name else ""
-        side_effect = f" [{step.side_effect}]" if step.side_effect else ""
-        lines.append(f"{index}. {step.kind}:{tool}{side_effect} - {step.title or step.step_id}")
-        if step.arguments:
-            lines.append(f"   参数: {json.dumps(step.arguments, ensure_ascii=False, sort_keys=True, default=str)}")
-    if plan.verification_checks:
-        lines.extend(["", "验证:"])
-        for item in plan.verification_checks:
-            lines.append(f"- {item.get('name') or item.get('kind') or item}")
-    return "\n".join(lines)
+    """Backward-compatible wrapper for the legacy public name."""
 
-
-def _normalize_conversation_plan(plan: AgentPlan, message: str) -> AgentPlan:
-    if not _is_sector_return_ranking_request(message):
-        if _is_ambiguous_stock_analysis_request(message):
-            tool_steps = [step for step in plan.steps if step.kind == "tool"]
-            if len(tool_steps) == 1 and tool_steps[0].tool_name == "chat.answer":
-                return replace(
-                    plan,
-                    steps=(
-                        AgentStep(
-                            step_id="stock_context",
-                            kind="tool",
-                            title="获取个股上下文",
-                            tool_name="research.stock_context",
-                            arguments={},
-                            side_effect="readonly",
-                        ),
-                        AgentStep(step_id="final", kind="final", title="总结结果"),
-                    ),
-                )
-        return plan
-    tool_steps = [step for step in plan.steps if step.kind == "tool"]
-    if len(tool_steps) == 1 and tool_steps[0].tool_name == "research.sector_return_ranking":
-        return plan
-    if not tool_steps or any(step.tool_name in SECTOR_RANKING_MISROUTE_TOOLS for step in tool_steps):
-        return replace(
-            plan,
-            steps=(
-                _sector_return_ranking_step(message),
-                AgentStep(step_id="final", kind="final", title="总结结果"),
-            ),
-        )
-    return plan
+    return format_plan_mode_result(message, settings=settings, policy=policy, reference_context=reference_context)
 
 
 def _is_ambiguous_stock_analysis_request(message: str) -> bool:
@@ -353,6 +509,226 @@ def _is_ambiguous_stock_analysis_request(message: str) -> bool:
     has_analysis = any(term in text for term in ("分析", "看看", "评价", "判断"))
     has_stock_shape = any(term in text for term in ("走势", "技术面", "买点", "卖点", "支撑", "压力"))
     return has_analysis and has_stock_shape
+
+
+def _resolved_stock_mentions_context(message: str, *, settings: Settings) -> tuple[dict[str, str], ...]:
+    text = str(message or "").strip()
+    if not text:
+        return ()
+    try:
+        stock_basic = load_stock_basic_frame(settings)
+    except Exception:
+        stock_basic = None
+    try:
+        symbols = resolve_stock_mentions(text, stock_basic) if _has_stock_basic_rows(stock_basic) else extract_stock_symbols(text)
+    except Exception:
+        symbols = extract_stock_symbols(text)
+    rows: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for raw_symbol in symbols:
+        symbol = normalize_ts_code(str(raw_symbol or "").strip())
+        if not symbol or symbol in seen:
+            continue
+        seen.add(symbol)
+        name = _stock_basic_name_for_symbol(stock_basic, symbol)
+        item = {"ts_code": symbol}
+        if name:
+            item["name"] = name
+        rows.append(item)
+        if len(rows) >= 8:
+            break
+    return tuple(rows)
+
+
+def _has_stock_basic_rows(stock_basic: Any) -> bool:
+    try:
+        return bool(stock_basic is not None and not stock_basic.empty and "ts_code" in stock_basic.columns)
+    except Exception:
+        return False
+
+
+def _stock_basic_name_for_symbol(stock_basic: Any, symbol: str) -> str:
+    if not _has_stock_basic_rows(stock_basic) or "name" not in stock_basic.columns:
+        return ""
+    normalized = normalize_ts_code(str(symbol or "").strip())
+    if not normalized:
+        return ""
+    try:
+        data = stock_basic.copy()
+        data["__ts_code"] = data["ts_code"].fillna("").astype(str).map(normalize_ts_code)
+        matched = data[data["__ts_code"] == normalized]
+        if matched.empty and "symbol" in data.columns:
+            matched = data[data["symbol"].fillna("").astype(str) == normalized[:6]]
+        if matched.empty:
+            return ""
+        return str(matched.iloc[0].get("name") or "").strip()
+    except Exception:
+        return ""
+
+
+def _registry_tool_names(registry: Any) -> tuple[str, ...]:
+    try:
+        names = registry.names() if hasattr(registry, "names") else ()
+    except Exception:
+        names = ()
+    return tuple(str(name) for name in names if str(name or "").strip())
+
+
+def _plan_mode_allowed_tools(registry: Any) -> tuple[str, ...]:
+    names = _registry_tool_names(registry)
+    allowed: list[str] = []
+    for name in names:
+        spec = registry.get(name) if hasattr(registry, "get") else None
+        side_effect = str(getattr(spec, "side_effect", "") or "readonly")
+        requires_confirmation = bool(getattr(spec, "requires_confirmation", False))
+        if side_effect in PLAN_MODE_FORBIDDEN_SIDE_EFFECTS or requires_confirmation:
+            continue
+        allowed.append(name)
+    return tuple(allowed)
+
+
+def _plan_mode_messages(
+    *,
+    message: str,
+    run_spec: ConversationRunSpec,
+    registry: Any,
+    allowed_tools: tuple[str, ...],
+    reference_context: Any | None,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "role": "system",
+            "content": (
+                "你是 SATS Plan mode。只做非执行规划，不调用工具、不写库、不写文件、不下单、不启动命令。"
+                "你可以基于用户输入、reference_context、可用工具摘要和已知约束，输出可交付计划或澄清问题。"
+                "禁止把计划写成已执行结果；禁止编造行情、价格、K线、财务字段或 provider 数据。"
+                "如果需要真实 A 股数据，计划中必须说明执行阶段应先通过注册 SATS 工具获取；"
+                "不确定 A 股数据接口时，应建议先 data.astock_catalog，再 data.astock_fetch。"
+                "如果信息不足以形成可执行计划，输出澄清问题，不要编造步骤。"
+                "固定输出 Markdown 结构：# SATS Plan Mode、## 目标、## 当前判断、## 建议步骤、## 测试/验收、## 假设。"
+                "如需澄清，额外包含 ## 需要澄清。"
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"用户输入：{message}\n"
+                f"run_spec={json.dumps(run_spec.to_dict(), ensure_ascii=False, default=str)}\n"
+                f"reference_context={json.dumps(_reference_context_payload(reference_context), ensure_ascii=False, default=str)}\n"
+                f"允许在计划中引用的只读/非执行工具名={json.dumps(list(allowed_tools), ensure_ascii=False)}\n"
+                f"完整工具摘要（用于理解能力，不代表可以执行）={_registry_context(registry)}"
+            ),
+        },
+    ]
+
+
+def _fallback_plan_mode_result(message: str, *, allowed_tools: tuple[str, ...], note: str = "") -> str:
+    tool_hint = "、".join(allowed_tools[:8]) if allowed_tools else "当前未发现只读工具"
+    lines = [
+        "# SATS Plan Mode",
+        "",
+        "## 目标",
+        f"- {message}",
+        "",
+        "## 当前判断",
+        "- Plan mode 只生成计划，不执行工具、不写入数据库、不写报告、不下单。",
+        "- 默认执行入口应由 conversation loop 逐轮选择动作并交给 runtime 守卫。",
+        "",
+        "## 建议步骤",
+        "- 明确需要的股票、日期、数据范围和输出形式。",
+        "- 执行阶段先使用注册 SATS 工具获取真实上下文；不确定 A 股数据接口时先 catalog 再 fetch。",
+        "- 涉及写库、命令、长任务或交易时，在执行阶段请求确认。",
+        "",
+        "## 测试/验收",
+        "- 计划本身不产生副作用。",
+        "- 后续执行结果必须能追溯到真实工具 observation。",
+        "",
+        "## 假设",
+        f"- 可参考的只读工具包括：{tool_hint}。",
+    ]
+    if note:
+        lines.extend(["", "## 需要澄清", f"- {note}"])
+    return "\n".join(lines)
+
+
+def _normalize_plan_mode_result(content: str, *, objective: str) -> str:
+    text = str(content or "").strip()
+    if not text:
+        return _fallback_plan_mode_result(objective, allowed_tools=())
+    if "# SATS Plan Mode" not in text:
+        text = "# SATS Plan Mode\n\n" + text
+    required = ("## 目标", "## 当前判断", "## 建议步骤", "## 测试/验收", "## 假设")
+    missing = [section for section in required if section not in text]
+    if missing:
+        suffix = ["", ""] if not text.endswith("\n") else [""]
+        for section in missing:
+            suffix.extend([section, "- 待补充。", ""])
+        text = text.rstrip() + "\n" + "\n".join(suffix).rstrip()
+    return text
+
+
+def _preseed_capability_observations(
+    message: str,
+    *,
+    plan: AgentPlan,
+    registry: Any,
+    context: AgentToolContext,
+    recorder: ChatTurnRecorder,
+    observations: list[AgentObservation],
+    artifacts: list[dict[str, Any]],
+    data_names: list[str],
+) -> None:
+    if not _is_capability_inventory_request(message):
+        return
+    steps = [
+        AgentStep(
+            step_id="capability_catalog_summary",
+            kind="tool",
+            title="SATS 能力目录总览",
+            tool_name="catalog.capabilities",
+            arguments={"section": "summary", "limit": 50},
+            side_effect="readonly",
+        )
+    ]
+    if _is_skill_inventory_request(message):
+        steps.append(
+            AgentStep(
+                step_id="capability_catalog_skills",
+                kind="tool",
+                title="SATS skills 首页",
+                tool_name="catalog.capabilities",
+                arguments={"section": "skills", "limit": 12},
+                side_effect="readonly",
+            )
+        )
+    for step in steps:
+        _execute_conversation_tool_step(
+            step,
+            plan=plan,
+            registry=registry,
+            context=context,
+            recorder=recorder,
+            observations=observations,
+            artifacts=artifacts,
+            data_names=data_names,
+        )
+
+
+def _is_capability_inventory_request(message: str) -> bool:
+    text = str(message or "").strip()
+    if not text:
+        return False
+    lower = text.lower()
+    has_subject = any(term in lower or term in text for term in CAPABILITY_REQUEST_TERMS)
+    if not has_subject:
+        return False
+    return any(term in lower or term in text for term in CAPABILITY_INVENTORY_TERMS)
+
+
+def _is_skill_inventory_request(message: str) -> bool:
+    text = str(message or "").strip()
+    lower = text.lower()
+    return any(term in lower or term in text for term in ("skill", "skills", "技能"))
 
 
 def _run_conversation_loop(
@@ -373,6 +749,7 @@ def _run_conversation_loop(
     model_meta = _conversation_model_meta(settings, llm=llm)
     repeated_errors: dict[str, int] = {}
     max_iterations = max(1, int(getattr(context.policy, "max_iterations", 6) or 6))
+    resolved_stock_mentions = _resolved_stock_mentions_context(message, settings=settings)
 
     for iteration in range(1, max_iterations + 1):
         iteration_key = f"iteration_{iteration}"
@@ -393,6 +770,7 @@ def _run_conversation_loop(
                     policy=context.policy,
                     observations=tuple(observations),
                     reference_context=reference_context,
+                    resolved_stock_mentions=resolved_stock_mentions,
                 ),
                 timeout=getattr(settings, "llm_timeout_seconds", None),
             )
@@ -432,8 +810,21 @@ def _run_conversation_loop(
             payload={"action": _conversation_action_payload(action), "iteration": iteration},
         )
 
+        repeated_stock_basic_issue = _repeated_stock_basic_lookup_issue(action, tuple(observations))
+        if repeated_stock_basic_issue:
+            if _record_action_blocked(
+                repeated_stock_basic_issue,
+                action=action,
+                observations=observations,
+                recorder=recorder,
+                repeated_errors=repeated_errors,
+                iteration=iteration,
+            ):
+                return _LoopOutcome(final_content=repeated_stock_basic_issue, **model_meta)
+            continue
+
         if action.action == "final_answer":
-            issue = _final_answer_blocking_issue(message=message, plan=plan, observations=tuple(observations))
+            issue = _final_answer_blocking_issue(message=message, plan=plan, observations=tuple(observations), content=action.content)
             if issue:
                 if _record_action_blocked(
                     issue,
@@ -541,7 +932,10 @@ def _conversation_action_messages(
     policy: AgentExecutionPolicy,
     observations: tuple[AgentObservation, ...],
     reference_context: Any | None,
+    resolved_stock_mentions: tuple[dict[str, str], ...] = (),
 ) -> list[dict[str, Any]]:
+    today = agent_today()
+    yesterday = normalize_agent_date("yesterday", today=today)
     return [
         {
             "role": "system",
@@ -551,10 +945,27 @@ def _conversation_action_messages(
                 "所有真实 A 股行情、财务、K线、报价、资金流和 provider 数据必须通过 SATS 注册工具获取；"
                 "不确定 A 股数据接口时，先调用 data.astock_catalog，再调用 data.astock_fetch。"
                 "不要编造股票代码、价格、成交量、K线、财务字段或第三方 provider 方法名。"
-                "readonly 和 write_artifact 工具可以直接 call_tool；write_db、long_running、command、live_trade 必须 request_confirmation。"
+                "普通研究工具只返回数据和证据，不直接写 reports；只有用户明确要求保存/导出时才调用 research.write_report。"
+                "非交易工具（readonly、write_artifact、write_db、long_running、command）可以直接 call_tool；"
+                "只有 live_trade 或 requires_trade_permission 的实盘交易工具必须 request_confirmation。"
                 "如果缺少必要股票、日期、搜索词或 operation，输出 ask_clarification。"
+                "用户询问支持哪些 skills、工具、能力或可做什么时，应基于 catalog.capabilities 和 chat.list_skills 的 observation "
+                "解释本地 skills 方法论层与 Agent tools 执行层，不能只输出“支持的 skills 包括”这类空泛句子。"
                 "大盘、市场或指数走势/预测类问题，final_answer 前必须先 call_tool research.market_context；"
                 "用户要求下周或未来一周时，research.market_context 参数必须包含 horizons=[\"next_week\"]。"
+                f"当前日期是 {today}（Asia/Shanghai）；日期字段禁止输出 today、yesterday、current 等自然语言值，"
+                f"昨天/yesterday 必须写成 {yesterday}，今天/today/current 必须写成 {today}。"
+                "用户说今天、昨日、明天、未来几天、过去几天等相对时间时，可以直接调用工具；"
+                "runtime 会在执行前兜底归一化为 trade_date 或 horizons，明确日期仍优先。"
+                "预测范围继续使用 horizons 的 today/tomorrow/day_after_tomorrow/next_week 枚举，不把 horizons 当作日期字段改写。"
+                "调用 analysis.python_program 时，允许导入已安装模块，但禁止文件、进程、网络和动态执行等危险行为；"
+                "优先使用 resolver、context 和安全 builtins。"
+                "读取前序工具结果时，优先使用 context['observations_by_step'][step_id]['payload']['result']['payload']，"
+                "不要为了读取前序结果而解析 observation content 字符串；例如从 market_context observation 的结构化 payload 读取 hot_sectors。"
+                "如果 resolved_stock_mentions 提供股票名称到 ts_code 的映射，调用需要 symbols 的工具时必须直接使用这些 ts_code；"
+                "不要为同一股票名称重复调用 data.stock_basic。"
+                "data.stock_basic 只用于名称未解析、需要消歧或专门查询股票基础信息；"
+                "一旦 observation.stock_matches 出现唯一匹配，下一步必须复用其中 ts_code 继续研究。"
                 "如果已有 observations 足以回答，输出 final_answer。"
             ),
         },
@@ -567,9 +978,10 @@ def _conversation_action_messages(
                 '{"action":"ask_clarification","question":"...","missing_fields":["symbols"]}\n'
                 '{"action":"final_answer","content":"..."}\n\n'
                 f"用户输入：{message}\n"
-                f"初始计划：{json.dumps(plan.to_dict(), ensure_ascii=False, default=str)}\n"
+                f"运行规格（兼容 plan 字段，不含预生成工具步骤）：{json.dumps(plan.to_dict(), ensure_ascii=False, default=str)}\n"
                 f"policy={json.dumps(policy.to_dict(), ensure_ascii=False, default=str)}\n"
                 f"reference_context={json.dumps(_reference_context_payload(reference_context), ensure_ascii=False, default=str)}\n"
+                f"resolved_stock_mentions={json.dumps(list(resolved_stock_mentions), ensure_ascii=False, default=str)}\n"
                 f"可用工具={_registry_context(registry)}\n"
                 f"observations={json.dumps(_compact_observations(observations), ensure_ascii=False, default=str)}"
             ),
@@ -652,6 +1064,45 @@ def _execute_conversation_tool_step(
         recorder.emit("tool_completed", item_type="conversation_tool", item_name=step.tool_name, status="error", content=content, payload=observation.payload)
         return None
 
+    step, normalization_issue, normalization_meta = _normalize_conversation_tool_step(step, message=context.message)
+    if normalization_issue:
+        missing_fields = ("trade_date",)
+        clarification_id = _require_clarification(
+            step,
+            plan=plan,
+            context=context,
+            recorder=recorder,
+            issue=normalization_issue,
+            missing_fields=missing_fields,
+        )
+        prompt = _clarification_prompt(step, normalization_issue)
+        observation = _argument_guard_observation(step, normalization_issue, clarification_id=clarification_id, missing_fields=missing_fields)
+        observations.append(observation)
+        recorder.emit(
+            "clarification_required",
+            item_type="conversation_tool",
+            item_name=step.tool_name,
+            status="done",
+            content=normalization_issue,
+            payload=observation.payload,
+        )
+        return _PlanInterruption(
+            _clarification_message(step, normalization_issue, clarification_id=clarification_id),
+            requires_clarification=True,
+            action_id=clarification_id,
+            clarification_prompt=prompt,
+            missing_fields=missing_fields,
+        )
+    if normalization_meta:
+        recorder.emit(
+            "tool_arguments_normalized",
+            item_type="conversation_tool",
+            item_name=step.tool_name,
+            status="done",
+            content="已根据用户自然语言时间补齐工具参数",
+            payload={"tool_name": step.tool_name, "arguments": step.arguments, "normalization": normalization_meta},
+        )
+
     issue = _conversation_argument_issue(step, spec=spec, message=context.message, observations=tuple(observations))
     if issue:
         missing_fields = tuple(_issue_missing_fields(issue))
@@ -683,7 +1134,12 @@ def _execute_conversation_tool_step(
         )
 
     side_effect = str(step.side_effect or getattr(spec, "side_effect", "") or "readonly")
-    requires_confirmation = bool(force_confirmation or step.requires_confirmation or getattr(spec, "requires_confirmation", False) or side_effect in CONFIRM_SIDE_EFFECTS)
+    requires_confirmation = _conversation_step_requires_confirmation(
+        step,
+        spec=spec,
+        side_effect=side_effect,
+        force_confirmation=force_confirmation,
+    )
     if requires_confirmation:
         action_id = _require_step_confirmation(step, plan=plan, context=context, recorder=recorder, side_effect=side_effect)
         observations.append(_approval_observation(step, action_id))
@@ -756,24 +1212,50 @@ def _action_arguments_summary(arguments: dict[str, Any]) -> str:
     return " ".join(parts)
 
 
+def _conversation_step_requires_confirmation(
+    step: AgentStep,
+    *,
+    spec: Any,
+    side_effect: str,
+    force_confirmation: bool = False,
+) -> bool:
+    return bool(
+        force_confirmation
+        or side_effect in CONFIRM_SIDE_EFFECTS
+        or getattr(spec, "requires_trade_permission", False)
+    )
+
+
 def _loop_final_needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:
     for item in observations:
         tool_name = str(item.payload.get("tool_name") or "")
-        if tool_name.startswith(("research.", "data.", "factor.", "trade.", "web.")):
+        if tool_name.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.")):
+            return True
+        if tool_name in {"chat.list_skills", "chat.load_skill"}:
             return True
         if item.kind in {"python", "trade"}:
             return True
     return False
 
 
-def _final_answer_blocking_issue(*, message: str, plan: AgentPlan, observations: tuple[AgentObservation, ...]) -> str:
-    if not _requires_market_context_before_final(message, plan):
-        return ""
-    market_observation = _successful_market_context_observation(observations)
-    if market_observation is None:
-        return "final_answer blocked: 大盘/市场/指数走势或预测类回答必须先调用 research.market_context 获取真实上下文。"
-    if _requires_next_week_horizon(message) and "next_week" not in _market_context_horizons(market_observation):
-        return "final_answer blocked: 下周/未来一周预测必须先调用 research.market_context 且 requested_horizons 包含 next_week。"
+def _final_answer_blocking_issue(
+    *,
+    message: str,
+    plan: AgentPlan,
+    observations: tuple[AgentObservation, ...],
+    content: str = "",
+) -> str:
+    if _requires_market_context_before_final(message, plan):
+        market_observation = _successful_market_context_observation(observations)
+        if market_observation is None:
+            return "final_answer blocked: 大盘/市场/指数走势或预测类回答必须先调用 research.market_context 获取真实上下文。"
+        if _requires_next_week_horizon(message) and "next_week" not in _market_context_horizons(market_observation):
+            return "final_answer blocked: 下周/未来一周预测必须先调用 research.market_context 且 requested_horizons 包含 next_week。"
+    if _requires_python_program_before_final(plan) and _successful_python_program_observation(observations) is None:
+        return "final_answer blocked: 当前计划需要先调用 analysis.python_program 完成有界只读计算。"
+    fabricated_issue = _fabricated_market_data_issue(message=message, content=content, observations=observations)
+    if fabricated_issue:
+        return fabricated_issue
     return ""
 
 
@@ -796,6 +1278,69 @@ def _successful_market_context_observation(observations: tuple[AgentObservation,
         if item.kind == "tool" and item.status == "done" and str(item.payload.get("tool_name") or "") == "research.market_context":
             return item
     return None
+
+
+def _requires_python_program_before_final(plan: AgentPlan) -> bool:
+    return any(step.kind == "tool" and step.tool_name == "analysis.python_program" for step in plan.steps)
+
+
+def _successful_python_program_observation(observations: tuple[AgentObservation, ...]) -> AgentObservation | None:
+    for item in reversed(observations):
+        if item.kind == "tool" and item.status == "done" and str(item.payload.get("tool_name") or "") == "analysis.python_program":
+            return item
+    return None
+
+
+def _fabricated_market_data_issue(*, message: str, content: str, observations: tuple[AgentObservation, ...]) -> str:
+    if _has_successful_data_observation(observations):
+        return ""
+    text = str(content or "")
+    if not text:
+        return ""
+    has_concrete_number = bool(re.search(r"\d+(?:\.\d+)?\s*(?:元|%|万|亿|倍|手|股|点)?", text))
+    if not has_concrete_number:
+        return ""
+    stockish = bool(extract_stock_symbols(text) or extract_stock_symbols(message))
+    marketish = any(term in text for term in ("上证", "深证", "创业板", "沪深", "大盘", "指数", "A股"))
+    fieldish = any(
+        term in text
+        for term in (
+            "最新价",
+            "现价",
+            "收盘价",
+            "开盘价",
+            "最高价",
+            "最低价",
+            "涨跌幅",
+            "成交量",
+            "成交额",
+            "换手率",
+            "市盈率",
+            "PE",
+            "PB",
+            "K线",
+            "均线",
+            "MA5",
+            "MA10",
+            "MA20",
+            "营收",
+            "净利润",
+            "每股收益",
+        )
+    )
+    if fieldish and (stockish or marketish):
+        return "final_answer blocked: 未观察到真实行情/财务工具结果，不能输出具体价格、K线、成交量、涨跌幅或财务字段。"
+    return ""
+
+
+def _has_successful_data_observation(observations: tuple[AgentObservation, ...]) -> bool:
+    for item in observations:
+        if item.kind != "tool" or item.status != "done":
+            continue
+        tool_name = str(item.payload.get("tool_name") or "")
+        if tool_name.startswith(("research.", "data.", "factor.", "web.")):
+            return True
+    return False
 
 
 def _market_context_horizons(observation: AgentObservation) -> set[str]:
@@ -894,6 +1439,51 @@ def _conversation_action_payload(action: _ConversationAction) -> dict[str, Any]:
     }
 
 
+def _repeated_stock_basic_lookup_issue(action: _ConversationAction, observations: tuple[AgentObservation, ...]) -> str:
+    if action.action not in {"call_tool", "request_confirmation"} or action.tool_name != "data.stock_basic":
+        return ""
+    current_key = _stock_basic_lookup_key(action.arguments)
+    if not current_key:
+        return ""
+    for item in reversed(observations):
+        if item.kind != "tool" or item.status != "done":
+            continue
+        payload = item.payload if isinstance(item.payload, dict) else {}
+        if payload.get("tool_name") != "data.stock_basic":
+            continue
+        if _stock_basic_lookup_key(payload.get("arguments")) != current_key:
+            continue
+        matches = _stock_basic_matches_from_result(payload)
+        if not matches:
+            continue
+        first = matches[0]
+        label = str(first.get("name") or current_key).strip()
+        symbol = str(first.get("ts_code") or "").strip()
+        if not symbol:
+            continue
+        return (
+            f"data.stock_basic 已经查询过“{label}”并命中 {symbol}。"
+            f"下一步请使用 symbols=[\"{symbol}\"] 调用研究或行情工具，不要重复查询同一股票名称。"
+        )
+    return ""
+
+
+def _stock_basic_lookup_key(arguments: Any) -> str:
+    if not isinstance(arguments, dict):
+        return ""
+    for key in ("name", "query"):
+        value = str(arguments.get(key) or "").strip()
+        if value:
+            return f"{key}:{value}"
+    symbols = arguments.get("symbols")
+    if isinstance(symbols, (list, tuple)):
+        normalized = [normalize_ts_code(str(item or "").strip()) for item in symbols]
+        normalized = [item for item in normalized if item]
+        if normalized:
+            return "symbols:" + ",".join(normalized)
+    return ""
+
+
 def _make_conversation_llm(llm_factory: Callable[..., Any], settings: Any) -> Any:
     return build_standard_llm(
         llm_factory,
@@ -928,17 +1518,50 @@ def _compact_observations(observations: tuple[AgentObservation, ...]) -> list[di
     for item in observations[-8:]:
         payload = item.payload if isinstance(item.payload, dict) else {}
         result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
-        rows.append(
-            {
-                "step_id": item.step_id,
-                "kind": item.kind,
-                "status": item.status,
-                "tool_name": payload.get("tool_name") or "",
-                "content": _truncate_text(item.content or result.get("content") or "", 900),
-                "payload_keys": sorted(str(key) for key in payload.keys())[:12],
-            }
-        )
+        result_payload = result.get("payload") if isinstance(result.get("payload"), dict) else {}
+        row = {
+            "step_id": item.step_id,
+            "kind": item.kind,
+            "status": item.status,
+            "tool_name": payload.get("tool_name") or "",
+            "content": _truncate_text(item.content or result.get("content") or "", 900),
+            "payload_keys": sorted(str(key) for key in payload.keys())[:12],
+            "result_status": result.get("status") or "",
+            "result_payload_keys": sorted(str(key) for key in result_payload.keys())[:12],
+        }
+        stock_matches = _stock_basic_matches_from_result(payload)
+        if stock_matches:
+            row["stock_matches"] = stock_matches
+        rows.append(row)
     return rows
+
+
+def _stock_basic_matches_from_result(payload: dict[str, Any]) -> list[dict[str, str]]:
+    if payload.get("tool_name") != "data.stock_basic":
+        return []
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    result_payload = result.get("payload") if isinstance(result.get("payload"), dict) else {}
+    sample = result_payload.get("sample") if isinstance(result_payload.get("sample"), list) else []
+    matches: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in sample:
+        if not isinstance(row, dict):
+            continue
+        symbol = normalize_ts_code(str(row.get("ts_code") or row.get("symbol") or "").strip())
+        name = str(row.get("name") or "").strip()
+        if not symbol or symbol in seen:
+            continue
+        seen.add(symbol)
+        match = {"ts_code": symbol}
+        if name:
+            match["name"] = name
+            match["display"] = f"{name}({symbol})"
+        else:
+            match["display"] = symbol
+        matches.append(match)
+        if len(matches) >= 6:
+            break
+    return matches
 
 
 def _reference_context_payload(reference_context: Any | None) -> dict[str, Any]:
@@ -1151,7 +1774,7 @@ def _execute_plan_until_confirmation(
                 missing_fields=missing_fields,
             )
         side_effect = str(step.side_effect or getattr(spec, "side_effect", "") or "readonly")
-        requires_confirmation = bool(step.requires_confirmation or getattr(spec, "requires_confirmation", False) or side_effect in CONFIRM_SIDE_EFFECTS)
+        requires_confirmation = _conversation_step_requires_confirmation(step, spec=spec, side_effect=side_effect)
         if requires_confirmation:
             action_id = _require_step_confirmation(step, plan=plan, context=context, recorder=recorder, side_effect=side_effect)
             observations.append(_approval_observation(step, action_id))
@@ -1219,75 +1842,9 @@ def _execute_readonly_subagent(
         content=task,
         payload=step.to_dict(),
     )
-    child_plan = build_agent_plan(
-        task,
-        settings=context.settings,
-        policy=context.policy,
-        llm_factory=None,
-        tool_registry=registry,
-    )
-    child_context = replace(context, message=task)
-    executed = 0
-    skipped: list[str] = []
-    child_observations: list[AgentObservation] = []
-    for child_step in child_plan.steps:
-        if child_step.kind == "final":
-            break
-        if executed >= MAX_SUBAGENT_STEPS:
-            skipped.append("max_steps")
-            break
-        if child_step.kind != "tool":
-            skipped.append(child_step.step_id)
-            continue
-        if not _is_subagent_readonly_tool(child_step, registry=registry, allowed_tools=allowed_tools):
-            skipped.append(child_step.tool_name or child_step.step_id)
-            continue
-        issue = _conversation_argument_issue(child_step, spec=registry.get(child_step.tool_name), message=child_context.message, observations=tuple(observations))
-        if issue:
-            skipped.append(f"{child_step.tool_name or child_step.step_id}: {issue}")
-            continue
-        tool_item_id = recorder.start_item("conversation_subagent_tool", child_step.tool_name, input_payload=child_step.to_dict())
-        tool_started = time.monotonic()
-        recorder.emit(
-            "tool_started",
-            item_type="conversation_subagent_tool",
-            item_name=child_step.tool_name,
-            status="running",
-            payload=child_step.to_dict(),
-        )
-        result = registry.execute(child_step.tool_name, child_step.arguments, child_context.with_observations(tuple(observations)))
-        executed += 1
-        data_names.extend(result.data_names)
-        artifacts.extend(result.artifacts)
-        observation = AgentObservation(
-            step_id=f"{step.step_id}.{child_step.step_id}",
-            kind="tool",
-            status=result.status,
-            content=result.content,
-            payload={"tool_name": child_step.tool_name, "arguments": child_step.arguments, "result": result.to_dict(), "subagent": step.step_id},
-        )
-        observations.append(observation)
-        child_observations.append(observation)
-        recorder.complete_item(
-            tool_item_id,
-            status="done" if result.status == "done" else "error",
-            output_payload=observation.to_dict(),
-            artifact_paths=[str(item.get("path") or "") for item in result.artifacts],
-            duration_seconds=max(0.0, time.monotonic() - tool_started),
-        )
-        recorder.emit(
-            "tool_completed",
-            item_type="conversation_subagent_tool",
-            item_name=child_step.tool_name,
-            status="done" if result.status == "done" else "error",
-            content=result.content,
-            payload=observation.payload,
-            duration_seconds=max(0.0, time.monotonic() - tool_started),
-        )
-        if result.status != "done":
-            break
-    status = "done" if executed else "skipped"
-    content = _subagent_summary(task, child_observations=child_observations, skipped=skipped)
+    skipped = tuple(sorted(allowed_tools)) if allowed_tools else ()
+    status = "skipped"
+    content = _subagent_summary(task, child_observations=[], skipped=[*skipped, "conversation loop does not generate planner subplans"])
     observation = AgentObservation(
         step_id=step.step_id,
         kind="subagent",
@@ -1295,8 +1852,9 @@ def _execute_readonly_subagent(
         content=content,
         payload={
             "task": task,
-            "executed_tools": [item.payload.get("tool_name") for item in child_observations],
-            "skipped": skipped,
+            "executed_tools": [],
+            "skipped": list(skipped),
+            "reason": "planner_removed_from_conversation_runtime",
         },
     )
     observations.append(observation)
@@ -1355,7 +1913,10 @@ def _subagent_summary(
     skipped: list[str],
 ) -> str:
     if not child_observations:
-        return f"只读子任务未执行工具: {task}"
+        lines = [f"只读子任务未执行工具: {task}"]
+        if skipped:
+            lines.append("跳过: " + ", ".join(skipped))
+        return "\n".join(lines)
     lines = [f"只读子任务完成: {task}"]
     for item in child_observations:
         tool_name = item.payload.get("tool_name") if isinstance(item.payload, dict) else ""
@@ -1364,6 +1925,136 @@ def _subagent_summary(
     if skipped:
         lines.append("跳过: " + ", ".join(skipped))
     return "\n".join(lines)
+
+
+def _normalize_conversation_tool_step(step: AgentStep, *, message: str) -> tuple[AgentStep, str, dict[str, Any]]:
+    tool_name = str(step.tool_name or "").strip()
+    if not tool_name:
+        return step, "", {}
+    today = agent_today()
+    sanitized = sanitize_agent_tool_arguments(tool_name, step.arguments, message, today=today)
+    if sanitized.error:
+        return step, f"工具 {tool_name} 日期参数无效: {sanitized.error}", {"error": sanitized.error}
+
+    original_arguments = dict(step.arguments or {}) if isinstance(step.arguments, dict) else {}
+    arguments = dict(sanitized.arguments or {})
+    changes = list((sanitized.metadata or {}).get("changes") or ())
+    time_context = resolve_agent_time_context(message, today=today, arguments=arguments)
+
+    if tool_name == "research.market_context":
+        _apply_conversation_market_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
+    elif tool_name in CONVERSATION_RESEARCH_TIME_TOOLS:
+        _apply_conversation_research_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
+
+    if arguments == original_arguments and not changes:
+        return step, "", {}
+
+    normalized_step = replace(step, arguments=arguments)
+    metadata = dict(sanitized.metadata or {})
+    if changes:
+        metadata["changes"] = _dedupe_strings([str(item) for item in changes if str(item or "").strip()])
+    metadata["time_context"] = {
+        "today": time_context.today,
+        "explicit_dates": list(time_context.explicit_dates),
+        "horizons": list(_conversation_forecast_horizons(message, time_context=time_context)),
+        "is_forecast": bool(_conversation_forecast_horizons(message, time_context=time_context)),
+        "requires_intraday": time_context.requires_intraday,
+    }
+    return normalized_step, "", metadata
+
+
+def _apply_conversation_market_time_arguments(
+    arguments: dict[str, Any],
+    *,
+    message: str,
+    time_context: Any,
+    changes: list[str],
+) -> None:
+    if not _argument_present(arguments.get("trade_date")):
+        as_of_date = _conversation_as_of_trade_date(message, time_context=time_context)
+        if as_of_date:
+            arguments["trade_date"] = as_of_date
+            changes.append("set market trade_date from user relative date")
+
+    has_horizon = _argument_present(arguments.get("horizons")) or _argument_present(arguments.get("horizon"))
+    if not has_horizon:
+        horizons = _conversation_forecast_horizons(message, time_context=time_context)
+        if horizons:
+            arguments["horizons"] = list(horizons)
+            arguments.pop("horizon", None)
+            changes.append("set market horizons from user relative forecast")
+        elif not _argument_present(arguments.get("trade_date")) and _is_market_context_request(message):
+            arguments["horizons"] = ["today"]
+            changes.append("defaulted market horizon to today")
+
+
+def _apply_conversation_research_time_arguments(
+    arguments: dict[str, Any],
+    *,
+    message: str,
+    time_context: Any,
+    changes: list[str],
+) -> None:
+    horizons = _conversation_forecast_horizons(message, time_context=time_context)
+    if not _argument_present(arguments.get("trade_date")):
+        as_of_date = _conversation_as_of_trade_date(message, time_context=time_context)
+        if as_of_date:
+            arguments["trade_date"] = as_of_date
+            changes.append("set research trade_date from user relative date")
+        elif horizons:
+            arguments["trade_date"] = time_context.today
+            changes.append("set research trade_date to current as-of date for forecast")
+    if horizons and not _argument_present(arguments.get("horizons")) and not _argument_present(arguments.get("horizon")):
+        arguments["horizons"] = list(horizons)
+        changes.append("set research horizons from user relative forecast")
+
+
+def _conversation_as_of_trade_date(message: str, *, time_context: Any) -> str:
+    if getattr(time_context, "explicit_dates", ()):
+        return str(time_context.explicit_dates[0])
+    text = str(message or "")
+    if any(term in text for term in (*TODAY_AS_OF_TERMS, *RECENT_AS_OF_TERMS)) or re.search(
+        r"(?:过去|最近|近)\s*(?:[0-9]+|[一二两三四五六七八九十几数]+)\s*[天日]",
+        text,
+    ):
+        return str(time_context.today)
+    return ""
+
+
+def _conversation_forecast_horizons(message: str, *, time_context: Any) -> tuple[str, ...]:
+    text = str(message or "")
+    horizons = list(getattr(time_context, "horizons", ()) or ())
+    if any(term in text for term in ("明后天", "明后", "明天后天", "未来两天", "未来几天", "未来几日", "未来数天", "未来三天", "未来三日")) or re.search(
+        r"未来\s*(?:[0-9]+|[一二两三四五六七八九十几数]+)\s*[天日]",
+        text,
+    ):
+        horizons.extend(["tomorrow", "day_after_tomorrow"])
+    else:
+        if "明天" in text or "次日" in text:
+            horizons.append("tomorrow")
+        if "后天" in text:
+            horizons.append("day_after_tomorrow")
+    if "下周" in text or "未来一周" in text:
+        horizons.append("next_week")
+    return tuple(item for item in _dedupe_strings(horizons) if item in {"today", "tomorrow", "day_after_tomorrow", "next_week"})
+
+
+def _is_market_context_request(message: str) -> bool:
+    text = str(message or "")
+    has_subject = any(term in text for term in ("大盘", "市场", "A股", "指数", "上证", "深证", "创业板", "沪深", "热点板块"))
+    has_intent = any(term in text for term in ("分析", "走势", "预测", "判断", "评价", "怎么看", "情况", "热点", "板块"))
+    return has_subject and has_intent
+
+
+def _dedupe_strings(values: list[str] | tuple[str, ...]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        item = str(value or "").strip()
+        if item and item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
 
 
 def _conversation_argument_issue(
@@ -1392,12 +2083,6 @@ def _conversation_argument_issue(
             return _missing_arguments_issue(tool_name, ["symbols"])
         if _is_historical_analysis_request(message) and not _argument_present(arguments.get("trade_date")):
             return _missing_arguments_issue(tool_name, ["trade_date"])
-
-    if tool_name == "research.sector_return_ranking":
-        required = ["query", "sector_type", "period", "direction", "limit"]
-        missing_business = [key for key in required if not _argument_present(arguments.get(key))]
-        if missing_business:
-            return _missing_arguments_issue(tool_name, missing_business)
 
     if tool_name == "data.astock_fetch":
         operation = str(arguments.get("operation") or "").strip()
@@ -1457,6 +2142,8 @@ def _argument_hint(missing: list[str]) -> str:
 
 def _is_historical_market_request(message: str) -> bool:
     text = str(message or "")
+    if _has_conversation_forecast_terms(text):
+        return False
     if any(term in text for term in ("昨天", "昨日", "前天", "复盘", "回顾", "收盘", "盘后", "当日", "当天")):
         return True
     return any(char.isdigit() for char in text) and any(term in text for term in ("大盘", "市场", "A股", "指数"))
@@ -1464,7 +2151,16 @@ def _is_historical_market_request(message: str) -> bool:
 
 def _is_historical_analysis_request(message: str) -> bool:
     text = str(message or "")
+    if _has_conversation_forecast_terms(text):
+        return False
     return any(term in text for term in ("昨天", "昨日", "前天", "复盘", "回顾", "历史", "当日", "当天", "收盘", "盘后"))
+
+
+def _has_conversation_forecast_terms(text: str) -> bool:
+    value = str(text or "")
+    if any(term in value for term in ("明天", "次日", "后天", "明后天", "明后", "下周", "未来一周", "未来几天", "未来几日", "未来数天")):
+        return True
+    return bool(re.search(r"未来\s*(?:[0-9]+|[一二两三四五六七八九十几数]+)\s*[天日]", value))
 
 
 def _astock_operation_issue(operation: str, observations: tuple[AgentObservation, ...]) -> str:
@@ -1761,10 +2457,10 @@ def _plan_from_payload(payload: dict[str, Any], *, fallback_message: str, step: 
         steps=steps,
         risk_level=str(payload.get("risk_level") or "medium"),
         requires_live_trading=bool(payload.get("requires_live_trading") or False),
-        phase=str(payload.get("phase") or "conversation_planner"),
-        model_policy=str(payload.get("model_policy") or "local"),
-        model_profile=str(payload.get("model_profile") or "local"),
-        model_name=str(payload.get("model_name") or "local"),
+        phase=str(payload.get("phase") or "conversation_loop"),
+        model_policy=str(payload.get("model_policy") or ""),
+        model_profile=str(payload.get("model_profile") or ""),
+        model_name=str(payload.get("model_name") or ""),
         natural_task=dict(payload.get("natural_task") or {}) if isinstance(payload.get("natural_task"), dict) else {},
         analysis_mode=str(payload.get("analysis_mode") or ""),
         verification_checks=tuple(payload.get("verification_checks") or ()),

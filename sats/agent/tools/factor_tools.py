@@ -34,9 +34,9 @@ def factor_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="factor.analyze",
-            description="分析单个因子的 IC 和分组收益，并可生成报告。",
+            description="分析单个因子的 IC 和分组收益，返回命令输出数据。",
             category="factor",
-            side_effect="write_artifact",
+            side_effect="readonly",
             timeout=180,
             input_schema=object_schema(
                 {
@@ -47,7 +47,6 @@ def factor_tool_specs() -> list[AgentToolSpec]:
                     "groups": {"type": "integer"},
                     "symbols": {"type": "string"},
                     "json": {"type": "boolean"},
-                    "noreport": {"type": "boolean"},
                 },
                 ["factor"],
             ),
@@ -57,7 +56,7 @@ def factor_tool_specs() -> list[AgentToolSpec]:
             name="factor.pick",
             description="用一个或多个因子/画像选 TopN 股票，可写入 screening_results。",
             category="factor",
-            side_effect="write_artifact",
+            side_effect="write_db",
             timeout=180,
             input_schema=object_schema(
                 {
@@ -70,7 +69,6 @@ def factor_tool_specs() -> list[AgentToolSpec]:
                     "weight": {"type": "string"},
                     "write_screening": {"type": "boolean"},
                     "json": {"type": "boolean"},
-                    "noreport": {"type": "boolean"},
                 }
             ),
             executor=_factor_pick,
@@ -116,7 +114,7 @@ def _factor_analyze(context: AgentToolContext, arguments: dict[str, Any]) -> Age
     _add(argv, "--groups", arguments.get("groups"))
     _add(argv, "--stocks", arguments.get("symbols"))
     _flag(argv, "--json", arguments.get("json"))
-    _flag(argv, "--noreport", arguments.get("noreport"))
+    _ensure_flag(argv, "--noreport")
     return _run(context, argv, "因子分析")
 
 
@@ -131,7 +129,7 @@ def _factor_pick(context: AgentToolContext, arguments: dict[str, Any]) -> AgentT
     _add(argv, "--weight", arguments.get("weight"))
     _flag(argv, "--write-screening", arguments.get("write_screening"))
     _flag(argv, "--json", arguments.get("json"))
-    _flag(argv, "--noreport", arguments.get("noreport"))
+    _ensure_flag(argv, "--noreport")
     return _run(context, argv, "因子选股")
 
 
@@ -157,4 +155,9 @@ def _add(argv: list[str], flag: str, value: Any) -> None:
 
 def _flag(argv: list[str], flag: str, enabled: Any) -> None:
     if bool(enabled):
+        argv.append(flag)
+
+
+def _ensure_flag(argv: list[str], flag: str) -> None:
+    if flag not in argv:
         argv.append(flag)

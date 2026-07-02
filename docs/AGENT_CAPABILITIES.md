@@ -9,7 +9,7 @@ sats catalog --section all --json
 
 不要根据本文中的数量猜测当前能力；接口、Skills、规则、信号和因子会随代码变化，`sats catalog` 会动态读取当前注册表。
 
-当前自然语言默认入口是 Codex-style conversation 工具循环：`sats chat ...`、REPL 普通输入和 `/chat ...` 默认进入 conversation 引擎，由模型逐轮输出 `call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`，再由 SATS runtime 调用注册工具、记录 observation、执行权限门控和 trace。旧聊天路径通过 `sats chat --engine legacy ...` 保留。
+当前自然语言默认入口是 Codex-style conversation 工具循环：`sats chat ...`、REPL 普通输入、`/chat ...` 和 scheduler `chat` 任务默认进入 conversation 引擎，由模型逐轮输出 `call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`，再由 SATS runtime 调用注册工具、记录 observation、执行权限门控和 trace。`/plan ...` 和 `sats chat --plan-only ...` 是非执行 Plan mode，只输出计划，不生成可自动执行的工具步骤。旧聊天路径通过 `sats chat --engine legacy ...` 显式保留。
 
 ## 推荐发现流程
 
@@ -136,6 +136,8 @@ sats catalog
 sats catalog --section commands
 sats catalog --section agent-tools --json
 sats catalog --section skills
+sats skillhub status
+sats skillhub install --all --dry-run
 sats catalog --section knowledge
 sats catalog --section providers --provider tickflow
 sats catalog --section screening-rules
@@ -169,6 +171,7 @@ section, filters, counts, data, consistency
 ## Skills、知识库、记忆和数据
 
 - Skills：研究方法和执行指导，位于 `skills/<id>/SKILL.md`，不是实时数据。
+- SkillHub：`sats skillhub install --all` 会把问财 SkillHub 目录生成到 `skills/skillhub-*/SKILL.md`；Agent 可用 `skillhub.search`、`skillhub.load`、`skillhub.status` 读取本地元数据。
 - 知识库：经过分块索引的本地资料，用于 RAG 检索，可能包含 Skills 和知识文档。
 - 记忆：用户偏好、会话摘要和历史事实，不属于公开能力目录，也不会被目录输出。
 - 实时数据：必须来自 AStock/provider 工具并带 provenance。
@@ -177,8 +180,9 @@ section, filters, counts, data, consistency
 
 - `readonly`：目录、知识检索和不落库的数据读取。
 - `write_db`：可能刷新 DuckDB 行情或基础数据缓存；交易时段获取的当天行情只用于本次计算，不写入 DuckDB。
-- `write_artifact`：生成报告、策略或回测产物。
+- `write_artifact`：显式写入类能力，例如 `research.write_report` 或经确认的规则生成；普通研究、回测和筛选 Agent tools 默认只返回数据，不单独写 `reports/`。
 - `long_running`：训练或长时间任务。
 - `live_trade`：真实交易；必须同时具备显式 auto-trade side、QMT broker 和 live-trading 权限。
 
 能力目录只描述接口，不扩大 Agent 权限。`data.astock_fetch` 不能绕过交易、shell、敏感参数或市场数据真实性限制。
+SkillHub generated skills 也不能扩大权限：它们只提供路由/方法论上下文；SATS 只读取 `IWENCAI_API_KEY` 是否已配置，不在工具参数或 trace 中保存密钥。

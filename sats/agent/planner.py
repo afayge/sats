@@ -171,6 +171,7 @@ def _planner_messages(
 ) -> list[dict[str, str]]:
     tools = tool_registry.planner_context() if tool_registry is not None else "[]"
     today = agent_today()
+    yesterday = _date_days_before(today, 1)
     reference_summary = _reference_context_prompt(message, reference_context)
     return [
         {
@@ -189,9 +190,11 @@ def _planner_messages(
                 "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.open / web.social_hot / web.hot_mentions；"
                 "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
+                f"日期字段禁止输出 today、yesterday、current 等自然语言值；昨天/yesterday 必须写成 {yesterday}，今天/today/current 必须写成 {today}。"
                 "用户说“明天/后天/下周/未来几天/未来一周”时，这是 forecast horizon，不是历史 trade_date；"
-                "只有用户明确写出 YYYYMMDD 或 YYYY-MM-DD 日期时，才把它作为 trade_date。"
+                "用户明确写出 YYYYMMDD、YYYY-MM-DD 或明确历史相对日期时，才把它作为 trade_date。"
                 "trade_date/start_date/end_date 必须使用 YYYYMMDD。"
+                "预测范围继续使用 horizons 的 today/tomorrow/day_after_tomorrow/next_week 枚举，不把 horizons 当作日期字段改写。"
                 "SATS 命令必须输出 argv 数组，不要输出 shell 字符串。"
                 "交易步骤只有在 policy auto_trade 允许对应 side 时才可规划；否则规划 dry-run/说明步骤。"
                 "只有不需要其他工具的单步骤普通解释、总结、命令帮助才规划 chat.answer；不要规划 sats_command.run chat。"
@@ -208,7 +211,10 @@ def _planner_messages(
                 "概念板块/行业板块本身的涨跌幅、跌幅、涨幅、排行、Top/Bottom -> research.sector_return_ranking；"
                 "主题相关股票列表、概念股有哪些、列出相关股票或简单信息 -> research.theme_stock_list；"
                 "主题相关股票/概念股/相关个股的区间涨跌幅 -> research.theme_stock_returns；"
-                "只有用户明确要求短线、上涨潜力、预测走势、明天/未来几天、大概率上涨、机会或候选排序时，选股问题才 -> research.discover_opportunities；"
+                "短线机会发现 Agent 工具当前未启用；不要规划已移除的机会发现工具。"
+                "若用户要求短线、上涨潜力、预测走势、明天/未来几天、大概率上涨、机会或候选排序，"
+                "优先用已注册的 research.market_context(hot_sectors) + analysis.python_program 做有界只读候选整理；"
+                "数据缺失时说明缺口，不要要求重新启用已移除工具。"
                 "找不到合适现成工具且任务是只读分析/数据整理时，先 data.astock_catalog 发现接口，再用 analysis.python_program 做受限程序计算；"
                 "缠论问题 -> research.chan_context；"
                 "规则生成 -> research.rule_generation。"
@@ -332,7 +338,7 @@ def _fallback_plan(
                 "research.serenity_screen",
                 "Serenity AI 卡位筛选",
                 _serenity_screen_args(text, clean_symbols),
-                side_effect="write_artifact",
+                side_effect="readonly",
             )
         )
     elif is_screened_stock_analysis_request(text):
@@ -404,7 +410,7 @@ def _fallback_plan(
                 "research.strategy_draft",
                 "生成策略草稿",
                 {"request": text, "symbols": clean_symbols},
-                side_effect="write_artifact",
+                side_effect="readonly",
             )
         )
         steps.append(
@@ -413,22 +419,22 @@ def _fallback_plan(
                 "research.backtest",
                 "运行轻量回测",
                 {"request": text, "symbols": clean_symbols},
-                side_effect="write_artifact",
+                side_effect="readonly",
             )
         )
     elif "策略" in text or "strategy" in lowered:
-        steps.append(_tool_step("strategy_draft", "research.strategy_draft", "生成策略草稿", {"request": text, "symbols": clean_symbols}, side_effect="write_artifact"))
+        steps.append(_tool_step("strategy_draft", "research.strategy_draft", "生成策略草稿", {"request": text, "symbols": clean_symbols}, side_effect="readonly"))
     elif _is_factor_request(text):
         if _is_factor_ml_request(text):
             steps.append(_tool_step("factor_ml", "factor.ml", "运行因子 ML", {"command": _factor_ml_command(text), "args": []}, side_effect="long_running"))
         elif _is_factor_analyze_request(text):
             factor = _factor_id(text)
             if factor:
-                steps.append(_tool_step("factor_analyze", "factor.analyze", "运行因子分析", {"factor": factor}, side_effect="write_artifact"))
+                steps.append(_tool_step("factor_analyze", "factor.analyze", "运行因子分析", {"factor": factor}, side_effect="readonly"))
             else:
                 steps.append(_tool_step("factor_list", "factor.list", "查看因子能力", {}, side_effect="readonly"))
         elif any(term in text for term in ("选股", "pick", "top", "前")):
-            steps.append(_tool_step("factor_pick", "factor.pick", "运行因子选股", {"profile": _factor_profile(text), "top": _top_n(text)}, side_effect="write_artifact"))
+            steps.append(_tool_step("factor_pick", "factor.pick", "运行因子选股", {"profile": _factor_profile(text), "top": _top_n(text)}, side_effect="write_db"))
         else:
             steps.append(_tool_step("factor_list", "factor.list", "查看因子能力", {}, side_effect="readonly"))
     elif _is_chan_request(text):
@@ -445,6 +451,8 @@ def _fallback_plan(
                     side_effect="readonly",
                 )
             )
+    elif _is_hot_sector_lookup_request(text):
+        steps.append(_hot_sector_context_step(text))
     elif _is_sector_return_ranking_request(text):
         steps.append(_sector_return_ranking_step(text))
     elif _is_theme_stock_return_request(text):
@@ -453,6 +461,8 @@ def _fallback_plan(
         steps.append(_theme_stock_list_step(text))
     elif _is_auto_program_request(text):
         steps.extend(_auto_program_steps(text))
+    elif _is_hot_sector_opportunity_request(text) or _is_opportunity_request(text):
+        steps.extend(_hot_sector_opportunity_steps(text))
     elif _is_market_analysis_request(text):
         steps.append(_tool_step("market_context", "research.market_context", "获取大盘上下文", _market_context_args(text), side_effect="readonly"))
     elif clean_symbols and _is_company_fundamentals_request(text):
@@ -483,7 +493,7 @@ def _fallback_plan(
                     "lookback_days": 180,
                     "llm_review": True,
                 },
-                side_effect="write_artifact",
+                side_effect="readonly",
             )
         )
     elif clean_symbols and _is_stock_analysis_request(text):
@@ -523,11 +533,6 @@ def _fallback_plan(
         knowledge_args = _knowledge_context_args(text)
         if knowledge_args.get("collections"):
             steps.append(_tool_step("knowledge_context", "research.knowledge_context", "补充知识库上下文", knowledge_args, side_effect="readonly"))
-    elif _is_opportunity_request(text):
-        limit = extract_candidate_limit(text, default=0) or _top_n(text)
-        steps.append(_tool_step("discover", "research.discover_opportunities", "运行机会发现", {"query": text, "limit": limit}, side_effect="write_artifact"))
-        if any(term in text for term in ("报告", "保存", "导出")):
-            steps.append(_tool_step("write_report", "research.write_report", "保存报告", {"title": "SATS Agent 机会发现报告"}, side_effect="write_artifact"))
     elif any(term in text for term in ("报价", "quote", "实时")) and clean_symbols:
         steps.append(_tool_step("quotes", "data.realtime_quotes", "获取实时报价", {"symbols": clean_symbols}, side_effect="write_db"))
     elif any(term in text for term in ("指标", "indicators")) and clean_symbols:
@@ -559,11 +564,14 @@ def _fallback_plan(
         steps.append(_tool_step("sats_command", "sats_command.run", "执行 SATS 命令", {"argv": _command_from_text(text)}, side_effect="command"))
     else:
         steps.append(_tool_step("chat", "chat.answer", "普通问答", {"message": text}, side_effect="readonly"))
-    steps.append(AgentStep(step_id="final", kind="final", title="总结结果"))
+    if not steps or steps[-1].kind != "final":
+        steps.append(AgentStep(step_id="final", kind="final", title="总结结果"))
+    success_criteria = tuple(natural_task.get("success_criteria") or ("完成可审计的 SATS agent 执行。",))
+    assumptions = tuple(natural_task.get("assumptions") or ("市场数据只接受 SATS resolver 的 DuckDB/provider provenance。",))
     return AgentPlan(
         objective=text,
-        success_criteria=tuple(natural_task.get("success_criteria") or ("完成可审计的 SATS agent 执行。",)),
-        assumptions=tuple(natural_task.get("assumptions") or ("市场数据只接受 SATS resolver 的 DuckDB/provider provenance。",)),
+        success_criteria=success_criteria,
+        assumptions=assumptions,
         steps=tuple(steps),
         risk_level="high" if policy.auto_trade else "medium",
         requires_live_trading=bool(policy.live_trading),
@@ -571,7 +579,6 @@ def _fallback_plan(
         analysis_mode=analysis_mode,
         verification_checks=verification_checks,
     )
-
 
 def _requires_standard_planner(plan: AgentPlan) -> bool:
     meaningful = [step for step in plan.steps if step.kind != "final"]
@@ -657,7 +664,7 @@ def _augment_plan(
         steps = [
             step
             for step in steps
-            if step.tool_name not in {"research.discover_opportunities", "workflow.screened_stock_analysis"}
+            if step.tool_name not in {"workflow.screened_stock_analysis"}
         ]
         if not _has_tool(steps, "research.serenity_screen"):
             steps.insert(
@@ -667,7 +674,7 @@ def _augment_plan(
                     "research.serenity_screen",
                     "Serenity AI 卡位筛选",
                     _serenity_screen_args(text, symbols),
-                    side_effect="write_artifact",
+                    side_effect="readonly",
                 ),
             )
         return replace(plan, steps=tuple(steps))
@@ -724,6 +731,8 @@ def _augment_plan(
                 ),
             )
         return replace(plan, steps=tuple(steps))
+    if _is_hot_sector_lookup_request(text):
+        return replace(plan, steps=(_hot_sector_context_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_sector_return_ranking_request(text):
         return replace(plan, steps=(_sector_return_ranking_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_theme_stock_return_request(text):
@@ -732,6 +741,13 @@ def _augment_plan(
         return replace(plan, steps=(_theme_stock_list_step(text), AgentStep(step_id="final", kind="final", title="总结结果")))
     if _is_auto_program_request(text):
         return replace(plan, steps=tuple([*_auto_program_steps(text), AgentStep(step_id="final", kind="final", title="总结结果")]))
+    if _is_hot_sector_opportunity_request(text) or _is_opportunity_request(text):
+        return replace(
+            plan,
+            steps=(*_hot_sector_opportunity_steps(text), AgentStep(step_id="final", kind="final", title="总结结果")),
+            success_criteria=("基于已注册工具返回热点板块候选观察名单；缺失真实数据时说明具体缺口。",),
+            assumptions=("短线候选仅供研究观察，不构成上涨保证或投资建议。",),
+        )
     if symbols and _is_company_fundamentals_request(text):
         company_step = _tool_step(
             "company_fundamentals",
@@ -777,7 +793,7 @@ def _augment_plan(
                         "lookback_days": 180,
                         "llm_review": True,
                     },
-                    side_effect="write_artifact",
+                    side_effect="readonly",
                 ),
             )
         return replace(plan, steps=tuple(steps))
@@ -906,6 +922,184 @@ def _hot_sector_context_step(text: str) -> AgentStep:
         "补充热点板块上下文",
         {"horizons": _market_horizons(text), "dimensions": ["hot_sectors"]},
         side_effect="readonly",
+    )
+
+
+def _hot_sector_opportunity_steps(text: str) -> tuple[AgentStep, AgentStep]:
+    trade_date = extract_natural_trade_date(text) or agent_today()
+    start_date = _date_days_before(trade_date, 90)
+    limit = _hot_sector_opportunity_limit(text)
+    market_args: dict[str, Any] = {"trade_date": trade_date, "dimensions": ["hot_sectors"]}
+    horizons = _market_horizons(text, default_today=False)
+    if horizons:
+        market_args["horizons"] = horizons
+    return (
+        _tool_step(
+            "market_context",
+            "research.market_context",
+            "获取热点板块上下文",
+            market_args,
+            side_effect="readonly",
+        ),
+        _tool_step(
+            "hot_sector_candidates",
+            "analysis.python_program",
+            "基于热点板块整理候选观察名单",
+            {
+                "task": text,
+                "code": _hot_sector_candidate_program_code(limit=limit, start_date=start_date, end_date=trade_date),
+                "expected_schema": {
+                    "type": "object",
+                    "properties": {
+                        "kind": {"type": "string"},
+                        "rows": {"type": "array"},
+                        "missing_fields": {"type": "array"},
+                    },
+                },
+                "observation_refs": ["market_context"],
+                "resolver_methods": ["load_stock_daily"],
+                "timeout_seconds": 60,
+                "row_limit": max(50, limit),
+            },
+            side_effect="readonly",
+        ),
+    )
+
+
+def _hot_sector_opportunity_limit(text: str) -> int:
+    requested = extract_candidate_limit(text, default=0)
+    if requested:
+        return max(1, min(50, int(requested)))
+    match = re.search(r"(\d{1,3})\s*(?:支|只|个)?(?:股票|候选|个股)?", str(text or ""))
+    if match:
+        return max(1, min(50, int(match.group(1))))
+    return 6
+
+
+def _hot_sector_candidate_program_code(*, limit: int, start_date: str, end_date: str) -> str:
+    return (
+        "def run(context):\n"
+        f"    limit = {max(1, min(50, int(limit)))}\n"
+        f"    start_date = '{start_date}'\n"
+        f"    end_date = '{end_date}'\n"
+        "    observations = context.get('observations') or []\n"
+        "    market_payload = {}\n"
+        "    for obs in observations:\n"
+        "        payload = obs.get('payload') or {}\n"
+        "        if payload.get('tool_name') != 'research.market_context':\n"
+        "            continue\n"
+        "        result = payload.get('result') or {}\n"
+        "        result_payload = result.get('payload') or {}\n"
+        "        market_payload = result_payload.get('market_context') or result_payload\n"
+        "    hot_context = market_payload.get('hot_sector_context') or {}\n"
+        "    stock_map = hot_context.get('stock_hot_sectors') or {}\n"
+        "    missing_fields = list(hot_context.get('missing_fields') or [])\n"
+        "    data_sources = {'hot_sector_context': market_payload.get('data_sources', {}).get('hot_sector_context') or hot_context.get('data_source') or 'unknown'}\n"
+        "    if not stock_map:\n"
+        "        if 'hot_sector_members' not in missing_fields:\n"
+        "            missing_fields.append('hot_sector_members')\n"
+        "        return {'kind': 'hot_sector_candidates', 'summary': '热点板块成分股映射为空，无法整理候选观察名单。', 'rows': [], 'requested_limit': limit, 'returned_count': 0, 'data_sources': data_sources, 'missing_fields': missing_fields, 'risk_notice': '仅供研究观察，不构成投资建议。'}\n"
+        "    candidates = []\n"
+        "    for ts_code in stock_map:\n"
+        "        sectors = stock_map.get(ts_code) or []\n"
+        "        if not sectors:\n"
+        "            continue\n"
+        "        names = []\n"
+        "        heat = 0.0\n"
+        "        stock_name = ''\n"
+        "        for sector in sectors[:5]:\n"
+        "            if not stock_name:\n"
+        "                stock_name = str(sector.get('stock_name') or sector.get('member_name') or sector.get('stock') or '')\n"
+        "            sector_name = str(sector.get('name') or sector.get('sector_name') or '')\n"
+        "            if sector_name and sector_name not in names:\n"
+        "                names.append(sector_name)\n"
+        "            try:\n"
+        "                heat = heat + float(sector.get('heat_score') or 0)\n"
+        "            except:\n"
+        "                heat = heat\n"
+        "        candidates.append({'ts_code': ts_code, 'name': stock_name, 'hot_sector_names': names, 'sector_heat': round(heat, 2)})\n"
+        "    candidates.sort(key=lambda item: (-float(item.get('sector_heat') or 0), str(item.get('ts_code') or '')))\n"
+        "    prelimit = min(len(candidates), max(limit * 8, limit))\n"
+        "    symbols = [item.get('ts_code') for item in candidates[:prelimit] if item.get('ts_code')]\n"
+        "    by_symbol = {}\n"
+        "    if symbols:\n"
+        "        daily = resolver.load_stock_daily(symbols, start_date=start_date, end_date=end_date)\n"
+        "        if daily is None or daily.empty:\n"
+        "            missing_fields.append('stock_daily')\n"
+        "        else:\n"
+        "            data_sources['stock_daily'] = str(daily.attrs.get('data_source') or '')\n"
+        "            for row in daily.to_dict('records'):\n"
+        "                code = str(row.get('ts_code') or row.get('symbol') or '')\n"
+        "                if not code:\n"
+        "                    continue\n"
+        "                if not by_symbol.get(code):\n"
+        "                    by_symbol[code] = []\n"
+        "                by_symbol[code].append(row)\n"
+        "    rows = []\n"
+        "    for item in candidates[:prelimit]:\n"
+        "        ts_code = item.get('ts_code')\n"
+        "        daily_rows = by_symbol.get(ts_code) or []\n"
+        "        daily_rows.sort(key=lambda row: str(row.get('trade_date') or ''))\n"
+        "        recent_return = None\n"
+        "        volume_status = '数据缺失'\n"
+        "        score = float(item.get('sector_heat') or 0)\n"
+        "        reason = ['命中热点板块：' + '、'.join(item.get('hot_sector_names') or [])]\n"
+        "        if daily_rows:\n"
+        "            last = daily_rows[-1]\n"
+        "            base_index = max(0, len(daily_rows) - 6)\n"
+        "            base = daily_rows[base_index]\n"
+        "            try:\n"
+        "                last_close = float(last.get('close'))\n"
+        "                base_close = float(base.get('close'))\n"
+        "                if base_close != 0:\n"
+        "                    recent_return = round((last_close / base_close - 1) * 100, 2)\n"
+        "                    score = score + recent_return * 0.3\n"
+        "                    reason.append('近5交易日涨跌幅 ' + str(recent_return) + '%')\n"
+        "            except:\n"
+        "                last_close = None\n"
+        "            closes = []\n"
+        "            vols = []\n"
+        "            for row in daily_rows[-21:]:\n"
+        "                try:\n"
+        "                    closes.append(float(row.get('close')))\n"
+        "                except:\n"
+        "                    closes = closes\n"
+        "                try:\n"
+        "                    vols.append(float(row.get('vol')))\n"
+        "                except:\n"
+        "                    vols = vols\n"
+        "            if len(closes) >= 5:\n"
+        "                ma5 = sum(closes[-5:]) / 5\n"
+        "                try:\n"
+        "                    if last_close >= ma5:\n"
+        "                        score = score + 3\n"
+        "                        reason.append('收盘价在5日均线上')\n"
+        "                except:\n"
+        "                    score = score\n"
+        "            if len(closes) >= 20:\n"
+        "                ma5 = sum(closes[-5:]) / 5\n"
+        "                ma20 = sum(closes[-20:]) / 20\n"
+        "                if ma5 >= ma20:\n"
+        "                    score = score + 2\n"
+        "                    reason.append('5日均线不弱于20日均线')\n"
+        "            if len(vols) >= 2:\n"
+        "                latest_vol = vols[-1]\n"
+        "                avg_vol = sum(vols[:-1]) / len(vols[:-1])\n"
+        "                if avg_vol > 0 and latest_vol >= avg_vol * 1.3:\n"
+        "                    volume_status = '放量'\n"
+        "                    score = score + 2\n"
+        "                elif avg_vol > 0 and latest_vol <= avg_vol * 0.7:\n"
+        "                    volume_status = '缩量'\n"
+        "                else:\n"
+        "                    volume_status = '量能正常'\n"
+        "        else:\n"
+        "            missing_fields.append('stock_daily:' + str(ts_code))\n"
+        "        rows.append({'rank': 0, 'ts_code': ts_code, 'name': item.get('name') or '名称缺失', 'score': round(score, 2), 'hot_sectors': item.get('hot_sector_names') or [], 'sector_heat': item.get('sector_heat'), 'recent_return': recent_return, 'volume_status': volume_status, 'reason': '；'.join(reason), 'risk': '热点高位回落、量能不续或市场情绪转弱时失效；仅供观察。'})\n"
+        "    rows.sort(key=lambda row: (-float(row.get('score') or 0), str(row.get('ts_code') or '')))\n"
+        "    selected = rows[:limit]\n"
+        "    for index, row in enumerate(selected, start=1):\n"
+        "        row['rank'] = index\n"
+        "    return {'kind': 'hot_sector_candidates', 'summary': '基于现有热点板块成分和近期日线数据生成候选观察名单。', 'requested_limit': limit, 'returned_count': len(selected), 'rows': selected, 'data_sources': data_sources, 'missing_fields': list(dict.fromkeys(missing_fields)), 'risk_notice': '仅供研究观察，不构成投资建议。'}\n"
     )
 
 
@@ -1400,6 +1594,10 @@ def _sector_ranking_type(text: str) -> str:
 
 def _sector_ranking_direction(text: str) -> str:
     value = str(text or "")
+    if any(term in value for term in ("跌幅最大", "跌幅最高", "下跌最多", "跌得最多", "跌最多", "领跌", "最弱", "最差", "表现最差")):
+        return "bottom"
+    if _is_hot_sector_lookup_request(text):
+        return "top"
     if any(term in value for term in ("涨幅最大", "涨幅最高", "上涨最多", "涨得最多", "涨最多", "领涨", "最强", "最好", "表现最好")):
         return "top"
     return "bottom"

@@ -12,6 +12,7 @@ import uuid
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -40,7 +41,7 @@ from sats.config import init_env_file, load_settings
 from sats.conversation import (
     confirm_pending_conversation_action,
     continue_conversation_after_clarification,
-    format_conversation_plan,
+    format_plan_mode_result,
     reject_pending_conversation_action,
     run_conversation_once,
 )
@@ -112,6 +113,15 @@ from sats.scheduler import (
     validate_time_of_day,
 )
 from sats.skills import default_skills_dir, format_skill_list, load_skills
+from sats.skillhub import (
+    fetch_skillhub_catalog,
+    format_skillhub_records,
+    format_skillhub_status,
+    format_skillhub_sync_result,
+    search_local_skillhub_records,
+    skillhub_status,
+    sync_skillhub_skills,
+)
 from sats.screening.service import evaluate_and_store
 from sats.signals import SignalInput, analyze_signal_inputs, format_signal_analysis, format_signal_definitions
 from sats.storage.duckdb import DuckDBStorage
@@ -251,7 +261,7 @@ def _add_agent_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--max-iterations", type=int, default=6, help="Maximum agent steps")
     parser.add_argument("--command-timeout", type=int, default=120, help="Per SATS command timeout seconds")
     parser.add_argument("--python-timeout", type=int, default=30, help="Restricted Python timeout seconds")
-    parser.add_argument("--plan-only", action="store_true", help="Only build and print the SATS plan")
+    parser.add_argument("--plan-only", action="store_true", help="Run non-executing SATS Plan mode")
     parser.add_argument("--dry-run", action="store_true", help="Skip high-risk side effects while keeping read-only planning/execution")
 
 
@@ -590,6 +600,20 @@ def build_parser() -> argparse.ArgumentParser:
     factor_ml_predict.add_argument("--db", type=Path, help="DuckDB path; defaults to SATS_DB_PATH")
 
     sub.add_parser("skills", help="List local SATS skills")
+    skillhub = sub.add_parser("skillhub", help="Sync Iwencai SkillHub skills into SATS")
+    skillhub_sub = skillhub.add_subparsers(dest="skillhub_command")
+    skillhub_install = skillhub_sub.add_parser("install", help="Install generated SkillHub skills into skills/")
+    skillhub_install.add_argument("--all", action="store_true", help="Install all SkillHub catalog records")
+    skillhub_install.add_argument("--dry-run", action="store_true", help="Preview generated changes without writing files")
+    skillhub_install.add_argument("--prune-generated", action="store_true", help="Remove stale generated SkillHub skills")
+    skillhub_install.add_argument("--json", action="store_true", help="Print JSON output")
+    skillhub_list = skillhub_sub.add_parser("list", help="List remote SkillHub catalog records")
+    skillhub_list.add_argument("--query", default="", help="Filter by name, description or package path")
+    skillhub_list.add_argument("--classify", choices=["OFFICIAL", "THIRD_PARTY"], help="Filter by SkillHub classification")
+    skillhub_list.add_argument("--limit", type=int, default=50, help="Maximum rows to print")
+    skillhub_list.add_argument("--json", action="store_true", help="Print JSON output")
+    skillhub_status_parser = skillhub_sub.add_parser("status", help="Show local SkillHub install status")
+    skillhub_status_parser.add_argument("--json", action="store_true", help="Print JSON output")
 
     watchlist = sub.add_parser("watchlist", help="Edit monitor watchlist")
     watchlist_sub = watchlist.add_subparsers(dest="watchlist_command")
@@ -948,6 +972,8 @@ def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser)
         return cmd_factor(args)
     if args.command == "skills":
         return cmd_skills(args)
+    if args.command == "skillhub":
+        return cmd_skillhub(args)
     if args.command == "watchlist":
         return cmd_watchlist(args)
     if args.command == "monitor":
@@ -1685,7 +1711,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
     if not message:
         raise SystemExit("chat message is required")
     if getattr(args, "plan_only", False):
-        print(format_conversation_plan(message, settings=settings, policy=_agent_policy_from_args(args)))
+        print(format_plan_mode_result(message, settings=settings, policy=_agent_policy_from_args(args)))
         return 0
     engine = str(getattr(args, "engine", "conversation") or "conversation")
     if engine == "conversation":
@@ -2605,6 +2631,79 @@ def cmd_skills(args: argparse.Namespace) -> int:
     skills = load_skills(default_skills_dir(settings.project_root))
     print(format_skill_list(skills))
     return 0
+
+
+def cmd_skillhub(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    command = getattr(args, "skillhub_command", None)
+    if command is None:
+        raise SystemExit("skillhub requires subcommand: install, list or status")
+    if command == "install":
+        if not getattr(args, "all", False):
+            raise SystemExit("skillhub install requires --all")
+        result = sync_skillhub_skills(
+            settings.project_root,
+            dry_run=bool(getattr(args, "dry_run", False)),
+            prune_generated=bool(getattr(args, "prune_generated", False)),
+        )
+        if getattr(args, "json", False):
+            print(json.dumps(result.to_dict(), ensure_ascii=False, indent=2))
+        else:
+            print(format_skillhub_sync_result(result))
+        return 0
+    if command == "list":
+        query = str(getattr(args, "query", "") or "")
+        classify = str(getattr(args, "classify", "") or "")
+        limit = max(1, int(getattr(args, "limit", 50) or 50))
+        try:
+            records = [item.to_dict() for item in fetch_skillhub_catalog()]
+            source = "remote"
+        except Exception:
+            records = search_local_skillhub_records(settings.project_root, query=query, classify=classify, limit=10000)
+            source = "local"
+        if source == "remote":
+            records = _filter_skillhub_record_dicts(records, query=query, classify=classify)[:limit]
+        else:
+            records = records[:limit]
+        payload = {"source": source, "count": len(records), "records": records}
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            prefix = "SkillHub catalog" if source == "remote" else "SkillHub local manifest"
+            print(f"{prefix}: {len(records)}")
+            print(format_skillhub_records(records))
+        return 0
+    if command == "status":
+        status = skillhub_status(
+            settings.project_root,
+            api_key=getattr(settings, "iwencai_api_key", ""),
+            base_url=getattr(settings, "iwencai_base_url", ""),
+            cli_name=getattr(settings, "iwencai_skillhub_cli", ""),
+        )
+        if getattr(args, "json", False):
+            print(json.dumps(status, ensure_ascii=False, indent=2))
+        else:
+            print(format_skillhub_status(status))
+        return 0
+    raise SystemExit("unknown skillhub command")
+
+
+def _filter_skillhub_record_dicts(records: list[dict[str, Any]], *, query: str = "", classify: str = "") -> list[dict[str, Any]]:
+    clean_classify = str(classify or "").strip().upper()
+    if clean_classify:
+        records = [item for item in records if str(item.get("classify") or "").upper() == clean_classify]
+    clean_query = str(query or "").strip().lower()
+    if clean_query:
+        records = [
+            item
+            for item in records
+            if clean_query
+            in " ".join(
+                str(item.get(key) or "")
+                for key in ("id", "name", "cn_name", "display_name", "description", "author", "storage_path")
+            ).lower()
+        ]
+    return records
 
 
 def cmd_watchlist(args: argparse.Namespace) -> int:

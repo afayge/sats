@@ -15,6 +15,7 @@ from sats.chat import ChatResult
 from sats.cli import main
 from sats.storage.duckdb import DuckDBStorage
 from sats.skills import Skill
+from sats.skillhub import SkillHubSyncResult
 
 
 class _FakeTTYStdout:
@@ -150,20 +151,22 @@ class ChatCliTest(unittest.TestCase):
         self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 回答", output)
 
-    def test_cli_chat_plan_only_prints_conversation_plan_without_execution(self) -> None:
+    def test_cli_chat_plan_only_prints_plan_mode_without_execution(self) -> None:
         stdout = StringIO()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"), openai_model="deepseek-v4-pro", llm_timeout_seconds=10)
+        plan_output = "# SATS Plan Mode\n\n## 目标\n- 规划筛选和交易计划\n\n## 建议步骤\n- 后续执行由 conversation loop 选择工具。"
 
         with (
             patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.format_plan_mode_result", return_value=plan_output) as plan_mode,
             redirect_stdout(stdout),
         ):
             self.assertEqual(main(["chat", "--plan-only", "用", "price_volume_ma", "筛选，并对筛选股票制定明天交易计划"]), 0)
 
         output = stdout.getvalue()
-        self.assertIn("SATS Conversation Plan", output)
-        self.assertIn("workflow.screened_stock_analysis", output)
-        self.assertIn("分析模式: batch", output)
+        self.assertIn("# SATS Plan Mode", output)
+        self.assertIn("conversation loop", output)
+        plan_mode.assert_called_once()
 
     def test_cli_chat_agent_flag_is_obsolete(self) -> None:
         with self.assertRaises(SystemExit) as raised:
@@ -312,6 +315,29 @@ class ChatCliTest(unittest.TestCase):
         load_skills.assert_called_once_with(Path("/tmp/sats") / "skills")
         self.assertIn("[other]", stdout.getvalue())
         self.assertIn("1. alpha - 描述 触发: 股票", stdout.getvalue())
+
+    def test_cli_skillhub_install_all_dry_run_calls_sync(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("/tmp/sats"), openai_model="deepseek-v4-pro")
+        result = SkillHubSyncResult(
+            total=160,
+            official=26,
+            community=134,
+            installed=160,
+            dry_run=True,
+            manifest_path="/tmp/sats/skills/.skillhub_manifest.json",
+            skills_dir="/tmp/sats/skills",
+        )
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.sync_skillhub_skills", return_value=result) as sync,
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["skillhub", "install", "--all", "--dry-run"]), 0)
+
+        sync.assert_called_once_with(settings.project_root, dry_run=True, prune_generated=False)
+        self.assertIn("SkillHub 同步预览", stdout.getvalue())
 
     def test_cli_memory_commands(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

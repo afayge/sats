@@ -146,13 +146,27 @@ class ScheduledTaskRunner:
             raise ValueError("chat task text is required")
         if self.chat_runner is not None:
             return str(self.chat_runner(message) or "")
-        from sats.chat import format_chat_result, run_chat_once
+        from sats.chat import ChatResult, format_chat_result
+        from sats.conversation import run_conversation_once
 
         kwargs = {}
         if self.settings is not None:
             kwargs["settings"] = self.settings
-        result = run_chat_once(message, **kwargs)
-        return format_chat_result(result)
+        result = run_conversation_once(message, session_id="scheduler", **kwargs)
+        return format_chat_result(
+            ChatResult(
+                content=result.content,
+                skill_names=result.skill_names,
+                tool_call_count=result.tool_call_count,
+                data_names=result.data_names,
+                sources=result.sources,
+                artifacts=result.artifacts,
+                requires_confirmation=result.requires_confirmation,
+                pending_action_id=result.pending_action_id,
+                turn_id=result.turn_id,
+                session_id=result.session_id,
+            )
+        )
 
 
 class SchedulerService:

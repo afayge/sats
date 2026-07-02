@@ -9,6 +9,7 @@ from sats.agent.tools.data_tools import data_tool_specs
 from sats.agent.tools.factor_tools import factor_tool_specs
 from sats.agent.tools.generated import generated_tool_specs
 from sats.agent.tools.research_tools import research_tool_specs
+from sats.agent.tools.skillhub_tools import skillhub_tool_specs
 from sats.agent.tools.trade_tools import trade_tool_specs
 from sats.agent.tools.web_tools import web_tool_specs
 from sats.agent.tools.workflow_tools import workflow_tool_specs
@@ -22,6 +23,7 @@ def build_default_tool_registry() -> AgentToolRegistry:
         *analysis_tool_specs(),
         *data_tool_specs(),
         *research_tool_specs(),
+        *skillhub_tool_specs(),
         *generated_tool_specs(),
         *factor_tool_specs(),
         *web_tool_specs(),

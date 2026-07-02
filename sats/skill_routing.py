@@ -184,8 +184,6 @@ def _normalized_intent(context: SkillRouteContext, text: str) -> str:
         return "opportunity_discovery"
     if explicit:
         return explicit
-    if "research.discover_opportunities" in tools:
-        return "opportunity_discovery"
     if "research.serenity_screen" in tools:
         return "opportunity_discovery"
     if "research.market_context" in tools or _is_market_request(text):
@@ -213,8 +211,6 @@ def _evidence_terms(planned_tools: set[str], observed_tools: set[str], internal_
             terms.update({"deep_stock_analysis", "stock_context", "indicators"})
         elif tool == "research.internal_analysis":
             terms.update({"indicators", "analyze_signals", "factor_summary"})
-        elif tool == "research.discover_opportunities":
-            terms.update({"opportunity_discovery", "analyze_signals", "hot_sectors"})
         elif tool == "research.serenity_screen":
             terms.update({"serenity_screen", "opportunity_discovery", "stock_context", "tushare_data"})
         elif tool.startswith("factor."):

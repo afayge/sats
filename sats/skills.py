@@ -328,7 +328,7 @@ def _category_order(category: str) -> int:
 
 
 def _skill_match_terms(skill: Skill) -> list[str]:
-    terms = [*_description_tokens(skill.description)]
+    terms = [] if skill.id.startswith("skillhub-") else [*_description_tokens(skill.description)]
     terms.extend(_normalize(term) for term in skill.aliases)
     terms.extend(_normalize(term) for term in _DEFAULT_MATCH_TERMS.get(skill.id, ()))
     terms.extend(_normalize(term) for term in _DEFAULT_MATCH_TERMS.get(skill.name, ()))

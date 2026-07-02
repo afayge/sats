@@ -32,9 +32,10 @@ def catalog_tool_specs() -> list[AgentToolSpec]:
 
 
 def _capabilities(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    section = str(arguments.get("section") or "summary")
     catalog = build_capability_catalog(
         settings=context.settings,
-        section=str(arguments.get("section") or "summary"),
+        section=section,
         provider=str(arguments.get("provider") or "").strip() or None,
         query=str(arguments.get("query") or "").strip() or None,
         category=str(arguments.get("category") or "").strip() or None,
@@ -46,5 +47,5 @@ def _capabilities(context: AgentToolContext, arguments: dict[str, Any]) -> Agent
     return ok(
         f"catalog section {catalog['section']}",
         payload={"catalog": catalog},
-        data_names=("SATS capabilities",),
+        data_names=("Skills",) if str(catalog.get("section") or "") == "skills" else ("SATS capabilities",),
     )

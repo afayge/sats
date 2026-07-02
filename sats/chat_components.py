@@ -796,6 +796,7 @@ def build_opportunity_component(
     market_indices: Iterable[str] | None = None,
     market_dimensions: Iterable[str] | None = None,
     market_horizons: Iterable[str] | None = None,
+    report: bool = True,
     progress: Any | None = None,
 ) -> Any:
     from sats import chat as chat_module
@@ -816,7 +817,7 @@ def build_opportunity_component(
         market_dimensions=tuple(market_dimensions or ()) or None,
         market_horizons=tuple(market_horizons or ()) or None,
         reports_dir=Path(getattr(settings, "project_root", ".")) / "reports",
-        report=True,
+        report=report,
         progress=progress,
     )
 

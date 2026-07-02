@@ -13,9 +13,9 @@ _DATE_RE = re.compile(r"(?<!\d)(20\d{2})([-/]?)(\d{2})\2(\d{2})(?!\d)")
 _TIME_RE = re.compile(r"(?<!\d)((?:[01]?\d|2[0-3]):[0-5]\d)(?!\d)")
 _SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 _RELATIVE_TRADE_DATE_TERMS = (
-    (("前天",), 2),
-    (("昨天", "昨日"), 1),
-    (("今天", "今日"), 0),
+    (("前天", "day_before_yesterday", "day before yesterday"), 2),
+    (("昨天", "昨日", "yesterday"), 1),
+    (("今天", "今日", "today", "current"), 0),
 )
 
 
@@ -72,7 +72,7 @@ def extract_natural_trade_date(message: str, *, today: str | None = None) -> str
         return None
     base = _normalize_today(today) if today else datetime.now(_SHANGHAI_TZ)
     for terms, offset in _RELATIVE_TRADE_DATE_TERMS:
-        if any(term in text for term in terms):
+        if _contains_relative_trade_date_term(text, terms):
             return (base - timedelta(days=offset)).strftime("%Y%m%d")
     return None
 
@@ -82,6 +82,24 @@ def _normalize_today(today: str | None) -> datetime:
     if not value:
         raise ValueError(f"日期格式无效: {today}")
     return datetime.strptime(value, "%Y%m%d")
+
+
+def _contains_relative_trade_date_term(text: str, terms: tuple[str, ...]) -> bool:
+    value = str(text or "")
+    lowered = value.lower()
+    for term in terms:
+        if _contains_cjk(term):
+            if term in value:
+                return True
+            continue
+        pattern = r"(?<![a-z0-9_])" + re.escape(term.lower()) + r"(?![a-z0-9_])"
+        if re.search(pattern, lowered):
+            return True
+    return False
+
+
+def _contains_cjk(value: str) -> bool:
+    return any("\u4e00" <= char <= "\u9fff" for char in str(value or ""))
 
 
 def extract_intraday_time(message: str) -> str | None:

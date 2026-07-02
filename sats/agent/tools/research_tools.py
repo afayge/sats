@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -25,7 +24,7 @@ from sats.chat_components import (
     run_internal_analysis_component,
     run_rule_generation_component,
 )
-from sats.chat_artifacts import save_json_artifact, save_markdown_artifact
+from sats.chat_artifacts import save_markdown_artifact
 from sats.data.astock_provider import AStockDataProvider
 from sats.deep_analysis import run_deep_analysis
 from sats.memory import ChatMemoryStore
@@ -42,6 +41,20 @@ from sats.web import search as web_search
 THEME_STOCK_RETURN_LIMIT = 30
 THEME_STOCK_LIST_LIMIT = 80
 SECTOR_RETURN_RANKING_LIMIT = 50
+DEFAULT_INTRADAY_MINUTE_PERIODS = ("15m", "30m")
+OPTIONAL_MINUTE_FIELDS = ("optional_minute_15m", "optional_minute_30m")
+INTRADAY_FORECAST_TERMS = (
+    "今天走势",
+    "今日走势",
+    "当日走势",
+    "明天走势",
+    "明日走势",
+    "次日走势",
+    "日内",
+    "盘中",
+    "分时",
+    "分钟",
+)
 
 
 def research_tool_specs() -> list[AgentToolSpec]:
@@ -90,7 +103,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 "返回确定性评分、证据等级、风险罚分和研究优先级。"
             ),
             category="research_workflow",
-            side_effect="write_artifact",
+            side_effect="readonly",
             timeout=300,
             input_schema=object_schema(
                 {
@@ -102,7 +115,6 @@ def research_tool_specs() -> list[AgentToolSpec]:
                     "candidate_limit": {"type": "integer"},
                     "lookback_days": {"type": "integer"},
                     "llm_review": {"type": "boolean"},
-                    "report": {"type": "boolean"},
                 }
             ),
             executor=_serenity_screen,
@@ -123,26 +135,6 @@ def research_tool_specs() -> list[AgentToolSpec]:
                 ["query"],
             ),
             executor=_theme_stock_list,
-        ),
-        AgentToolSpec(
-            name="research.discover_opportunities",
-            description="运行 SATS 自然语言 A 股机会发现，返回候选排序并可生成报告。",
-            category="research_workflow",
-            side_effect="write_artifact",
-            timeout=180,
-            input_schema=object_schema(
-                {
-                    "query": {"type": "string"},
-                    "trade_date": {"type": "string"},
-                    "signals": {"type": "string"},
-                    "limit": {"type": "integer"},
-                    "candidate_limit": {"type": "integer"},
-                    "hot_sector": {"type": "boolean"},
-                    "hot_sector_days": {"type": "integer"},
-                },
-                ["query"],
-            ),
-            executor=_discover_opportunities,
         ),
         AgentToolSpec(
             name="research.theme_stock_returns",
@@ -226,9 +218,9 @@ def research_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="research.deep_stock_analysis",
-            description="运行 SATS 原生 A 股个股深研闭环：采集、评分、投资人面板、综合摘要和报告 artifact。",
+            description="运行 SATS 原生 A 股个股深研闭环：采集、评分、投资人面板和综合摘要数据。",
             category="research_workflow",
-            side_effect="write_artifact",
+            side_effect="readonly",
             timeout=240,
             input_schema=object_schema(
                 {
@@ -292,9 +284,9 @@ def research_tool_specs() -> list[AgentToolSpec]:
         ),
         AgentToolSpec(
             name="research.strategy_draft",
-            description="生成受限 SATS 策略 spec 和可读策略草稿产物。",
+            description="生成受限 SATS 策略 spec 和可读策略草稿数据。",
             category="research_workflow",
-            side_effect="write_artifact",
+            side_effect="readonly",
             timeout=30,
             input_schema=object_schema(
                 {
@@ -309,7 +301,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
             name="research.backtest",
             description="运行 SATS-native 轻量回测；行情通过 DuckDB-first resolver 获取。",
             category="research_workflow",
-            side_effect="write_artifact",
+            side_effect="readonly",
             timeout=120,
             input_schema=object_schema(
                 {
@@ -335,6 +327,30 @@ def research_tool_specs() -> list[AgentToolSpec]:
             executor=_write_report,
         ),
     ]
+
+
+def _disabled_discover_opportunities_tool_spec() -> AgentToolSpec:
+    """Kept for quick re-enable; intentionally not returned by research_tool_specs."""
+    return AgentToolSpec(
+        name="research.discover_opportunities",
+        description="运行 SATS 自然语言 A 股机会发现，返回候选排序和研究数据。",
+        category="research_workflow",
+        side_effect="readonly",
+        timeout=180,
+        input_schema=object_schema(
+            {
+                "query": {"type": "string"},
+                "trade_date": {"type": "string"},
+                "signals": {"type": "string"},
+                "limit": {"type": "integer"},
+                "candidate_limit": {"type": "integer"},
+                "hot_sector": {"type": "boolean"},
+                "hot_sector_days": {"type": "integer"},
+            },
+            ["query"],
+        ),
+        executor=_discover_opportunities,
+    )
 
 
 def _market_context(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
@@ -367,21 +383,17 @@ def _discover_opportunities(context: AgentToolContext, arguments: dict[str, Any]
         candidate_limit=int(arguments.get("candidate_limit") or 50),
         hot_sector_enabled=bool(arguments.get("hot_sector", True)),
         hot_sector_days=int(arguments.get("hot_sector_days") or 5),
+        report=False,
         progress=None,
     )
     payload = _context_payload(result)
     legacy = result.discovery.to_llm_context() if hasattr(result, "discovery") else payload
-    artifacts: list[dict[str, Any]] = []
-    report_path = str(getattr(result, "report_path", "") or "").strip()
-    if report_path:
-        artifacts.append({"kind": "report", "title": "opportunity_report", "path": report_path, "mime_type": "text/markdown"})
     result_payload = {"status": "ok", "stock_picking_agent": payload, "opportunity_discovery": legacy}
     return AgentToolResult(
         status="done",
         content=json.dumps(result_payload, ensure_ascii=False, default=str),
         payload=result_payload,
         data_names=("opportunity_discovery",),
-        artifacts=tuple(artifacts),
     )
 
 
@@ -435,7 +447,6 @@ def _theme_stock_list(context: AgentToolContext, arguments: dict[str, Any]) -> A
 
 def _serenity_screen(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     symbols = normalize_symbols(arguments.get("symbols") or [], required=False)
-    report = bool(arguments.get("report", True))
     result = run_serenity_screen(
         query=str(arguments.get("query") or context.message or ""),
         theme=str(arguments.get("theme") or ""),
@@ -451,35 +462,12 @@ def _serenity_screen(context: AgentToolContext, arguments: dict[str, Any]) -> Ag
         astock_provider=AStockDataProvider(context.settings),
         llm_factory=context.llm_factory,
     )
-    result = replace(result, request=replace(result.request, report=report))
     payload = {"status": "ok", "serenity_screen": result.to_dict()}
-    artifacts: list[dict[str, Any]] = []
-    if report and result.candidates:
-        json_write = save_json_artifact(
-            project_root=_project_root(context),
-            session_id=context.session_id,
-            turn_id=context.turn_id or "agent",
-            title="serenity_screen",
-            payload=result.to_dict(),
-            filename="serenity_screen.json",
-            summary="SATS Serenity AI 卡位筛选 JSON",
-        )
-        markdown_write = save_markdown_artifact(
-            project_root=_project_root(context),
-            session_id=context.session_id,
-            turn_id=context.turn_id or "agent",
-            title="SATS Serenity AI 卡位筛选",
-            content=result.to_markdown(),
-            filename="serenity_screen.md",
-            summary="SATS Serenity AI 卡位筛选 Markdown",
-        )
-        artifacts.extend([_artifact_dict(context, json_write), _artifact_dict(context, markdown_write)])
     return AgentToolResult(
         status="done",
         content=json.dumps(payload, ensure_ascii=False, default=str),
         payload=payload,
         data_names=("serenity_screen",),
-        artifacts=tuple(artifacts),
     )
 
 
@@ -735,15 +723,23 @@ def _stock_context(context: AgentToolContext, arguments: dict[str, Any]) -> Agen
         )
     symbols = normalize_symbols(arguments.get("symbols") or [], required=True)
     trade_date = str(arguments.get("trade_date") or agent_today())
+    requested_periods = minute_periods or _default_intraday_periods_for_forecast(context.message)
     stock_contexts = ensure_stock_analysis_data(
         symbols,
         trade_date,
         settings=context.settings,
         storage=context.storage,
-        periods=(),
+        periods=requested_periods,
         period_requests=extract_period_return_requests(context.message),
     )
-    payload = _stock_context_payload(context, symbols, trade_date, stock_contexts, arguments)
+    payload = _stock_context_payload(
+        context,
+        symbols,
+        trade_date,
+        stock_contexts,
+        arguments,
+        requested_minute_periods=requested_periods,
+    )
     return AgentToolResult(
         status="done",
         content=json.dumps({"status": "ok", "stock_context": payload}, ensure_ascii=False, default=str),
@@ -858,33 +854,11 @@ def _deep_stock_analysis(context: AgentToolContext, arguments: dict[str, Any]) -
         report=False,
     )
     payload = {"status": "ok", "deep_stock_analysis": result.to_dict()}
-    artifacts: list[dict[str, Any]] = []
-    if result.analyses:
-        json_write = save_json_artifact(
-            project_root=_project_root(context),
-            session_id=context.session_id,
-            turn_id=context.turn_id or "agent",
-            title="deep_stock_analysis",
-            payload=result.to_dict(),
-            filename="deep_stock_analysis.json",
-            summary="SATS 原生个股深研 JSON",
-        )
-        markdown_write = save_markdown_artifact(
-            project_root=_project_root(context),
-            session_id=context.session_id,
-            turn_id=context.turn_id or "agent",
-            title="SATS 原生个股深研报告",
-            content=result.to_markdown(),
-            filename="deep_stock_analysis.md",
-            summary="SATS 原生个股深研 Markdown",
-        )
-        artifacts.extend([_artifact_dict(context, json_write), _artifact_dict(context, markdown_write)])
     return AgentToolResult(
         status="done",
         content=json.dumps(payload, ensure_ascii=False, default=str),
         payload=payload,
         data_names=("deep_stock_analysis",),
-        artifacts=tuple(artifacts),
     )
 
 
@@ -958,26 +932,40 @@ def _stock_context_payload(
     trade_date: str,
     stock_contexts: dict[str, dict[str, Any]],
     arguments: dict[str, Any],
+    *,
+    requested_minute_periods: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     horizons = list(resolve_agent_time_context(context.message, arguments=arguments).horizons)
     effective_trade_date = _effective_stock_context_trade_date(stock_contexts, trade_date)
+    optional_fields_not_requested = [] if requested_minute_periods else list(OPTIONAL_MINUTE_FIELDS)
     stocks = []
     for symbol in symbols:
         item = dict(stock_contexts.get(symbol) or {})
-        missing = list(item.get("missing_fields") or [])
-        for field in ("optional_minute_15m", "optional_minute_30m"):
-            if field not in missing:
-                missing.append(field)
-        item["missing_fields"] = missing
+        item["missing_fields"] = list(item.get("missing_fields") or [])
+        if optional_fields_not_requested:
+            item["optional_fields_not_requested"] = list(optional_fields_not_requested)
         item.setdefault("minute_curves", {})
         stocks.append(item)
+    if requested_minute_periods:
+        data_policy = (
+            "SATS fetched real daily/quote data and requested minute periods "
+            f"{', '.join(requested_minute_periods)} before calling the LLM; "
+            "missing_fields only contains unavailable requested data."
+        )
+    else:
+        data_policy = (
+            "SATS fetched real daily/quote data before calling the LLM; optional minute data was not requested "
+            "and is reported separately from missing_fields."
+        )
     return {
         "user_question": context.message,
         "requested_trade_date": trade_date,
         "trade_date": effective_trade_date,
         "symbols": symbols,
         "requested_horizons": horizons,
-        "data_policy": "SATS fetched real daily/quote data before calling the LLM; optional minute data was not required for this forecast.",
+        "requested_minute_periods": list(requested_minute_periods),
+        "optional_fields_not_requested": optional_fields_not_requested,
+        "data_policy": data_policy,
         "stocks": stocks,
     }
 
@@ -989,6 +977,13 @@ def _effective_stock_context_trade_date(stock_contexts: dict[str, dict[str, Any]
 
 def _minute_periods_from_arguments(arguments: dict[str, Any], message: str) -> tuple[str, ...]:
     return normalize_minute_periods(arguments.get("minute_periods") or ()) or extract_minute_periods(message)
+
+
+def _default_intraday_periods_for_forecast(message: str) -> tuple[str, ...]:
+    text = str(message or "")
+    if any(term in text for term in INTRADAY_FORECAST_TERMS):
+        return DEFAULT_INTRADAY_MINUTE_PERIODS
+    return ()
 
 
 def _signal_input_from_context(context: dict[str, Any]) -> SignalInput:
@@ -1010,9 +1005,6 @@ def _combined_missing_fields(stock_contexts: dict[str, dict[str, Any]]) -> list[
         for field in item.get("missing_fields") or []:
             if field not in fields:
                 fields.append(str(field))
-    for field in ("optional_minute_15m", "optional_minute_30m"):
-        if field not in fields:
-            fields.append(field)
     return fields
 
 
@@ -1026,8 +1018,9 @@ def _strategy_draft(context: AgentToolContext, arguments: dict[str, Any]) -> Age
     request = str(arguments.get("request") or context.message or "")
     symbols = normalize_symbols(arguments.get("symbols") or extract_stock_symbols(request), required=False)
     spec = strategy_spec_from_request(request, symbols=symbols)
-    artifacts = _write_strategy_artifacts(context, spec, run_backtest=False)
-    return ok("策略草稿已生成。", payload={"spec": spec.to_dict()}, data_names=("策略草稿",), artifacts=tuple(artifacts))
+    draft = strategy_draft_python(spec)
+    payload = {"spec": spec.to_dict(), "draft": draft}
+    return ok(draft, payload=payload, data_names=("策略草稿",))
 
 
 def _backtest(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
@@ -1038,32 +1031,16 @@ def _backtest(context: AgentToolContext, arguments: dict[str, Any]) -> AgentTool
         symbols = normalize_symbols(arguments.get("symbols") or extract_stock_symbols(request), required=False)
         spec = strategy_spec_from_request(request, symbols=symbols)
     result = run_strategy_backtest(spec, settings=context.settings, storage=context.storage, resolver=context.resolver)
-    artifacts = _write_strategy_artifacts(context, result.spec, run_backtest=False)
-    report = save_markdown_artifact(
-        project_root=_project_root(context),
-        session_id=context.session_id,
-        turn_id=context.turn_id or "agent",
-        title="backtest_report",
-        content=format_backtest_report(result),
-        filename="backtest_report.md",
-        report=True,
-        summary="轻量回测报告",
-    )
-    metrics = save_json_artifact(
-        project_root=_project_root(context),
-        session_id=context.session_id,
-        turn_id=context.turn_id or "agent",
-        title="backtest_metrics",
-        payload=result.to_dict(),
-        filename="backtest_metrics.json",
-        summary="轻量回测指标",
-    )
-    artifacts.extend([_artifact_dict(context, report), _artifact_dict(context, metrics)])
+    report_text = format_backtest_report(result)
     return ok(
-        format_backtest_report(result),
-        payload={"backtest": result.to_dict()},
+        report_text,
+        payload={
+            "backtest": result.to_dict(),
+            "spec": result.spec.to_dict(),
+            "strategy_draft": strategy_draft_python(result.spec),
+            "report_text": report_text,
+        },
         data_names=("轻量回测",),
-        artifacts=tuple(artifacts),
     )
 
 
@@ -1087,29 +1064,6 @@ def _write_report(context: AgentToolContext, arguments: dict[str, Any]) -> Agent
     )
     artifact = _artifact_dict(context, report)
     return ok(f"报告已保存: {artifact.get('path')}", payload={"report": artifact}, data_names=("报告",), artifacts=(artifact,))
-
-
-def _write_strategy_artifacts(context: AgentToolContext, spec: Any, *, run_backtest: bool) -> list[dict[str, Any]]:
-    spec_write = save_json_artifact(
-        project_root=_project_root(context),
-        session_id=context.session_id,
-        turn_id=context.turn_id or "agent",
-        title="strategy_spec",
-        payload=spec.to_dict(),
-        filename="strategy_spec.json",
-        summary="受限策略 spec",
-    )
-    draft_write = save_markdown_artifact(
-        project_root=_project_root(context),
-        session_id=context.session_id,
-        turn_id=context.turn_id or "agent",
-        title="strategy_draft.py",
-        content=strategy_draft_python(spec),
-        filename="strategy_draft.py.md",
-        report=False,
-        summary="可读策略草稿，不由 agent 直接执行",
-    )
-    return [_artifact_dict(context, spec_write), _artifact_dict(context, draft_write)]
 
 
 def _artifact_dict(context: AgentToolContext, write: Any) -> dict[str, Any]:

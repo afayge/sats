@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import builtins
 import concurrent.futures
 from dataclasses import dataclass, field
 from typing import Any
@@ -10,7 +11,7 @@ from sats.data.resolver import MarketDataResolver
 
 
 BANNED_CALLS = {"open", "exec", "eval", "compile", "__import__", "input", "breakpoint"}
-BANNED_ATTR_ROOTS = {"os", "sys", "subprocess", "socket", "pathlib", "requests", "urllib", "shutil"}
+BANNED_ATTR_ROOTS = {"os", "sys", "subprocess", "socket", "pathlib", "requests", "urllib", "shutil", "importlib"}
 MARKET_LITERAL_KEYS = {"open", "high", "low", "close", "price", "volume", "vol", "amount", "kline", "quote"}
 
 
@@ -46,6 +47,9 @@ class RestrictedPythonRuntime:
     def _execute(self, compiled: Any, context: dict[str, Any]) -> PythonRunResult:
         intents: list[TradeIntent] = []
 
+        def safe_import(name: str, globals: Any = None, locals: Any = None, fromlist: Any = (), level: int = 0) -> Any:
+            return builtins.__import__(name, globals, locals, fromlist, level)
+
         def emit_trade_intent(**kwargs: Any) -> dict[str, Any]:
             intent = TradeIntent(
                 ts_code=str(kwargs.get("ts_code") or kwargs.get("symbol") or ""),
@@ -79,26 +83,28 @@ class RestrictedPythonRuntime:
                 "str": str,
                 "sum": sum,
                 "tuple": tuple,
+                "__import__": safe_import,
             },
             "resolver": self.resolver,
             "emit_trade_intent": emit_trade_intent,
         }
-        locals_: dict[str, Any] = {}
+        env: dict[str, Any] = dict(safe_globals)
         try:
-            exec(compiled, safe_globals, locals_)
-            if callable(locals_.get("run")):
-                result = locals_["run"]({"resolver": self.resolver, **context})
+            exec(compiled, env, env)
+            if callable(env.get("run")):
+                result = env["run"]({"resolver": self.resolver, **context})
             else:
-                result = locals_.get("RESULT")
+                result = env.get("RESULT")
             return PythonRunResult(status="done", result=result, trade_intents=intents)
         except Exception as exc:
             return PythonRunResult(status="error", error=str(exc), trade_intents=intents)
 
 
 def _validate_tree(tree: ast.AST) -> None:
+    dangerous_import_aliases = _dangerous_import_aliases(tree)
+    if "*" in dangerous_import_aliases:
+        raise ValueError(f"restricted Python forbids {dangerous_import_aliases['*']} access")
     for node in ast.walk(tree):
-        if isinstance(node, (ast.Import, ast.ImportFrom)):
-            raise ValueError("restricted Python forbids import")
         if isinstance(node, ast.Call):
             name = _call_name(node.func)
             if name in BANNED_CALLS:
@@ -106,10 +112,31 @@ def _validate_tree(tree: ast.AST) -> None:
             root = name.split(".", 1)[0]
             if root in BANNED_ATTR_ROOTS:
                 raise ValueError(f"restricted Python forbids {root} access")
+            if root in dangerous_import_aliases:
+                raise ValueError(f"restricted Python forbids {dangerous_import_aliases[root]} access")
         if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
             raise ValueError("restricted Python forbids dunder attribute access")
         if isinstance(node, ast.Dict):
             _validate_market_literal_dict(node)
+
+
+def _dangerous_import_aliases(tree: ast.AST) -> dict[str, str]:
+    aliases: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                root = str(alias.name or "").split(".", 1)[0]
+                if root in BANNED_ATTR_ROOTS:
+                    aliases[str(alias.asname or root)] = root
+        elif isinstance(node, ast.ImportFrom):
+            root = str(node.module or "").split(".", 1)[0]
+            if root in BANNED_ATTR_ROOTS:
+                for alias in node.names:
+                    if alias.name == "*":
+                        aliases["*"] = root
+                    else:
+                        aliases[str(alias.asname or alias.name)] = root
+    return aliases
 
 
 def _validate_market_literal_dict(node: ast.Dict) -> None:
