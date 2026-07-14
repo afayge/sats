@@ -353,6 +353,30 @@ class TushareDataProvider(MarketDataProvider):
         data.attrs["data_source"] = "tushare_index_daily"
         return data
 
+    def load_market_daily_snapshot(self, trade_date: str) -> pd.DataFrame:
+        """Load one complete A-share daily snapshot for breadth aggregation."""
+        if self.pro is None:
+            return pd.DataFrame()
+        try:
+            frame = self._call_tushare_with_retry(
+                lambda: _call_pro(
+                    self.pro,
+                    "daily",
+                    trade_date=str(trade_date),
+                    fields="ts_code,trade_date,close,pct_chg,vol,amount",
+                ),
+                operation="daily:market_breadth",
+            )
+        except Exception:
+            return pd.DataFrame()
+        if frame is None or frame.empty:
+            return pd.DataFrame()
+        data = frame.copy()
+        data["ts_code"] = data["ts_code"].astype(str).map(normalize_ts_code)
+        data = data[data["ts_code"].astype(str).str.endswith((".SH", ".SZ", ".BJ"))]
+        data.attrs["data_source"] = "tushare_daily_market_snapshot"
+        return data.reset_index(drop=True)
+
     def load_limit_sentiment(self, trade_date: str, storage: DuckDBStorage | None = None) -> dict[str, Any]:
         counts = {"U": 0, "D": 0, "Z": 0}
         missing_fields: list[str] = []

@@ -174,7 +174,8 @@ WEB_SEARCH_CACHE_TTL_SECONDS=43200
 SOCIAL_HOT_CACHE_TTL_SECONDS=300
 WEB_SEARCH_MAX_RESULTS=10
 WEB_SEARCH_BACKEND=auto
-WEB_SEARCH_PROVIDERS=ddgs,bing
+WEB_SEARCH_PROVIDERS=anysearch,ddgs,bing
+ANYSEARCH_API_KEY=
 WEB_PAGE_CACHE_TTL_SECONDS=86400
 WEB_RESPONSES_BASE_URL=
 WEB_RESPONSES_API_KEY=
@@ -405,6 +406,7 @@ sats> /trace
 | `chat` | 配置好的自然语言入口，默认 Codex-style 工具循环 conversation |
 | `agent` | 显式 Agent 任务入口 |
 | `threads` | 管理 conversation 对话线程 |
+| `repair` | 查看失败诊断并生成受控源码修复提案 |
 | `model` | 查看和切换模型 profile |
 | `memory` | 管理聊天长期记忆 |
 | `history` | 查询 REPL 交互历史 |
@@ -678,6 +680,33 @@ sats chat --trace turn_xxxxxxxx
 - `--plan-only` 在 `sats chat` 中进入 Plan mode：只输出目标、判断、建议步骤、测试/验收和假设，不生成可自动执行的工具步骤，也不调用写库、命令、报告或交易工具。
 - `--dry-run` 会跳过高风险副作用；筛选股票分析工作流可用于预览候选、模式和执行计划。
 
+#### 受控自诊断与修复
+
+所有注册 Agent 工具统一返回 `failure` 和 `recovery_attempts` envelope。SATS 会自动处理安全、确定性的运行时恢复：协议格式归一化、参数规范化、只读瞬态超时/连接重试、catalog 数据接口回退，以及 `analysis.python_program` 的受限代码修订。带副作用的命令、写库、审批和交易动作不会自动重放。
+
+```bash
+sats repair list
+sats repair list --turn turn_xxxxxxxx
+sats repair show repair_xxxxxxxx
+sats repair show fail_xxxxxxxx
+sats repair run --turn turn_xxxxxxxx
+sats chat --confirm act_xxxxxxxx
+sats chat --reject act_xxxxxxxx
+```
+
+REPL 对应入口为 `/repairs`、`/repair [TURN_ID]`、`/confirm ACTION_ID` 和 `/reject ACTION_ID`。源码补丁只有在失败定位到本仓库 Python 文件、运行时恢复耗尽、补丁通过临时隔离工作区中的 `git apply --check`、编译和目标 unittest 后才会形成待确认动作；确认时还会校验目标文件 SHA256。真实验证失败会尝试立即反向应用补丁。
+
+配置项：
+
+```dotenv
+SATS_SELF_REPAIR_MODE=propose        # off | runtime | propose
+SATS_SELF_REPAIR_MAX_ATTEMPTS=2
+SATS_SELF_REPAIR_TIMEOUT_SECONDS=120
+SATS_SELF_REPAIR_TEST_TIMEOUT_SECONDS=300
+```
+
+`propose` 是默认模式。它允许自动生成经过隔离验证的 `.patch` 和诊断 JSON，但不允许无确认修改真实源码、安装依赖、提交/推送代码、扩大权限或执行交易。
+
 #### `model`
 
 - 用途：查看、连通性检查和切换模型 profile。
@@ -821,7 +850,7 @@ sats factor ml predict --model-run factor_ml_xxxxxxxx --trade-date 20260514 --to
 #### `web`
 
 - 用途：引入只读的公开网络证据，不替代 SATS 自己的行情与财务数据。
-- 子命令：`search`、`open`、`cache clear`、`hot`、`mentions`
+- 子命令：`search`、`domains`、`batch`、`open`、`cache clear`、`hot`、`mentions`
 
 `search` 支持：
 
@@ -829,12 +858,16 @@ sats factor ml predict --model-run factor_ml_xxxxxxxx --trade-date 20260514 --to
 - `--trusted-domains`
 - `--freshness`，可选 `d/w/m/y`
 - `--context-size`，可选 `auto/medium/high`
-- `--providers`，例如 `ddgs,bing,tavily`
+- `--providers`，例如 `anysearch,ddgs,bing,tavily`
+- `--domain`、`--sub-domain`、`--sub-domain-params`：AnySearch 垂直领域、子域与必填参数；垂直搜索前可用 `web domains` 发现能力。
 
 ```bash
 sats web search 贵州茅台 最新公告 --limit 5
 sats web search 贵州茅台 最新公告 --trusted-domains sse.com.cn,cninfo.com.cn --freshness w
 sats web search "全面对比近期半导体政策" --context-size high --providers ddgs,bing
+sats web domains --domain finance
+sats web batch --query "OpenAI Responses API" --query "DuckDB Python API"
+sats web search AAPL --domain finance --sub-domain finance.quote --sub-domain-params type=stock,symbol=AAPL,cn_code=
 sats web open https://www.sse.com.cn/ --query 公告
 sats web cache clear --expired-only
 ```
@@ -844,7 +877,8 @@ sats web cache clear --expired-only
 - `WEB_SEARCH_BACKEND=auto` 或 `rag`：使用 SATS 原生 RAG 管线，不依赖 Responses API。
 - `WEB_SEARCH_BACKEND=responses`：显式使用官方 OpenAI 或自托管 open-responses 兼容端点；失败后降级原生 RAG。
 - `WEB_SEARCH_BACKEND=ddgs`：只使用 DDGS。
-- `WEB_SEARCH_PROVIDERS=ddgs,bing`：原生 RAG 并发搜索源；可显式加入 `tavily`、`bocha`、`querit`。
+- `WEB_SEARCH_PROVIDERS=anysearch,ddgs,bing`：默认并发搜索并用加权 RRF 融合；AnySearch 权重为其他 provider 的 2 倍，可显式加入 `tavily`、`bocha`、`querit`。
+- `ANYSEARCH_API_KEY`：可选；未配置时使用匿名访问。不要在命令参数或聊天消息中传递密钥。
 - `WEB_TAVILY_API_KEY`、`WEB_BOCHA_API_KEY`、`WEB_QUERIT_API_KEY`：只有提供方被列入 `WEB_SEARCH_PROVIDERS` 时才使用。
 - `WEB_EMBEDDING_PROVIDER=auto`：远程 embedding 配置完整时启用 OpenAI-compatible `/v1/embeddings`；否则明确降级关键词检索。
 - `WEB_EMBEDDING_PROVIDER=fastembed`：使用可选本地模型，需先执行 `../.venv/bin/pip install -e ".[web-rag]"`。
@@ -1125,10 +1159,12 @@ sats serve --host 127.0.0.1 --port 8000
 | 实时行情 / quote | TickFlow 当日日 K | 使用当日 `1d` K 提取实时价格和盘中累计 OHLCV，并通过本地历史日线补齐昨收和涨跌幅 |
 | 日线 / 分钟 K | TickFlow 优先 | 分析、监控、回测、缠论、信号 |
 | `daily_basic` | Tushare | 换手率、流通市值、估值等 |
-| 财务、资金流、股票列表 | Tushare | 基本面与股票基础资料 |
+| 财务、资金流、股票列表 | Tushare | 基本面与股票基础资料；北向资金缺失时回退 AkShare 沪深港通接口 |
 | 板块热点、涨跌停情绪 | Tushare | 市场情绪与热点上下文 |
-| 市场宽度 / AkShare 数据字典 | AkShare 可选 | TickFlow/Tushare 未覆盖时的补充目录与只读取数，不作为主行情优先来源 |
-| 公开网页与热榜 | `ddgs` / 公开平台接口 | 只读证据，不替代结构化市场数据 |
+| 市场宽度 | Tushare / TickFlow / AkShare / DuckDB | 收盘或历史日期使用全市场日线，盘中使用实时行情，失败后逐级回退 |
+| 市场新闻与公告催化 | Tushare / AkShare | 输出有界的 `catalysts.news` 与 `catalysts.announcements`；单一来源无权限不等于整体缺失 |
+| AkShare 数据字典 | AkShare 可选 | Tushare 未覆盖或无权限时的补充目录与只读取数 |
+| 公开网页与热榜 | AnySearch + `ddgs` / 公开平台接口 | 只读证据，不替代结构化市场数据 |
 
 AkShare 以“数据字典 + 白名单取数”的方式接入自然语言能力：Agent 会先查看 `data.list_provider_capabilities`，普通 A 股 quote/K 线/分钟 K 仍优先使用 TickFlow，Tushare 白名单继续走 Tushare；只有用户明确要求 AkShare，或需要宏观、行业、期货、期权、债券、基金等补充数据时，才会通过 `data.list_akshare_datasets` / `data.describe_akshare_dataset` / `data.get_akshare_data` 按需调用。AkShare 未安装时返回 `akshare:unavailable`，不会影响 SATS 主流程。
 

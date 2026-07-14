@@ -27,6 +27,12 @@ from prompt_toolkit.utils import get_cwidth
 from sats import __version__
 from sats.agent import AgentExecutionPolicy
 from sats.agent.progress import agent_progress_event_sink
+from sats.agent.source_repair import (
+    SOURCE_REPAIR_ACTION_TYPE,
+    confirm_source_repair,
+    propose_source_repair_for_turn,
+    reject_source_repair,
+)
 from sats.chat import ChatResult, ChatSession, format_chat_result, render_chat_result
 from sats.natural_output import build_output_semantic_lexicon, print_text_output_for_tty, render_natural_output
 from sats.chat_reference import build_chat_reference_context
@@ -82,10 +88,11 @@ CLI_COMMANDS = [
     "portfolio",
     "catalog",
     "threads",
+    "repair",
     "serve",
 ]
 
-BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "answer", "trace", "plan", "engine"]
+BUILTIN_COMMANDS = ["help", "exit", "quit", "clear", "save", "new", "confirm", "reject", "answer", "trace", "plan", "engine", "repairs"]
 INTERRUPT_MESSAGE = "已中断当前执行，返回 sats>。"
 OBSOLETE_GOAL_MESSAGE = "OBSOLETE: /goal 已停用，请直接使用自然语言或 /chat ..."
 OBSOLETE_AGENT_ENTRY_MESSAGE = "OBSOLETE: /agent 已停用，请直接使用自然语言或 /chat ..."
@@ -100,6 +107,8 @@ HELP_COMMANDS = [
     ("/reject", "取消待执行动作"),
     ("/answer", "回答澄清问题并继续"),
     ("/trace", "查看对话 turn trace"),
+    ("/repairs", "查看源码修复提案"),
+    ("/repair", "为失败 turn 生成修复提案"),
     ("/plan", "进入 Plan mode（只规划，不执行）"),
     ("/engine", "切换自然语言引擎"),
     ("/clear", "清屏"),
@@ -174,6 +183,8 @@ HELP_EXAMPLES = [
     ("/new 茅台估值复盘", "开启新的多轮对话"),
     ("/chat 写一个5日/20日均线策略并回测000001", "生成待确认 runtime 动作"),
     ("/web search 贵州茅台 最新公告 --limit 5", "公开网络搜索"),
+    ("/web domains --domain finance", "发现 AnySearch 金融垂直子域"),
+    ("/web batch --query OpenAI --query DuckDB", "并行搜索多个公开问题"),
     ("/web open https://example.com --query 关键事实", "抓取并检索指定网页"),
     ("/web cache clear --expired-only", "清理过期网页索引"),
     ("/web hot --platforms weibo,zhihu --limit 20", "社交热榜"),
@@ -183,6 +194,8 @@ HELP_EXAMPLES = [
     ("/plan 用 price_volume_ma 筛选并对筛选股票制定明天交易计划", "Plan mode 只规划不执行"),
     ("/confirm act_xxxxxxxx", "确认 runtime 动作"),
     ("/trace", "查看最近一次对话 trace"),
+    ("/repairs", "查看源码修复提案"),
+    ("/repair turn_xxxxxxxx", "为失败 turn 生成隔离验证补丁提案"),
     ("/watchlist", "编辑关注列表"),
     ("/watchlist add --stocks 000001.SZ,600519.SH", "批量关注股票"),
     ("/watchlist clear", "清空关注列表"),
@@ -342,6 +355,11 @@ COMPLETION_DESCRIPTIONS = {
     "--freshness": "搜索新鲜度",
     "--context-size": "原生 RAG 搜索上下文深度",
     "--providers": "搜索提供方列表",
+    "--domain": "AnySearch 垂直领域",
+    "--domains": "AnySearch 垂直领域列表",
+    "--sub-domain": "AnySearch 垂直子域",
+    "--sub-domain-params": "AnySearch 垂直子域参数",
+    "--queries": "批量搜索 JSON 或文件",
     "--platforms": "社交平台列表，支持 xueqiu/xueqiu_stock/xueqiu_spot",
     "--keyword": "关键词",
     "--hot-sector-days": "热点板块天数",
@@ -447,6 +465,8 @@ COMPLETION_DESCRIPTIONS = {
     "show": "查看详情",
     "clear": "清空记录",
     "search": "搜索记录",
+    "domains": "发现 AnySearch 垂直子域",
+    "batch": "批量网络搜索",
     "open": "打开公开网页",
     "cache": "网页索引缓存",
     "hot": "社交热榜",
@@ -1238,6 +1258,28 @@ def handle_repl_line(
                 started_at=started_at,
             )
             return True
+        if command in {"repairs", "repair"}:
+            output, status = _handle_repair_builtin(
+                command,
+                argv[1:],
+                current_session=_active_chat_session(chat_session, state),
+                state=state,
+            )
+            printer(output)
+            _remember_output(state, output, request=text, source=f"/{command}")
+            _record_interaction_history(
+                ReplExecutionRecord(
+                    kind="command",
+                    request=text,
+                    source=f"/{command}",
+                    output=output,
+                    status=status,
+                    session_id=state.session_id,
+                ),
+                state=state,
+                started_at=started_at,
+            )
+            return True
         if command == "save":
             _handle_save_command(argv[1:], state=state, printer=printer)
             return True
@@ -1482,6 +1524,7 @@ def _handle_chat(
     if type(session) is not ChatSession:
         active_engine = "legacy"
     session_id = _record_session_id(session, state)
+    conversation_status = "done"
     progress = create_progress(request=chat_message)
     try:
         settings = getattr(session, "settings", None) or load_settings()
@@ -1503,6 +1546,7 @@ def _handle_chat(
                 reference_context=reference_context,
             )
             _update_pending_clarification_state(state, conversation_result)
+            conversation_status = str(getattr(conversation_result, "status", "done") or "done")
             result = _chat_result_from_conversation(conversation_result)
         else:
             if isinstance(session, ChatSession):
@@ -1534,13 +1578,17 @@ def _handle_chat(
         )
     finally:
         progress.close()
-    output = format_chat_result(result)
-    _print_chat_result(
-        result,
-        printer=printer,
-        formatted_printer=formatted_printer,
-        db_path=getattr(settings, "db_path", None),
-    )
+    if conversation_status == "error":
+        output = _conversation_error_text(result.content)
+        printer(output)
+    else:
+        output = format_chat_result(result)
+        _print_chat_result(
+            result,
+            printer=printer,
+            formatted_printer=formatted_printer,
+            db_path=getattr(settings, "db_path", None),
+        )
     source = "conversation" if active_engine == "conversation" else "chat"
     captured = _remember_output(state, output, request=chat_message, source=source)
     if save_request is not None:
@@ -1550,7 +1598,7 @@ def _handle_chat(
         request=chat_message,
         source=source,
         output=output,
-        status="done",
+        status=conversation_status,
         report_path=str(captured.report_path or ""),
         session_id=session_id,
     )
@@ -1584,21 +1632,26 @@ def _handle_clarification_answer(
     finally:
         progress.close()
     _update_pending_clarification_state(state, result)
+    conversation_status = str(getattr(result, "status", "done") or "done")
     chat_result = _chat_result_from_conversation(result)
-    output = format_chat_result(chat_result)
-    _print_chat_result(
-        chat_result,
-        printer=printer,
-        formatted_printer=formatted_printer,
-        db_path=getattr(settings, "db_path", None),
-    )
+    if conversation_status == "error":
+        output = _conversation_error_text(chat_result.content)
+        printer(output)
+    else:
+        output = format_chat_result(chat_result)
+        _print_chat_result(
+            chat_result,
+            printer=printer,
+            formatted_printer=formatted_printer,
+            db_path=getattr(settings, "db_path", None),
+        )
     captured = _remember_output(state, output, request=answer, source="clarification")
     return ReplExecutionRecord(
         kind="chat",
         request=answer,
         source="clarification",
         output=output,
-        status="done",
+        status=conversation_status,
         report_path=str(captured.report_path or ""),
         session_id=session_id,
     )
@@ -1635,6 +1688,9 @@ def _handle_answer_builtin(
     finally:
         progress.close()
     _update_pending_clarification_state(state, result)
+    status = str(getattr(result, "status", "done") or "done")
+    if status == "error":
+        return _conversation_error_text(getattr(result, "content", "")), "error"
     return format_chat_result(_chat_result_from_conversation(result)), "done"
 
 
@@ -1693,16 +1749,54 @@ def _handle_runtime_builtin(
         if command == "confirm" and action and str(action.get("action_type") or "") == "conversation_tool":
             result = confirm_pending_conversation_action(action_id, settings=settings, store=store)
             return format_chat_result(_chat_result_from_conversation(result)), "done"
+        if command == "confirm" and action and str(action.get("action_type") or "") == SOURCE_REPAIR_ACTION_TYPE:
+            result = confirm_source_repair(action_id, settings=settings, store=store)
+            return f"源码修复已应用并通过验证: {result.get('repair_id')}", "done"
         if command == "reject" and action and str(action.get("action_type") or "") in {"conversation_tool", "conversation_clarification"}:
             result = reject_pending_conversation_action(action_id, settings=settings, store=store)
             if str(action.get("action_type") or "") == "conversation_clarification" and action_id == state.pending_clarification_id:
                 _clear_pending_clarification(state)
             return format_chat_result(_chat_result_from_conversation(result)), "done"
+        if command == "reject" and action and str(action.get("action_type") or "") == SOURCE_REPAIR_ACTION_TYPE:
+            result = reject_source_repair(action_id, settings=settings, store=store)
+            return f"已拒绝源码修复提案: {result.get('repair_id')}", "done"
         if command == "confirm":
             result = confirm_pending_runtime_action(action_id, settings=settings, store=store)
         else:
             result = reject_pending_runtime_action(action_id, settings=settings, store=store)
         return format_chat_result(_chat_result_from_runtime(result)), "done"
+    except Exception as exc:
+        return f"错误: {exc}", "error"
+
+
+def _handle_repair_builtin(
+    command: str,
+    args: list[str],
+    *,
+    current_session: object | None,
+    state: ReplState,
+) -> tuple[str, str]:
+    try:
+        settings = getattr(current_session, "settings", None) or load_settings()
+        store = ChatMemoryStore(settings.db_path)
+        if command == "repairs":
+            repairs = store.list_agent_repairs(limit=20)
+            if not repairs:
+                return "无源码修复记录。", "done"
+            lines = []
+            for item in repairs:
+                action = f" action={item['pending_action_id']}" if item.get("pending_action_id") else ""
+                lines.append(f"{item['repair_id']} [{item['status']}] turn={item['turn_id']}{action}")
+            return "\n".join(lines), "done"
+        turn_id = str(args[0] if args else "").strip() or store.latest_chat_turn_id(state.session_id)
+        if not turn_id:
+            return "错误: /repair [TURN_ID]，当前没有可用 turn。", "error"
+        repair = propose_source_repair_for_turn(turn_id, settings=settings, store=store)
+        return (
+            f"已生成源码修复提案 {repair.get('repair_id')}，"
+            f"确认动作 {repair.get('pending_action_id')}，补丁 {repair.get('patch_path')}",
+            "done",
+        )
     except Exception as exc:
         return f"错误: {exc}", "error"
 
@@ -1733,6 +1827,11 @@ def _chat_result_from_conversation(result: object) -> ChatResult:
         turn_id=getattr(result, "turn_id", None),
         session_id=str(getattr(result, "session_id", "") or ""),
     )
+
+
+def _conversation_error_text(content: str) -> str:
+    clean = str(content or "").strip()
+    return f"错误: {clean or 'conversation 未产生有效输出'}"
 
 
 def _print_chat_result(

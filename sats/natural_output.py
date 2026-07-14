@@ -46,6 +46,7 @@ DATE_PATTERNS = (
 CODE_PATTERN = re.compile(r"\b\d{6}\.(?:SZ|SH|BJ)\b", re.IGNORECASE)
 PERCENT_PATTERN = re.compile(r"[+-]?\d[\d,]*(?:\.\d+)?%")
 NUMBER_PATTERN = re.compile(r"[+-]?\d[\d,]*(?:\.\d+)?")
+BOLD_PATTERN = re.compile(r"\*\*(.+?)\*\*")
 
 
 @dataclass(frozen=True, slots=True)
@@ -844,7 +845,13 @@ def _is_separator_row(row: list[str]) -> bool:
 
 
 def _should_collapse_table(header: list[str], body: list[list[str]], width: int) -> bool:
-    widths = [max(get_cwidth(header[index]), max((get_cwidth(row[index]) for row in body if index < len(row)), default=0)) for index in range(len(header))]
+    widths = [
+        max(
+            _display_width(header[index]),
+            max((_display_width(row[index]) for row in body if index < len(row)), default=0),
+        )
+        for index in range(len(header))
+    ]
     total = sum(widths) + max(0, len(widths) - 1) * 3
     return width < 72 or total > max(24, width - 4)
 
@@ -855,11 +862,11 @@ def _render_aligned_table(
     *,
     semantic_lexicon: OutputSemanticLexicon | None,
 ) -> list[tuple[str, str]]:
-    widths = [get_cwidth(item) for item in header]
+    widths = [_display_width(item) for item in header]
     for row in body:
         for index, cell in enumerate(row):
             if index < len(widths):
-                widths[index] = max(widths[index], get_cwidth(cell))
+                widths[index] = max(widths[index], _display_width(cell))
     header_line = " | ".join(_pad_display(header[index], widths[index]) for index in range(len(header)))
     separator = "-+-".join("-" * widths[index] for index in range(len(widths)))
     fragments: list[tuple[str, str]] = [
@@ -899,7 +906,7 @@ def _render_collapsed_table(
         for index, title in enumerate(header):
             value = row[index] if index < len(row) else "数据缺失"
             prefix = "- " if index == 0 else "  "
-            fragments.extend([(label_style, f"{prefix}{title}: ")])
+            fragments.extend([(label_style, f"{prefix}{_visible_markdown_text(title)}: ")])
             fragments.extend(
                 _render_text_fragments(
                     value,
@@ -915,7 +922,7 @@ def _render_collapsed_table(
 
 def _pad_display(text: str, width: int) -> str:
     value = str(text or "")
-    padding = max(0, width - get_cwidth(value))
+    padding = max(0, width - _display_width(value))
     return value + (" " * padding)
 
 
@@ -928,12 +935,79 @@ def _render_text_fragments(
 ) -> list[tuple[str, str]]:
     if not text:
         return []
+    fragments: list[tuple[str, str]] = []
+    position = 0
+    for match in BOLD_PATTERN.finditer(text):
+        prefix = text[position : match.start()]
+        if prefix:
+            fragments.extend(
+                _render_plain_text_fragments(
+                    prefix,
+                    base_style=base_style,
+                    semantic_lexicon=semantic_lexicon,
+                    semantic_enabled=semantic_enabled,
+                )
+            )
+        fragments.extend(
+            _render_plain_text_fragments(
+                match.group(1),
+                base_style=_append_style(base_style, "bold"),
+                semantic_lexicon=semantic_lexicon,
+                semantic_enabled=semantic_enabled,
+            )
+        )
+        position = match.end()
+    suffix = text[position:]
+    if suffix:
+        fragments.extend(
+            _render_plain_text_fragments(
+                suffix,
+                base_style=base_style,
+                semantic_lexicon=semantic_lexicon,
+                semantic_enabled=semantic_enabled,
+            )
+        )
+    if fragments:
+        return fragments
+    return _render_plain_text_fragments(
+        text,
+        base_style=base_style,
+        semantic_lexicon=semantic_lexicon,
+        semantic_enabled=semantic_enabled,
+    )
+
+
+def _render_plain_text_fragments(
+    text: str,
+    *,
+    base_style: str,
+    semantic_lexicon: OutputSemanticLexicon | None,
+    semantic_enabled: bool,
+) -> list[tuple[str, str]]:
+    if not text:
+        return []
     if not semantic_enabled or semantic_lexicon is None:
         return [(base_style, text)]
     fragments: list[tuple[str, str]] = []
     for token in tokenize_semantic_text(text, semantic_lexicon):
         fragments.append((_semantic_style(token.kind, base_style), token.text))
     return fragments
+
+
+def _visible_markdown_text(text: str) -> str:
+    return BOLD_PATTERN.sub(lambda match: str(match.group(1) or ""), str(text or ""))
+
+
+def _display_width(text: str) -> int:
+    return get_cwidth(_visible_markdown_text(text))
+
+
+def _append_style(base_style: str, extra_style: str) -> str:
+    parts = [part for part in str(base_style or "").split() if part]
+    for part in str(extra_style or "").split():
+        if part and part not in parts:
+            parts.append(part)
+    return " ".join(parts)
 
 
 def _semantic_style(kind: str, base_style: str) -> str:

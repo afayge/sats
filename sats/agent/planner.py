@@ -187,7 +187,9 @@ def _planner_messages(
                 "只有需要 TickFlow/Tushare 未覆盖的数据，或用户明确要求 AkShare/数据字典接口时，才用 AkShare catalog 工具。"
                 "AkShare 必须先通过 data.astock_catalog、data.list_akshare_datasets 或 data.describe_akshare_dataset 确认 dataset，"
                 "再用 data.astock_fetch 或 data.get_akshare_data 取数；不要编造 AkShare 函数名。"
-                "需要公开网页、最新报道、公告线索、社交热榜、社媒舆情或主题发酵证据时，使用 web.search / web.open / web.social_hot / web.hot_mentions；"
+                "需要公开网页、最新报道、公告线索、技术文档、事实核验、社交热榜、社媒舆情或主题发酵证据时，主动使用 web.search / web.open / web.social_hot / web.hot_mentions；"
+                "明确垂直领域问题先调用 web.get_sub_domains，再按返回的 sub_domain 与必填参数调用 web.search；多个独立问题或跨领域研究使用 web.batch_search；"
+                "AnySearch 及其他网页来源只作为不可信公开证据，不能替代 A 股行情、K线、资金流、财务或结构化公告数据；"
                 "web 工具只提供公开网络证据，不能替代行情、K线、资金流或财务数据。"
                 f"当前日期是 {today}（Asia/Shanghai）。"
                 f"日期字段禁止输出 today、yesterday、current 等自然语言值；昨天/yesterday 必须写成 {yesterday}，今天/today/current 必须写成 {today}。"
@@ -206,7 +208,7 @@ def _planner_messages(
                 "个股问题 -> research.stock_context + research.internal_analysis(kind=indicators)；"
                 "深度个股研究、估值、DCF、投委会或首次覆盖 -> research.deep_stock_analysis；"
                 "大盘问题 -> research.market_context；"
-                "research.market_context 的 dimensions 只使用 core_indices、market_breadth、limit_sentiment、hot_sectors；"
+                "research.market_context 的 dimensions 只使用 core_indices、market_breadth、limit_sentiment、hot_sectors、fund_flow、catalysts；"
                 "Serenity、供应链卡位/卡脖子/瓶颈筛选，或 AI 科技主题选股 -> research.serenity_screen；"
                 "概念板块/行业板块本身的涨跌幅、跌幅、涨幅、排行、Top/Bottom -> research.sector_return_ranking；"
                 "主题相关股票列表、概念股有哪些、列出相关股票或简单信息 -> research.theme_stock_list；"
@@ -1223,6 +1225,20 @@ def _web_steps(text: str) -> list[AgentStep]:
                 side_effect="readonly",
             )
         ]
+    batch_queries = _fallback_web_batch_queries(text)
+    if len(batch_queries) > 1:
+        return [
+            _tool_step(
+                "web_batch_search",
+                "web.batch_search",
+                "并行搜索多个公开问题",
+                {
+                    "queries": [{"query": item, "max_results": _web_limit(text, default=5)} for item in batch_queries],
+                    "context_size": _web_context_size(text),
+                },
+                side_effect="readonly",
+            )
+        ]
     return [
         _tool_step(
             "web_search",
@@ -1570,11 +1586,11 @@ def _is_sector_return_ranking_request(text: str) -> bool:
     if any(term in value for term in ("相关股票", "相关个股", "相关a股", "概念股", "股票池", "个股")):
         return False
     has_sector_subject = any(term in value for term in ("概念板块", "行业板块", "板块", "行业", "概念指数", "板块指数"))
-    has_period = any(term in value for term in ("一年", "半年", "近年", "过去", "最近", "近")) or bool(
-        re.search(r"[0-9一二两三四五六七八九十]+(个)?(月|年|周|天|日)", value)
+    has_period = any(term in value for term in ("今天", "今日", "当天", "当日", "一年", "半年", "近年", "过去", "最近", "近")) or bool(
+        re.search(r"[0-9一二两三四五六七八九十]+(个)?(交易日|月|年|周|天|日)", value)
     )
-    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "上涨", "下跌", "涨得", "跌得", "收益", "表现"))
-    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "最多", "最少", "最好", "最差", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌"))
+    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "上涨", "下跌", "涨得", "跌得", "收益", "表现", "热点", "热门", "强势"))
+    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "最多", "最少", "最好", "最差", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌", "列表", "列出"))
     return has_sector_subject and has_period and has_metric and has_ranking
 
 
@@ -1598,23 +1614,29 @@ def _sector_ranking_direction(text: str) -> str:
         return "bottom"
     if _is_hot_sector_lookup_request(text):
         return "top"
-    if any(term in value for term in ("涨幅最大", "涨幅最高", "上涨最多", "涨得最多", "涨最多", "领涨", "最强", "最好", "表现最好")):
+    if any(term in value for term in ("涨幅最大", "涨幅最高", "上涨最多", "涨得最多", "涨最多", "领涨", "最强", "最好", "表现最好", "热点", "热门", "强势")):
         return "top"
     return "bottom"
 
 
 def _sector_ranking_period(text: str) -> str:
     value = str(text or "")
+    trading_day_match = re.search(r"(?:过去|最近|近)?\s*([0-9一二两三四五六七八九十]+)\s*(个)?\s*交易日", value)
+    if trading_day_match:
+        amount = _chinese_number_value(trading_day_match.group(1))
+        return f"{amount}d" if amount else ""
     if "半年" in value:
         return "6m"
     if "一年" in value or "1年" in value or "近年" in value:
         return "1y"
     match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", value)
-    if not match:
-        return "1y"
-    amount = _chinese_number_value(match.group(1))
-    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
-    return f"{amount}{suffix}" if amount else "1y"
+    if match:
+        amount = _chinese_number_value(match.group(1))
+        suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+        return f"{amount}{suffix}" if amount else "1y"
+    if any(term in value for term in ("今天", "今日", "当天", "当日")):
+        return "1d"
+    return "1y"
 
 
 def _sector_ranking_limit(text: str) -> int:
@@ -1622,6 +1644,8 @@ def _sector_ranking_limit(text: str) -> int:
     match = re.search(r"(?:top|前)\s*(\d{1,3})", value, flags=re.IGNORECASE)
     if not match:
         match = re.search(r"(\d{1,3})\s*个?(?:板块|行业|概念)", value)
+    if not match:
+        match = re.search(r"(?:给出|列出)?\s*(\d{1,3})\s*个?列表", value)
     if not match:
         return 10
     return max(1, min(50, int(match.group(1))))
@@ -1821,6 +1845,21 @@ def _needs_web_search(text: str) -> bool:
     if any(term in text for term in public_info):
         return True
     return any(term in text for term in today_with_info) and any(term in text for term in ("新闻", "公告", "消息", "热搜", "热榜"))
+
+
+def _fallback_web_batch_queries(text: str) -> list[str]:
+    value = str(text or "").strip()
+    if not any(term in value for term in ("分别", "多个问题", "批量", "batch")):
+        return []
+    parts = [item.strip(" ，,。") for item in re.split(r"[；;\n]+", value) if item.strip(" ，,。")]
+    if len(parts) < 2:
+        return []
+    prefixes = ("请分别搜索", "分别搜索", "请分别查询", "分别查询", "批量搜索", "批量查询")
+    for prefix in prefixes:
+        if parts[0].startswith(prefix):
+            parts[0] = parts[0][len(prefix) :].strip()
+            break
+    return [item for item in parts if item][:5]
 
 
 def _needs_social_hot(text: str) -> bool:

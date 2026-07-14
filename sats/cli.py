@@ -21,6 +21,12 @@ from prompt_toolkit.utils import get_cwidth
 
 from sats.agent import AgentExecutionPolicy
 from sats.agent.progress import agent_progress_event_sink
+from sats.agent.source_repair import (
+    SOURCE_REPAIR_ACTION_TYPE,
+    confirm_source_repair,
+    propose_source_repair_for_turn,
+    reject_source_repair,
+)
 from sats.analysis.chan_llm_review import DEFAULT_CHAN_RULE_NAME, run_chan_llm_review
 from sats.analysis.daily_stock_analysis import run_daily_stock_analysis_for_symbols, run_screened_stock_analysis
 from sats.analysis.dsa_native import run_dsa_analysis
@@ -132,7 +138,9 @@ from sats.trading.monitor_provider import AutoTradeConfig, QmtTradingProvider
 from sats.trading.qmt_bridge import QmtBridgeConfig, run_bridge
 from sats.trading.sync import QmtPositionSyncError, QmtPositionSyncService
 from sats.web import hot_mentions as web_hot_mentions
+from sats.web import batch_search as web_batch_search
 from sats.web import clear_web_cache
+from sats.web import get_sub_domains as web_get_sub_domains
 from sats.web import open_page as web_open_page
 from sats.web import search as web_search
 from sats.web import social_hot as web_social_hot
@@ -429,6 +437,16 @@ def build_parser() -> argparse.ArgumentParser:
     threads_rename.add_argument("session_id", help="Thread/session id")
     threads_rename.add_argument("title", nargs=argparse.REMAINDER, help="New title")
 
+    repair = sub.add_parser("repair", help="Inspect and propose controlled SATS repairs")
+    repair_sub = repair.add_subparsers(dest="repair_command")
+    repair_list = repair_sub.add_parser("list", help="List source repair attempts")
+    repair_list.add_argument("--turn", default="", help="Optional chat turn id")
+    repair_list.add_argument("--limit", type=int, default=20, help="Maximum repair attempts")
+    repair_show = repair_sub.add_parser("show", help="Show one repair or failure")
+    repair_show.add_argument("identifier", help="repair_id or failure_id")
+    repair_run = repair_sub.add_parser("run", help="Generate an isolated source repair proposal")
+    repair_run.add_argument("--turn", required=True, help="Chat turn id with an eligible failure")
+
     web = sub.add_parser("web", help="Search public web and social hot lists")
     web_sub = web.add_subparsers(dest="web_command")
     web_search_parser = web_sub.add_parser("search", help="Search public web snippets")
@@ -442,8 +460,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Native RAG search context depth",
     )
     web_search_parser.add_argument("--providers", default="", help="Comma-separated search providers, e.g. ddgs,bing,tavily")
+    web_search_parser.add_argument("--domain", default="", help="AnySearch vertical domain")
+    web_search_parser.add_argument("--sub-domain", default="", help="AnySearch vertical sub-domain")
+    web_search_parser.add_argument("--sub-domain-params", default="", help="JSON object or comma-separated key=value params")
     web_search_parser.add_argument("--json", action="store_true", help="Print JSON output")
     web_search_parser.add_argument("query", nargs="+", help="Search query")
+    web_domains_parser = web_sub.add_parser("domains", help="Discover AnySearch vertical sub-domains")
+    web_domains_group = web_domains_parser.add_mutually_exclusive_group(required=True)
+    web_domains_group.add_argument("--domain", default="", help="Single AnySearch domain")
+    web_domains_group.add_argument("--domains", default="", help="Comma-separated AnySearch domains, up to five")
+    web_domains_parser.add_argument("--json", action="store_true", help="Print JSON output")
+    web_batch_parser = web_sub.add_parser("batch", help="Run one to five searches in parallel")
+    web_batch_parser.add_argument("--query", dest="batch_queries", action="append", default=[], help="Repeatable search query")
+    web_batch_parser.add_argument("--queries", default="", help="JSON query array or @file.json")
+    web_batch_parser.add_argument("--domain", default="", help="Shared AnySearch vertical domain")
+    web_batch_parser.add_argument("--sub-domain", default="", help="Shared AnySearch vertical sub-domain")
+    web_batch_parser.add_argument("--sub-domain-params", default="", help="Shared JSON or key=value params")
+    web_batch_parser.add_argument("--limit", type=int, default=5, help="Shared maximum results")
+    web_batch_parser.add_argument("--providers", default="", help="Comma-separated provider override")
+    web_batch_parser.add_argument("--context-size", default="auto", choices=["auto", "medium", "high"])
+    web_batch_parser.add_argument("--json", action="store_true", help="Print JSON output")
     web_open_parser = web_sub.add_parser("open", help="Safely fetch and parse a public URL")
     web_open_parser.add_argument("url", help="Public HTTP/HTTPS URL")
     web_open_parser.add_argument("--query", default="", help="Optional query for in-page RAG retrieval")
@@ -956,6 +992,8 @@ def _dispatch_command(args: argparse.Namespace, parser: argparse.ArgumentParser)
         return cmd_chat(args)
     if args.command == "threads":
         return cmd_threads(args)
+    if args.command == "repair":
+        return cmd_repair(args)
     if args.command == "web":
         return cmd_web(args)
     if args.command == "model":
@@ -1705,6 +1743,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
             )
         finally:
             progress.close()
+        if str(getattr(result, "status", "done") or "done") == "error":
+            print(_conversation_error_text(result.content))
+            return 1
         _emit_chat_result(_chat_result_from_conversation(result), db_path=getattr(settings, "db_path", None))
         return 0
     message = " ".join(args.message).strip()
@@ -1730,6 +1771,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
             raise SystemExit(str(exc)) from exc
         finally:
             progress.close()
+        if str(getattr(result, "status", "done") or "done") == "error":
+            print(_conversation_error_text(result.content))
+            return 1
         _emit_chat_result(_chat_result_from_conversation(result), db_path=getattr(settings, "db_path", None))
         return 0
     progress = _progress_for_args(args)
@@ -1794,11 +1838,48 @@ def cmd_threads(args: argparse.Namespace) -> int:
     raise SystemExit("unknown threads command")
 
 
+def cmd_repair(args: argparse.Namespace) -> int:
+    settings = load_settings()
+    store = ChatMemoryStore(settings.db_path)
+    command = str(getattr(args, "repair_command", "") or "")
+    if command == "list":
+        repairs = store.list_agent_repairs(
+            turn_id=str(getattr(args, "turn", "") or ""),
+            limit=int(getattr(args, "limit", 20) or 20),
+        )
+        if not repairs:
+            print("无源码修复记录。")
+            return 0
+        for item in repairs:
+            action = f" action={item['pending_action_id']}" if item.get("pending_action_id") else ""
+            print(f"{item['repair_id']} [{item['status']}] turn={item['turn_id']} failure={item['failure_id']}{action}")
+        return 0
+    if command == "show":
+        identifier = str(getattr(args, "identifier", "") or "").strip()
+        payload = store.get_agent_repair(identifier) if identifier.startswith("repair_") else store.get_agent_failure(identifier)
+        if payload is None:
+            raise SystemExit(f"未找到修复或失败记录: {identifier}")
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        return 0
+    if command == "run":
+        try:
+            payload = propose_source_repair_for_turn(
+                str(getattr(args, "turn", "") or ""),
+                settings=settings,
+                store=store,
+            )
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        return 0
+    raise SystemExit("repair requires subcommand: list, show or run --turn TURN_ID")
+
+
 def cmd_web(args: argparse.Namespace) -> int:
     settings = load_settings()
     command = str(getattr(args, "web_command", "") or "")
     if not command:
-        raise SystemExit("web requires subcommand: search, open, cache, hot or mentions")
+        raise SystemExit("web requires subcommand: search, domains, batch, open, cache, hot or mentions")
     if command == "search":
         query = " ".join(getattr(args, "query", ()) or ()).strip()
         if not query:
@@ -1810,7 +1891,33 @@ def cmd_web(args: argparse.Namespace) -> int:
             freshness=str(getattr(args, "freshness", "") or ""),
             context_size=str(getattr(args, "context_size", "auto") or "auto"),
             providers=_parse_optional_csv(getattr(args, "providers", "")) or None,
+            domain=str(getattr(args, "domain", "") or ""),
+            sub_domain=str(getattr(args, "sub_domain", "") or ""),
+            sub_domain_params=str(getattr(args, "sub_domain_params", "") or ""),
             settings=settings,
+        )
+    elif command == "domains":
+        payload = web_get_sub_domains(
+            _parse_optional_csv(getattr(args, "domains", "") or getattr(args, "domain", "")),
+            settings=settings,
+        )
+    elif command == "batch":
+        queries = _parse_web_batch_queries(args)
+        shared = {
+            "domain": str(getattr(args, "domain", "") or ""),
+            "sub_domain": str(getattr(args, "sub_domain", "") or ""),
+            "sub_domain_params": str(getattr(args, "sub_domain_params", "") or ""),
+            "max_results": int(getattr(args, "limit", 5) or 5),
+        }
+        for item in queries:
+            for key, value in shared.items():
+                if value not in ("", {}) and key not in item:
+                    item[key] = value
+        payload = web_batch_search(
+            queries,
+            settings=settings,
+            providers=_parse_optional_csv(getattr(args, "providers", "")) or None,
+            context_size=str(getattr(args, "context_size", "auto") or "auto"),
         )
     elif command == "open":
         payload = web_open_page(
@@ -1898,6 +2005,17 @@ def format_web_result(payload: dict, *, command: str) -> str:
         if not payload.get("results"):
             lines.append("无搜索结果。")
         return "\n".join(lines)
+    if command == "domains":
+        if payload.get("status") == "error":
+            return f"AnySearch domains error: {payload.get('error') or 'request failed'}"
+        return str(payload.get("raw_markdown") or "").strip() or "No AnySearch sub-domains returned."
+    if command == "batch":
+        lines = [f"Web Batch: {payload.get('succeeded', 0)} succeeded, {payload.get('failed', 0)} failed"]
+        for index, item in enumerate(payload.get("results") or [], start=1):
+            lines.extend(["", f"## Query {index}", format_web_result(item, command="search")])
+        if payload.get("status") == "error" and payload.get("error"):
+            lines.append(f"错误: {payload.get('error')}")
+        return "\n".join(lines)
     if command == "open":
         lines = [
             f"Web Page: {payload.get('title') or payload.get('url') or ''}",
@@ -1972,6 +2090,11 @@ def _chat_result_from_conversation(conversation_result) -> ChatResult:
     )
 
 
+def _conversation_error_text(content: str) -> str:
+    clean = str(content or "").strip()
+    return f"错误: {clean or 'conversation 未产生有效输出'}"
+
+
 def _should_prompt_cli_clarification(conversation_result) -> bool:
     if not bool(getattr(conversation_result, "requires_clarification", False)):
         return False
@@ -2007,6 +2130,9 @@ def _confirm_chat_action(action_id: str, *, settings) -> ChatResult:
     action = store.get_pending_action(action_id)
     if action and str(action.get("action_type") or "") == "conversation_tool":
         return _chat_result_from_conversation(confirm_pending_conversation_action(action_id, settings=settings, store=store))
+    if action and str(action.get("action_type") or "") == SOURCE_REPAIR_ACTION_TYPE:
+        payload = confirm_source_repair(action_id, settings=settings, store=store)
+        return ChatResult(content=f"源码修复已应用并通过验证: {payload.get('repair_id')}", data_names=("源码修复",))
     return _chat_result_from_runtime(confirm_pending_runtime_action(action_id, settings=settings, store=store))
 
 
@@ -2015,6 +2141,9 @@ def _reject_chat_action(action_id: str, *, settings) -> ChatResult:
     action = store.get_pending_action(action_id)
     if action and str(action.get("action_type") or "") in {"conversation_tool", "conversation_clarification"}:
         return _chat_result_from_conversation(reject_pending_conversation_action(action_id, settings=settings, store=store))
+    if action and str(action.get("action_type") or "") == SOURCE_REPAIR_ACTION_TYPE:
+        payload = reject_source_repair(action_id, settings=settings, store=store)
+        return ChatResult(content=f"已拒绝源码修复提案: {payload.get('repair_id')}")
     return _chat_result_from_runtime(reject_pending_runtime_action(action_id, settings=settings, store=store))
 
 
@@ -4054,6 +4183,39 @@ def _parse_csv(value: str) -> list[str]:
 
 def _parse_optional_csv(value: str) -> list[str]:
     return [item.strip() for item in str(value or "").split(",") if item.strip()]
+
+
+def _parse_web_batch_queries(args: argparse.Namespace) -> list[dict[str, Any]]:
+    repeated = [str(item).strip() for item in getattr(args, "batch_queries", []) or [] if str(item).strip()]
+    raw = str(getattr(args, "queries", "") or "").strip()
+    if repeated and raw:
+        raise SystemExit("web batch accepts either --query or --queries, not both")
+    if repeated:
+        rows: Any = [{"query": item} for item in repeated]
+    elif raw:
+        if raw.startswith("@"):
+            path = Path(raw[1:]).expanduser()
+            try:
+                raw = path.read_text(encoding="utf-8")
+            except OSError as exc:
+                raise SystemExit(f"could not read batch query file: {path}") from exc
+        try:
+            rows = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise SystemExit("--queries must be a JSON array or @file.json") from exc
+    else:
+        raise SystemExit("web batch requires --query or --queries")
+    if not isinstance(rows, list) or not 1 <= len(rows) <= 5:
+        raise SystemExit("web batch accepts 1 to 5 query items")
+    result = []
+    for item in rows:
+        if isinstance(item, str):
+            result.append({"query": item})
+        elif isinstance(item, dict):
+            result.append(dict(item))
+        else:
+            raise SystemExit("each batch query must be a string or object")
+    return result
 
 
 def _parse_tags(value: str) -> list[str]:

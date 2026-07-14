@@ -1,6 +1,6 @@
 # SATS 开发者架构说明
 
-最后更新：2026-05-28
+最后更新：2026-07-10
 
 本文档面向 SATS 的维护和二次开发，说明当前仓库中的主要架构、模块职责、数据流和扩展边界。它不替代 `README.md` 的安装和用户命令手册，也不定义尚未实现的新功能。
 
@@ -35,6 +35,8 @@ flowchart TD
   API["sats/api/app.py\nFastAPI"]
 
   Conversation["sats/conversation/runtime.py\nCodex-style conversation loop"]
+  Recovery["sats/agent/recovery.py\n失败分类 / 有界恢复"]
+  SourceRepair["sats/agent/source_repair.py\n隔离补丁提案 / 人工确认"]
   LegacyChat["sats/chat.py\nlegacy ChatSession"]
   ChatContext["chat_reference.py\n上文引用"]
   Skills["sats/skills.py\nskills/*"]
@@ -71,6 +73,9 @@ flowchart TD
   Conversation --> LLM
   Conversation --> Analysis
   Conversation --> WebRAG
+  Conversation --> Recovery
+  Recovery --> SourceRepair
+  SourceRepair --> Storage
   LegacyChat --> Skills
   LegacyChat --> LLM
 
@@ -140,6 +145,8 @@ flowchart TD
 | `sats/llm/` | LLM provider 抽象、OpenAI-compatible 调用、JSON 提取等工具。 |
 | `sats/web/` | 原生网络 RAG：DDGS/Bing/可选 API 搜索源、安全抓取、HTML/PDF 正文提取、独立网页索引、混合召回、重排和引用。 |
 | `sats/conversation/runtime.py` | 默认自然语言 runtime：模型逐轮选择 `call_tool`、澄清、确认或最终回答；runtime 执行注册工具、权限门控、trace 和 observation 回填。 |
+| `sats/agent/recovery.py` | 公共失败模型、结构化 traceback、脱敏、稳定指纹、错误分类和只读瞬态重试策略。 |
+| `sats/agent/source_repair.py` | 本地源码缺陷的受限补丁提案、临时工作区验证、SHA256 防并发修改、确认应用和失败回滚。 |
 | `sats/chat.py` | legacy `ChatSession` 编排：预处理、取数、skills、工具调用、LLM 分析、记忆；通过 `sats chat --engine legacy` 显式使用。 |
 | `sats/chat_preprocessor.py` | 自然语言任务预处理，抽取意图、股票代码/名称、数据需求和 skill hints。 |
 | `sats/chat_planner.py` | legacy/internal 聊天计划器，保留给旧 `ChatSession` 路径；不属于默认 conversation 执行链路。 |
@@ -156,12 +163,28 @@ flowchart TD
 `sats web search` 默认走不依赖 Responses API 的原生管线：
 
 1. 轻量模型按搜索深度生成最多 2/3 个查询，失败时保留原查询。
-2. DDGS、Bing 和显式配置的 Tavily/BoCha/Querit 并发搜索并用 RRF 合并。
+2. AnySearch、DDGS、Bing 和显式配置的 Tavily/BoCha/Querit 并发搜索；多查询通过 AnySearch batch 接口合并发送，并用 AnySearch 2 倍权重的 RRF 去重排序。
 3. URL 经过协议、域名、DNS 和公网地址检查后抓取；重定向目标会重新验证。
 4. HTML/PDF 正文写入独立的 `web_documents`、`web_chunks`、`web_chunk_embeddings`，不污染人工知识库。
 5. 关键词与可选 embedding 向量召回融合，轻量模型可选重排并生成 `[S#]` 引用答案。
 
 `responses` 仅是显式兼容后端；调用失败会降级原生 RAG。行情、K 线、资金流和财务数据仍必须通过 `AStockDataProvider`。
+
+AnySearch 还提供 `web.get_sub_domains`、`web.batch_search` 和 `web.open` 的垂直目录、批量搜索与 HTML 提取能力。默认 conversation Planner 可按最新公开信息、垂直领域、多问题和显式 URL 自动选择这些工具；AnySearch 内容始终是不可信公开证据，A 股结构化数据不会经由该服务获取。
+
+### 受控自诊断与源码修复
+
+工具注册表是恢复 orchestrator 的统一入口。执行失败后，runtime 使用 `TracebackException(capture_locals=False)` 保存异常链和 ExceptionGroup，只持久化仓库内栈帧，并对路径、token、API key、Authorization 等信息脱敏。`AgentFailure` 的指纹由类别、工具、异常类型、末端仓库栈帧和归一化消息组成，用于跨 turn 去重。
+
+恢复边界如下：
+
+- 只读工具的 timeout、connection 和 rate-limit 类故障可在统一 deadline 内重试；有副作用工具不自动重放。
+- 协议、参数和数据接口错误只做确定性归一化、已有证据综合或 catalog 回退。
+- `analysis.python_program` 的修订代码必须再次通过 RestrictedPythonRuntime 的 AST、动态执行和行情字面量守卫。
+- 权限、依赖安装、审批和交易错误只能解释并请求授权。
+- 数据缺失按部分回答处理，不升级为源码缺陷。
+
+源码提案只处理带仓库内栈帧且恢复耗尽的 `local_code_defect`。模型输出受严格 JSON 和 unified diff 契约约束；路径限制为 `sats/**/*.py` 与 `tests/test_*.py`，最多三个文件和 300 个增删行。补丁先复制当前 tracked working-tree 内容到临时目录，再执行 apply check、AST/py_compile、目标 unittest 和 diff check。验证通过后只创建 `source_repair` pending action；真实应用必须由 `/confirm` 或 `sats chat --confirm` 触发，并在应用前核对目标 SHA256。该流程不安装依赖、不提交或推送代码，也不扩大交易权限。
 
 ## 功能细节
 

@@ -30,10 +30,11 @@ class CapabilityCatalogTest(unittest.TestCase):
         tushare = list_astock_capabilities(provider="tushare", limit=1)
         akshare = list_astock_capabilities(provider="akshare", limit=1)
         tickflow = list_astock_capabilities(provider="tickflow", limit=100)
+        astock = list_astock_capabilities(provider="astock", limit=100)
 
         self.assertEqual(tushare["total"], len(list_tushare_datasets(include_deprecated=True)))
         self.assertEqual(akshare["total"], len(list_akshare_datasets()))
-        self.assertEqual(all_rows["total"], tushare["total"] + akshare["total"] + tickflow["total"] + 31)
+        self.assertEqual(all_rows["total"], tushare["total"] + akshare["total"] + tickflow["total"] + astock["total"])
 
         public_tickflow = {
             name

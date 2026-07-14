@@ -16,11 +16,14 @@ from sats.agent import AgentExecutionPolicy, AgentObservation, AgentPlan, AgentS
 from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.date_policy import normalize_agent_date, resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.planner import build_agent_plan
+from sats.agent.planner_v2 import _is_sector_return_ranking_text, _sector_ranking_period_text
 from sats.agent.runtime import _execute_step
 from sats.agent.python_runtime import RestrictedPythonRuntime
+from sats.agent.recovery import failure_from_message
 from sats.agent.synthesis import collect_agent_sources, save_agent_report, synthesize_agent_result, _evidence_digest
 from sats.agent.tools import AgentToolContext, AgentToolRegistry, AgentToolResult, AgentToolSpec, build_default_tool_registry
 from sats.agent.tools.command_tools import RECURSIVE_SATS_COMMANDS, SATS_COMMANDS
+from sats.agent.tools.research_tools import _sector_period_from_text
 from sats.agent.trading import AgentTradingExecutor
 from sats.analysis.dsa_native import DsaAnalysisRanking, DsaAnalysisRunResult, DsaStockAnalysis
 from sats.backtesting.service import BacktestResult
@@ -240,10 +243,11 @@ def _large_market_observation() -> AgentObservation:
     market_context = {
         "trade_date": "20260630",
         "requested_horizons": ["tomorrow"],
-        "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"],
+        "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow"],
         "indices": indices,
         "market_breadth": {"summary": "宽度偏强", "huge": "b" * 80_000},
         "limit_sentiment": {"summary": "情绪回暖", "huge": "l" * 60_000},
+        "fund_flow": {"market": {"net_amount": -1000000000.0}, "sector_top": [{"name": "算力概念", "net_amount": 500000000.0}], "sector_bottom": [{"name": "银行", "net_amount": -300000000.0}]},
         "hot_sector_context": {"sectors": sectors, "huge": "h" * 120_000},
         "hot_sectors": sectors,
         "data_sources": {"source": "duckdb_cache", "huge": "d" * 50_000},
@@ -456,7 +460,7 @@ class AgentTest(unittest.TestCase):
                         "payload": {
                             "market_context": {
                                 "trade_date": "20260605",
-                                "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"],
+                                "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow"],
                                 "indices": [
                                     {
                                         "ts_code": "000001.SH",
@@ -485,6 +489,7 @@ class AgentTest(unittest.TestCase):
                                 ],
                                 "market_breadth": {"advancing_count": 3276, "declining_count": 2114},
                                 "limit_sentiment": {"emotion_stage": "冰点", "limit_up_count": 116, "limit_down_count": 23},
+                                "fund_flow": {"market": {"net_amount": -1000000000.0}, "sector_top": [{"name": "算力概念", "net_amount": 500000000.0}], "sector_bottom": [{"name": "银行", "net_amount": -300000000.0}]},
                                 "hot_sector_context": {
                                     "hot_industries": [{"name": "电力", "sector_type": "industry", "latest_pct_chg": 1.2, "heat_score": 8.0}],
                                     "hot_concepts": [{"name": "AI算力", "sector_type": "concept", "latest_pct_chg": 2.0, "heat_score": 15.0}],
@@ -860,6 +865,8 @@ class AgentTest(unittest.TestCase):
         self.assertIn("399001.SZ", market_context)
         self.assertIn("399006.SZ", market_context)
         self.assertIn("hot_sector_context", market_context)
+        self.assertIn("fund_flow", market_context)
+        self.assertIn("资金流", market_context)
         self.assertIn("电力", market_context)
         self.assertIn("AI算力", market_context)
         self.assertIn("不得把盘中累计成交额直接与前一交易日全天成交额比较", market_context)
@@ -1237,6 +1244,8 @@ class AgentTest(unittest.TestCase):
         self.assertIn("# A股大盘走势研究报告", result.content)
         self.assertIn("399001.SZ", result.content)
         self.assertIn("399006.SZ", result.content)
+        self.assertIn("## 资金流", result.content)
+        self.assertIn("算力概念", result.content)
         self.assertIn("电力", result.content)
         self.assertIn("AI算力", result.content)
         self.assertNotIn("核心指数数据缺失", result.content)
@@ -1654,7 +1663,7 @@ class AgentTest(unittest.TestCase):
         self.assertNotIn("factor.pick", tools)
         self.assertNotIn("chat.answer", tools)
         market_step = next(step for step in plan.steps if step.tool_name == "research.market_context")
-        self.assertEqual(market_step.arguments["dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
+        self.assertEqual(market_step.arguments["dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"])
 
     def test_fallback_planner_adds_chan_context_for_chan_requests(self) -> None:
         registry = build_default_tool_registry()
@@ -1802,7 +1811,7 @@ class AgentTest(unittest.TestCase):
         )
         market_step = next(step for step in plan.steps if step.tool_name == "research.market_context")
 
-        self.assertEqual(market_step.arguments["dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
+        self.assertEqual(market_step.arguments["dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"])
 
     def test_llm_market_plan_normalizes_legacy_dimensions_and_keeps_unknown_visible(self) -> None:
         class LegacyMarketDimensionsLLM:
@@ -1830,7 +1839,7 @@ class AgentTest(unittest.TestCase):
 
         self.assertEqual(
             market_step.arguments["dimensions"],
-            ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow"],
+            ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"],
         )
 
     def test_fallback_planner_factor_pick_does_not_add_analyze_signals(self) -> None:
@@ -2131,6 +2140,46 @@ class AgentTest(unittest.TestCase):
                 self.assertEqual(tool_steps[0].arguments["period"], "1y")
                 self.assertEqual(tool_steps[0].arguments["direction"], direction)
                 self.assertEqual(tool_steps[0].arguments["limit"], 10)
+
+    def test_planner_routes_today_sector_decline_ranking_to_single_day(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan(
+            "今天 最大跌幅板块",
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+        )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.sector_return_ranking"])
+        self.assertEqual(tool_steps[0].arguments["period"], "1d")
+        self.assertEqual(tool_steps[0].arguments["direction"], "bottom")
+        self.assertEqual(tool_steps[0].arguments["limit"], 10)
+        self.assertTrue(_is_sector_return_ranking_text("今天 最大跌幅板块"))
+        self.assertEqual(_sector_ranking_period_text("今天 最大跌幅板块"), "1d")
+
+    def test_planner_and_tool_parse_recent_trading_day_sector_period(self) -> None:
+        registry = build_default_tool_registry()
+        settings = SimpleNamespace(openai_model="m", llm_timeout_seconds=10)
+
+        plan = build_agent_plan(
+            "近5个交易日的热点板块，给出20个列表",
+            settings=settings,
+            policy=AgentExecutionPolicy(),
+            llm_factory=None,
+            tool_registry=registry,
+        )
+
+        tool_steps = [step for step in plan.steps if step.kind == "tool"]
+        self.assertEqual([step.tool_name for step in tool_steps], ["research.sector_return_ranking"])
+        self.assertEqual(tool_steps[0].arguments["period"], "5d")
+        self.assertEqual(tool_steps[0].arguments["direction"], "top")
+        self.assertEqual(tool_steps[0].arguments["limit"], 20)
+        self.assertEqual(_sector_period_from_text("近5个交易日热点板块"), "5d")
+        self.assertEqual(_sector_ranking_period_text("最近5个交易日板块涨幅排行"), "5d")
 
     def test_planner_routes_industry_sector_gain_ranking(self) -> None:
         registry = build_default_tool_registry()
@@ -2467,6 +2516,74 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(payload["ranking"][0]["pct_change"], -20.0)
         self.assertEqual(payload["coverage"]["computed_count"], 3)
 
+    def test_sector_return_ranking_today_uses_single_day_pct_change(self) -> None:
+        registry = build_default_tool_registry()
+
+        class Provider:
+            def __init__(self) -> None:
+                self.daily_params = []
+
+            def fetch_tushare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                params = params or {}
+                if dataset == "ths_index":
+                    return {
+                        "dataset": dataset,
+                        "rows": [
+                            {"ts_code": "885001.TI", "name": "AI算力"},
+                            {"ts_code": "885002.TI", "name": "低空经济"},
+                            {"ts_code": "885003.TI", "name": "机器人"},
+                        ],
+                        "data_source": "fake_ths_index",
+                        "missing_fields": [],
+                    }
+                self.daily_params.append(dict(params))
+                pct_changes = {"885001.TI": -1.2, "885002.TI": -3.4, "885003.TI": 0.5}
+                closes = {"885001.TI": 100.0, "885002.TI": 200.0, "885003.TI": 300.0}
+                return {
+                    "dataset": dataset,
+                    "rows": [
+                        {
+                            "ts_code": params["ts_code"],
+                            "trade_date": "20260701",
+                            "close": closes[params["ts_code"]],
+                            "pct_change": pct_changes[params["ts_code"]],
+                        }
+                    ],
+                    "data_source": "fake_ths_daily",
+                    "missing_fields": [],
+                }
+
+        context = AgentToolContext(
+            settings=SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb")),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            message="今天 最大跌幅板块",
+        )
+        provider = Provider()
+
+        with patch("sats.agent.tools.research_tools.AStockDataProvider", return_value=provider):
+            result = registry.execute(
+                "research.sector_return_ranking",
+                {"query": context.message, "period": "1y", "direction": "bottom", "trade_date": "20260702", "limit": 2},
+                context,
+            )
+
+        payload = result.payload["sector_return_ranking"]
+        self.assertEqual(result.status, "done")
+        self.assertEqual(payload["period"], "1d")
+        self.assertEqual(payload["requested_trade_date"], "20260702")
+        self.assertEqual(payload["actual_trade_date"], "20260701")
+        self.assertEqual(payload["start_date"], "20260701")
+        self.assertEqual(payload["lookup_start_date"], "20260618")
+        self.assertTrue(all(params["start_date"] == "20260618" for params in provider.daily_params))
+        self.assertEqual([item["sector_code"] for item in payload["ranking"]], ["885002.TI", "885001.TI"])
+        self.assertEqual(payload["ranking"][0]["pct_change"], -3.4)
+        self.assertEqual(payload["ranking"][0]["sample_days"], 1)
+        self.assertEqual(payload["ranking"][0]["start_trade_date"], "20260701")
+
     def test_analysis_python_program_executes_readonly_resolver_allows_imports_and_rejects_dangerous_calls(self) -> None:
         registry = build_default_tool_registry()
 
@@ -2540,6 +2657,7 @@ class AgentTest(unittest.TestCase):
         bad_os = registry.execute("analysis.python_program", {"task": "坏程序", "code": "import os\nRESULT = os.system('echo hi')"}, context)
         bad_from_os = registry.execute("analysis.python_program", {"task": "坏程序", "code": "from os import system\nRESULT = system('echo hi')"}, context)
         bad_star_os = registry.execute("analysis.python_program", {"task": "坏程序", "code": "from os import *\nRESULT = 1"}, context)
+        bad_top_context = registry.execute("analysis.python_program", {"task": "坏程序", "code": "rows = context.get('observations')\nRESULT = {'rows': rows}"}, context)
 
         self.assertEqual(ok.status, "done")
         self.assertEqual(ok.payload["python_program"]["rows"][0]["ts_code"], "000001")
@@ -2562,6 +2680,8 @@ class AgentTest(unittest.TestCase):
         self.assertIn("forbids os access", bad_from_os.payload["python_program"]["error"])
         self.assertEqual(bad_star_os.status, "error")
         self.assertIn("forbids os access", bad_star_os.payload["python_program"]["error"])
+        self.assertEqual(bad_top_context.status, "error")
+        self.assertIn("def run(context)", bad_top_context.payload["python_program"]["error"])
 
     def test_hot_sector_fallback_program_ranks_candidates_from_existing_tools(self) -> None:
         registry = build_default_tool_registry()
@@ -2795,6 +2915,152 @@ class AgentTest(unittest.TestCase):
         self.assertIn("AI算力", result.content)
         self.assertIn("-20.0", result.content)
         self.assertNotIn("主题股票池或区间涨跌幅数据缺失", result.content)
+
+    def test_synthesis_formats_single_day_sector_ranking_rows(self) -> None:
+        payload = {
+            "status": "ok",
+            "sector_return_ranking": {
+                "query": "今天 最大跌幅板块",
+                "source": "ths",
+                "sector_type": "concept",
+                "period": "1d",
+                "direction": "bottom",
+                "requested_trade_date": "20260702",
+                "actual_trade_date": "20260701",
+                "ranking": [
+                    {
+                        "rank": 1,
+                        "sector_code": "885002.TI",
+                        "name": "低空经济",
+                        "trade_date": "20260701",
+                        "close": 200.0,
+                        "pct_change": -3.4,
+                        "sample_days": 1,
+                        "data_source": "fake_ths_daily",
+                    }
+                ],
+                "coverage": {"sector_count": 1, "computed_count": 1, "returned_count": 1, "missing_count": 0},
+            },
+        }
+        observation = AgentObservation(
+            step_id="sector_return_ranking",
+            kind="tool",
+            status="done",
+            content=json.dumps(payload, ensure_ascii=False),
+            payload={
+                "tool_name": "research.sector_return_ranking",
+                "arguments": {"query": "今天 最大跌幅板块"},
+                "result": {"payload": payload, "data_names": ["sector_return_ranking"]},
+                "data_names": ["sector_return_ranking"],
+            },
+        )
+        plan = AgentPlan(objective="今天 最大跌幅板块")
+
+        result = synthesize_agent_result(
+            message=plan.objective,
+            plan=plan,
+            observations=(observation,),
+            skills=(),
+            settings=SimpleNamespace(openai_model="m"),
+            llm_factory=None,
+        )
+
+        self.assertIn("板块当日涨跌幅排行表", result.content)
+        self.assertIn("当日涨跌幅", result.content)
+        self.assertIn("低空经济", result.content)
+        self.assertNotIn("区间涨跌幅", result.content)
+
+    def test_synthesis_uses_latest_nonempty_sector_ranking_despite_errors(self) -> None:
+        empty_payload = {
+            "status": "ok",
+            "sector_return_ranking": {
+                "query": "近5个交易日热点板块",
+                "source": "em",
+                "sector_type": "concept",
+                "period": "近5个交易日",
+                "direction": "top",
+                "ranking": [],
+                "coverage": {"sector_count": 1000, "computed_count": 0, "returned_count": 0, "missing_count": 1000},
+            },
+        }
+        latest_payload = {
+            "status": "ok",
+            "sector_return_ranking": {
+                "query": "近5个交易日热点板块",
+                "source": "em",
+                "sector_type": "concept",
+                "period": "5d",
+                "direction": "top",
+                "trade_date": "20260708",
+                "start_date": "20260703",
+                "ranking": [
+                    {
+                        "rank": 1,
+                        "sector_code": "BK1348.DC",
+                        "name": "辅料",
+                        "start_trade_date": "20260703",
+                        "end_trade_date": "20260708",
+                        "start_close": 2760.68,
+                        "end_close": 2946.71,
+                        "pct_change": 6.7386,
+                        "sample_days": 4,
+                        "data_source": "tushare_dc_daily",
+                    }
+                ],
+                "coverage": {"sector_count": 1000, "computed_count": 954, "returned_count": 20, "missing_count": 46},
+                "missing": [{"sector_code": f"BK{i:04d}.DC", "name": f"缺失{i}", "reason": "sector_daily_insufficient"} for i in range(80)],
+            },
+        }
+        observations = (
+            AgentObservation(
+                step_id="loop_1_research_sector_return_ranking",
+                kind="tool",
+                status="done",
+                content=json.dumps(empty_payload, ensure_ascii=False),
+                payload={
+                    "tool_name": "research.sector_return_ranking",
+                    "arguments": {"query": "近5个交易日热点板块", "period": "近5个交易日"},
+                    "result": {"payload": empty_payload, "data_names": ["sector_return_ranking"]},
+                    "data_names": ["sector_return_ranking"],
+                },
+            ),
+            AgentObservation(
+                step_id="loop_2_analysis_python_program",
+                kind="tool",
+                status="error",
+                content="name 'context' is not defined",
+                payload={"tool_name": "analysis.python_program", "arguments": {}, "result": {"payload": {"python_program": {"status": "error"}}}},
+            ),
+            AgentObservation(
+                step_id="loop_3_research_sector_return_ranking",
+                kind="tool",
+                status="done",
+                content=json.dumps(latest_payload, ensure_ascii=False),
+                payload={
+                    "tool_name": "research.sector_return_ranking",
+                    "arguments": {"query": "近5个交易日热点板块", "period": "5d"},
+                    "result": {"payload": latest_payload, "data_names": ["sector_return_ranking"]},
+                    "data_names": ["sector_return_ranking"],
+                },
+            ),
+            AgentObservation(step_id="max_iterations", kind="runtime", status="error", content="conversation loop reached max_iterations=6"),
+        )
+        plan = AgentPlan(objective="近5个交易日的热点板块，给出20个列表")
+
+        result = synthesize_agent_result(
+            message=plan.objective,
+            plan=plan,
+            observations=observations,
+            skills=(),
+            settings=SimpleNamespace(openai_model="m"),
+            llm_factory=None,
+        )
+
+        self.assertIn("板块指数涨跌幅排行表", result.content)
+        self.assertIn("BK1348.DC", result.content)
+        self.assertIn("辅料", result.content)
+        self.assertIn("6.7386", result.content)
+        self.assertNotIn("板块指数区间涨跌幅排行数据缺失", result.content)
 
     def test_synthesis_forces_sector_ranking_fallback_even_when_llm_returns_wrong_candidate_answer(self) -> None:
         class WrongSectorLLM:
@@ -3559,16 +3825,72 @@ class AgentTest(unittest.TestCase):
         ok = runtime.run("def run(context):\n    daily = resolver.load_stock_daily(['000001'], start_date='20260518', end_date='20260518')\n    return {'rows': len(daily)}")
         bad = runtime.run("RESULT = {'close': 10.5}")
         imported = runtime.run("import json\nimport math\nRESULT = {'value': json.loads('{\"x\": 4}')['x'], 'root': math.sqrt(9)}")
+        safe_builtins = runtime.run(
+            "def run(context):\n"
+            "    try:\n"
+            "        return {'mapping': isinstance(context, dict), 'kind': str(type(context)), "
+            "'has': hasattr(resolver, 'load_stock_daily'), 'method': getattr(resolver, 'load_stock_daily') is not None, "
+            "'reversed': list(reversed([1, 2]))}\n"
+            "    except (Exception, TypeError):\n"
+            "        return {'mapping': False}\n"
+        )
+        protected = runtime.run("def run(context):\n    return getattr(resolver, '__class__')")
         banned = runtime.run("import os\nRESULT = os.system('echo hi')")
 
         self.assertEqual(ok.status, "done")
         self.assertEqual(ok.result["rows"], 1)
         self.assertEqual(imported.status, "done")
         self.assertEqual(imported.result, {"value": 4, "root": 3.0})
+        self.assertEqual(safe_builtins.status, "done")
+        self.assertEqual(safe_builtins.result["reversed"], [2, 1])
+        self.assertTrue(safe_builtins.result["mapping"])
+        self.assertEqual(protected.status, "error")
+        self.assertIn("protected attribute", protected.error)
         self.assertEqual(bad.status, "error")
         self.assertIn("market data literals", bad.error)
         self.assertEqual(banned.status, "error")
         self.assertIn("forbids os access", banned.error)
+
+    def test_tool_registry_preserves_nested_python_failure_and_emits_one_detection(self) -> None:
+        registry = AgentToolRegistry()
+        failure = failure_from_message(
+            "NameError: name 'isinstance' is not defined; missing_fields=[]",
+            project_root=Path("."),
+            stage="python_runtime",
+            tool="analysis.python_program",
+        )
+        registry.register(
+            AgentToolSpec(
+                name="analysis.python_program",
+                description="test",
+                side_effect="readonly",
+                input_schema={"type": "object", "properties": {}, "required": []},
+                executor=lambda context, arguments: AgentToolResult(
+                    status="error",
+                    content="wrapped error with missing_fields",
+                    payload={"python_program": {"failure": failure.to_dict()}},
+                ),
+            )
+        )
+        events: list[tuple[str, dict]] = []
+        context = AgentToolContext(
+            settings=SimpleNamespace(project_root=Path("."), self_repair_mode="off", self_repair_max_attempts=0),
+            storage=SimpleNamespace(),
+            resolver=SimpleNamespace(),
+            policy=AgentExecutionPolicy(),
+            command_runner=SimpleNamespace(),
+            trader=SimpleNamespace(),
+            message="test",
+            event_callback=lambda event_type, payload: events.append((event_type, dict(payload))),
+        )
+
+        result = registry.execute("analysis.python_program", {}, context)
+
+        self.assertEqual(result.payload["failure"]["category"], "python_code_error")
+        self.assertEqual(result.payload["failure"]["failure_id"], failure.failure_id)
+        self.assertEqual([name for name, _payload in events].count("failure_detected"), 1)
+        self.assertEqual([name for name, _payload in events].count("failure_exhausted"), 1)
+        self.assertEqual({payload["failure_id"] for _name, payload in events}, {failure.failure_id})
 
     def test_command_runner_uses_argv_and_guards_trading(self) -> None:
         calls = []

@@ -4,9 +4,11 @@ import ast
 import builtins
 import concurrent.futures
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from sats.agent.models import TradeIntent
+from sats.agent.recovery import capture_exception, failure_from_message
 from sats.data.resolver import MarketDataResolver
 
 
@@ -21,26 +23,43 @@ class PythonRunResult:
     result: Any = None
     trade_intents: list[TradeIntent] = field(default_factory=list)
     error: str = ""
+    failure: dict[str, Any] | None = None
 
 
 class RestrictedPythonRuntime:
-    def __init__(self, *, resolver: MarketDataResolver, timeout_seconds: int = 30) -> None:
+    def __init__(self, *, resolver: MarketDataResolver, timeout_seconds: int = 30, project_root: Path | str = ".") -> None:
         self.resolver = resolver
         self.timeout_seconds = max(1, int(timeout_seconds or 30))
+        self.project_root = Path(project_root).resolve()
 
     def run(self, code: str, *, context: dict[str, Any] | None = None) -> PythonRunResult:
         try:
             tree = ast.parse(str(code or ""), mode="exec")
             _validate_tree(tree)
         except Exception as exc:
-            return PythonRunResult(status="error", error=str(exc))
+            failure = capture_exception(
+                exc,
+                project_root=self.project_root,
+                stage="python_validation",
+                tool="analysis.python_program",
+                category="python_code_error",
+            )
+            return PythonRunResult(status="error", error=failure.message, failure=failure.to_dict())
         pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         future = pool.submit(self._execute, compile(tree, "<sats-agent-python>", "exec"), context or {})
         try:
             return future.result(timeout=self.timeout_seconds)
         except concurrent.futures.TimeoutError:
             future.cancel()
-            return PythonRunResult(status="timeout", error=f"python step timed out after {self.timeout_seconds}s")
+            failure = failure_from_message(
+                f"python step timed out after {self.timeout_seconds}s",
+                project_root=self.project_root,
+                stage="python_runtime",
+                tool="analysis.python_program",
+                exception_type="TimeoutError",
+                category="timeout",
+            )
+            return PythonRunResult(status="timeout", error=failure.message, failure=failure.to_dict())
         finally:
             pool.shutdown(wait=False, cancel_futures=True)
 
@@ -49,6 +68,21 @@ class RestrictedPythonRuntime:
 
         def safe_import(name: str, globals: Any = None, locals: Any = None, fromlist: Any = (), level: int = 0) -> Any:
             return builtins.__import__(name, globals, locals, fromlist, level)
+
+        def safe_getattr(value: Any, name: str, *default: Any) -> Any:
+            clean_name = str(name or "")
+            if clean_name.startswith("_"):
+                raise AttributeError("restricted Python forbids protected attribute access")
+            if default:
+                return getattr(value, clean_name, default[0])
+            return getattr(value, clean_name)
+
+        def safe_hasattr(value: Any, name: str) -> bool:
+            try:
+                safe_getattr(value, name)
+            except AttributeError:
+                return False
+            return True
 
         def emit_trade_intent(**kwargs: Any) -> dict[str, Any]:
             intent = TradeIntent(
@@ -71,18 +105,25 @@ class RestrictedPythonRuntime:
                 "bool": bool,
                 "dict": dict,
                 "enumerate": enumerate,
+                "Exception": Exception,
                 "float": float,
+                "getattr": safe_getattr,
+                "hasattr": safe_hasattr,
                 "int": int,
+                "isinstance": isinstance,
                 "len": len,
                 "list": list,
                 "max": max,
                 "min": min,
                 "range": range,
+                "reversed": reversed,
                 "round": round,
                 "sorted": sorted,
                 "str": str,
                 "sum": sum,
                 "tuple": tuple,
+                "type": type,
+                "TypeError": TypeError,
                 "__import__": safe_import,
             },
             "resolver": self.resolver,
@@ -97,7 +138,19 @@ class RestrictedPythonRuntime:
                 result = env.get("RESULT")
             return PythonRunResult(status="done", result=result, trade_intents=intents)
         except Exception as exc:
-            return PythonRunResult(status="error", error=str(exc), trade_intents=intents)
+            failure = capture_exception(
+                exc,
+                project_root=self.project_root,
+                stage="python_runtime",
+                tool="analysis.python_program",
+                category="python_code_error",
+            )
+            return PythonRunResult(
+                status="error",
+                error=failure.message,
+                trade_intents=intents,
+                failure=failure.to_dict(),
+            )
 
 
 def _validate_tree(tree: ast.AST) -> None:

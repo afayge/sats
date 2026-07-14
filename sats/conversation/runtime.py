@@ -10,9 +10,12 @@ from typing import Any, Callable
 from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.date_policy import agent_today, normalize_agent_date, resolve_agent_time_context, sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy, AgentObservation, AgentPlan, AgentStep
+from sats.agent.recovery import failure_from_message, redact_text
+from sats.agent.source_repair import propose_source_repair_for_turn
 from sats.agent.synthesis import collect_agent_sources, synthesize_agent_result
 from sats.agent.tools import AgentToolContext, AgentToolResult, build_default_tool_registry
 from sats.agent.trading import AgentTradingExecutor
+from sats.analysis.market_llm_context import DEFAULT_MARKET_DIMENSIONS, resolve_market_dimensions_with_warnings
 from sats.chat_events import ChatEventSink, ChatTurnRecorder
 from sats.config import Settings, load_settings
 from sats.data.resolver import MarketDataResolver
@@ -38,8 +41,10 @@ CONVERSATION_RESEARCH_TIME_TOOLS = {
     "research.internal_analysis",
     "research.deep_stock_analysis",
 }
+CHAN_STRUCTURED_REDIRECT_TOOLS = {"data.stock_daily", "analysis.python_program"}
 TODAY_AS_OF_TERMS = ("今天", "今日", "当天", "当日")
 RECENT_AS_OF_TERMS = ("过去几天", "过去几日", "最近几天", "最近几日", "近几天", "近几日", "这几天", "这几日")
+SHORT_TERM_FORECAST_TYPO_TERMS = ("下走走势",)
 CAPABILITY_REQUEST_TERMS = (
     "skill",
     "skills",
@@ -122,6 +127,7 @@ class _ConversationAction:
     question: str = ""
     missing_fields: tuple[str, ...] = ()
     side_effect: str = ""
+    recovered_from: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,6 +135,7 @@ class _LoopOutcome:
     interruption: _PlanInterruption | None = None
     final_content: str = ""
     synthesize_final: bool = False
+    partial: bool = False
     model_policy: str = ""
     model_profile: str = ""
     model_name: str = ""
@@ -155,6 +162,8 @@ class ConversationResult:
     model_policy: str = ""
     model_profile: str = ""
     model_name: str = ""
+    status: str = "done"
+    partial: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -177,6 +186,8 @@ class ConversationResult:
             "model_policy": self.model_policy,
             "model_profile": self.model_profile,
             "model_name": self.model_name,
+            "status": self.status,
+            "partial": self.partial,
         }
 
 
@@ -216,6 +227,7 @@ def run_conversation_once(
             turn_id=recorder.turn_id,
             message=text,
             llm_factory=llm_factory,
+            recorder=recorder,
         )
         registry = build_default_tool_registry()
         run_spec = _conversation_run_spec(text, policy=policy, registry=registry, reference_context=reference_context)
@@ -290,6 +302,8 @@ def run_conversation_once(
                 model_policy=loop.model_policy or "none",
                 model_profile=loop.model_profile,
                 model_name=loop.model_name,
+                status="done",
+                partial=False,
             )
             _complete_turn(recorder, result, started, user_message_id=user_message_id, assistant_message_id=assistant_message_id)
             return result
@@ -333,6 +347,9 @@ def run_conversation_once(
                 raise
             _emit_synthesis_error(recorder, synthesis)
             content = synthesis.content or _fallback_content(observations)
+            is_partial = loop.partial or _is_partial_max_iterations(tuple(observations))
+            if is_partial:
+                content = _partial_completion_notice() + "\n\n" + content
             skill_names = synthesis.skill_names
             model_policy = synthesis.model_policy
             model_profile = synthesis.model_profile
@@ -358,7 +375,28 @@ def run_conversation_once(
                 },
                 duration_seconds=max(0.0, time.monotonic() - synthesis_started),
             )
+        repair = _maybe_propose_source_repair(
+            recorder=recorder,
+            settings=settings,
+            store=store,
+            llm_factory=llm_factory,
+        )
+        if repair:
+            action_id = str(repair.get("pending_action_id") or "")
+            patch_path = str(repair.get("patch_path") or "")
+            artifacts.append(
+                {
+                    "kind": "source_repair_patch",
+                    "title": "SATS source repair proposal",
+                    "path": patch_path,
+                    "repair_id": str(repair.get("repair_id") or ""),
+                    "pending_action_id": action_id,
+                }
+            )
+            data_names.append("源码修复提案")
+            content = content.rstrip() + f"\n\n检测到本地源码缺陷，已生成隔离验证补丁提案；确认动作：{action_id}。"
         user_message_id, assistant_message_id = _persist_messages(store, session_id, text, content)
+        is_partial = loop.partial or _is_partial_max_iterations(tuple(observations))
         result = ConversationResult(
             content=content,
             plan=plan,
@@ -373,12 +411,60 @@ def run_conversation_once(
             model_policy=model_policy,
             model_profile=model_profile,
             model_name=model_name,
+            status=_conversation_completion_status(tuple(observations), partial=is_partial),
+            partial=is_partial,
         )
         _complete_turn(recorder, result, started, user_message_id=user_message_id, assistant_message_id=assistant_message_id)
         return result
     except Exception as exc:
         recorder.fail(exc, duration_seconds=max(0.0, time.monotonic() - started), meta={"phase": "conversation"})
         raise
+
+
+def _maybe_propose_source_repair(
+    *,
+    recorder: ChatTurnRecorder,
+    settings: Settings,
+    store: ChatMemoryStore,
+    llm_factory: Callable[..., Any] | None,
+) -> dict[str, Any] | None:
+    if str(getattr(settings, "self_repair_mode", "propose") or "propose").lower() != "propose":
+        return None
+    failures = store.list_agent_failures(turn_id=recorder.turn_id, limit=20)
+    eligible = any(
+        item.get("category") == "local_code_defect"
+        and item.get("repair_level") == "source_proposal"
+        and item.get("status") == "exhausted"
+        and item.get("frames")
+        for item in failures
+    )
+    if not eligible:
+        return None
+    try:
+        repair = propose_source_repair_for_turn(
+            recorder.turn_id,
+            settings=settings,
+            store=store,
+            llm_factory=llm_factory,
+        )
+    except Exception as exc:
+        recorder.emit(
+            "repair_failed",
+            item_type="source_repair",
+            item_name=recorder.turn_id,
+            status="error",
+            content=str(exc),
+            payload={"turn_id": recorder.turn_id, "error_type": exc.__class__.__name__, "error": str(exc)},
+        )
+        return None
+    recorder.emit(
+        "repair_proposed",
+        item_type="source_repair",
+        item_name=str(repair.get("repair_id") or ""),
+        status="done",
+        payload=repair,
+    )
+    return repair
 
 
 def _conversation_run_spec(
@@ -604,6 +690,7 @@ def _plan_mode_messages(
                 "禁止把计划写成已执行结果；禁止编造行情、价格、K线、财务字段或 provider 数据。"
                 "如果需要真实 A 股数据，计划中必须说明执行阶段应先通过注册 SATS 工具获取；"
                 "不确定 A 股数据接口时，应建议先 data.astock_catalog，再 data.astock_fetch。"
+                "data.astock_fetch 的 rows/data 是有界样本；row_count > returned_row_count 时不能用样本推导全市场结论。"
                 "如果信息不足以形成可执行计划，输出澄清问题，不要编造步骤。"
                 "固定输出 Markdown 结构：# SATS Plan Mode、## 目标、## 当前判断、## 建议步骤、## 测试/验收、## 假设。"
                 "如需澄清，额外包含 ## 需要澄清。"
@@ -784,7 +871,15 @@ def _run_conversation_loop(
                 recorder=recorder,
                 repeated_errors=repeated_errors,
                 iteration=iteration,
+                project_root=getattr(settings, "project_root", "."),
             ):
+                if _recover_terminal_loop_error_with_synthesis(
+                    error,
+                    observations=observations,
+                    recorder=recorder,
+                    iteration=iteration,
+                ):
+                    return _LoopOutcome(final_content=error, synthesize_final=True, **model_meta)
                 return _LoopOutcome(final_content=error, **model_meta)
             continue
 
@@ -797,9 +892,42 @@ def _run_conversation_loop(
                 repeated_errors=repeated_errors,
                 iteration=iteration,
                 raw_content=raw_content,
+                project_root=getattr(settings, "project_root", "."),
             ):
+                if _recover_terminal_loop_error_with_synthesis(
+                    error,
+                    observations=observations,
+                    recorder=recorder,
+                    iteration=iteration,
+                ):
+                    return _LoopOutcome(final_content=error, synthesize_final=True, **model_meta)
                 return _LoopOutcome(final_content=error, **model_meta)
             continue
+
+        if action.recovered_from:
+            recovery_content = "已将仅含回答正文的安全 JSON 归一化为 final_answer。"
+            recovery_payload = {
+                "reason": action.recovered_from,
+                "action": _conversation_action_payload(action),
+                "iteration": iteration,
+            }
+            observations.append(
+                AgentObservation(
+                    step_id=f"loop_{iteration}_action_recovered",
+                    kind="runtime",
+                    status="done",
+                    content=recovery_content,
+                    payload=recovery_payload,
+                )
+            )
+            recorder.emit(
+                "action_recovered",
+                item_type="conversation_action",
+                item_name=iteration_key,
+                status="done",
+                content=recovery_content,
+                payload=recovery_payload,
+            )
 
         recorder.emit(
             "llm_completed",
@@ -883,6 +1011,61 @@ def _run_conversation_loop(
             )
 
         step = _step_from_action(action, iteration=iteration, registry=registry)
+        redirected_step, redirect_content = _chan_structured_redirect(
+            step,
+            message=context.message,
+            observations=tuple(observations),
+            resolved_stock_mentions=resolved_stock_mentions,
+            iteration=iteration,
+        )
+        if redirect_content:
+            observations.append(
+                AgentObservation(
+                    step_id=f"loop_{iteration}_chan_structured_complete",
+                    kind="runtime",
+                    status="done",
+                    content=redirect_content,
+                    payload={"from_tool": step.tool_name, "arguments": step.arguments},
+                )
+            )
+            recorder.emit(
+                "runtime_completed",
+                item_type="conversation_action",
+                item_name=iteration_key,
+                status="done",
+                content=redirect_content,
+                payload={"from_tool": step.tool_name, "arguments": step.arguments, "iteration": iteration},
+            )
+            return _LoopOutcome(final_content=redirect_content, synthesize_final=True, **model_meta)
+        if redirected_step is not None:
+            content = f"缠论个股日线买卖点请求改用结构化工具: {step.tool_name} -> {redirected_step.tool_name}"
+            observations.append(
+                AgentObservation(
+                    step_id=f"loop_{iteration}_chan_structured_redirect",
+                    kind="runtime",
+                    status="done",
+                    content=content,
+                    payload={
+                        "from_tool": step.tool_name,
+                        "to_tool": redirected_step.tool_name,
+                        "arguments": redirected_step.arguments,
+                    },
+                )
+            )
+            recorder.emit(
+                "tool_arguments_normalized",
+                item_type="conversation_tool",
+                item_name=redirected_step.tool_name,
+                status="done",
+                content=content,
+                payload={
+                    "from_tool": step.tool_name,
+                    "to_tool": redirected_step.tool_name,
+                    "arguments": redirected_step.arguments,
+                    "normalization": {"changes": ["redirected chan daily request to structured SATS analysis tools"]},
+                },
+            )
+            step = redirected_step
         if action.action == "request_confirmation":
             interruption = _execute_conversation_tool_step(
                 step,
@@ -898,6 +1081,28 @@ def _run_conversation_loop(
                 return _LoopOutcome(interruption=interruption, **model_meta)
             continue
 
+        normalized_step, normalization_issue, _normalization_meta = _normalize_conversation_tool_step(step, message=context.message)
+        if not normalization_issue and _has_successful_equivalent_tool_observation(normalized_step, tuple(observations)):
+            content = "已有同参数成功工具结果，进入最终合成。"
+            observations.append(
+                AgentObservation(
+                    step_id=f"loop_{iteration}_duplicate_tool_result",
+                    kind="runtime",
+                    status="done",
+                    content=content,
+                    payload={"tool_name": normalized_step.tool_name, "arguments": normalized_step.arguments, "iteration": iteration},
+                )
+            )
+            recorder.emit(
+                "runtime_completed",
+                item_type="conversation_action",
+                item_name=iteration_key,
+                status="done",
+                content=content,
+                payload={"tool_name": normalized_step.tool_name, "arguments": normalized_step.arguments, "iteration": iteration},
+            )
+            return _LoopOutcome(final_content=content, synthesize_final=True, **model_meta)
+
         interruption = _execute_conversation_tool_step(
             step,
             plan=plan,
@@ -912,7 +1117,95 @@ def _run_conversation_loop(
             return _LoopOutcome(interruption=interruption, **model_meta)
 
         if observations and observations[-1].status == "error":
+            fallback_step, fallback_content = _chan_structured_error_fallback(
+                message=context.message,
+                observations=tuple(observations),
+                resolved_stock_mentions=resolved_stock_mentions,
+                iteration=iteration,
+            )
+            if fallback_content:
+                observations.append(
+                    AgentObservation(
+                        step_id=f"loop_{iteration}_chan_rows_count_fallback_complete",
+                        kind="runtime",
+                        status="done",
+                        content=fallback_content,
+                    )
+                )
+                recorder.emit(
+                    "runtime_completed",
+                    item_type="conversation_action",
+                    item_name=iteration_key,
+                    status="done",
+                    content=fallback_content,
+                    payload={"iteration": iteration},
+                )
+                return _LoopOutcome(final_content=fallback_content, synthesize_final=True, **model_meta)
+            if fallback_step is not None:
+                content = "analysis.python_program 误把 data.stock_daily payload['rows'] 行数当作明细列表，已改用结构化缠论分析工具。"
+                observations.append(
+                    AgentObservation(
+                        step_id=f"loop_{iteration}_chan_rows_count_fallback",
+                        kind="runtime",
+                        status="done",
+                        content=content,
+                        payload={"to_tool": fallback_step.tool_name, "arguments": fallback_step.arguments},
+                    )
+                )
+                recorder.emit(
+                    "tool_arguments_normalized",
+                    item_type="conversation_tool",
+                    item_name=fallback_step.tool_name,
+                    status="done",
+                    content=content,
+                    payload={
+                        "to_tool": fallback_step.tool_name,
+                        "arguments": fallback_step.arguments,
+                        "normalization": {"changes": ["recovered stock_daily rows-count iteration error with structured chan analysis"]},
+                    },
+                )
+                interruption = _execute_conversation_tool_step(
+                    fallback_step,
+                    plan=plan,
+                    registry=registry,
+                    context=context,
+                    recorder=recorder,
+                    observations=observations,
+                    artifacts=artifacts,
+                    data_names=data_names,
+                )
+                if interruption is not None:
+                    return _LoopOutcome(interruption=interruption, **model_meta)
+                continue
             signature = _loop_error_signature(observations[-1].content or observations[-1].step_id)
+            failure = _conversation_observation_failure(observations[-1])
+            if (
+                str(observations[-1].payload.get("tool_name") or "") == "analysis.python_program"
+                and str(failure.get("category") or "") == "python_code_error"
+            ):
+                fingerprint = str(failure.get("fingerprint") or signature)
+                repeated_errors[f"failure:{fingerprint}"] = repeated_errors.get(f"failure:{fingerprint}", 0) + 1
+                content = f"受限 Python 分析程序执行失败：{str(failure.get('message') or '代码修订未成功')}"
+                observations.append(
+                    AgentObservation(
+                        step_id="python_program_recovery_exhausted",
+                        kind="runtime",
+                        status="error",
+                        content=content,
+                        payload={"failure": failure, "fingerprint": fingerprint, "equivalent_retry_blocked": True},
+                    )
+                )
+                recorder.emit(
+                    "recovery_completed",
+                    item_type="conversation_tool",
+                    item_name="analysis.python_program",
+                    status="error",
+                    content=content,
+                    payload={"failure": failure, "fingerprint": fingerprint, "equivalent_retry_blocked": True},
+                )
+                if _has_successful_data_observation(tuple(observations)):
+                    return _LoopOutcome(final_content=content, synthesize_final=True, partial=True, **model_meta)
+                return _LoopOutcome(final_content=content, **model_meta)
             repeated_errors[signature] = repeated_errors.get(signature, 0) + 1
             if repeated_errors[signature] >= MAX_INVALID_ACTIONS:
                 content = f"conversation loop stopped after repeated error: {observations[-1].content}"
@@ -921,6 +1214,8 @@ def _run_conversation_loop(
 
     content = f"conversation loop reached max_iterations={max_iterations}"
     observations.append(AgentObservation(step_id="max_iterations", kind="runtime", status="error", content=content))
+    if _has_successful_data_observation(tuple(observations)):
+        return _LoopOutcome(final_content="conversation loop reached max_iterations; 已用现有工具结果生成部分完成回答。", synthesize_final=True, **model_meta)
     return _LoopOutcome(**model_meta)
 
 
@@ -942,8 +1237,10 @@ def _conversation_action_messages(
             "content": (
                 "你是 SATS conversation agent loop。你只能输出一个 JSON 对象，不要输出 Markdown。"
                 "每次只选择一个动作：call_tool、ask_clarification、request_confirmation、final_answer。"
+                "最终回答也必须显式包含 action=final_answer；只输出 {\"content\":\"...\"} 不符合协议。"
                 "所有真实 A 股行情、财务、K线、报价、资金流和 provider 数据必须通过 SATS 注册工具获取；"
                 "不确定 A 股数据接口时，先调用 data.astock_catalog，再调用 data.astock_fetch。"
+                "data.astock_fetch 的 rows/data 是有界样本；row_count > returned_row_count 时只能作为样本展示或接口命中，不能推导全市场涨跌家数、成交额或宽度。"
                 "不要编造股票代码、价格、成交量、K线、财务字段或第三方 provider 方法名。"
                 "普通研究工具只返回数据和证据，不直接写 reports；只有用户明确要求保存/导出时才调用 research.write_report。"
                 "非交易工具（readonly、write_artifact、write_db、long_running、command）可以直接 call_tool；"
@@ -959,7 +1256,8 @@ def _conversation_action_messages(
                 "runtime 会在执行前兜底归一化为 trade_date 或 horizons，明确日期仍优先。"
                 "预测范围继续使用 horizons 的 today/tomorrow/day_after_tomorrow/next_week 枚举，不把 horizons 当作日期字段改写。"
                 "调用 analysis.python_program 时，允许导入已安装模块，但禁止文件、进程、网络和动态执行等危险行为；"
-                "优先使用 resolver、context 和安全 builtins。"
+                "必须把程序写成 def run(context): ... 并 return 结构化结果；不要在顶层直接访问 context 变量。"
+                "在 run(context) 内优先使用 resolver、context 和安全 builtins。"
                 "读取前序工具结果时，优先使用 context['observations_by_step'][step_id]['payload']['result']['payload']，"
                 "不要为了读取前序结果而解析 observation content 字符串；例如从 market_context observation 的结构化 payload 读取 hot_sectors。"
                 "如果 resolved_stock_mentions 提供股票名称到 ts_code 的映射，调用需要 symbols 的工具时必须直接使用这些 ts_code；"
@@ -967,6 +1265,7 @@ def _conversation_action_messages(
                 "data.stock_basic 只用于名称未解析、需要消歧或专门查询股票基础信息；"
                 "一旦 observation.stock_matches 出现唯一匹配，下一步必须复用其中 ts_code 继续研究。"
                 "如果已有 observations 足以回答，输出 final_answer。"
+                "此时必须输出完整对象 {\"action\":\"final_answer\",\"content\":\"...\"}，不得省略 action。"
             ),
         },
         {
@@ -983,6 +1282,9 @@ def _conversation_action_messages(
                 f"reference_context={json.dumps(_reference_context_payload(reference_context), ensure_ascii=False, default=str)}\n"
                 f"resolved_stock_mentions={json.dumps(list(resolved_stock_mentions), ensure_ascii=False, default=str)}\n"
                 f"可用工具={_registry_context(registry)}\n"
+                "注意：data.stock_daily observation 的 payload['rows'] 是行数整数，不是日线明细列表；"
+                "若要在 analysis.python_program 中读取完整日线，必须调用 resolver.load_stock_daily(...)，"
+                "不要把 data.stock_daily payload['rows'] 当作 list[dict] 迭代。\n"
                 f"observations={json.dumps(_compact_observations(observations), ensure_ascii=False, default=str)}"
             ),
         },
@@ -994,6 +1296,10 @@ def _parse_conversation_action(content: str) -> tuple[_ConversationAction | None
     if not isinstance(payload, dict):
         return None, "conversation action must be a JSON object"
     action = str(payload.get("action") or payload.get("type") or "").strip()
+    recovered_from = ""
+    if not action and _is_safe_content_only_action(payload):
+        action = "final_answer"
+        recovered_from = "content_only_json"
     if action not in CONVERSATION_ACTIONS:
         return None, f"conversation action must be one of {', '.join(sorted(CONVERSATION_ACTIONS))}"
     arguments = payload.get("arguments")
@@ -1019,9 +1325,17 @@ def _parse_conversation_action(content: str) -> tuple[_ConversationAction | None
             question=str(payload.get("question") or payload.get("content") or ""),
             missing_fields=missing,
             side_effect=str(payload.get("side_effect") or ""),
+            recovered_from=recovered_from,
         ),
         "",
     )
+
+
+def _is_safe_content_only_action(payload: dict[str, Any]) -> bool:
+    if not set(payload).issubset({"content", "answer", "title"}):
+        return False
+    content = payload.get("content") or payload.get("answer")
+    return isinstance(content, str) and bool(content.strip())
 
 
 def _step_from_action(action: _ConversationAction, *, iteration: int, registry: Any) -> AgentStep:
@@ -1036,6 +1350,200 @@ def _step_from_action(action: _ConversationAction, *, iteration: int, registry: 
         arguments=dict(action.arguments or {}),
         side_effect=side_effect,
     )
+
+
+def _chan_structured_redirect(
+    step: AgentStep,
+    *,
+    message: str,
+    observations: tuple[AgentObservation, ...],
+    resolved_stock_mentions: tuple[dict[str, str], ...],
+    iteration: int,
+) -> tuple[AgentStep | None, str]:
+    if str(step.tool_name or "") not in CHAN_STRUCTURED_REDIRECT_TOOLS:
+        return None, ""
+    if not _is_chan_daily_buy_sell_request(message):
+        return None, ""
+    symbols = _chan_request_symbols(message, step.arguments, observations, resolved_stock_mentions)
+    if not symbols:
+        return None, ""
+    next_step = _next_structured_chan_step(symbols, message=message, observations=observations, iteration=iteration)
+    if next_step is not None:
+        return next_step, ""
+    return None, "已有 SATS 结构化缠论上下文、指标和 chan_signals 结果，进入最终综合。"
+
+
+def _chan_structured_error_fallback(
+    *,
+    message: str,
+    observations: tuple[AgentObservation, ...],
+    resolved_stock_mentions: tuple[dict[str, str], ...],
+    iteration: int,
+) -> tuple[AgentStep | None, str]:
+    if not _is_chan_daily_buy_sell_request(message):
+        return None, ""
+    if not _latest_error_is_stock_daily_rows_count_iteration(observations):
+        return None, ""
+    symbols = _chan_request_symbols(message, {}, observations, resolved_stock_mentions)
+    if not symbols:
+        return None, ""
+    next_step = _next_structured_chan_step(symbols, message=message, observations=observations, iteration=iteration)
+    if next_step is not None:
+        return next_step, ""
+    return None, "analysis.python_program 误读 data.stock_daily 行数后已确认结构化缠论结果可用于最终综合。"
+
+
+def _is_chan_daily_buy_sell_request(message: str) -> bool:
+    text = str(message or "")
+    lowered = text.lower()
+    has_chan = "chan" in lowered or any(term in text for term in ("缠论", "一买", "二买", "三买", "背驰", "中枢"))
+    if not has_chan:
+        return False
+    return any(term in text for term in ("买卖点", "买点", "卖点", "日线", "日K", "日k"))
+
+
+def _chan_request_symbols(
+    message: str,
+    arguments: Any,
+    observations: tuple[AgentObservation, ...],
+    resolved_stock_mentions: tuple[dict[str, str], ...],
+) -> list[str]:
+    symbols: list[str] = []
+
+    def add(raw: Any) -> None:
+        symbol = normalize_ts_code(str(raw or "").strip())
+        if symbol and symbol not in symbols:
+            symbols.append(symbol)
+
+    for item in resolved_stock_mentions:
+        if isinstance(item, dict):
+            add(item.get("ts_code"))
+    args = arguments if isinstance(arguments, dict) else {}
+    raw_symbols = args.get("symbols") or args.get("symbol")
+    if isinstance(raw_symbols, str):
+        add(raw_symbols)
+    elif isinstance(raw_symbols, (list, tuple, set)):
+        for item in raw_symbols:
+            add(item)
+    for item in _stock_match_symbols_from_observations(observations):
+        add(item)
+    for item in extract_stock_symbols(message):
+        add(item)
+    return symbols
+
+
+def _stock_match_symbols_from_observations(observations: tuple[AgentObservation, ...]) -> list[str]:
+    symbols: list[str] = []
+    for item in observations:
+        payload = item.payload if isinstance(item.payload, dict) else {}
+        for match in _stock_basic_matches_from_result(payload):
+            if isinstance(match, dict):
+                symbol = str(match.get("ts_code") or "").strip()
+                if symbol:
+                    symbols.append(symbol)
+    return symbols
+
+
+def _next_structured_chan_step(
+    symbols: list[str],
+    *,
+    message: str,
+    observations: tuple[AgentObservation, ...],
+    iteration: int,
+) -> AgentStep | None:
+    trade_date = agent_today()
+    if not _has_successful_tool_observation(observations, "research.chan_context"):
+        return AgentStep(
+            step_id=f"loop_{iteration}_research_chan_context",
+            kind="tool",
+            title="获取缠论上下文",
+            tool_name="research.chan_context",
+            arguments={"message": _chan_context_message(message, symbols)},
+            side_effect="readonly",
+        )
+    if not _has_successful_tool_observation(observations, "research.stock_context"):
+        return AgentStep(
+            step_id=f"loop_{iteration}_research_stock_context",
+            kind="tool",
+            title="获取个股上下文",
+            tool_name="research.stock_context",
+            arguments={"symbols": symbols, "trade_date": trade_date},
+            side_effect="readonly",
+        )
+    if not _has_successful_internal_analysis(observations, "indicators"):
+        return AgentStep(
+            step_id=f"loop_{iteration}_research_internal_analysis",
+            kind="tool",
+            title="补充技术指标",
+            tool_name="research.internal_analysis",
+            arguments={"kind": "indicators", "symbols": symbols, "trade_date": trade_date},
+            side_effect="readonly",
+        )
+    if not _has_successful_internal_analysis(observations, "analyze_signals", signals="chan"):
+        return AgentStep(
+            step_id=f"loop_{iteration}_research_internal_analysis",
+            kind="tool",
+            title="Analyze 缠论信号分析",
+            tool_name="research.internal_analysis",
+            arguments={"kind": "analyze_signals", "symbols": symbols, "trade_date": trade_date, "signals": "chan"},
+            side_effect="readonly",
+        )
+    return None
+
+
+def _chan_context_message(message: str, symbols: list[str]) -> str:
+    return f"{message}。结构化分析对象: {', '.join(symbols)}；按 SATS chan_signals、指标和真实行情证据解释日线买卖点。"
+
+
+def _has_successful_tool_observation(observations: tuple[AgentObservation, ...], tool_name: str) -> bool:
+    for item in observations:
+        if item.kind == "tool" and item.status == "done" and _observation_tool_name(item) == tool_name:
+            return True
+    return False
+
+
+def _has_successful_internal_analysis(observations: tuple[AgentObservation, ...], kind: str, *, signals: str = "") -> bool:
+    for item in observations:
+        if item.kind != "tool" or item.status != "done" or _observation_tool_name(item) != "research.internal_analysis":
+            continue
+        arguments = item.payload.get("arguments") if isinstance(item.payload, dict) and isinstance(item.payload.get("arguments"), dict) else {}
+        if str(arguments.get("kind") or "") == kind and (not signals or str(arguments.get("signals") or "") == signals):
+            return True
+        result_payload = _observation_result_payload(item)
+        analysis = result_payload.get("analysis") if isinstance(result_payload.get("analysis"), dict) else result_payload
+        if isinstance(analysis, dict) and str(analysis.get("kind") or "") == kind:
+            if not signals or str(analysis.get("signals") or analysis.get("selected_signals") or arguments.get("signals") or "") == signals:
+                return True
+    return False
+
+
+def _latest_error_is_stock_daily_rows_count_iteration(observations: tuple[AgentObservation, ...]) -> bool:
+    if not observations:
+        return False
+    latest = observations[-1]
+    if latest.kind != "tool" or latest.status != "error" or _observation_tool_name(latest) != "analysis.python_program":
+        return False
+    if "int' object is not iterable" not in str(latest.content or "") and '"int" object is not iterable' not in str(latest.content or ""):
+        return False
+    for item in observations:
+        if item.kind != "tool" or item.status != "done" or _observation_tool_name(item) != "data.stock_daily":
+            continue
+        payload = _observation_result_payload(item)
+        if isinstance(payload.get("rows"), int):
+            return True
+    return False
+
+
+def _observation_tool_name(observation: AgentObservation) -> str:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    return str(payload.get("tool_name") or "")
+
+
+def _observation_result_payload(observation: AgentObservation) -> dict[str, Any]:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    result_payload = result.get("payload") if isinstance(result.get("payload"), dict) else {}
+    return result_payload if isinstance(result_payload, dict) else {}
 
 
 def _execute_conversation_tool_step(
@@ -1253,6 +1761,9 @@ def _final_answer_blocking_issue(
             return "final_answer blocked: 下周/未来一周预测必须先调用 research.market_context 且 requested_horizons 包含 next_week。"
     if _requires_python_program_before_final(plan) and _successful_python_program_observation(observations) is None:
         return "final_answer blocked: 当前计划需要先调用 analysis.python_program 完成有界只读计算。"
+    chan_issue = _chan_structured_final_issue(message=message, observations=observations)
+    if chan_issue:
+        return chan_issue
     fabricated_issue = _fabricated_market_data_issue(message=message, content=content, observations=observations)
     if fabricated_issue:
         return fabricated_issue
@@ -1289,6 +1800,20 @@ def _successful_python_program_observation(observations: tuple[AgentObservation,
         if item.kind == "tool" and item.status == "done" and str(item.payload.get("tool_name") or "") == "analysis.python_program":
             return item
     return None
+
+
+def _chan_structured_final_issue(*, message: str, observations: tuple[AgentObservation, ...]) -> str:
+    if not _is_chan_daily_buy_sell_request(message):
+        return ""
+    if not _has_successful_tool_observation(observations, "research.chan_context"):
+        return "final_answer blocked: 缠论日线买卖点回答必须先调用 research.chan_context 获取规则上下文。"
+    if not _has_successful_tool_observation(observations, "research.stock_context"):
+        return "final_answer blocked: 缠论日线买卖点回答必须先调用 research.stock_context 获取真实个股上下文。"
+    if not _has_successful_internal_analysis(observations, "indicators"):
+        return "final_answer blocked: 缠论日线买卖点回答必须先调用 research.internal_analysis(kind=indicators)。"
+    if not _has_successful_internal_analysis(observations, "analyze_signals", signals="chan"):
+        return "final_answer blocked: 缠论日线买卖点回答必须先调用 research.internal_analysis(kind=analyze_signals, signals=chan)。"
+    return ""
 
 
 def _fabricated_market_data_issue(*, message: str, content: str, observations: tuple[AgentObservation, ...]) -> str:
@@ -1341,6 +1866,28 @@ def _has_successful_data_observation(observations: tuple[AgentObservation, ...])
         if tool_name.startswith(("research.", "data.", "factor.", "web.")):
             return True
     return False
+
+
+def _has_successful_equivalent_tool_observation(step: AgentStep, observations: tuple[AgentObservation, ...]) -> bool:
+    if step.tool_name not in {"research.market_context", "research.sector_return_ranking"}:
+        return False
+    signature = _tool_arguments_signature(step.arguments)
+    for item in observations:
+        if item.kind != "tool" or item.status != "done":
+            continue
+        payload = item.payload if isinstance(item.payload, dict) else {}
+        if str(payload.get("tool_name") or "") != step.tool_name:
+            continue
+        if _tool_arguments_signature(payload.get("arguments") if isinstance(payload.get("arguments"), dict) else {}) == signature:
+            return True
+    return False
+
+
+def _tool_arguments_signature(arguments: Any) -> str:
+    try:
+        return json.dumps(arguments if isinstance(arguments, dict) else {}, ensure_ascii=False, sort_keys=True, default=str)
+    except Exception:
+        return str(arguments or {})
 
 
 def _market_context_horizons(observation: AgentObservation) -> set[str]:
@@ -1400,15 +1947,30 @@ def _record_loop_error(
     repeated_errors: dict[str, int],
     iteration: int,
     raw_content: str = "",
+    project_root: Path | str = ".",
 ) -> bool:
     signature = _loop_error_signature(error)
     repeated_errors[signature] = repeated_errors.get(signature, 0) + 1
+    terminal = repeated_errors[signature] >= MAX_INVALID_ACTIONS
+    failure = failure_from_message(
+        error,
+        project_root=project_root,
+        stage="conversation_protocol",
+        tool="conversation.action",
+        attempt=repeated_errors[signature],
+    )
+    failure_payload = failure.to_dict()
     observation = AgentObservation(
         step_id=f"loop_{iteration}_invalid_action",
         kind="runtime",
         status="error",
         content=error,
-        payload={"raw_content": raw_content, "iteration": iteration, "repeated": repeated_errors[signature]},
+        payload={
+            "raw_content": redact_text(raw_content, project_root=Path(project_root).resolve()),
+            "iteration": iteration,
+            "repeated": repeated_errors[signature],
+            "failure": failure_payload,
+        },
     )
     observations.append(observation)
     recorder.emit(
@@ -1419,7 +1981,88 @@ def _record_loop_error(
         content=error,
         payload=observation.payload,
     )
-    return repeated_errors[signature] >= MAX_INVALID_ACTIONS
+    recorder.emit(
+        "failure_detected",
+        item_type="conversation_action",
+        item_name=f"iteration_{iteration}",
+        status="error",
+        content=failure.message,
+        payload=failure_payload,
+    )
+    if recorder.store is not None and hasattr(recorder.store, "add_agent_failure"):
+        try:
+            recorder.store.add_agent_failure(
+                failure,
+                turn_id=recorder.turn_id,
+                session_id=recorder.turn.session_id,
+                status="exhausted" if terminal else "detected",
+            )
+        except Exception:
+            pass
+    return terminal
+
+
+def _recover_terminal_loop_error_with_synthesis(
+    error: str,
+    *,
+    observations: list[AgentObservation],
+    recorder: ChatTurnRecorder,
+    iteration: int,
+) -> bool:
+    if not _has_successful_data_observation(tuple(observations)):
+        return False
+    content = "conversation action 协议连续失败；已改用成功工具 observation 进行最终综合。"
+    payload = {"reason": "terminal_action_error_with_evidence", "error": error, "iteration": iteration}
+    latest_failure = {}
+    if observations and isinstance(observations[-1].payload, dict):
+        candidate = observations[-1].payload.get("failure")
+        latest_failure = dict(candidate) if isinstance(candidate, dict) else {}
+    if latest_failure:
+        payload["failure_id"] = str(latest_failure.get("failure_id") or "")
+    observations.append(
+        AgentObservation(
+            step_id=f"loop_{iteration}_action_recovered",
+            kind="runtime",
+            status="done",
+            content=content,
+            payload=payload,
+        )
+    )
+    recorder.emit(
+        "action_recovered",
+        item_type="conversation_action",
+        item_name=f"iteration_{iteration}",
+        status="done",
+        content=content,
+        payload=payload,
+    )
+    recorder.emit(
+        "recovery_completed",
+        item_type="conversation_action",
+        item_name=f"iteration_{iteration}",
+        status="done",
+        content=content,
+        payload={**payload, "strategy": "evidence_backed_synthesis"},
+    )
+    if latest_failure and recorder.store is not None and hasattr(recorder.store, "add_agent_failure"):
+        try:
+            recorder.store.add_agent_failure(
+                latest_failure,
+                turn_id=recorder.turn_id,
+                session_id=recorder.turn.session_id,
+                recovery_attempts=[
+                    {
+                        "attempt": 1,
+                        "strategy": "evidence_backed_synthesis",
+                        "status": "done",
+                        "failure_id": str(latest_failure.get("failure_id") or ""),
+                    }
+                ],
+                status="recovered",
+            )
+        except Exception:
+            pass
+    return True
 
 
 def _loop_error_signature(value: str) -> str:
@@ -1436,6 +2079,7 @@ def _conversation_action_payload(action: _ConversationAction) -> dict[str, Any]:
         "question": action.question,
         "missing_fields": list(action.missing_fields),
         "side_effect": action.side_effect,
+        "recovered_from": action.recovered_from,
     }
 
 
@@ -1639,6 +2283,7 @@ def confirm_pending_conversation_action(
         turn_id=turn_id,
         session_id=session_id,
         model_policy="none",
+        status="done" if result.status == "done" else "error",
     )
 
 
@@ -1943,6 +2588,8 @@ def _normalize_conversation_tool_step(step: AgentStep, *, message: str) -> tuple
 
     if tool_name == "research.market_context":
         _apply_conversation_market_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
+    elif tool_name == "research.sector_return_ranking":
+        _apply_conversation_sector_ranking_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
     elif tool_name in CONVERSATION_RESEARCH_TIME_TOOLS:
         _apply_conversation_research_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
 
@@ -1977,15 +2624,40 @@ def _apply_conversation_market_time_arguments(
             changes.append("set market trade_date from user relative date")
 
     has_horizon = _argument_present(arguments.get("horizons")) or _argument_present(arguments.get("horizon"))
-    if not has_horizon:
+    has_today_review = any(term in str(message or "") for term in (*TODAY_AS_OF_TERMS, *RECENT_AS_OF_TERMS))
+    if _is_short_term_forecast_typo(message):
+        normalized_horizons = ["tomorrow", "day_after_tomorrow"]
+        if has_today_review:
+            normalized_horizons.insert(0, "today")
+        if arguments.get("horizons") != normalized_horizons or "horizon" in arguments:
+            arguments["horizons"] = normalized_horizons
+            arguments.pop("horizon", None)
+            changes.append("normalized 下走走势 typo to short-term forecast horizons")
+    elif not has_horizon:
         horizons = _conversation_forecast_horizons(message, time_context=time_context)
         if horizons:
-            arguments["horizons"] = list(horizons)
+            normalized_horizons = list(horizons)
+            if has_today_review and "today" not in normalized_horizons:
+                normalized_horizons = ["today", *normalized_horizons]
+            arguments["horizons"] = normalized_horizons
             arguments.pop("horizon", None)
             changes.append("set market horizons from user relative forecast")
         elif not _argument_present(arguments.get("trade_date")) and _is_market_context_request(message):
             arguments["horizons"] = ["today"]
             changes.append("defaulted market horizon to today")
+    else:
+        horizons = list(arguments.get("horizons") or ([arguments.get("horizon")] if arguments.get("horizon") else []))
+        if has_today_review and "today" not in horizons:
+            arguments["horizons"] = ["today", *horizons]
+            arguments.pop("horizon", None)
+            changes.append("added today horizon from market review request")
+
+    if _is_market_context_request(message):
+        resolved, unsupported = resolve_market_dimensions_with_warnings(arguments.get("dimensions"))
+        dimensions = list(dict.fromkeys([*DEFAULT_MARKET_DIMENSIONS, *resolved, *unsupported]))
+        if dimensions != arguments.get("dimensions"):
+            arguments["dimensions"] = dimensions
+            changes.append("defaulted market dimensions for complete context")
 
 
 def _apply_conversation_research_time_arguments(
@@ -2009,12 +2681,41 @@ def _apply_conversation_research_time_arguments(
         changes.append("set research horizons from user relative forecast")
 
 
+def _apply_conversation_sector_ranking_time_arguments(
+    arguments: dict[str, Any],
+    *,
+    message: str,
+    time_context: Any,
+    changes: list[str],
+) -> None:
+    _apply_conversation_research_time_arguments(arguments, message=message, time_context=time_context, changes=changes)
+    recent_period = _recent_trading_day_period(message)
+    if recent_period:
+        previous = str(arguments.get("period") or "").strip()
+        if previous.lower() != recent_period:
+            arguments["period"] = recent_period
+            changes.append("set sector ranking period from recent trading-day request")
+        if not _argument_present(arguments.get("trade_date")):
+            arguments["trade_date"] = str(time_context.today)
+            changes.append("set sector ranking trade_date from current as-of date")
+        return
+    if not _is_today_sector_ranking_request(message):
+        return
+    previous = str(arguments.get("period") or "").strip()
+    if previous.lower() != "1d":
+        arguments["period"] = "1d"
+        changes.append("set sector ranking period to 1d from today request")
+    if not _argument_present(arguments.get("trade_date")):
+        arguments["trade_date"] = str(time_context.today)
+        changes.append("set sector ranking trade_date from current as-of date")
+
+
 def _conversation_as_of_trade_date(message: str, *, time_context: Any) -> str:
     if getattr(time_context, "explicit_dates", ()):
         return str(time_context.explicit_dates[0])
     text = str(message or "")
     if any(term in text for term in (*TODAY_AS_OF_TERMS, *RECENT_AS_OF_TERMS)) or re.search(
-        r"(?:过去|最近|近)\s*(?:[0-9]+|[一二两三四五六七八九十几数]+)\s*[天日]",
+        r"(?:过去|最近|近)\s*(?:[0-9]+|[一二两三四五六七八九十几数]+)\s*(?:个)?\s*(?:交易日|天|日)",
         text,
     ):
         return str(time_context.today)
@@ -2036,7 +2737,54 @@ def _conversation_forecast_horizons(message: str, *, time_context: Any) -> tuple
             horizons.append("day_after_tomorrow")
     if "下周" in text or "未来一周" in text:
         horizons.append("next_week")
+    if _is_short_term_forecast_typo(text):
+        horizons = [item for item in horizons if item != "next_week"]
+        horizons.extend(["tomorrow", "day_after_tomorrow"])
     return tuple(item for item in _dedupe_strings(horizons) if item in {"today", "tomorrow", "day_after_tomorrow", "next_week"})
+
+
+def _is_short_term_forecast_typo(message: str) -> bool:
+    text = str(message or "")
+    return any(term in text for term in SHORT_TERM_FORECAST_TYPO_TERMS)
+
+
+def _is_today_sector_ranking_request(message: str) -> bool:
+    text = str(message or "")
+    if not any(term in text for term in TODAY_AS_OF_TERMS):
+        return False
+    compact = re.sub(r"\s+", "", text.lower())
+    if not any(term in compact for term in ("板块", "行业", "概念指数", "板块指数")):
+        return False
+    if _has_explicit_sector_ranking_period(compact):
+        return False
+    return True
+
+
+def _has_explicit_sector_ranking_period(text: str) -> bool:
+    if any(term in text for term in ("一年", "半年", "近年", "过去", "最近", "近")):
+        return True
+    return bool(re.search(r"[0-9一二两三四五六七八九十]+(?:个)?(?:交易日|月|年|周|天|日)", text))
+
+
+def _recent_trading_day_period(message: str) -> str:
+    match = re.search(r"(?:过去|最近|近)?\s*([0-9]+|[一二两三四五六七八九十]+)\s*(?:个)?\s*交易日", str(message or ""))
+    if not match:
+        return ""
+    amount = _conversation_chinese_number(match.group(1))
+    return f"{amount}d" if amount > 0 else ""
+
+
+def _conversation_chinese_number(value: str) -> int:
+    text = str(value or "").strip()
+    if text.isdigit():
+        return int(text)
+    digits = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    if text == "十":
+        return 10
+    if "十" in text:
+        left, _, right = text.partition("十")
+        return (digits.get(left, 1) * 10) + digits.get(right, 0)
+    return digits.get(text, 0)
 
 
 def _is_market_context_request(message: str) -> bool:
@@ -2300,6 +3048,7 @@ def _tool_context(
     turn_id: str,
     message: str,
     llm_factory: Callable[..., Any] | None,
+    recorder: ChatTurnRecorder | None = None,
 ) -> AgentToolContext:
     storage = DuckDBStorage(settings.db_path)
     resolver = MarketDataResolver(settings, storage=storage)
@@ -2318,6 +3067,17 @@ def _tool_context(
         session_id=session_id,
         turn_id=turn_id,
         message=message,
+        event_callback=(
+            lambda event_type, payload: recorder.emit(
+                event_type,
+                item_type="recovery",
+                item_name=str(payload.get("tool") or ""),
+                status="error" if event_type in {"failure_detected", "failure_exhausted", "repair_failed"} else "done",
+                payload=payload,
+            )
+            if recorder is not None
+            else None
+        ),
     )
 
 
@@ -2386,6 +3146,7 @@ def _complete_turn(
 ) -> None:
     recorder.complete(
         content=result.content,
+        status=result.status,
         intent="conversation",
         data_names=result.data_names,
         skill_names=result.skill_names,
@@ -2403,8 +3164,64 @@ def _complete_turn(
             "pending_action_id": result.pending_action_id or "",
             "requires_clarification": result.requires_clarification,
             "clarification_id": result.clarification_id or "",
+            "partial": result.partial,
         },
     )
+
+
+def _conversation_completion_status(observations: tuple[AgentObservation, ...], *, partial: bool = False) -> str:
+    if partial:
+        return "done"
+    if _has_max_iterations_error(observations) and not _has_successful_data_observation(observations):
+        return "error"
+    if _has_terminal_action_protocol_error(observations) and not _has_action_recovery(observations):
+        return "error"
+    if any(
+        item.kind == "runtime"
+        and item.status == "error"
+        and item.step_id in {"repeated_error", "llm_unavailable", "python_program_recovery_exhausted"}
+        for item in observations
+    ):
+        return "error"
+    return "done"
+
+
+def _is_partial_max_iterations(observations: tuple[AgentObservation, ...]) -> bool:
+    return _has_max_iterations_error(observations) and _has_successful_data_observation(observations)
+
+
+def _has_max_iterations_error(observations: tuple[AgentObservation, ...]) -> bool:
+    return any(item.kind == "runtime" and item.status == "error" and item.step_id == "max_iterations" for item in observations)
+
+
+def _has_terminal_action_protocol_error(observations: tuple[AgentObservation, ...]) -> bool:
+    for item in observations:
+        if item.kind != "runtime" or item.status != "error" or not item.step_id.endswith("_invalid_action"):
+            continue
+        payload = item.payload if isinstance(item.payload, dict) else {}
+        if int(payload.get("repeated") or 0) >= MAX_INVALID_ACTIONS:
+            return True
+    return False
+
+
+def _has_action_recovery(observations: tuple[AgentObservation, ...]) -> bool:
+    return any(item.kind == "runtime" and item.status == "done" and item.step_id.endswith("_action_recovered") for item in observations)
+
+
+def _partial_completion_notice() -> str:
+    return "> 部分完成：部分计算步骤未成功；以下内容仅基于已成功获取的市场数据生成。"
+
+
+def _conversation_observation_failure(observation: AgentObservation) -> dict[str, Any]:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    result_payload = result.get("payload") if isinstance(result.get("payload"), dict) else {}
+    failure = result_payload.get("failure") if isinstance(result_payload.get("failure"), dict) else {}
+    if failure:
+        return dict(failure)
+    program = result_payload.get("python_program") if isinstance(result_payload.get("python_program"), dict) else {}
+    nested = program.get("failure") if isinstance(program.get("failure"), dict) else {}
+    return dict(nested)
 
 
 def _fallback_content(observations: list[AgentObservation]) -> str:

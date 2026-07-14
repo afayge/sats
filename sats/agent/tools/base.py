@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Mapping
 
 from sats.data.provider_capabilities import planner_provider_capabilities
 from sats.agent.date_policy import sanitize_agent_tool_arguments
 from sats.agent.models import AgentExecutionPolicy
+from sats.agent.recovery import (
+    AgentFailure,
+    RecoveryAttempt,
+    capture_exception,
+    failure_from_message,
+    is_readonly_retry_allowed,
+)
 
 
 ToolExecutor = Callable[["AgentToolContext", dict[str, Any]], "AgentToolResult"]
@@ -83,6 +91,8 @@ class AgentToolContext:
     turn_id: str = ""
     message: str = ""
     observations: tuple[Any, ...] = ()
+    event_callback: Callable[[str, Mapping[str, Any]], None] | None = None
+    recovery_depth: int = 0
 
     def with_observations(self, observations: tuple[Any, ...]) -> "AgentToolContext":
         return replace(self, observations=observations)
@@ -130,40 +140,251 @@ class AgentToolRegistry:
         tool_name = str(name or "").strip()
         spec = self.get(tool_name)
         if spec is None:
-            return AgentToolResult(status="error", content=f"unknown agent tool: {tool_name}")
+            return _failure_result(
+                context,
+                failure_from_message(
+                    f"unknown agent tool: {tool_name}",
+                    project_root=_project_root(context),
+                    stage="validation",
+                    tool=tool_name,
+                    category="data_interface",
+                ),
+            )
         args = dict(arguments or {})
         symbol_error = _normalize_symbol_arguments(args, context)
         if symbol_error:
-            return AgentToolResult(status="error", content=symbol_error)
+            return _message_failure_result(context, spec, symbol_error, stage="normalization")
         sanitized = sanitize_agent_tool_arguments(tool_name, args, context.message)
         if sanitized.error:
-            return AgentToolResult(status="error", content=sanitized.error, payload={"argument_policy": sanitized.metadata})
+            return _message_failure_result(
+                context,
+                spec,
+                sanitized.error,
+                stage="argument_policy",
+                category="invalid_arguments",
+                payload={"argument_policy": sanitized.metadata},
+            )
         args = sanitized.arguments
         error = validate_tool_arguments(spec, args)
         if error:
-            return AgentToolResult(status="error", content=error, payload={"argument_policy": sanitized.metadata})
+            return _message_failure_result(
+                context,
+                spec,
+                error,
+                stage="validation",
+                category="invalid_arguments",
+                payload={"argument_policy": sanitized.metadata},
+            )
         if spec.requires_trade_permission and not context.policy.auto_trade:
-            return AgentToolResult(status="error", content=f"{tool_name} requires explicit --auto-trade permission", payload={"argument_policy": sanitized.metadata})
+            return _message_failure_result(
+                context,
+                spec,
+                f"{tool_name} requires explicit --auto-trade permission",
+                stage="permission",
+                category="trade_blocked",
+                payload={"argument_policy": sanitized.metadata},
+            )
         fabricated = find_fabricated_market_data(args, allow_trade_price=tool_name == "trade.submit_intent")
         if fabricated:
-            return AgentToolResult(status="error", content=f"market data guard rejected fabricated field: {fabricated}", payload={"argument_policy": sanitized.metadata})
-        if spec.executor is None:
-            return AgentToolResult(status="error", content=f"agent tool has no executor: {tool_name}", payload={"argument_policy": sanitized.metadata})
-        try:
-            result = spec.executor(context, args)
-        except Exception as exc:
-            return AgentToolResult(status="error", content=str(exc))
-        if sanitized.metadata:
-            payload = dict(result.payload or {})
-            payload["argument_policy"] = sanitized.metadata
-            return AgentToolResult(
-                status=result.status,
-                content=result.content,
-                payload=payload,
-                data_names=result.data_names,
-                artifacts=result.artifacts,
+            return _message_failure_result(
+                context,
+                spec,
+                f"market data guard rejected fabricated field: {fabricated}",
+                stage="market_data_guard",
+                category="invalid_arguments",
+                payload={"argument_policy": sanitized.metadata},
             )
-        return result
+        if spec.executor is None:
+            return _message_failure_result(
+                context,
+                spec,
+                f"agent tool has no executor: {tool_name}",
+                stage="validation",
+                category="local_code_defect",
+                payload={"argument_policy": sanitized.metadata},
+            )
+
+        result, failure, recovery_attempts = _execute_with_recovery(spec, context, args)
+        payload = dict(result.payload or {})
+        if sanitized.metadata:
+            payload["argument_policy"] = sanitized.metadata
+        payload["failure"] = failure.to_dict() if failure is not None else None
+        payload["recovery_attempts"] = [item.to_dict() for item in recovery_attempts]
+        final = AgentToolResult(
+            status=result.status,
+            content=result.content,
+            payload=payload,
+            data_names=result.data_names,
+            artifacts=result.artifacts,
+        )
+        if failure is not None:
+            _record_failure(context, failure, recovery_attempts, status="exhausted")
+        return final
+
+
+def _execute_with_recovery(
+    spec: AgentToolSpec,
+    context: AgentToolContext,
+    arguments: dict[str, Any],
+) -> tuple[AgentToolResult, AgentFailure | None, list[RecoveryAttempt]]:
+    attempts: list[RecoveryAttempt] = []
+    mode = str(getattr(context.settings, "self_repair_mode", "propose") or "propose").lower()
+    max_recovery = max(0, int(getattr(context.settings, "self_repair_max_attempts", 2) or 0))
+    deadline = time.monotonic() + max(1, int(getattr(context.settings, "self_repair_timeout_seconds", 120) or 120))
+    current = 0
+    while True:
+        current += 1
+        failure: AgentFailure | None = None
+        try:
+            assert spec.executor is not None
+            result = spec.executor(context, arguments)
+        except Exception as exc:
+            failure = capture_exception(
+                exc,
+                project_root=_project_root(context),
+                stage="executor",
+                tool=spec.name,
+                attempt=current,
+            )
+            result = AgentToolResult(status="error", content=failure.message)
+        if result.status == "done":
+            if attempts:
+                _emit(context, "recovery_completed", {"tool": spec.name, "status": "done", "attempts": len(attempts)})
+            return result, None, attempts
+        if failure is None:
+            failure = _coerce_failure(_embedded_failure_payload(result.payload))
+        if failure is None:
+            failure = failure_from_message(
+                result.content,
+                project_root=_project_root(context),
+                stage="executor",
+                tool=spec.name,
+                attempt=current,
+            )
+        _record_failure(context, failure, attempts, status="detected")
+        if (
+            mode == "off"
+            or context.recovery_depth > 0
+            or not is_readonly_retry_allowed(spec.side_effect, failure)
+            or len(attempts) >= max_recovery
+            or time.monotonic() >= deadline
+        ):
+            if attempts:
+                _emit(
+                    context,
+                    "recovery_completed",
+                    {"tool": spec.name, "status": "error", "attempts": len(attempts), "failure": failure.to_dict()},
+                )
+            return result, failure, attempts
+        recovery = RecoveryAttempt(
+            attempt=len(attempts) + 1,
+            strategy="retry_readonly_transient",
+            status="started",
+            failure_id=failure.failure_id,
+            detail=failure.category,
+        )
+        attempts.append(recovery)
+        _emit(
+            context,
+            "recovery_started",
+            {"tool": spec.name, "strategy": recovery.strategy, "attempt": recovery.attempt, "failure": failure.to_dict()},
+        )
+
+
+def _message_failure_result(
+    context: AgentToolContext,
+    spec: AgentToolSpec,
+    message: str,
+    *,
+    stage: str,
+    category: str = "",
+    payload: Mapping[str, Any] | None = None,
+) -> AgentToolResult:
+    failure = failure_from_message(
+        message,
+        project_root=_project_root(context),
+        stage=stage,
+        tool=spec.name,
+        category=category,
+    )
+    return _failure_result(context, failure, payload=payload)
+
+
+def _failure_result(
+    context: AgentToolContext,
+    failure: AgentFailure,
+    *,
+    payload: Mapping[str, Any] | None = None,
+) -> AgentToolResult:
+    _record_failure(context, failure, [], status="detected")
+    value = dict(payload or {})
+    value["failure"] = failure.to_dict()
+    value["recovery_attempts"] = []
+    return AgentToolResult(status="error", content=failure.message, payload=value)
+
+
+def _record_failure(
+    context: AgentToolContext,
+    failure: AgentFailure,
+    attempts: list[RecoveryAttempt],
+    *,
+    status: str,
+) -> None:
+    payload = failure.to_dict()
+    _emit(context, "failure_detected" if status == "detected" else "failure_exhausted", payload)
+    if context.store is not None and hasattr(context.store, "add_agent_failure"):
+        try:
+            context.store.add_agent_failure(
+                failure,
+                turn_id=context.turn_id,
+                session_id=context.session_id,
+                recovery_attempts=[item.to_dict() for item in attempts],
+                status=status,
+            )
+        except Exception:
+            pass
+
+
+def _emit(context: AgentToolContext, event_type: str, payload: Mapping[str, Any]) -> None:
+    if context.event_callback is None:
+        return
+    try:
+        context.event_callback(event_type, payload)
+    except Exception:
+        pass
+
+
+def _project_root(context: AgentToolContext) -> Any:
+    return getattr(context.settings, "project_root", ".")
+
+
+def _coerce_failure(value: Any) -> AgentFailure | None:
+    if not isinstance(value, Mapping):
+        return None
+    from sats.agent.recovery import FailureFrame
+
+    try:
+        frames = tuple(
+            FailureFrame(path=str(row.get("path") or ""), line=int(row.get("line") or 0), function=str(row.get("function") or ""))
+            for row in value.get("frames", [])
+            if isinstance(row, Mapping)
+        )
+        return AgentFailure(
+            failure_id=str(value.get("failure_id") or ""),
+            category=str(value.get("category") or "runtime_error"),
+            stage=str(value.get("stage") or "runtime"),
+            tool=str(value.get("tool") or ""),
+            exception_type=str(value.get("exception_type") or "AgentToolError"),
+            message=str(value.get("message") or ""),
+            frames=frames,
+            fingerprint=str(value.get("fingerprint") or ""),
+            retryable=bool(value.get("retryable")),
+            repair_level=str(value.get("repair_level") or "none"),
+            attempt=int(value.get("attempt") or 1),
+            metadata=dict(value.get("metadata") or {}),
+        )
+    except (TypeError, ValueError):
+        return None
 
 
 def _normalize_symbol_arguments(arguments: dict[str, Any], context: AgentToolContext) -> str:
@@ -195,6 +416,17 @@ def _looks_like_security_code(value: Any) -> bool:
         and text[6] == "."
         and text[7:] in {"SH", "SZ", "BJ"}
     )
+
+
+def _embedded_failure_payload(payload: Any) -> Any:
+    if not isinstance(payload, Mapping):
+        return None
+    if isinstance(payload.get("failure"), Mapping):
+        return payload["failure"]
+    for value in payload.values():
+        if isinstance(value, Mapping) and isinstance(value.get("failure"), Mapping):
+            return value["failure"]
+    return None
 
 
 def _schema_requires_symbols(schema: Mapping[str, Any] | None) -> bool:

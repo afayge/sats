@@ -20,6 +20,13 @@ CHAT_EVENT_TYPES = (
     "runtime_started",
     "runtime_iteration_started",
     "llm_completed",
+    "action_recovered",
+    "failure_detected",
+    "recovery_started",
+    "recovery_completed",
+    "repair_proposed",
+    "repair_applied",
+    "repair_failed",
     "tool_batch_started",
     "tool_batch_completed",
     "artifact_created",
@@ -282,6 +289,7 @@ class ChatTurnRecorder:
         self,
         *,
         content: str = "",
+        status: str = "done",
         intent: str = "",
         symbols: list[str] | tuple[str, ...] = (),
         trade_date: str | None = None,
@@ -316,7 +324,7 @@ class ChatTurnRecorder:
             try:
                 self.store.complete_chat_turn(
                     self.turn.turn_id,
-                    status="done",
+                    status=_clean_choice(status, CHAT_EVENT_STATUSES, "done"),
                     intent=intent,
                     symbols=symbols,
                     trade_date=trade_date,
@@ -334,7 +342,7 @@ class ChatTurnRecorder:
         self.emit(
             "turn_completed",
             item_type="turn",
-            status="done",
+            status=_clean_choice(status, CHAT_EVENT_STATUSES, "done"),
             payload=payload,
             duration_seconds=duration_seconds,
         )

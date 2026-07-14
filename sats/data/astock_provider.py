@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+import queue
+import threading
 from typing import Any, Callable
 
 import pandas as pd
@@ -28,6 +30,7 @@ from sats.data.tushare_stock_datasets import (
     list_tushare_stock_datasets,
 )
 from sats.indicators import IndicatorInput
+from sats.market_clock import is_current_trading_session_date
 from sats.screening.base import ScreeningInput
 from sats.storage.duckdb import DuckDBStorage
 from sats.symbols import normalize_symbols, normalize_ts_code
@@ -670,25 +673,58 @@ class AStockDataProvider(MarketDataProvider):
         result.attrs["data_source"] = "+".join(sources) if sources else "unavailable"
         return result
 
-    def load_market_breadth(self) -> tuple[dict[str, Any], str]:
-        frame = _safe_frame(lambda: self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID))
+    def load_market_breadth(self, trade_date: str = "") -> tuple[dict[str, Any], str]:
+        requested_date = str(trade_date or "").strip()
+        frame = pd.DataFrame()
+        if requested_date and not is_current_trading_session_date(requested_date):
+            tushare = self.tushare
+            if tushare is not None and hasattr(tushare, "load_market_daily_snapshot"):
+                frame = _safe_frame(lambda: tushare.load_market_daily_snapshot(requested_date))
         if frame.empty:
+            loaders: list[tuple[str, Callable[[], Any]]] = [
+                (
+                    "tickflow_current_1d_quote",
+                    lambda: self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID),
+                )
+            ]
             ak = self.akshare
             if ak is not None and hasattr(ak, "load_a_share_realtime_quotes"):
-                frame = _safe_frame(lambda: ak.load_a_share_realtime_quotes())
-                if not frame.empty:
-                    frame.attrs["data_source"] = "akshare_spot_em"
+                loaders.append(("akshare_spot_em", lambda: ak.load_a_share_realtime_quotes()))
+            frame = _first_available_frame(loaders, timeout_seconds=25.0)
         source = str(frame.attrs.get("data_source") or "unavailable") if not frame.empty else "unavailable"
         if frame.empty:
             return {}, "unavailable"
         return _breadth_metrics(frame), source
 
-    def load_limit_sentiment(self, trade_date: str, storage: DuckDBStorage | None = None) -> dict[str, Any]:
+    def load_limit_sentiment(
+        self,
+        trade_date: str,
+        storage: DuckDBStorage | None = None,
+        *,
+        market_breadth: dict[str, Any] | None = None,
+        allow_realtime_fallback: bool = True,
+    ) -> dict[str, Any]:
         tushare = self.tushare
+        payload: dict[str, Any] = {}
         if tushare is not None and hasattr(tushare, "load_limit_sentiment"):
             payload = _safe_payload(lambda: tushare.load_limit_sentiment(trade_date, storage=storage))
             if payload and not _limit_sentiment_needs_fallback(payload):
                 return payload
+        breadth_payload = _limit_sentiment_from_market_breadth(trade_date, market_breadth)
+        if breadth_payload:
+            missing = list(payload.get("missing_fields") or []) if isinstance(payload, dict) else []
+            breadth_payload["missing_fields"] = _dedupe_strings(
+                [*missing, *list(breadth_payload.get("missing_fields") or [])]
+            )
+            return breadth_payload
+        if not allow_realtime_fallback:
+            if payload:
+                return payload
+            return build_limit_sentiment_payload(
+                trade_date=trade_date,
+                data_source="unavailable",
+                missing_fields=["limit_sentiment:unavailable"],
+            )
         frame = _safe_frame(lambda: self.load_realtime_quotes(universe_id=DEFAULT_A_SHARE_UNIVERSE_ID))
         source = str(frame.attrs.get("data_source") or "realtime_quote_fallback") if not frame.empty else "unavailable"
         if not frame.empty:
@@ -972,6 +1008,76 @@ class AStockDataProvider(MarketDataProvider):
             missing_fields=missing if not items else [],
             data_sources=sources,
         )
+
+    def load_market_catalysts(self, trade_date: str, *, limit: int = 20) -> dict[str, Any]:
+        """Load bounded market news and A-share announcements with provider fallbacks."""
+        trade_date = str(trade_date or "")
+        limit = max(1, min(int(limit or 20), 50))
+        diagnostics: dict[str, list[str]] = {"news": [], "announcements": []}
+        data_sources: dict[str, str] = {"news": "unavailable", "announcements": "unavailable"}
+
+        news: list[dict[str, Any]] = []
+        for dataset, params in (
+            ("major_news", {"start_date": trade_date, "end_date": trade_date}),
+            ("news", {"start_date": trade_date, "end_date": trade_date}),
+            ("cctv_news", {"date": trade_date}),
+        ):
+            payload = self.fetch_tushare_dataset(dataset, params, limit=limit)
+            rows = payload.get("rows") or []
+            diagnostics["news"].extend(str(item) for item in payload.get("missing_fields") or [])
+            if rows:
+                news.extend(_normalize_catalyst_news_rows(rows, dataset=dataset, source=str(payload.get("data_source") or "")))
+        if not news:
+            for dataset, params in (
+                ("stock_news_main_cx", {}),
+                ("news_cctv", {"date": trade_date}),
+            ):
+                payload = self.fetch_akshare_dataset(dataset, params, limit=max(limit, 50))
+                rows = payload.get("rows") or []
+                diagnostics["news"].extend(str(item) for item in payload.get("missing_fields") or [])
+                if rows:
+                    news.extend(_normalize_catalyst_news_rows(rows, dataset=dataset, source=str(payload.get("data_source") or "")))
+        news = _dedupe_catalyst_rows(news, limit=limit)
+        if news:
+            data_sources["news"] = "+".join(dict.fromkeys(str(item.get("data_source") or "") for item in news if item.get("data_source")))
+
+        announcements: list[dict[str, Any]] = []
+        payload = self.fetch_tushare_dataset("anns_d", {"ann_date": trade_date}, limit=max(limit * 5, 100))
+        rows = payload.get("rows") or []
+        diagnostics["announcements"].extend(str(item) for item in payload.get("missing_fields") or [])
+        if rows:
+            announcements.extend(_normalize_announcement_rows(rows, source=str(payload.get("data_source") or "")))
+        if not announcements:
+            payload = self.fetch_akshare_dataset(
+                "stock_notice_report",
+                {"symbol": "全部", "date": trade_date},
+                limit=max(limit * 5, 100),
+            )
+            rows = payload.get("rows") or []
+            diagnostics["announcements"].extend(str(item) for item in payload.get("missing_fields") or [])
+            announcements.extend(_normalize_announcement_rows(rows, source=str(payload.get("data_source") or "")))
+        announcements = _dedupe_catalyst_rows(announcements, limit=limit)
+        if announcements:
+            data_sources["announcements"] = "+".join(
+                dict.fromkeys(str(item.get("data_source") or "") for item in announcements if item.get("data_source"))
+            )
+
+        missing_fields = []
+        if not news:
+            missing_fields.append("catalysts.news:unavailable")
+        if not announcements:
+            missing_fields.append("catalysts.announcements:unavailable")
+        available_sources = [source for source in data_sources.values() if source != "unavailable"]
+        return {
+            "trade_date": trade_date,
+            "news": news,
+            "announcements": announcements,
+            "data_source": "+".join(dict.fromkeys(available_sources)) or "unavailable",
+            "data_sources": data_sources,
+            "source_diagnostics": {key: _dedupe_strings(values) for key, values in diagnostics.items()},
+            "missing_fields": missing_fields,
+            "truncated": len(news) >= limit or len(announcements) >= limit,
+        }
 
     def load_holder_activity_context(self, symbols: list[str], *, trade_date: str, lookback_days: int = 90, limit: int = 20) -> dict[str, dict[str, Any]]:
         clean_symbols = normalize_symbols(symbols, required=False)
@@ -1348,6 +1454,107 @@ def _safe_frame(loader: Callable[[], Any]) -> pd.DataFrame:
     return frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
 
 
+def _first_available_frame(
+    loaders: list[tuple[str, Callable[[], Any]]],
+    *,
+    timeout_seconds: float,
+) -> pd.DataFrame:
+    results: queue.Queue[tuple[str, pd.DataFrame]] = queue.Queue(maxsize=max(1, len(loaders)))
+
+    def _load(label: str, loader: Callable[[], Any]) -> None:
+        frame = _safe_frame(loader)
+        if not frame.empty and not str(frame.attrs.get("data_source") or ""):
+            frame.attrs["data_source"] = label
+        try:
+            results.put((label, frame), block=False)
+        except queue.Full:
+            pass
+
+    for label, loader in loaders:
+        threading.Thread(target=_load, args=(label, loader), daemon=True, name=f"sats-data-{label}").start()
+
+    completed: dict[str, pd.DataFrame] = {}
+    deadline = datetime.now().timestamp() + max(0.1, float(timeout_seconds))
+    while len(completed) < len(loaders):
+        remaining = deadline - datetime.now().timestamp()
+        if remaining <= 0:
+            break
+        try:
+            label, frame = results.get(timeout=remaining)
+        except queue.Empty:
+            break
+        completed[label] = frame
+        for candidate_label, _loader in loaders:
+            candidate = completed.get(candidate_label)
+            if candidate is None:
+                break
+            if not candidate.empty:
+                return candidate
+    for label, _loader in loaders:
+        frame = completed.get(label)
+        if frame is not None and not frame.empty:
+            return frame
+    return pd.DataFrame()
+
+
+def _normalize_catalyst_news_rows(rows: list[dict[str, Any]], *, dataset: str, source: str) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        title = str(row.get("title") or row.get("新闻标题") or row.get("tag") or "").strip()
+        summary = str(row.get("content") or row.get("新闻内容") or row.get("summary") or "").strip()
+        if not title and not summary:
+            continue
+        result.append(
+            {
+                "title": title or summary[:80],
+                "summary": summary[:1000],
+                "published_at": str(row.get("datetime") or row.get("date") or row.get("发布时间") or ""),
+                "source_name": str(row.get("src") or row.get("文章来源") or dataset),
+                "url": str(row.get("url") or row.get("新闻链接") or ""),
+                "dataset": dataset,
+                "data_source": source or "unavailable",
+            }
+        )
+    return result
+
+
+def _normalize_announcement_rows(rows: list[dict[str, Any]], *, source: str) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        raw_code = str(row.get("ts_code") or row.get("代码") or "").strip()
+        ts_code = normalize_ts_code(raw_code) if raw_code else ""
+        name = str(row.get("name") or row.get("名称") or "").strip()
+        title = str(row.get("title") or row.get("公告标题") or "").strip()
+        if not title:
+            continue
+        result.append(
+            {
+                "ts_code": ts_code,
+                "name": name,
+                "title": title,
+                "announcement_type": str(row.get("公告类型") or row.get("category") or ""),
+                "published_at": str(row.get("ann_date") or row.get("公告日期") or row.get("rec_time") or ""),
+                "url": str(row.get("url") or row.get("网址") or ""),
+                "data_source": source or "unavailable",
+            }
+        )
+    return result
+
+
+def _dedupe_catalyst_rows(rows: list[dict[str, Any]], *, limit: int) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        key = (str(row.get("ts_code") or ""), str(row.get("title") or ""))
+        if not key[1] or key in seen:
+            continue
+        seen.add(key)
+        result.append(row)
+        if len(result) >= limit:
+            break
+    return result
+
+
 def _finalize_minute_period_frame(
     frame: pd.DataFrame,
     *,
@@ -1405,6 +1612,42 @@ def _limit_sentiment_needs_fallback(payload: dict[str, Any]) -> bool:
         return True
     missing = {str(item) for item in payload.get("missing_fields") or []}
     return "limit_sentiment:tushare_empty" in missing
+
+
+def _limit_sentiment_from_market_breadth(trade_date: str, market_breadth: dict[str, Any] | None) -> dict[str, Any]:
+    breadth = market_breadth if isinstance(market_breadth, dict) else {}
+    if not breadth:
+        return {}
+    up = _first_not_none(breadth.get("limit_up_count"), breadth.get("up_limit_count"))
+    down = _first_not_none(breadth.get("limit_down_count"), breadth.get("down_limit_count"))
+    if up is None and down is None:
+        return {}
+    return build_limit_sentiment_payload(
+        trade_date=str(breadth.get("trade_date") or trade_date),
+        limit_up_count=int(up or 0),
+        limit_down_count=int(down or 0),
+        broken_limit_count=0,
+        data_source="market_breadth_fallback",
+        missing_fields=["broken_limit_count:tushare_unavailable"],
+    )
+
+
+def _first_not_none(*values: Any) -> Any:
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        item = str(value or "").strip()
+        if item and item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
 
 
 def _combine_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:

@@ -75,6 +75,21 @@ class ChatCliTest(unittest.TestCase):
         self.assertIn("`数据: Conversation`", output)
         self.assertIn("> 回答", output)
 
+    def test_cli_chat_returns_nonzero_and_plain_error_for_failed_conversation(self) -> None:
+        stdout = StringIO()
+        settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"))
+        failed = SimpleNamespace(content="受限 Python 分析程序执行失败：NameError", status="error")
+
+        with (
+            patch("sats.cli.load_settings", return_value=settings),
+            patch("sats.cli.run_conversation_once", return_value=failed),
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(main(["chat", "做一个只读计算"]), 1)
+
+        self.assertEqual(stdout.getvalue().strip(), "错误: 受限 Python 分析程序执行失败：NameError")
+        self.assertNotIn("SATS 自然对话输出", stdout.getvalue())
+
     def test_cli_tty_human_text_uses_natural_text_output(self) -> None:
         stdout = _FakeTTYStdout()
         settings = SimpleNamespace(project_root=Path("."), db_path=Path("sats.duckdb"))

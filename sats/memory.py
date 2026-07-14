@@ -4,6 +4,7 @@ import json
 import re
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -218,6 +219,43 @@ class ChatMemoryStore:
                 ],
             )
         return event.event_id
+
+    def append_agent_event(
+        self,
+        turn_id: str,
+        event_type: str,
+        *,
+        status: str = "done",
+        content: str = "",
+        payload: dict[str, Any] | None = None,
+        item_name: str = "",
+    ) -> str:
+        clean_turn_id = _clean_required(turn_id, "turn_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            seq = int(
+                con.execute(
+                    "SELECT COALESCE(MAX(seq), 0) + 1 FROM chat_turn_events WHERE turn_id = ?",
+                    [clean_turn_id],
+                ).fetchone()[0]
+                or 1
+            )
+        now = datetime.now(timezone.utc).isoformat()
+        return self.add_chat_turn_event(
+            ChatTurnEvent(
+                event_id=_new_id("evt"),
+                turn_id=clean_turn_id,
+                seq=seq,
+                event_type=str(event_type or "failure_detected"),
+                item_type="source_repair",
+                item_name=str(item_name or ""),
+                status=str(status or "done"),
+                content=str(content or ""),
+                payload=dict(payload or {}),
+                started_at=now,
+                completed_at=now,
+            )
+        )
 
     def add_chat_turn_item(
         self,
@@ -509,6 +547,186 @@ class ChatMemoryStore:
                 """,
                 params,
             )
+
+    def add_agent_failure(
+        self,
+        failure: Any,
+        *,
+        turn_id: str = "",
+        session_id: str = "",
+        recovery_attempts: list[dict[str, Any]] | None = None,
+        status: str = "detected",
+    ) -> str:
+        payload = failure.to_dict() if hasattr(failure, "to_dict") else dict(failure or {})
+        failure_id = _clean_required(str(payload.get("failure_id") or ""), "failure_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                INSERT INTO agent_failures
+                    (failure_id, turn_id, session_id, tool_name, category, stage,
+                     exception_type, message, frames_json, fingerprint, retryable,
+                     repair_level, attempt, status, recovery_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (failure_id) DO UPDATE SET
+                    status = EXCLUDED.status,
+                    recovery_json = EXCLUDED.recovery_json,
+                    updated_at = now()
+                """,
+                [
+                    failure_id,
+                    str(turn_id or ""),
+                    str(session_id or ""),
+                    str(payload.get("tool") or ""),
+                    str(payload.get("category") or "runtime_error"),
+                    str(payload.get("stage") or "runtime"),
+                    str(payload.get("exception_type") or ""),
+                    str(payload.get("message") or ""),
+                    _json(payload.get("frames") or []),
+                    str(payload.get("fingerprint") or ""),
+                    bool(payload.get("retryable")),
+                    str(payload.get("repair_level") or "none"),
+                    int(payload.get("attempt") or 1),
+                    str(status or "detected"),
+                    _json(recovery_attempts or []),
+                ],
+            )
+        return failure_id
+
+    def list_agent_failures(self, *, turn_id: str = "", limit: int = 20) -> list[dict[str, Any]]:
+        self.storage.initialize()
+        clause = "WHERE turn_id = ?" if str(turn_id or "").strip() else ""
+        params: list[Any] = [str(turn_id).strip()] if clause else []
+        params.append(max(1, int(limit or 20)))
+        with self.storage.connect() as con:
+            rows = con.execute(
+                f"""
+                SELECT failure_id, turn_id, session_id, tool_name, category, stage,
+                       exception_type, message, frames_json, fingerprint, retryable,
+                       repair_level, attempt, status, recovery_json, created_at, updated_at
+                FROM agent_failures
+                {clause}
+                ORDER BY created_at DESC, failure_id DESC
+                LIMIT ?
+                """,
+                params,
+            ).fetchall()
+        return [_agent_failure_from_row(row) for row in rows]
+
+    def get_agent_failure(self, failure_id: str) -> dict[str, Any] | None:
+        clean_id = _clean_required(failure_id, "failure_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            row = con.execute(
+                """
+                SELECT failure_id, turn_id, session_id, tool_name, category, stage,
+                       exception_type, message, frames_json, fingerprint, retryable,
+                       repair_level, attempt, status, recovery_json, created_at, updated_at
+                FROM agent_failures WHERE failure_id = ?
+                """,
+                [clean_id],
+            ).fetchone()
+        return _agent_failure_from_row(row) if row else None
+
+    def find_open_repair_by_fingerprint(self, fingerprint: str) -> dict[str, Any] | None:
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            row = con.execute(
+                """
+                SELECT r.repair_id, r.failure_id, r.turn_id, r.mode, r.status,
+                       r.diagnosis_json, r.patch_path, r.target_hashes_json,
+                       r.tests_json, r.pending_action_id, r.created_at, r.updated_at
+                FROM agent_repair_attempts r
+                JOIN agent_failures f ON f.failure_id = r.failure_id
+                WHERE f.fingerprint = ? AND r.status IN ('proposed', 'pending')
+                ORDER BY r.created_at DESC LIMIT 1
+                """,
+                [str(fingerprint or "")],
+            ).fetchone()
+        return _agent_repair_from_row(row) if row else None
+
+    def add_agent_repair(self, repair: dict[str, Any]) -> str:
+        repair_id = _clean_required(str(repair.get("repair_id") or ""), "repair_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                """
+                INSERT INTO agent_repair_attempts
+                    (repair_id, failure_id, turn_id, mode, status, diagnosis_json,
+                     patch_path, target_hashes_json, tests_json, pending_action_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    repair_id,
+                    str(repair.get("failure_id") or ""),
+                    str(repair.get("turn_id") or ""),
+                    str(repair.get("mode") or "source_proposal"),
+                    str(repair.get("status") or "running"),
+                    _json(repair.get("diagnosis") or {}),
+                    str(repair.get("patch_path") or ""),
+                    _json(repair.get("target_hashes") or {}),
+                    _json(repair.get("tests") or []),
+                    str(repair.get("pending_action_id") or ""),
+                ],
+            )
+        return repair_id
+
+    def update_agent_repair(self, repair_id: str, *, status: str, **updates: Any) -> None:
+        clean_id = _clean_required(repair_id, "repair_id")
+        columns = {"status": str(status or "")}
+        mapping = {
+            "diagnosis": ("diagnosis_json", _json),
+            "patch_path": ("patch_path", str),
+            "target_hashes": ("target_hashes_json", _json),
+            "tests": ("tests_json", _json),
+            "pending_action_id": ("pending_action_id", str),
+        }
+        for key, value in updates.items():
+            if key in mapping:
+                column, converter = mapping[key]
+                columns[column] = converter(value)
+        assignments = ", ".join(f"{column} = ?" for column in columns)
+        params = list(columns.values()) + [clean_id]
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            con.execute(
+                f"UPDATE agent_repair_attempts SET {assignments}, updated_at = CURRENT_TIMESTAMP WHERE repair_id = ?",
+                params,
+            )
+
+    def list_agent_repairs(self, *, turn_id: str = "", limit: int = 20) -> list[dict[str, Any]]:
+        self.storage.initialize()
+        clause = "WHERE turn_id = ?" if str(turn_id or "").strip() else ""
+        params: list[Any] = [str(turn_id).strip()] if clause else []
+        params.append(max(1, int(limit or 20)))
+        with self.storage.connect() as con:
+            rows = con.execute(
+                f"""
+                SELECT repair_id, failure_id, turn_id, mode, status, diagnosis_json,
+                       patch_path, target_hashes_json, tests_json, pending_action_id,
+                       created_at, updated_at
+                FROM agent_repair_attempts
+                {clause}
+                ORDER BY created_at DESC, repair_id DESC LIMIT ?
+                """,
+                params,
+            ).fetchall()
+        return [_agent_repair_from_row(row) for row in rows]
+
+    def get_agent_repair(self, repair_id: str) -> dict[str, Any] | None:
+        clean_id = _clean_required(repair_id, "repair_id")
+        self.storage.initialize()
+        with self.storage.connect() as con:
+            row = con.execute(
+                """
+                SELECT repair_id, failure_id, turn_id, mode, status, diagnosis_json,
+                       patch_path, target_hashes_json, tests_json, pending_action_id,
+                       created_at, updated_at
+                FROM agent_repair_attempts WHERE repair_id = ?
+                """,
+                [clean_id],
+            ).fetchone()
+        return _agent_repair_from_row(row) if row else None
 
     def latest_chat_turn_id(self, session_id: str = "") -> str:
         self.storage.initialize()
@@ -1011,6 +1229,45 @@ def _loads_json_list(raw: Any) -> list[Any]:
     except json.JSONDecodeError:
         return []
     return parsed if isinstance(parsed, list) else []
+
+
+def _agent_failure_from_row(row: Any) -> dict[str, Any]:
+    return {
+        "failure_id": str(row[0] or ""),
+        "turn_id": str(row[1] or ""),
+        "session_id": str(row[2] or ""),
+        "tool": str(row[3] or ""),
+        "category": str(row[4] or ""),
+        "stage": str(row[5] or ""),
+        "exception_type": str(row[6] or ""),
+        "message": str(row[7] or ""),
+        "frames": _loads_json_list(row[8]),
+        "fingerprint": str(row[9] or ""),
+        "retryable": bool(row[10]),
+        "repair_level": str(row[11] or "none"),
+        "attempt": int(row[12] or 1),
+        "status": str(row[13] or ""),
+        "recovery_attempts": _loads_json_list(row[14]),
+        "created_at": str(row[15] or ""),
+        "updated_at": str(row[16] or ""),
+    }
+
+
+def _agent_repair_from_row(row: Any) -> dict[str, Any]:
+    return {
+        "repair_id": str(row[0] or ""),
+        "failure_id": str(row[1] or ""),
+        "turn_id": str(row[2] or ""),
+        "mode": str(row[3] or ""),
+        "status": str(row[4] or ""),
+        "diagnosis": _loads_json_object(row[5]),
+        "patch_path": str(row[6] or ""),
+        "target_hashes": _loads_json_object(row[7]),
+        "tests": _loads_json_list(row[8]),
+        "pending_action_id": str(row[9] or ""),
+        "created_at": str(row[10] or ""),
+        "updated_at": str(row[11] or ""),
+    }
 
 
 def _new_id(prefix: str) -> str:

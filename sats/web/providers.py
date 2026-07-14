@@ -9,6 +9,8 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import httpx
 
+import sats.web.anysearch as anysearch
+
 
 _GARBAGE_PATTERNS = (
     "拼音",
@@ -30,6 +32,7 @@ class ProviderResult:
     status: str
     items: tuple[dict[str, Any], ...] = ()
     error: str = ""
+    query: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -46,16 +49,16 @@ def configured_provider_names(settings: Any, providers: list[str] | tuple[str, .
     if providers is None:
         raw = getattr(settings, "web_search_providers", None)
         if raw is None:
-            raw = "ddgs"
+            raw = "anysearch,ddgs,bing"
         values = str(raw or "").split(",")
     else:
         values = providers
     names = []
     for value in values:
         name = str(value or "").strip().lower()
-        if name in {"ddgs", "bing", "tavily", "bocha", "querit"} and name not in names:
+        if name in {"anysearch", "ddgs", "bing", "tavily", "bocha", "querit"} and name not in names:
             names.append(name)
-    return tuple(names or ("ddgs",))
+    return tuple(names or ("anysearch", "ddgs", "bing"))
 
 
 def search_many(
@@ -67,9 +70,49 @@ def search_many(
     freshness: str,
     domains: tuple[str, ...],
     ddgs_searcher: Callable[..., list[dict[str, Any]]],
+    vertical_domain: str = "",
+    sub_domain: str = "",
+    sub_domain_params: dict[str, Any] | None = None,
+    preloaded_results: list[ProviderResult] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    tasks: list[tuple[str, str]] = [(query, provider) for query in queries for provider in provider_names]
-    results: list[ProviderResult] = []
+    preloaded = list(preloaded_results or [])
+    preloaded_keys = {
+        (item.query or (str(item.items[0].get("query") or "") if item.items else ""), item.provider)
+        for item in preloaded
+    }
+    batched_anysearch_queries = [query for query in queries if (query, "anysearch") not in preloaded_keys]
+    attempted_anysearch: set[str] = set()
+    if "anysearch" in provider_names and len(batched_anysearch_queries) > 1:
+        attempted_anysearch.update(batched_anysearch_queries)
+        try:
+            responses = anysearch.batch_search(
+                [
+                    {
+                        "query": query,
+                        "domain": vertical_domain,
+                        "sub_domain": sub_domain,
+                        "sub_domain_params": sub_domain_params or {},
+                        "max_results": max_results,
+                    }
+                    for query in batched_anysearch_queries
+                ],
+                settings=settings,
+            )
+            for query, response in zip(batched_anysearch_queries, responses):
+                items = tuple(
+                    {**_normalize_item(item, provider="anysearch"), "query": query, "provider": "anysearch"}
+                    for item in response.items
+                )
+                preloaded.append(ProviderResult(provider="anysearch", status="ok" if items else "empty", items=items, query=query))
+        except Exception as exc:
+            preloaded.append(ProviderResult(provider="anysearch", status="error", error=str(exc)))
+    tasks: list[tuple[str, str]] = [
+        (query, provider)
+        for query in queries
+        for provider in provider_names
+        if (query, provider) not in preloaded_keys and not (provider == "anysearch" and query in attempted_anysearch)
+    ]
+    results: list[ProviderResult] = preloaded
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, min(8, len(tasks)))) as pool:
         futures = {
             pool.submit(
@@ -81,6 +124,9 @@ def search_many(
                 freshness=freshness,
                 domains=domains,
                 ddgs_searcher=ddgs_searcher,
+                vertical_domain=vertical_domain,
+                sub_domain=sub_domain,
+                sub_domain_params=sub_domain_params,
             ): (query, provider)
             for query, provider in tasks
         }
@@ -89,9 +135,9 @@ def search_many(
             try:
                 result = future.result()
             except Exception as exc:  # pragma: no cover - defensive isolation
-                result = ProviderResult(provider=provider, status="error", error=str(exc))
+                result = ProviderResult(provider=provider, status="error", error=str(exc), query=query)
             items = tuple({**item, "query": query, "provider": provider} for item in result.items)
-            results.append(ProviderResult(provider=provider, status=result.status, items=items, error=result.error))
+            results.append(ProviderResult(provider=provider, status=result.status, items=items, error=result.error, query=query))
 
     provider_status = _aggregate_provider_status(results, provider_names)
     merged = _rrf_merge(results)
@@ -107,9 +153,22 @@ def _search_provider(
     freshness: str,
     domains: tuple[str, ...],
     ddgs_searcher: Callable[..., list[dict[str, Any]]],
+    vertical_domain: str = "",
+    sub_domain: str = "",
+    sub_domain_params: dict[str, Any] | None = None,
 ) -> ProviderResult:
     try:
-        if provider == "ddgs":
+        if provider == "anysearch":
+            response = anysearch.search(
+                query,
+                settings=settings,
+                max_results=max_results,
+                domain=vertical_domain,
+                sub_domain=sub_domain,
+                sub_domain_params=sub_domain_params,
+            )
+            items = tuple(_normalize_item(item, provider="anysearch") for item in response.items)
+        elif provider == "ddgs":
             effective = _domain_query(query, domains)
             rows = ddgs_searcher(
                 effective,
@@ -281,8 +340,9 @@ def _rrf_merge(results: list[ProviderResult]) -> list[dict[str, Any]]:
                     "search_score": 0.0,
                 },
             )
-            row["search_score"] += 1.0 / (60.0 + rank)
             provider = str(item.get("provider") or result.provider)
+            provider_weight = 2.0 if provider == "anysearch" else 1.0
+            row["search_score"] += provider_weight / (60.0 + rank)
             query = str(item.get("query") or "")
             if provider and provider not in row["providers"]:
                 row["providers"].append(provider)

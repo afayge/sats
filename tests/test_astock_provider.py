@@ -534,6 +534,63 @@ class AStockDataProviderTest(unittest.TestCase):
             self.assertEqual(breadth["latest_trade_time"], "2026-05-20 11:30:00")
             self.assertEqual(breadth["total_amount"], 180.0)
 
+    def test_market_breadth_uses_tushare_snapshot_for_closed_trade_date(self) -> None:
+        class SnapshotTushare(_TushareBackend):
+            def load_market_daily_snapshot(self, trade_date):
+                frame = pd.DataFrame(
+                    [
+                        {"ts_code": "000001.SZ", "trade_date": trade_date, "close": 10.0, "pct_chg": 1.0, "amount": 100.0},
+                        {"ts_code": "600000.SH", "trade_date": trade_date, "close": 8.0, "pct_chg": -1.0, "amount": 80.0},
+                    ]
+                )
+                frame.attrs["data_source"] = "tushare_daily_market_snapshot"
+                return frame
+
+        provider = AStockDataProvider(
+            _settings(Path("unused.duckdb")),
+            tickflow_provider=_BrokenTickFlowBackend(),
+            tushare_provider=SnapshotTushare(),
+            akshare_provider=_AkShareBackend(),
+        )
+
+        breadth, source = provider.load_market_breadth("20260520")
+
+        self.assertEqual(source, "tushare_daily_market_snapshot")
+        self.assertEqual(breadth["advancing_count"], 1)
+        self.assertEqual(breadth["declining_count"], 1)
+
+    def test_market_catalysts_fall_back_to_akshare_and_keep_security_names(self) -> None:
+        class UnavailableTushare(_TushareBackend):
+            def fetch_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                return {"dataset": dataset, "rows": [], "data_source": "unavailable", "missing_fields": [f"{dataset}:denied"]}
+
+        class CatalystAkShare(_AkShareBackend):
+            def fetch_akshare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+                rows = (
+                    [{"tag": "市场新闻", "summary": "摘要", "url": "https://example.com/news"}]
+                    if dataset == "stock_news_main_cx"
+                    else (
+                        [{"代码": "600519", "名称": "贵州茅台", "公告标题": "重大事项公告", "公告日期": "20260520", "网址": "https://example.com/notice"}]
+                        if dataset == "stock_notice_report"
+                        else []
+                    )
+                )
+                return {"dataset": dataset, "rows": rows, "data_source": f"akshare_{dataset}", "missing_fields": []}
+
+        provider = AStockDataProvider(
+            _settings(Path("unused.duckdb")),
+            tickflow_provider=_BrokenTickFlowBackend(),
+            tushare_provider=UnavailableTushare(),
+            akshare_provider=CatalystAkShare(),
+        )
+
+        payload = provider.load_market_catalysts("20260520", limit=5)
+
+        self.assertEqual(payload["news"][0]["title"], "市场新闻")
+        self.assertEqual(payload["announcements"][0]["ts_code"], "600519.SH")
+        self.assertEqual(payload["announcements"][0]["name"], "贵州茅台")
+        self.assertEqual(payload["missing_fields"], [])
+
     def test_hot_sector_context_delegates_to_tushare(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tushare = _TushareBackend()

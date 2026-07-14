@@ -22,6 +22,7 @@ SATS_COMMANDS = (
     "chan-kb",
     "discover",
     "threads",
+    "repair",
     "web",
     "model",
     "memory",

@@ -42,11 +42,21 @@ class AkShareDataProvider:
         ak = self._akshare()
         if ak is None:
             return _empty_quote_frame()
-        try:
-            frame = ak.stock_zh_a_spot_em()
-        except Exception:
-            return _empty_quote_frame()
-        return _adapt_spot_frame(frame)
+        for function_name, data_source in (
+            ("stock_zh_a_spot_em", "akshare_spot_em"),
+            ("stock_zh_a_spot", "akshare_spot"),
+        ):
+            function = getattr(ak, function_name, None)
+            if function is None:
+                continue
+            try:
+                frame = function()
+            except Exception:
+                continue
+            result = _adapt_spot_frame(frame, data_source=data_source)
+            if not result.empty:
+                return result
+        return _empty_quote_frame()
 
     def load_chip_context(self, symbols: list[str]) -> dict[str, dict[str, Any]]:
         ak = self._akshare()
@@ -340,7 +350,7 @@ def _json_value(value: Any) -> Any:
     return str(value)
 
 
-def _adapt_spot_frame(frame: pd.DataFrame | None) -> pd.DataFrame:
+def _adapt_spot_frame(frame: pd.DataFrame | None, *, data_source: str = "akshare_spot_em") -> pd.DataFrame:
     if frame is None or frame.empty:
         return _empty_quote_frame()
     code_col = _first_column(frame, ["代码", "code", "symbol"])
@@ -365,10 +375,12 @@ def _adapt_spot_frame(frame: pd.DataFrame | None) -> pd.DataFrame:
             "pb": _numeric_column(data, ["市净率", "pb"]),
             "total_mv": _numeric_column(data, ["总市值", "total_mv"]),
             "circ_mv": _numeric_column(data, ["流通市值", "circ_mv"]),
-            "data_source": "akshare_spot_em",
+            "data_source": data_source,
         }
     )
-    return result.drop_duplicates(subset=["ts_code"], keep="last").reset_index(drop=True)
+    result = result.drop_duplicates(subset=["ts_code"], keep="last").reset_index(drop=True)
+    result.attrs["data_source"] = data_source
+    return result
 
 
 def _install_mini_racer_unraisable_filter() -> None:

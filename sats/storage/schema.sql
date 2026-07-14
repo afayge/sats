@@ -405,6 +405,49 @@ ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
 ALTER TABLE chat_pending_actions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 
+CREATE TABLE IF NOT EXISTS agent_failures (
+    failure_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL DEFAULT '',
+    session_id TEXT NOT NULL DEFAULT '',
+    tool_name TEXT NOT NULL DEFAULT '',
+    category TEXT NOT NULL,
+    stage TEXT NOT NULL DEFAULT '',
+    exception_type TEXT NOT NULL DEFAULT '',
+    message TEXT NOT NULL DEFAULT '',
+    frames_json TEXT NOT NULL DEFAULT '[]',
+    fingerprint TEXT NOT NULL,
+    retryable BOOLEAN NOT NULL DEFAULT FALSE,
+    repair_level TEXT NOT NULL DEFAULT 'none',
+    attempt INTEGER NOT NULL DEFAULT 1,
+    status TEXT NOT NULL DEFAULT 'detected',
+    recovery_json TEXT NOT NULL DEFAULT '[]',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (failure_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_failures_turn ON agent_failures(turn_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_agent_failures_fingerprint ON agent_failures(fingerprint, created_at);
+
+CREATE TABLE IF NOT EXISTS agent_repair_attempts (
+    repair_id TEXT NOT NULL,
+    failure_id TEXT NOT NULL,
+    turn_id TEXT NOT NULL DEFAULT '',
+    mode TEXT NOT NULL DEFAULT 'source_proposal',
+    status TEXT NOT NULL DEFAULT 'running',
+    diagnosis_json TEXT NOT NULL DEFAULT '{}',
+    patch_path TEXT NOT NULL DEFAULT '',
+    target_hashes_json TEXT NOT NULL DEFAULT '{}',
+    tests_json TEXT NOT NULL DEFAULT '[]',
+    pending_action_id TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (repair_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_repairs_failure ON agent_repair_attempts(failure_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_agent_repairs_turn ON agent_repair_attempts(turn_id, created_at);
+
 CREATE TABLE IF NOT EXISTS chat_memories (
     memory_id TEXT NOT NULL,
     memory_type TEXT NOT NULL,

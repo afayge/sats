@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import queue
+import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -19,6 +22,7 @@ from sats.symbols import normalize_ts_code
 
 SHANGHAI_TZ = ZoneInfo("Asia/Shanghai")
 MARKET_LOOKBACK_DAYS = 120
+DEFAULT_MARKET_DIMENSION_TIMEOUT_SECONDS = 30.0
 DEFAULT_MARKET_INDICES: tuple[tuple[str, str], ...] = (
     ("000001.SH", "上证指数"),
     ("399001.SZ", "深证成指"),
@@ -34,12 +38,16 @@ DEFAULT_MARKET_DIMENSIONS: tuple[str, ...] = (
     "market_breadth",
     "limit_sentiment",
     "hot_sectors",
+    "fund_flow",
+    "catalysts",
 )
 SUPPORTED_MARKET_DIMENSIONS: tuple[str, ...] = (
     "core_indices",
     "market_breadth",
     "limit_sentiment",
     "hot_sectors",
+    "fund_flow",
+    "catalysts",
 )
 MARKET_DIMENSION_ALIASES = {
     "indices": "core_indices",
@@ -48,6 +56,13 @@ MARKET_DIMENSION_ALIASES = {
     "sentiment": "limit_sentiment",
     "sectors": "hot_sectors",
     "sector": "hot_sectors",
+    "fund_flow": "fund_flow",
+    "moneyflow": "fund_flow",
+    "资金流": "fund_flow",
+    "catalysts": "catalysts",
+    "news": "catalysts",
+    "催化": "catalysts",
+    "新闻公告": "catalysts",
 }
 SUPPORTED_MARKET_HORIZONS: tuple[str, ...] = ("today", "tomorrow", "day_after_tomorrow", "next_week")
 _INDEX_ALIASES = {
@@ -177,6 +192,7 @@ def get_a_share_market_context(
     )
     storage = DuckDBStorage(Path(getattr(settings, "db_path")))
     resolver = market_data_resolver or MarketDataResolver(settings, storage=storage, provider=provider)
+    dimension_timeout = _dimension_timeout_seconds(settings)
 
     daily = pd.DataFrame()
     quotes = pd.DataFrame()
@@ -199,23 +215,81 @@ def get_a_share_market_context(
         effective_trade_date = str(daily["trade_date"].astype(str).max() or trade_date)
         quotes = resolver.load_index_quotes(symbols, index_daily=daily)
         quote_source = str(quotes.attrs.get("data_source") or "unavailable") if not quotes.empty else "unavailable"
+        quote_trade_date = _latest_frame_text(quotes, "trade_date")
+        if quote_trade_date and quote_trade_date > effective_trade_date:
+            effective_trade_date = quote_trade_date
+    dimension_specs: dict[str, tuple[Any, Any]] = {}
+    if "market_breadth" in requested_dimensions:
+        dimension_specs["market_breadth"] = (
+            lambda: resolver.load_market_breadth(
+                as_of_date=effective_trade_date,
+                min_count=int(getattr(settings, "market_breadth_min_count", MARKET_BREADTH_MIN_COUNT)),
+            ),
+            lambda reason: (
+                {"trade_date": effective_trade_date, "data_source": "unavailable", "missing_fields": [reason]},
+                "unavailable",
+            ),
+        )
+    if "limit_sentiment" in requested_dimensions:
+        dimension_specs["limit_sentiment"] = (
+            lambda: _safe_limit_sentiment(provider, effective_trade_date),
+            lambda reason: {"trade_date": effective_trade_date, "data_source": "unavailable", "missing_fields": [reason]},
+        )
+    if "hot_sectors" in requested_dimensions:
+        dimension_specs["hot_sector_context"] = (
+            lambda: _safe_hot_sector_context(provider, effective_trade_date, settings=settings),
+            lambda reason: {"trade_date": effective_trade_date, "missing_fields": [reason], "data_sources": {}},
+        )
+    if "fund_flow" in requested_dimensions:
+        dimension_specs["fund_flow"] = (
+            lambda: _safe_fund_flow(provider, effective_trade_date),
+            lambda reason: _empty_fund_flow(effective_trade_date, [reason, "hsgt_fund_flow:unavailable"]),
+        )
+    if "catalysts" in requested_dimensions:
+        dimension_specs["catalysts"] = (
+            lambda: _safe_catalysts(provider, effective_trade_date),
+            lambda reason: _empty_catalysts(effective_trade_date, [reason]),
+        )
+    dimension_results = _load_dimensions_with_deadline(dimension_specs, timeout_seconds=dimension_timeout)
+
     breadth: dict[str, Any] = {}
     breadth_source = "not_requested"
     if "market_breadth" in requested_dimensions:
-        breadth, breadth_source = resolver.load_market_breadth(
-            as_of_date=effective_trade_date,
-            min_count=int(getattr(settings, "market_breadth_min_count", MARKET_BREADTH_MIN_COUNT)),
-        )
+        breadth, breadth_source = dimension_results["market_breadth"]
+
     limit_sentiment: dict[str, Any] = {}
     limit_sentiment_source = "not_requested"
     if "limit_sentiment" in requested_dimensions:
-        limit_sentiment = _safe_limit_sentiment(provider, effective_trade_date)
+        limit_sentiment = dimension_results["limit_sentiment"]
+        if not _limit_sentiment_is_usable(limit_sentiment):
+            breadth_fallback = _limit_sentiment_from_breadth(effective_trade_date, breadth)
+            if breadth_fallback:
+                existing_missing = list(limit_sentiment.get("missing_fields") or []) if isinstance(limit_sentiment, dict) else []
+                breadth_fallback["missing_fields"] = _dedupe([*existing_missing, *list(breadth_fallback.get("missing_fields") or [])])
+                limit_sentiment = breadth_fallback
         limit_sentiment_source = str(limit_sentiment.get("data_source") or "unavailable")
+
     hot_sector_context: dict[str, Any] = {}
     hot_sector_source = "not_requested"
     if "hot_sectors" in requested_dimensions:
-        hot_sector_context = _safe_hot_sector_context(provider, effective_trade_date, settings=settings)
+        hot_sector_context = dimension_results["hot_sector_context"]
         hot_sector_source = _hot_sector_source(hot_sector_context)
+
+    fund_flow: dict[str, Any] = {}
+    fund_flow_source = "not_requested"
+    if "fund_flow" in requested_dimensions:
+        fund_flow = dimension_results["fund_flow"]
+        fund_flow_source = _fund_flow_source(fund_flow)
+    hot_sectors = _market_hot_sector_rows(hot_sector_context, fund_flow=fund_flow)
+    hot_sectors_source = hot_sector_source if hot_sector_context.get("hot_industries") or hot_sector_context.get("hot_concepts") else (
+        str(((fund_flow.get("data_sources") or {}).get("sector")) or "unavailable") if hot_sectors else "unavailable"
+    )
+
+    catalysts: dict[str, Any] = {}
+    catalysts_source = "not_requested"
+    if "catalysts" in requested_dimensions:
+        catalysts = dimension_results["catalysts"]
+        catalysts_source = str(catalysts.get("data_source") or "unavailable")
     payload = {
         "user_intent": "a_share_market_analysis",
         "requested_as_of_date": trade_date,
@@ -230,12 +304,18 @@ def get_a_share_market_context(
         "market_breadth": breadth,
         "limit_sentiment": limit_sentiment,
         "hot_sector_context": hot_sector_context,
+        "hot_sectors": hot_sectors,
+        "fund_flow": fund_flow,
+        "catalysts": catalysts,
         "data_sources": {
             "index_daily": daily_source,
             "index_quote": quote_source,
             "market_breadth": breadth_source,
             "limit_sentiment": limit_sentiment_source,
             "hot_sector_context": hot_sector_source,
+            "hot_sectors": hot_sectors_source,
+            "fund_flow": fund_flow_source,
+            "catalysts": catalysts_source,
         },
         "freshness": _freshness_payload(
             requested_date=trade_date,
@@ -245,6 +325,8 @@ def get_a_share_market_context(
             index_quote=quotes,
             market_breadth=breadth,
             hot_sector_context=hot_sector_context,
+            fund_flow=fund_flow,
+            catalysts=catalysts,
         ),
         "missing_fields": _missing_fields(
             symbols,
@@ -253,6 +335,8 @@ def get_a_share_market_context(
             breadth,
             limit_sentiment,
             hot_sector_context,
+            fund_flow,
+            catalysts,
             requested_dimensions=requested_dimensions,
         ),
         "data_policy": "SATS uses DuckDB-first resolvers for real A-share index and breadth data before calling the LLM.",
@@ -360,19 +444,53 @@ def _index_payloads(
         data = daily[daily["ts_code"].astype(str) == symbol].sort_values("trade_date") if not daily.empty else pd.DataFrame()
         quote = quote_lookup.get(symbol, {})
         latest = data.tail(1).iloc[0].dropna().to_dict() if not data.empty else {}
-        close = _first_not_none(_safe_float(quote.get("close")), _safe_float(latest.get("close")))
-        pct_chg = _first_not_none(_safe_float(latest.get("pct_chg")), _safe_float(quote.get("pct_chg")))
+        latest_daily_date = str(latest.get("trade_date") or "")
+        quote_date = str(quote.get("trade_date") or "")
+        latest_daily_close = _safe_float(latest.get("close"))
+        quote_close = _safe_float(quote.get("close"))
+        close = _first_not_none(quote_close, latest_daily_close)
+        computed_pct_chg = _computed_current_day_pct_chg(
+            latest_daily_close=latest_daily_close,
+            quote_close=quote_close,
+            latest_daily_date=latest_daily_date,
+            quote_date=quote_date,
+        )
+        pct_chg = _first_not_none(computed_pct_chg, _safe_float(latest.get("pct_chg")), _safe_float(quote.get("pct_chg")))
+        latest_data_source = str(latest.get("data_source") or daily.attrs.get("data_source") or "")
+        quote_data_source = str(quote.get("data_source") or quotes.attrs.get("data_source") or "")
         payloads.append(
             {
                 "ts_code": symbol,
                 "name": str(quote.get("name") or names.get(symbol) or symbol),
-                "trade_date": str(latest.get("trade_date") or ""),
+                "trade_date": quote_date or latest_daily_date,
                 "latest": {
                     "close": close,
                     "pct_chg": pct_chg,
                     "amount": _first_not_none(_safe_float(quote.get("amount")), _safe_float(latest.get("amount"))),
                     "vol": _first_not_none(_safe_float(quote.get("vol")), _safe_float(latest.get("vol"))),
+                    "pct_chg_source": "computed_current_day_vs_previous_close"
+                    if computed_pct_chg is not None
+                    else ("index_daily" if _safe_float(latest.get("pct_chg")) is not None else "index_quote"),
                 },
+                "latest_daily": {
+                    "trade_date": latest_daily_date,
+                    "close": latest_daily_close,
+                    "pct_chg": _safe_float(latest.get("pct_chg")),
+                    "amount": _safe_float(latest.get("amount")),
+                    "vol": _safe_float(latest.get("vol")),
+                    "data_source": latest_data_source,
+                },
+                "current_day_quote": {
+                    "trade_date": quote_date,
+                    "close": quote_close,
+                    "open": _safe_float(quote.get("open")),
+                    "high": _safe_float(quote.get("high")),
+                    "low": _safe_float(quote.get("low")),
+                    "amount": _safe_float(quote.get("amount")),
+                    "vol": _safe_float(quote.get("vol")),
+                    "data_source": quote_data_source,
+                },
+                "computed_pct_chg": computed_pct_chg,
                 "technical": _technical_metrics(data),
                 "weekly": _weekly_metrics(data),
                 "daily_tail": _records_tail(
@@ -385,6 +503,20 @@ def _index_payloads(
             }
         )
     return payloads
+
+
+def _computed_current_day_pct_chg(
+    *,
+    latest_daily_close: float | None,
+    quote_close: float | None,
+    latest_daily_date: str,
+    quote_date: str,
+) -> float | None:
+    if not quote_date or not latest_daily_date or quote_date <= latest_daily_date:
+        return None
+    if quote_close is None or latest_daily_close in (None, 0):
+        return None
+    return round((quote_close / latest_daily_close - 1.0) * 100.0, 4)
 
 
 def _weekly_metrics(data: pd.DataFrame) -> dict[str, Any]:
@@ -467,6 +599,8 @@ def _missing_fields(
     breadth: dict[str, Any],
     limit_sentiment: dict[str, Any] | None = None,
     hot_sector_context: dict[str, Any] | None = None,
+    fund_flow: dict[str, Any] | None = None,
+    catalysts: dict[str, Any] | None = None,
     *,
     requested_dimensions: Sequence[str],
 ) -> list[str]:
@@ -477,8 +611,13 @@ def _missing_fields(
             missing.append(f"index_daily:{symbol}")
         for symbol in _missing_symbols(symbols, quotes):
             missing.append(f"index_quote:{symbol}")
-    if "market_breadth" in requested and not breadth:
-        missing.append("market_breadth")
+    if "market_breadth" in requested:
+        if not breadth:
+            missing.append("market_breadth")
+        else:
+            if str(breadth.get("data_source") or "") in {"", "unavailable"}:
+                missing.append("market_breadth")
+            missing.extend(str(item) for item in breadth.get("missing_fields") or [])
     if "limit_sentiment" in requested:
         if not limit_sentiment:
             missing.append("limit_sentiment")
@@ -487,21 +626,434 @@ def _missing_fields(
                 missing.append("limit_sentiment")
             missing.extend(str(item) for item in limit_sentiment.get("missing_fields") or [])
     if "hot_sectors" in requested:
-        if not hot_sector_context:
+        primary_hot = bool(
+            (hot_sector_context or {}).get("hot_industries")
+            or (hot_sector_context or {}).get("hot_concepts")
+        )
+        if not _market_hot_sector_rows(hot_sector_context or {}, fund_flow=fund_flow or {}):
             missing.append("hot_sector_context")
-        else:
+        elif primary_hot and hot_sector_context:
             missing.extend(str(item) for item in hot_sector_context.get("missing_fields") or [])
+    if "fund_flow" in requested:
+        if not fund_flow:
+            missing.append("fund_flow")
+        else:
+            if str(fund_flow.get("data_source") or "") in {"", "unavailable"}:
+                missing.append("fund_flow")
+            missing.extend(str(item) for item in fund_flow.get("missing_fields") or [])
+    if "catalysts" in requested:
+        if not catalysts or str(catalysts.get("data_source") or "") in {"", "unavailable"}:
+            missing.append("catalysts")
+        if catalysts:
+            missing.extend(str(item) for item in catalysts.get("missing_fields") or [])
     return missing
 
 
-def _safe_limit_sentiment(provider: Any, trade_date: str) -> dict[str, Any]:
+def _safe_limit_sentiment(provider: Any, trade_date: str, *, market_breadth: dict[str, Any] | None = None) -> dict[str, Any]:
     if not hasattr(provider, "load_limit_sentiment"):
-        return {}
+        return _limit_sentiment_from_breadth(trade_date, market_breadth)
     try:
-        payload = provider.load_limit_sentiment(trade_date)
+        payload = provider.load_limit_sentiment(
+            trade_date,
+            market_breadth=market_breadth,
+            allow_realtime_fallback=False,
+        )
+    except TypeError:
+        try:
+            payload = provider.load_limit_sentiment(trade_date)
+        except Exception:
+            return _limit_sentiment_from_breadth(trade_date, market_breadth)
     except Exception:
-        return {}
+        return _limit_sentiment_from_breadth(trade_date, market_breadth)
+    if _limit_sentiment_is_usable(payload):
+        return payload
+    fallback = _limit_sentiment_from_breadth(trade_date, market_breadth)
+    if fallback:
+        missing = list(payload.get("missing_fields") or []) if isinstance(payload, dict) else []
+        fallback["missing_fields"] = _dedupe([*missing, *list(fallback.get("missing_fields") or [])])
+        return fallback
     return payload if isinstance(payload, dict) else {}
+
+
+def _dimension_timeout_seconds(settings: Settings) -> float:
+    raw = getattr(settings, "market_context_dimension_timeout_seconds", DEFAULT_MARKET_DIMENSION_TIMEOUT_SECONDS)
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        value = DEFAULT_MARKET_DIMENSION_TIMEOUT_SECONDS
+    return max(0.1, value)
+
+
+def _load_dimensions_with_deadline(
+    specs: dict[str, tuple[Any, Any]],
+    *,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    if not specs:
+        return {}
+    results: queue.Queue[tuple[str, str, Any]] = queue.Queue(maxsize=len(specs))
+
+    def _target(label: str, loader: Any) -> None:
+        try:
+            results.put((label, "ok", loader()), block=False)
+        except Exception as exc:
+            results.put((label, "error", exc), block=False)
+
+    pending = set(specs)
+    loaded: dict[str, Any] = {}
+    deadline = time.monotonic() + timeout_seconds
+    for label, (loader, _fallback) in specs.items():
+        threading.Thread(
+            target=_target,
+            args=(label, loader),
+            name=f"sats-market-context-{label}",
+            daemon=True,
+        ).start()
+
+    while pending:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            label, status, value = results.get(timeout=remaining)
+        except queue.Empty:
+            break
+        if label not in pending:
+            continue
+        pending.remove(label)
+        fallback = specs[label][1]
+        loaded[label] = value if status == "ok" else fallback(f"{label}:{value}")
+
+    for label in pending:
+        fallback = specs[label][1]
+        loaded[label] = fallback(f"{label}:timeout")
+    return loaded
+
+
+def _limit_sentiment_is_usable(payload: Any) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    source = str(payload.get("data_source") or "")
+    if source in {"", "unavailable"}:
+        return False
+    missing = {str(item) for item in payload.get("missing_fields") or []}
+    if "limit_sentiment:tushare_empty" in missing:
+        return False
+    return any(payload.get(key) not in (None, "") for key in ("limit_up_count", "limit_down_count", "broken_limit_count"))
+
+
+def _limit_sentiment_from_breadth(trade_date: str, market_breadth: dict[str, Any] | None) -> dict[str, Any]:
+    breadth = market_breadth if isinstance(market_breadth, dict) else {}
+    if not breadth:
+        return {}
+    up = _first_not_none(breadth.get("limit_up_count"), breadth.get("up_limit_count"))
+    down = _first_not_none(breadth.get("limit_down_count"), breadth.get("down_limit_count"))
+    if up is None and down is None:
+        return {}
+    return {
+        "trade_date": str(breadth.get("trade_date") or trade_date),
+        "limit_up_count": int(up or 0),
+        "limit_down_count": int(down or 0),
+        "broken_limit_count": None,
+        "data_source": "market_breadth_fallback",
+        "missing_fields": ["broken_limit_count:tushare_unavailable"],
+    }
+
+
+def _safe_fund_flow(provider: Any, trade_date: str) -> dict[str, Any]:
+    if not hasattr(provider, "fetch_tushare_dataset"):
+        return _empty_fund_flow(trade_date, ["fund_flow:tushare_unavailable", "hsgt_fund_flow:unavailable"])
+    market_payload = _safe_tushare_dataset(
+        provider,
+        "moneyflow_mkt_dc",
+        {"trade_date": trade_date},
+        fields=[
+            "trade_date",
+            "close",
+            "pct_change",
+            "net_amount",
+            "net_amount_rate",
+            "buy_elg_amount",
+            "buy_lg_amount",
+            "buy_md_amount",
+            "buy_sm_amount",
+        ],
+        limit=20,
+    )
+    sector_payload = _safe_tushare_dataset(
+        provider,
+        "moneyflow_ind_dc",
+        {"trade_date": trade_date},
+        fields=[
+            "trade_date",
+            "ts_code",
+            "name",
+            "pct_change",
+            "close",
+            "net_amount",
+            "net_amount_rate",
+            "buy_elg_amount",
+            "buy_lg_amount",
+            "buy_md_amount",
+            "buy_sm_amount",
+        ],
+        limit=1000,
+    )
+    northbound = _load_northbound_fund_flow(provider, trade_date)
+    market_rows = _payload_rows(market_payload)
+    sector_rows = _payload_rows(sector_payload)
+    sector_top = sorted(sector_rows, key=lambda row: _safe_float(row.get("net_amount")) or 0.0, reverse=True)
+    sector_bottom = sorted(sector_rows, key=lambda row: _safe_float(row.get("net_amount")) or 0.0)
+    missing_fields = [
+        *_payload_missing_fields(market_payload, "market_fund_flow"),
+        *_payload_missing_fields(sector_payload, "sector_fund_flow"),
+    ]
+    if not market_rows:
+        missing_fields.append("market_fund_flow:empty")
+    if not sector_rows:
+        missing_fields.append("sector_fund_flow:empty")
+    if str(northbound.get("data_source") or "") == "unavailable":
+        missing_fields.append("hsgt_fund_flow:unavailable")
+    market_source = str(market_payload.get("data_source") or "unavailable")
+    sector_source = str(sector_payload.get("data_source") or "unavailable")
+    if market_source == "unavailable" and sector_source == "unavailable":
+        missing_fields.append("fund_flow:tushare_unavailable")
+    northbound_source = str(northbound.get("data_source") or "unavailable")
+    data_source = "+".join(
+        dict.fromkeys(
+            item for item in (market_source, sector_source, northbound_source) if item and item != "unavailable"
+        )
+    ) or "unavailable"
+    return {
+        "trade_date": str(trade_date),
+        "data_source": data_source,
+        "market": _fund_flow_market_payload(
+            market_rows[0] if market_rows else {},
+            trade_date=trade_date,
+            source=market_source,
+            payload=market_payload,
+        ),
+        "sector_top": [_fund_flow_sector_row(row) for row in sector_top[:20]],
+        "sector_bottom": [_fund_flow_sector_row(row) for row in sector_bottom[:20]],
+        "northbound": northbound,
+        "data_sources": {
+            "market": market_source,
+            "sector": sector_source,
+            "northbound": str(northbound.get("data_source") or "unavailable"),
+        },
+        "missing_fields": _dedupe(missing_fields),
+        "truncated": _payload_truncated(market_payload) or _payload_truncated(sector_payload),
+    }
+
+
+def _empty_fund_flow(trade_date: str, missing_fields: list[str]) -> dict[str, Any]:
+    return {
+        "trade_date": str(trade_date),
+        "data_source": "unavailable",
+        "market": {
+            "trade_date": str(trade_date),
+            "data_source": "unavailable",
+            "missing_fields": list(missing_fields),
+            "truncated": False,
+        },
+        "sector_top": [],
+        "sector_bottom": [],
+        "northbound": {
+            "trade_date": str(trade_date),
+            "data_source": "unavailable",
+            "missing_fields": ["hsgt_fund_flow:unavailable"],
+        },
+        "data_sources": {"market": "unavailable", "sector": "unavailable", "northbound": "unavailable"},
+        "missing_fields": list(missing_fields),
+        "truncated": False,
+    }
+
+
+def _load_northbound_fund_flow(provider: Any, trade_date: str) -> dict[str, Any]:
+    payload = _safe_tushare_dataset(
+        provider,
+        "moneyflow_hsgt",
+        {"trade_date": trade_date},
+        fields=["trade_date", "hgt", "sgt", "north_money", "ggt_ss", "ggt_sz", "south_money"],
+        limit=10,
+    )
+    rows = _payload_rows(payload)
+    if rows:
+        row = rows[0]
+        return _jsonable(
+            {
+                "trade_date": str(row.get("trade_date") or trade_date),
+                "hgt": _safe_float(row.get("hgt")),
+                "sgt": _safe_float(row.get("sgt")),
+                "north_money": _safe_float(row.get("north_money")),
+                "south_money": _safe_float(row.get("south_money")),
+                "data_source": str(payload.get("data_source") or "tushare_moneyflow_hsgt"),
+                "missing_fields": [],
+            }
+        )
+
+    try:
+        ak_payload = provider.fetch_akshare_dataset("stock_hsgt_fund_flow_summary_em", {}, limit=20)
+    except Exception as exc:
+        return {
+            "trade_date": str(trade_date),
+            "data_source": "unavailable",
+            "missing_fields": [f"hsgt_fund_flow: {exc}"],
+        }
+    ak_rows = _payload_rows(ak_payload)
+    hgt = None
+    sgt = None
+    row_date = ""
+    for row in ak_rows:
+        board = str(row.get("板块") or row.get("类型") or "")
+        value = _safe_float(_first_not_none(row.get("成交净买额"), row.get("资金净流入")))
+        row_date = max(row_date, str(row.get("交易日") or ""))
+        if "沪股通" in board:
+            hgt = value
+        elif "深股通" in board:
+            sgt = value
+    if hgt is not None or sgt is not None:
+        north_money = (hgt or 0.0) + (sgt or 0.0)
+        return {
+            "trade_date": row_date or str(trade_date),
+            "hgt": hgt,
+            "sgt": sgt,
+            "north_money": north_money,
+            "south_money": None,
+            "data_source": str(ak_payload.get("data_source") or "akshare_stock_hsgt_fund_flow_summary_em"),
+            "missing_fields": [],
+        }
+    return {
+        "trade_date": str(trade_date),
+        "data_source": "unavailable",
+        "missing_fields": _dedupe(
+            [
+                *_payload_missing_fields(payload, "hsgt_fund_flow"),
+                *_payload_missing_fields(ak_payload, "hsgt_fund_flow"),
+            ]
+        ),
+    }
+
+
+def _safe_catalysts(provider: Any, trade_date: str) -> dict[str, Any]:
+    if not hasattr(provider, "load_market_catalysts"):
+        return _empty_catalysts(trade_date, ["catalysts:provider_unavailable"])
+    try:
+        payload = provider.load_market_catalysts(trade_date, limit=20)
+    except Exception as exc:
+        return _empty_catalysts(trade_date, [f"catalysts:{exc}"])
+    return payload if isinstance(payload, dict) else _empty_catalysts(trade_date, ["catalysts:invalid_payload"])
+
+
+def _empty_catalysts(trade_date: str, missing_fields: list[str]) -> dict[str, Any]:
+    return {
+        "trade_date": str(trade_date),
+        "news": [],
+        "announcements": [],
+        "data_source": "unavailable",
+        "data_sources": {"news": "unavailable", "announcements": "unavailable"},
+        "source_diagnostics": {},
+        "missing_fields": list(missing_fields),
+        "truncated": False,
+    }
+
+
+def _market_hot_sector_rows(hot_sector_context: dict[str, Any], *, fund_flow: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key in ("hot_industries", "hot_concepts"):
+        for item in hot_sector_context.get(key) or []:
+            if not isinstance(item, dict):
+                continue
+            rows.append({**item, "ranking_basis": "tushare_ths_heat"})
+    if rows:
+        return sorted(rows, key=lambda item: _safe_float(item.get("heat_score")) or 0.0, reverse=True)[:30]
+    for rank, item in enumerate(fund_flow.get("sector_top") or [], start=1):
+        if not isinstance(item, dict) or not str(item.get("name") or "").strip():
+            continue
+        rows.append(
+            {
+                "rank": rank,
+                "sector_code": item.get("ts_code"),
+                "name": item.get("name"),
+                "sector_type": "fund_flow_fallback",
+                "latest_pct_chg": item.get("pct_change"),
+                "net_amount": item.get("net_amount"),
+                "ranking_basis": "sector_net_amount_fallback",
+                "data_source": (fund_flow.get("data_sources") or {}).get("sector"),
+            }
+        )
+    return rows[:20]
+
+
+def _safe_tushare_dataset(provider: Any, dataset: str, params: dict[str, Any], *, fields: list[str], limit: int) -> dict[str, Any]:
+    try:
+        payload = provider.fetch_tushare_dataset(dataset, params, fields=fields, limit=limit)
+    except Exception as exc:
+        return {
+            "dataset": dataset,
+            "rows": [],
+            "row_count": 0,
+            "returned_row_count": 0,
+            "data_source": "unavailable",
+            "missing_fields": [f"{dataset}: {exc}"],
+        }
+    return payload if isinstance(payload, dict) else {}
+
+
+def _fund_flow_market_payload(row: dict[str, Any], *, trade_date: str, source: str, payload: dict[str, Any]) -> dict[str, Any]:
+    result = dict(row)
+    result["trade_date"] = str(result.get("trade_date") or trade_date)
+    result["data_source"] = source or "unavailable"
+    result["missing_fields"] = _payload_missing_fields(payload, "market_fund_flow")
+    result["truncated"] = _payload_truncated(payload)
+    return _jsonable(result)
+
+
+def _fund_flow_sector_row(row: dict[str, Any]) -> dict[str, Any]:
+    return _jsonable(
+        {
+            "trade_date": row.get("trade_date"),
+            "ts_code": row.get("ts_code"),
+            "name": row.get("name"),
+            "pct_change": _safe_float(row.get("pct_change")),
+            "close": _safe_float(row.get("close")),
+            "net_amount": _safe_float(row.get("net_amount")),
+            "net_amount_rate": _safe_float(row.get("net_amount_rate")),
+            "buy_elg_amount": _safe_float(row.get("buy_elg_amount")),
+            "buy_lg_amount": _safe_float(row.get("buy_lg_amount")),
+            "buy_md_amount": _safe_float(row.get("buy_md_amount")),
+            "buy_sm_amount": _safe_float(row.get("buy_sm_amount")),
+        }
+    )
+
+
+def _payload_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = payload.get("rows") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        rows = payload.get("data") if isinstance(payload, dict) else None
+    return [row for row in rows or [] if isinstance(row, dict)]
+
+
+def _payload_missing_fields(payload: dict[str, Any], prefix: str) -> list[str]:
+    missing = [str(item) for item in payload.get("missing_fields") or []] if isinstance(payload, dict) else []
+    return missing or ([] if _payload_rows(payload) else [f"{prefix}:unavailable"])
+
+
+def _payload_truncated(payload: dict[str, Any]) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    if bool(payload.get("truncated", False)):
+        return True
+    try:
+        return int(payload.get("row_count") or 0) > int(payload.get("returned_row_count") or 0)
+    except (TypeError, ValueError):
+        return False
+
+
+def _fund_flow_source(payload: dict[str, Any]) -> str:
+    if not isinstance(payload, dict) or not payload:
+        return "unavailable"
+    return str(payload.get("data_source") or "unavailable")
 
 
 def _index_missing_fields(symbol: str, daily: pd.DataFrame, quote: dict[str, Any]) -> list[str]:
@@ -520,6 +1072,9 @@ def _system_message(payload: dict[str, Any]) -> str:
         "不得编造价格、涨跌幅、成交量、新闻、政策、公告、题材或资金数据。"
         "limit_sentiment 来自涨停、跌停、炸板统计；若相关字段缺失，不得补猜炸板数或情绪阶段。"
         "hot_sector_context 来自同花顺行业/概念热点；若缺失，不得补猜热点板块。"
+        "fund_flow 来自 Tushare 东方财富口径资金流；若缺失，不得补猜大盘、行业或北向资金。"
+        "catalysts 来自 Tushare/AkShare 新闻公告；只能引用其中实际提供的标题、日期和来源。"
+        "data.astock_fetch 的 rows/data 是有界样本；全市场涨跌分布、成交额和宽度只能使用聚合字段或明确未截断全量结果。"
         "market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额；"
         "只有 turnover_comparison.status=ok 时，才能基于 turnover_comparison 写放量、缩量、成交萎缩或成交放大。"
         "不得把盘中累计成交额直接与前一交易日全天成交额比较。"
@@ -560,6 +1115,15 @@ def _market_index_daily_frame(frame: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
+def _latest_frame_text(frame: pd.DataFrame, column: str) -> str:
+    if frame is None or frame.empty or column not in frame.columns:
+        return ""
+    values = frame[column].dropna().astype(str)
+    if values.empty:
+        return ""
+    return str(values.max() or "")
+
+
 def _freshness_payload(
     *,
     requested_date: str,
@@ -569,6 +1133,8 @@ def _freshness_payload(
     index_quote: pd.DataFrame,
     market_breadth: dict[str, Any],
     hot_sector_context: dict[str, Any],
+    fund_flow: dict[str, Any],
+    catalysts: dict[str, Any],
 ) -> dict[str, Any]:
     refresh_requested = should_refresh_current_day(str(requested_date), refresh_current_day=refresh_current_day)
     warnings = []
@@ -578,6 +1144,9 @@ def _freshness_payload(
     hot_freshness = _hot_sector_freshness(hot_sector_context)
     if hot_freshness.get("cache_fallback"):
         warnings.append("hot_sector_context:cache_fallback")
+    fund_flow_sources = fund_flow.get("data_sources") if isinstance(fund_flow, dict) else {}
+    if not isinstance(fund_flow_sources, dict):
+        fund_flow_sources = {}
     return {
         "requested_as_of_date": str(requested_date),
         "effective_trade_date": str(effective_trade_date),
@@ -591,6 +1160,18 @@ def _freshness_payload(
             "trade_date": str(market_breadth.get("trade_date") or "") if market_breadth else "",
         },
         "hot_sector_context": hot_freshness,
+        "fund_flow": {
+            "source": _fund_flow_source(fund_flow),
+            "trade_date": str(fund_flow.get("trade_date") or "") if fund_flow else "",
+            "truncated": bool(fund_flow.get("truncated", False)) if fund_flow else False,
+            "data_sources": fund_flow_sources,
+        },
+        "catalysts": {
+            "source": str(catalysts.get("data_source") or "unavailable") if catalysts else "unavailable",
+            "trade_date": str(catalysts.get("trade_date") or "") if catalysts else "",
+            "truncated": bool(catalysts.get("truncated", False)) if catalysts else False,
+            "data_sources": catalysts.get("data_sources") if isinstance(catalysts, dict) else {},
+        },
         "warnings": warnings,
     }
 

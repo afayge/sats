@@ -61,7 +61,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
     return [
         AgentToolSpec(
             name="research.market_context",
-            description="获取真实 A 股大盘指数、市场宽度、涨跌停情绪、热点板块上下文。",
+            description="获取真实 A 股大盘指数、市场宽度、涨跌停情绪、热点板块和资金流上下文。",
             category="research",
             side_effect="readonly",
             timeout=60,
@@ -595,67 +595,175 @@ def _sector_return_ranking(context: AgentToolContext, arguments: dict[str, Any])
     query = str(arguments.get("query") or context.message or "").strip()
     source = _sector_source(arguments.get("source"), query=query)
     sector_type = _sector_type(arguments.get("sector_type"), query=query)
-    period = str(arguments.get("period") or _sector_period_from_text(query) or "1y").strip()
+    period = str(_sector_period_from_text(query) or arguments.get("period") or "").strip()
+    if not period:
+        content = "research.sector_return_ranking requires a recognizable period such as 1d, 5d, 6m, 1y, 今天, 近5个交易日, 半年 or 一年"
+        return AgentToolResult(
+            status="error",
+            content=json.dumps({"status": "error", "error": content}, ensure_ascii=False),
+            payload={"status": "error", "error": content},
+            data_names=("sector_return_ranking",),
+        )
     direction = _sector_direction(arguments.get("direction"), query=query)
     trade_date = str(arguments.get("trade_date") or "").strip() or agent_today()
     limit = _positive_int(arguments.get("limit"), default=10, maximum=SECTOR_RETURN_RANKING_LIMIT)
-    start_date = _sector_start_date(trade_date, period)
+    single_day = _sector_is_single_day_period(period)
+    start_date = _sector_single_day_lookup_start_date(trade_date) if single_day else _sector_start_date(trade_date, period)
     provider = AStockDataProvider(context.settings)
     sectors_payload = _load_sector_index_rows(provider, source=source, sector_type=sector_type, trade_date=trade_date)
     sector_rows = sectors_payload["rows"]
     warnings: list[str] = list(sectors_payload.get("warnings") or [])
     results: list[dict[str, Any]] = []
     missing: list[dict[str, Any]] = []
-    for sector in sector_rows:
-        sector_code = str(sector.get("sector_code") or sector.get("ts_code") or "").strip().upper()
-        name = str(sector.get("name") or "").strip()
-        if not sector_code:
-            continue
-        daily_payload = _load_sector_daily_rows(
-            provider,
-            source=source,
-            sector_code=sector_code,
-            start_date=start_date,
-            end_date=trade_date,
-        )
-        daily = _sector_daily_frame(daily_payload.get("rows") or [])
-        if daily.empty or len(daily) < 2:
-            missing.append(
-                _drop_empty(
+    actual_trade_date = ""
+    if single_day:
+        candidates: list[dict[str, Any]] = []
+        for sector in sector_rows:
+            sector_code = str(sector.get("sector_code") or sector.get("ts_code") or "").strip().upper()
+            name = str(sector.get("name") or "").strip()
+            if not sector_code:
+                continue
+            daily_payload = _load_sector_daily_rows(
+                provider,
+                source=source,
+                sector_code=sector_code,
+                start_date=start_date,
+                end_date=trade_date,
+            )
+            daily = _sector_daily_frame(daily_payload.get("rows") or [])
+            if daily.empty:
+                missing.append(
+                    _drop_empty(
+                        {
+                            "sector_code": sector_code,
+                            "name": name,
+                            "reason": "sector_daily_insufficient",
+                            "data_source": daily_payload.get("data_source"),
+                            "missing_fields": daily_payload.get("missing_fields"),
+                        }
+                    )
+                )
+                continue
+            selected = daily.iloc[-1]
+            previous = daily.iloc[-2] if len(daily) >= 2 else None
+            candidates.append(
+                {
+                    "sector_code": sector_code,
+                    "name": name,
+                    "daily_payload": daily_payload,
+                    "selected": selected,
+                    "previous": previous,
+                }
+            )
+        actual_dates = [str(item["selected"].get("trade_date") or "") for item in candidates if str(item["selected"].get("trade_date") or "")]
+        actual_trade_date = max(actual_dates) if actual_dates else ""
+        if actual_trade_date and actual_trade_date != trade_date:
+            warnings.append(f"sector_daily_actual_trade_date:{actual_trade_date};requested:{trade_date}")
+        for candidate in candidates:
+            selected = candidate["selected"]
+            selected_date = str(selected.get("trade_date") or "")
+            if actual_trade_date and selected_date != actual_trade_date:
+                missing.append(
                     {
-                        "sector_code": sector_code,
-                        "name": name,
-                        "reason": "sector_daily_insufficient",
-                        "data_source": daily_payload.get("data_source"),
-                        "missing_fields": daily_payload.get("missing_fields"),
+                        "sector_code": candidate["sector_code"],
+                        "name": candidate["name"],
+                        "reason": "sector_daily_not_latest_actual_trade_date",
+                        "latest_trade_date": selected_date,
+                        "actual_trade_date": actual_trade_date,
                     }
                 )
+                continue
+            close = _safe_float(selected.get("close"))
+            if close is None:
+                missing.append({"sector_code": candidate["sector_code"], "name": candidate["name"], "reason": "invalid_close"})
+                continue
+            pct_change = _safe_float(selected.get("pct_change"))
+            pct_change_source = "pct_change"
+            if pct_change is None:
+                previous = candidate.get("previous")
+                previous_close = _safe_float(previous.get("close")) if previous is not None else None
+                if previous_close is None or previous_close <= 0:
+                    missing.append(
+                        {
+                            "sector_code": candidate["sector_code"],
+                            "name": candidate["name"],
+                            "reason": "sector_daily_pct_change_missing",
+                        }
+                    )
+                    continue
+                pct_change = (close / previous_close - 1.0) * 100.0
+                pct_change_source = "close_fallback"
+            daily_payload = candidate["daily_payload"]
+            results.append(
+                {
+                    "sector_code": candidate["sector_code"],
+                    "name": candidate["name"],
+                    "source": source,
+                    "sector_type": sector_type,
+                    "trade_date": selected_date,
+                    "start_trade_date": selected_date,
+                    "end_trade_date": selected_date,
+                    "close": round(close, 4),
+                    "start_close": round(close, 4),
+                    "end_close": round(close, 4),
+                    "pct_change": round(float(pct_change), 4),
+                    "pct_change_source": pct_change_source,
+                    "sample_days": 1,
+                    "data_source": daily_payload.get("data_source"),
+                    "data_status": "ok",
+                }
             )
-            continue
-        start = daily.iloc[0]
-        end = daily.iloc[-1]
-        start_close = float(start["close"])
-        end_close = float(end["close"])
-        if start_close <= 0:
-            missing.append({"sector_code": sector_code, "name": name, "reason": "invalid_start_close"})
-            continue
-        pct_change = (end_close / start_close - 1.0) * 100.0
-        results.append(
-            {
-                "sector_code": sector_code,
-                "name": name,
-                "source": source,
-                "sector_type": sector_type,
-                "start_trade_date": str(start["trade_date"]),
-                "end_trade_date": str(end["trade_date"]),
-                "start_close": round(start_close, 4),
-                "end_close": round(end_close, 4),
-                "pct_change": round(pct_change, 4),
-                "sample_days": int(len(daily)),
-                "data_source": daily_payload.get("data_source"),
-                "data_status": "ok",
-            }
-        )
+    else:
+        for sector in sector_rows:
+            sector_code = str(sector.get("sector_code") or sector.get("ts_code") or "").strip().upper()
+            name = str(sector.get("name") or "").strip()
+            if not sector_code:
+                continue
+            daily_payload = _load_sector_daily_rows(
+                provider,
+                source=source,
+                sector_code=sector_code,
+                start_date=start_date,
+                end_date=trade_date,
+            )
+            daily = _sector_daily_frame(daily_payload.get("rows") or [])
+            if daily.empty or len(daily) < 2:
+                missing.append(
+                    _drop_empty(
+                        {
+                            "sector_code": sector_code,
+                            "name": name,
+                            "reason": "sector_daily_insufficient",
+                            "data_source": daily_payload.get("data_source"),
+                            "missing_fields": daily_payload.get("missing_fields"),
+                        }
+                    )
+                )
+                continue
+            start = daily.iloc[0]
+            end = daily.iloc[-1]
+            start_close = float(start["close"])
+            end_close = float(end["close"])
+            if start_close <= 0:
+                missing.append({"sector_code": sector_code, "name": name, "reason": "invalid_start_close"})
+                continue
+            pct_change = (end_close / start_close - 1.0) * 100.0
+            results.append(
+                {
+                    "sector_code": sector_code,
+                    "name": name,
+                    "source": source,
+                    "sector_type": sector_type,
+                    "start_trade_date": str(start["trade_date"]),
+                    "end_trade_date": str(end["trade_date"]),
+                    "start_close": round(start_close, 4),
+                    "end_close": round(end_close, 4),
+                    "pct_change": round(pct_change, 4),
+                    "sample_days": int(len(daily)),
+                    "data_source": daily_payload.get("data_source"),
+                    "data_status": "ok",
+                }
+            )
     results = sorted(results, key=lambda item: float(item.get("pct_change") or 0), reverse=direction == "top")
     ranking = []
     for rank, row in enumerate(results[:limit], start=1):
@@ -671,8 +779,11 @@ def _sector_return_ranking(context: AgentToolContext, arguments: dict[str, Any])
                 "sector_type": sector_type,
                 "period": period,
                 "direction": direction,
-                "trade_date": trade_date,
-                "start_date": start_date,
+                "trade_date": actual_trade_date if single_day and actual_trade_date else trade_date,
+                "requested_trade_date": trade_date if single_day else "",
+                "actual_trade_date": actual_trade_date if single_day else "",
+                "start_date": actual_trade_date if single_day and actual_trade_date else start_date,
+                "lookup_start_date": start_date if single_day else "",
                 "limit": limit,
                 "ranking": ranking,
                 "coverage": {
@@ -680,7 +791,11 @@ def _sector_return_ranking(context: AgentToolContext, arguments: dict[str, Any])
                     "computed_count": len(results),
                     "returned_count": len(ranking),
                     "missing_count": len(missing),
-                    "policy": "按板块指数窗口内最早/最晚有效收盘价计算区间涨跌幅；不使用股票池个股均值替代板块指数。",
+                    "policy": (
+                        "单日板块排行按最新可用交易日 pct_change 排序；pct_change 缺失时用相邻收盘价兜底。"
+                        if single_day
+                        else "按板块指数窗口内最早/最晚有效收盘价计算区间涨跌幅；不使用股票池个股均值替代板块指数。"
+                    ),
                 },
                 "missing": missing[:50],
                 "warnings": _dedupe(warnings),
@@ -1367,16 +1482,34 @@ def _sector_direction(value: Any, *, query: str) -> str:
 
 def _sector_period_from_text(text: str) -> str:
     value = str(text or "")
+    trading_day_match = re.search(r"(?:过去|最近|近)?\s*([0-9一二两三四五六七八九十]+)\s*(个)?\s*交易日", value)
+    if trading_day_match:
+        amount = _chinese_number(trading_day_match.group(1))
+        return f"{amount}d" if amount > 0 else ""
     if "半年" in value:
         return "6m"
     if "一年" in value or "1年" in value or "近年" in value:
         return "1y"
     match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", value)
-    if not match:
-        return ""
-    amount = _chinese_number(match.group(1))
-    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
-    return f"{amount}{suffix}" if amount > 0 else ""
+    if match:
+        amount = _chinese_number(match.group(1))
+        suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+        return f"{amount}{suffix}" if amount > 0 else ""
+    if any(term in value for term in ("今天", "今日", "当天", "当日")):
+        return "1d"
+    return ""
+
+
+def _sector_is_single_day_period(period: str) -> bool:
+    return str(period or "").strip().lower() in {"1d", "d", "day", "daily", "today", "当日", "当天", "今天", "今日"}
+
+
+def _sector_single_day_lookup_start_date(end_date: str) -> str:
+    try:
+        end = datetime.strptime(str(end_date), "%Y%m%d")
+    except ValueError:
+        end = datetime.strptime(agent_today(), "%Y%m%d")
+    return (end - timedelta(days=14)).strftime("%Y%m%d")
 
 
 def _sector_start_date(end_date: str, period: str) -> str:
@@ -1498,18 +1631,20 @@ def _fetch_tushare_stock_dataset(
 
 def _sector_daily_frame(rows: list[Any]) -> pd.DataFrame:
     if not rows:
-        return pd.DataFrame(columns=["trade_date", "close"])
+        return pd.DataFrame(columns=["trade_date", "close", "pct_change"])
     data = pd.DataFrame([row for row in rows if isinstance(row, dict)])
     if data.empty:
-        return pd.DataFrame(columns=["trade_date", "close"])
+        return pd.DataFrame(columns=["trade_date", "close", "pct_change"])
     date_col = _first_existing_column(data, ("trade_date", "date"))
     close_col = _first_existing_column(data, ("close", "收盘"))
     if not date_col or not close_col:
-        return pd.DataFrame(columns=["trade_date", "close"])
+        return pd.DataFrame(columns=["trade_date", "close", "pct_change"])
+    pct_col = _first_existing_column(data, ("pct_change", "pct_chg", "chg_pct", "涨跌幅"))
     result = pd.DataFrame(
         {
             "trade_date": data[date_col].astype(str).str.replace("-", "", regex=False).str[:8],
             "close": pd.to_numeric(data[close_col], errors="coerce"),
+            "pct_change": pd.to_numeric(data[pct_col], errors="coerce") if pct_col else None,
         }
     )
     return (

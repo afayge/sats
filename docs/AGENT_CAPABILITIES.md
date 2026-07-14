@@ -11,15 +11,18 @@ sats catalog --section all --json
 
 当前自然语言默认入口是 Codex-style conversation 工具循环：`sats chat ...`、REPL 普通输入、`/chat ...` 和 scheduler `chat` 任务默认进入 conversation 引擎，由模型逐轮输出 `call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`，再由 SATS runtime 调用注册工具、记录 observation、执行权限门控和 trace。`/plan ...` 和 `sats chat --plan-only ...` 是非执行 Plan mode，只输出计划，不生成可自动执行的工具步骤。旧聊天路径通过 `sats chat --engine legacy ...` 显式保留。
 
+注册工具的失败结果统一包含 `failure` 与 `recovery_attempts`。运行时只会自动重试只读瞬态错误；命令、写库、审批和交易工具不会自动重放。本地源码缺陷恢复耗尽后，默认 `propose` 模式可生成隔离验证补丁，但真实源码应用必须通过现有确认动作。诊断入口为 `sats repair list|show|run --turn TURN_ID`，REPL 入口为 `/repairs` 和 `/repair [TURN_ID]`。
+
 ## 推荐发现流程
 
 Agent 应按以下顺序工作：
 
 1. 已知 SATS 常规研究能力时，直接使用现有 `research.*`、`data.*`、`factor.*` 或 `workflow.*` 工具。
 2. 不确定数据接口时，调用 `data.astock_catalog`，按 provider、关键词、分类、实时性和是否写库过滤。
-3. 使用目录返回的 operation 调用 `data.astock_fetch`。
-4. 检查返回的 `provenance`、`missing_fields` 和 `truncated`，缺失数据必须明确报告，不得由模型补造。
-5. 需要了解非数据能力时，调用 `catalog.capabilities` 或 CLI `sats catalog`。
+3. 需要最新公开信息、技术文档、事实核验或网页证据时调用 `web.search`；明确垂直领域先调用 `web.get_sub_domains`，多个独立问题使用 `web.batch_search`，显式 URL 使用 `web.open`。网页工具不能替代 A 股结构化数据接口。
+4. 使用目录返回的 operation 调用 `data.astock_fetch`。
+5. 检查返回的 `provenance`、`missing_fields` 和 `truncated`，缺失数据必须明确报告，不得由模型补造。
+6. 需要了解非数据能力时，调用 `catalog.capabilities` 或 CLI `sats catalog`。
 
 示例：
 
@@ -57,14 +60,14 @@ Agent 应按以下顺序工作：
 
 ### AStockDataProvider
 
-`AStockDataProvider` 是 A 股业务的统一数据门面。常规行情、股票列表、指标输入、指数、市场宽度、涨跌停情绪、热点板块、财务、新闻和公司事件均应通过该门面进入。
+`AStockDataProvider` 是 A 股业务的统一数据门面。常规行情、股票列表、指标输入、指数、市场宽度、涨跌停情绪、热点板块、资金流/北向资金、市场新闻公告催化、财务和公司事件均应通过该门面进入。
 
 数据优先级通常是：
 
 ```text
 TickFlow 实时行情/K线
   → Tushare 财务、资金流、板块、指数、新闻等补充
-  → AkShare 可选公开数据兜底
+  → AkShare 实时宽度、北向资金、新闻公告公开数据兜底
   → DuckDB 本地缓存
 ```
 

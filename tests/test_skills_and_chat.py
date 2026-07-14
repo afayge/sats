@@ -271,7 +271,7 @@ def _fake_market_payload() -> dict:
         "user_intent": "a_share_market_analysis",
         "trade_date": "20260527",
         "requested_indices": [item["ts_code"] for item in indices],
-        "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"],
+        "requested_dimensions": ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"],
         "requested_horizons": ["tomorrow"],
         "indices": indices,
         "market_breadth": {"advancing_count": 3200, "declining_count": 1800, "median_pct_chg": 0.3},
@@ -1056,7 +1056,10 @@ class ChatSessionTest(unittest.TestCase):
 
         self.assertEqual(result.content, "收到")
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
+        self.assertEqual(
+            builder.call_args.kwargs["dimensions"],
+            ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"),
+        )
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow", "next_week"))
         messages = FakeLLM.instances[0].messages
         payload = "\n".join(message["content"] for message in messages)
@@ -1078,7 +1081,10 @@ class ChatSessionTest(unittest.TestCase):
 
         self.assertEqual(result.content, "收到")
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
+        self.assertEqual(
+            builder.call_args.kwargs["dimensions"],
+            ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"),
+        )
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
         payload = "\n".join(message["content"] for message in messages)
@@ -1100,7 +1106,10 @@ class ChatSessionTest(unittest.TestCase):
         self.assertEqual(result.content, "收到")
         self.assertNotIn("补充 6 位股票代码", result.content)
         builder.assert_called_once()
-        self.assertEqual(builder.call_args.kwargs["dimensions"], ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors"))
+        self.assertEqual(
+            builder.call_args.kwargs["dimensions"],
+            ("core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"),
+        )
         self.assertEqual(builder.call_args.kwargs["horizons"], ("today", "tomorrow"))
         messages = FakeLLM.instances[0].messages
         payload = "\n".join(message["content"] for message in messages)

@@ -610,6 +610,9 @@ class ReplCliTest(unittest.TestCase):
         self.assertIn("/web", COMPLETION_WORDS)
         self.assertIn("--platforms", COMPLETION_WORDS)
         self.assertIn("--providers", COMPLETION_WORDS)
+        self.assertIn("--sub-domain", COMPLETION_WORDS)
+        self.assertIn("domains", COMPLETION_WORDS)
+        self.assertIn("batch", COMPLETION_WORDS)
         self.assertIn("mentions", COMPLETION_WORDS)
         self.assertIn("open", COMPLETION_WORDS)
         self.assertIn("cache", COMPLETION_WORDS)
@@ -635,6 +638,14 @@ class ReplCliTest(unittest.TestCase):
         self.assertEqual(
             repl_command_to_argv("/web hot --platforms xueqiu --limit 5"),
             ["web", "hot", "--platforms", "xueqiu", "--limit", "5"],
+        )
+        self.assertEqual(
+            repl_command_to_argv("/web domains --domain finance"),
+            ["web", "domains", "--domain", "finance"],
+        )
+        self.assertEqual(
+            repl_command_to_argv("/web batch --query OpenAI --query DuckDB"),
+            ["web", "batch", "--query", "OpenAI", "--query", "DuckDB"],
         )
         self.assertEqual(
             repl_command_to_argv("/web open https://example.com --query 公告"),
@@ -817,6 +828,40 @@ class ReplCliTest(unittest.TestCase):
             self.assertEqual(records[0].status, "done")
             self.assertEqual(records[0].request, "帮我解释筛选规则")
             self.assertIn("回答: 帮我解释筛选规则", records[0].output)
+
+    def test_repl_records_failed_conversation_as_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            settings = SimpleNamespace(project_root=Path(tmp), db_path=Path(tmp) / "sats.duckdb", openai_model="m")
+            session = ChatSession(settings=settings, skills=[], memory_enabled=False)
+            store = InteractionHistoryStore(settings.db_path)
+            state = ReplState(session_id=session.session_id, history_store=store, chat_session=session, engine="conversation")
+            output: list[str] = []
+            failed = SimpleNamespace(
+                content="受限 Python 分析程序执行失败：NameError",
+                status="error",
+                skill_names=(),
+                tool_call_count=1,
+                data_names=("Conversation",),
+                artifacts=(),
+                sources=(),
+                requires_confirmation=False,
+                pending_action_id="",
+                requires_clarification=False,
+                clarification_id="",
+                clarification_prompt="",
+                turn_id="turn_failed",
+                session_id=session.session_id,
+            )
+
+            with patch("sats.repl.run_conversation_once", return_value=failed):
+                keep_running = handle_repl_line("做一个只读计算", chat_session=session, printer=output.append, state=state)
+
+            records = store.list_records(kind="chat", limit=10)
+            self.assertTrue(keep_running)
+            self.assertEqual(output, ["错误: 受限 Python 分析程序执行失败：NameError"])
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].status, "error")
+            self.assertEqual(records[0].output, output[0])
 
     def test_repl_natural_chan_stock_question_uses_chat_context(self) -> None:
         calls: list[list[str]] = []

@@ -62,6 +62,13 @@ class NaturalOutputTest(unittest.TestCase):
 
         self.assertEqual(rendered, markdown)
 
+    def test_render_non_tty_keeps_markdown_bold_markers(self) -> None:
+        markdown = "| 板块 | 净流入金额 |\n|---|---|\n| **算力概念** | **+135.88亿元** |\n"
+
+        rendered = render_natural_output(markdown, channel="cli", tty=False, width=80)
+
+        self.assertEqual(rendered, markdown)
+
     def test_render_text_output_for_tty_styles_plain_list(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             db_path = Path(tmp) / "sats.duckdb"
@@ -110,6 +117,35 @@ class NaturalOutputTest(unittest.TestCase):
         self.assertIn("维度: 趋势", text)
         self.assertIn("结论: 均线维持多头", text)
         self.assertIn("备注: 量能未明显放大", text)
+
+    def test_render_tty_table_hides_markdown_bold_markers(self) -> None:
+        markdown = "\n".join(
+            [
+                "| 排名 | 板块代码 | 概念/板块 | 涨跌幅 | 收盘点位 | 净流入金额 | 净流入率 | 资金特征 |",
+                "|---|---|---|---|---|---|---|---|",
+                "| 1 | BK1134.DC | **算力概念** | +0.67% | 1905.85 | **+135.88亿元** | +4.66% | 超大单净流入明显 |",
+                "| 2 | BK0579.DC | **云计算** | **+2.83%** | 3146.95 | **+95.45亿元** | **+6.96%** | 涨幅与资金共振 |",
+            ]
+        )
+
+        rendered = render_natural_output(
+            markdown,
+            channel="repl",
+            tty=True,
+            width=120,
+            semantic_lexicon=OutputSemanticLexicon(),
+        )
+
+        text = fragment_list_to_text(rendered)
+        self.assertNotIn("**", text)
+        self.assertIn("算力概念", text)
+        self.assertIn("+135.88亿元", text)
+        self.assertTrue(any("bold" in style.split() and chunk == "算力概念" for style, chunk in rendered))
+
+    def test_render_tty_keeps_unclosed_bold_marker_literal(self) -> None:
+        rendered = render_natural_output("未闭合 **加粗", channel="repl", tty=True, width=80)
+
+        self.assertIn("未闭合 **加粗", fragment_list_to_text(rendered))
 
     def test_extract_output_metadata_reads_badges_and_sections(self) -> None:
         markdown = "\n".join(

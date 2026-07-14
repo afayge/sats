@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -91,6 +92,16 @@ class _FakeTickFlowProvider:
         )
 
 
+class _CountingTickFlowProvider(_FakeTickFlowProvider):
+    def __init__(self) -> None:
+        self.universe_quote_calls = 0
+
+    def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+        if universe_id:
+            self.universe_quote_calls += 1
+        return super().load_realtime_quotes(symbols=symbols, universe_id=universe_id)
+
+
 class _EmptyTushareProvider:
     def load_index_daily(self, index_codes, *, start_date, end_date):
         return pd.DataFrame()
@@ -120,6 +131,91 @@ class _EmptyTushareProvider:
             "stock_hot_sectors": {},
             "missing_fields": [],
             "data_sources": {"sector_basic": "fake", "sector_daily": "fake", "sector_members": "fake"},
+        }
+
+
+class _FundFlowTushareProvider(_EmptyTushareProvider):
+    def fetch_dataset(self, dataset, params=None, *, fields=None, limit=200):
+        if dataset == "moneyflow_mkt_dc":
+            rows = [
+                {
+                    "trade_date": "20260521",
+                    "close": 3600.0,
+                    "pct_change": 0.5,
+                    "net_amount": -1200000000.0,
+                    "net_amount_rate": -1.2,
+                    "buy_elg_amount": 100000000.0,
+                    "buy_lg_amount": 200000000.0,
+                    "buy_md_amount": 300000000.0,
+                    "buy_sm_amount": 400000000.0,
+                }
+            ]
+        elif dataset == "moneyflow_ind_dc":
+            rows = [
+                {"trade_date": "20260521", "ts_code": "885001.TI", "name": "算力概念", "pct_change": 2.1, "close": 1200.0, "net_amount": 500000000.0, "net_amount_rate": 3.2},
+                {"trade_date": "20260521", "ts_code": "881155.TI", "name": "电力", "pct_change": 1.1, "close": 1100.0, "net_amount": 200000000.0, "net_amount_rate": 1.5},
+                {"trade_date": "20260521", "ts_code": "881001.TI", "name": "银行", "pct_change": -0.8, "close": 900.0, "net_amount": -300000000.0, "net_amount_rate": -2.0},
+            ]
+        elif dataset == "moneyflow_hsgt":
+            rows = [{"trade_date": "20260521", "hgt": 12.0, "sgt": -2.0, "north_money": 10.0, "south_money": 3.0}]
+        else:
+            rows = []
+        returned = rows[: int(limit or 200)]
+        return {
+            "dataset": dataset,
+            "params": dict(params or {}),
+            "rows": returned,
+            "row_count": len(rows),
+            "returned_row_count": len(returned),
+            "data_source": f"tushare_{dataset}" if rows else "unavailable",
+            "missing_fields": [],
+            "truncated": len(rows) > len(returned),
+        }
+
+
+class _StaleIndexCurrentQuoteProvider:
+    def load_index_daily(self, index_codes, *, start_date, end_date):
+        frame = pd.concat([_daily(symbol, end="20260707") for symbol in index_codes], ignore_index=True)
+        frame.attrs["data_source"] = "tushare_index_daily"
+        return frame
+
+    def load_realtime_quotes(self, *, symbols=None, universe_id=None):
+        rows = []
+        for symbol in symbols or []:
+            latest_daily_close = float(_daily(symbol, end="20260707").tail(1).iloc[0]["close"])
+            rows.append(
+                {
+                    "ts_code": symbol,
+                    "name": f"Index{symbol[:6]}",
+                    "trade_date": "20260708",
+                    "close": latest_daily_close * 1.01,
+                    "pct_chg": 0.0,
+                    "amount": 99_000.0,
+                    "data_source": "tickflow_current_1d",
+                }
+            )
+        frame = pd.DataFrame(rows)
+        frame.attrs["data_source"] = "tickflow_current_1d"
+        return frame
+
+
+class _SlowDimensionProvider:
+    def load_market_breadth(self):
+        time.sleep(0.2)
+        return {"total_count": 2, "trade_date": "20260521", "data_source": "slow"}, "slow"
+
+    def load_limit_sentiment(self, trade_date, **kwargs):
+        time.sleep(0.2)
+        return {"trade_date": trade_date, "limit_up_count": 1, "data_source": "slow"}
+
+    def fetch_tushare_dataset(self, dataset, params=None, *, fields=None, limit=200):
+        time.sleep(0.2)
+        return {
+            "dataset": dataset,
+            "rows": [{"trade_date": "20260521", "net_amount": 1.0}],
+            "row_count": 1,
+            "returned_row_count": 1,
+            "data_source": f"slow_{dataset}",
         }
 
 
@@ -383,6 +479,49 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertIn("index_daily:399001.SZ", payload["missing_fields"])
         self.assertIn("index_quote:399001.SZ", payload["missing_fields"])
 
+    def test_current_day_index_quote_overrides_stale_index_daily_pct_chg(self) -> None:
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260708",
+            dimensions=["core_indices"],
+            indices=["上证指数"],
+            astock_provider=_StaleIndexCurrentQuoteProvider(),
+        )
+
+        index = payload["indices"][0]
+        self.assertEqual(payload["trade_date"], "20260708")
+        self.assertEqual(index["latest_daily"]["trade_date"], "20260707")
+        self.assertEqual(index["current_day_quote"]["trade_date"], "20260708")
+        self.assertAlmostEqual(index["computed_pct_chg"], 1.0)
+        self.assertAlmostEqual(index["latest"]["pct_chg"], 1.0)
+        self.assertEqual(index["latest"]["pct_chg_source"], "computed_current_day_vs_previous_close")
+        self.assertEqual(index["quote"]["pct_chg"], 0.0)
+
+    def test_fund_flow_dimension_returns_market_and_sector_rankings(self) -> None:
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["fund_flow"],
+            tickflow_provider=_EmptyProvider(),
+            tushare_provider=_FundFlowTushareProvider(),
+            akshare_provider=_EmptyAkShareProvider(),
+        )
+
+        fund_flow = payload["fund_flow"]
+        self.assertEqual(payload["requested_dimensions"], ["fund_flow"])
+        self.assertEqual(fund_flow["trade_date"], "20260521")
+        self.assertEqual(fund_flow["market"]["data_source"], "tushare_moneyflow_mkt_dc")
+        self.assertEqual(fund_flow["market"]["net_amount"], -1200000000.0)
+        self.assertEqual(fund_flow["sector_top"][0]["name"], "算力概念")
+        self.assertEqual(fund_flow["sector_bottom"][0]["name"], "银行")
+        self.assertEqual(
+            fund_flow["data_sources"],
+            {"market": "tushare_moneyflow_mkt_dc", "sector": "tushare_moneyflow_ind_dc", "northbound": "tushare_moneyflow_hsgt"},
+        )
+        self.assertFalse(fund_flow["truncated"])
+        self.assertEqual(fund_flow["northbound"]["north_money"], 10.0)
+        self.assertNotIn("hsgt_fund_flow:unavailable", fund_flow["missing_fields"])
+
     def test_build_market_context_contains_indices_breadth_and_data_sources(self) -> None:
         context = build_market_llm_context(
             "今天A股大盘分析，明天和下周走势预测",
@@ -397,7 +536,7 @@ class MarketLLMContextTest(unittest.TestCase):
         payload = context.payload
         self.assertEqual(payload["trade_date"], "20260521")
         self.assertEqual(payload["requested_horizons"], ["today", "tomorrow", "next_week"])
-        self.assertEqual(payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
+        self.assertEqual(payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"])
         self.assertEqual(payload["indices"][0]["ts_code"], "000001.SH")
         self.assertEqual(payload["indices"][0]["latest"]["pct_chg"], 0.2)
         self.assertEqual(payload["indices"][0]["quote"]["pct_chg"], 0.88)
@@ -418,10 +557,55 @@ class MarketLLMContextTest(unittest.TestCase):
         self.assertIn("limit_sentiment", payload["data_sources"])
         self.assertEqual(payload["hot_sector_context"]["hot_industries"][0]["name"], "电力")
         self.assertEqual(payload["hot_sector_context"]["hot_concepts"][0]["name"], "AI算力")
+        self.assertEqual(payload["hot_sectors"][0]["name"], "AI算力")
         self.assertIn("fake", payload["data_sources"]["hot_sector_context"])
+        self.assertIn("catalysts", payload)
+        self.assertEqual(payload["fund_flow"]["data_source"], "unavailable")
+        self.assertIn("fund_flow:tushare_unavailable", payload["missing_fields"])
         self.assertIn("不得编造价格", context.system_message)
         self.assertIn("limit_sentiment 来自涨停、跌停、炸板统计", context.system_message)
+        self.assertIn("fund_flow 来自 Tushare 东方财富口径资金流", context.system_message)
+        self.assertIn("catalysts 来自 Tushare/AkShare 新闻公告", context.system_message)
+        self.assertIn("data.astock_fetch 的 rows/data 是有界样本", context.system_message)
         self.assertIn("不得把盘中累计成交额直接与前一交易日全天成交额比较", context.system_message)
+
+    def test_limit_sentiment_uses_market_breadth_fallback_without_reloading_realtime_quotes(self) -> None:
+        tickflow = _CountingTickFlowProvider()
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["market_breadth", "limit_sentiment"],
+            tickflow_provider=tickflow,
+            tushare_provider=_EmptyTushareProvider(),
+            akshare_provider=_EmptyAkShareProvider(),
+        )
+
+        self.assertEqual(tickflow.universe_quote_calls, 1)
+        self.assertEqual(payload["limit_sentiment"]["data_source"], "market_breadth_fallback")
+        self.assertEqual(payload["limit_sentiment"]["limit_up_count"], payload["market_breadth"]["limit_up_count"])
+        self.assertEqual(payload["limit_sentiment"]["limit_down_count"], payload["market_breadth"]["limit_down_count"])
+        self.assertIn("broken_limit_count:tushare_unavailable", payload["limit_sentiment"]["missing_fields"])
+
+    def test_market_context_dimension_timeout_keeps_other_payload_available(self) -> None:
+        self.settings.market_context_dimension_timeout_seconds = 0.05
+
+        started = time.monotonic()
+        payload = get_a_share_market_context(
+            settings=self.settings,
+            trade_date="20260521",
+            dimensions=["market_breadth", "limit_sentiment", "fund_flow"],
+            astock_provider=_SlowDimensionProvider(),
+        )
+        elapsed = time.monotonic() - started
+
+        self.assertEqual(payload["trade_date"], "20260521")
+        self.assertEqual(payload["market_breadth"]["data_source"], "unavailable")
+        self.assertEqual(payload["limit_sentiment"]["data_source"], "unavailable")
+        self.assertEqual(payload["fund_flow"]["data_source"], "unavailable")
+        self.assertIn("market_breadth:timeout", payload["missing_fields"])
+        self.assertIn("limit_sentiment:timeout", payload["missing_fields"])
+        self.assertIn("fund_flow:timeout", payload["missing_fields"])
+        self.assertLess(elapsed, 0.12)
 
     def test_intraday_market_turnover_uses_projected_full_day_comparison(self) -> None:
         self.settings.market_breadth_min_count = 2
@@ -526,8 +710,8 @@ class MarketLLMContextTest(unittest.TestCase):
             akshare_provider=_EmptyAkShareProvider(),
         )
 
-        self.assertEqual(context.payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors"])
-        self.assertEqual(context.payload["warnings"], ["unsupported_market_dimension:fund_flow"])
+        self.assertEqual(context.payload["requested_dimensions"], ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"])
+        self.assertEqual(context.payload["warnings"], [])
         self.assertTrue(context.payload["indices"])
         self.assertTrue(context.payload["market_breadth"])
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from sats.agent.tools.base import AgentToolContext, AgentToolResult, AgentToolSpec, json_content, object_schema
-from sats.web import hot_mentions, open_page, search, social_hot
+from sats.web import batch_search, get_sub_domains, hot_mentions, open_page, search, social_hot
 
 
 def web_tool_specs() -> list[AgentToolSpec]:
@@ -22,10 +22,41 @@ def web_tool_specs() -> list[AgentToolSpec]:
                     "freshness": {"type": "string"},
                     "context_size": {"type": "string", "enum": ["auto", "medium", "high"]},
                     "providers": {"type": "array", "items": {"type": "string"}},
+                    "domain": {"type": "string"},
+                    "sub_domain": {"type": "string"},
+                    "sub_domain_params": {"type": "object"},
                 },
                 ["query"],
             ),
             executor=_web_search,
+        ),
+        AgentToolSpec(
+            name="web.get_sub_domains",
+            description="发现 AnySearch 垂直领域的 sub_domain 与必填参数；垂直搜索前先调用并复用返回结果。",
+            category="web",
+            side_effect="readonly",
+            timeout=30,
+            input_schema=object_schema(
+                {"domains": {"type": "array", "items": {"type": "string"}}},
+                ["domains"],
+            ),
+            executor=_web_get_sub_domains,
+        ),
+        AgentToolSpec(
+            name="web.batch_search",
+            description="并行执行 1 至 5 个通用或垂直公开网络查询；适合多问题或跨领域研究。",
+            category="web",
+            side_effect="readonly",
+            timeout=60,
+            input_schema=object_schema(
+                {
+                    "queries": {"type": "array", "items": {"type": "object"}},
+                    "providers": {"type": "array", "items": {"type": "string"}},
+                    "context_size": {"type": "string", "enum": ["auto", "medium", "high"]},
+                },
+                ["queries"],
+            ),
+            executor=_web_batch_search,
         ),
         AgentToolSpec(
             name="web.open",
@@ -85,6 +116,9 @@ def _web_search(context: AgentToolContext, arguments: dict[str, Any]) -> AgentTo
         freshness=str(arguments.get("freshness") or ""),
         context_size=str(arguments.get("context_size") or "auto"),
         providers=arguments.get("providers") if isinstance(arguments.get("providers"), list) else None,
+        domain=str(arguments.get("domain") or ""),
+        sub_domain=str(arguments.get("sub_domain") or ""),
+        sub_domain_params=arguments.get("sub_domain_params") if isinstance(arguments.get("sub_domain_params"), dict) else None,
         settings=context.settings,
     )
     return AgentToolResult(
@@ -95,6 +129,32 @@ def _web_search(context: AgentToolContext, arguments: dict[str, Any]) -> AgentTo
     )
 
 
+def _web_get_sub_domains(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    payload = get_sub_domains(
+        arguments.get("domains") if isinstance(arguments.get("domains"), list) else [],
+        settings=context.settings,
+    )
+    return AgentToolResult(
+        status="done",
+        content=json_content(payload),
+        payload={"web_sub_domains": payload},
+        data_names=("AnySearch Domains",),
+    )
+
+
+def _web_batch_search(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
+    payload = batch_search(
+        arguments.get("queries") if isinstance(arguments.get("queries"), list) else [],
+        providers=arguments.get("providers") if isinstance(arguments.get("providers"), list) else None,
+        context_size=str(arguments.get("context_size") or "auto"),
+        settings=context.settings,
+    )
+    return AgentToolResult(
+        status="done",
+        content=json_content(payload),
+        payload={"web_batch_search": payload},
+        data_names=("Web Batch Search",),
+    )
 def _web_open(context: AgentToolContext, arguments: dict[str, Any]) -> AgentToolResult:
     payload = open_page(
         str(arguments.get("url") or ""),

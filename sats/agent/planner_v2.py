@@ -441,16 +441,22 @@ def _tool_capability_summary(tool_registry: AgentToolRegistry | None) -> str:
         "data.astock_catalog",
         "data.astock_fetch",
         "web.search",
+        "web.get_sub_domains",
+        "web.batch_search",
+        "web.open",
         "web.social_hot",
         "web.hot_mentions",
     )
     defaults = {
-        "research.market_context": "获取真实 A 股大盘指数、市场宽度、涨跌停情绪、热点板块上下文。",
+        "research.market_context": "获取真实 A 股大盘指数、市场宽度、涨跌停情绪、热点板块和资金流上下文。",
         "research.sector_return_ranking": "枚举概念/行业板块指数并计算区间涨跌幅排行。",
         "research.theme_stock_list": "解析主题相关 A 股股票池；不做短线机会筛选或预测。",
         "research.theme_stock_returns": "解析主题相关 A 股股票池并计算个股区间涨跌幅。",
         "analysis.python_program": "没有合适现成工具时执行只读受限 Python 分析程序。",
         "web.search": "搜索公开网页证据；不能替代行情数据。",
+        "web.get_sub_domains": "发现 AnySearch 垂直领域 sub_domain 和必填参数。",
+        "web.batch_search": "并行执行多个独立或跨领域公开网络查询。",
+        "web.open": "读取用户提供的公开 URL 全文。",
         "web.social_hot": "获取公开社交热榜。",
         "web.hot_mentions": "按主题词在社交热榜中查命中。",
     }
@@ -1056,11 +1062,11 @@ def _is_sector_return_ranking_text(message: str) -> bool:
     if any(term in value for term in ("相关股票", "相关个股", "相关a股", "概念股", "股票池", "个股")):
         return False
     has_sector_subject = any(term in value for term in ("概念板块", "行业板块", "板块", "行业", "概念指数", "板块指数"))
-    has_period = any(term in value for term in ("一年", "半年", "近年", "过去", "最近", "近")) or bool(
-        re.search(r"[0-9一二两三四五六七八九十]+(个)?(月|年|周|天|日)", value)
+    has_period = any(term in value for term in ("今天", "今日", "当天", "当日", "一年", "半年", "近年", "过去", "最近", "近")) or bool(
+        re.search(r"[0-9一二两三四五六七八九十]+(个)?(交易日|月|年|周|天|日)", value)
     )
-    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现"))
-    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌"))
+    has_metric = any(term in value for term in ("涨跌幅", "涨幅", "跌幅", "收益", "表现", "热点", "热门", "强势"))
+    has_ranking = any(term in value for term in ("最大", "最高", "最低", "最小", "排行", "排名", "top", "前", "后", "垫底", "倒数", "领涨", "领跌", "列表", "列出"))
     return has_sector_subject and has_period and has_metric and has_ranking
 
 
@@ -1076,21 +1082,27 @@ def _sector_ranking_type_text(message: str) -> str:
 
 def _sector_ranking_direction_text(message: str) -> str:
     text = str(message or "")
-    return "top" if any(term in text for term in ("涨幅最大", "涨幅最高", "领涨", "最强", "最好")) else "bottom"
+    return "top" if any(term in text for term in ("涨幅最大", "涨幅最高", "领涨", "最强", "最好", "热点", "热门", "强势")) else "bottom"
 
 
 def _sector_ranking_period_text(message: str) -> str:
     text = str(message or "")
+    trading_day_match = re.search(r"(?:过去|最近|近)?\s*([0-9一二两三四五六七八九十]+)\s*(个)?\s*交易日", text)
+    if trading_day_match:
+        amount = _chinese_number_text(trading_day_match.group(1))
+        return f"{amount}d" if amount else ""
     if "半年" in text:
         return "6m"
     if "一年" in text or "1年" in text or "近年" in text:
         return "1y"
     match = re.search(r"([0-9一二两三四五六七八九十]+)\s*(个)?\s*(月|年|周|天|日)", text)
-    if not match:
-        return "1y"
-    amount = _chinese_number_text(match.group(1))
-    suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
-    return f"{amount}{suffix}" if amount else "1y"
+    if match:
+        amount = _chinese_number_text(match.group(1))
+        suffix = {"月": "m", "年": "y", "周": "w", "天": "d", "日": "d"}.get(match.group(3), "d")
+        return f"{amount}{suffix}" if amount else "1y"
+    if any(term in text for term in ("今天", "今日", "当天", "当日")):
+        return "1d"
+    return ""
 
 
 def _chinese_number_text(value: str) -> int:
@@ -1168,6 +1180,8 @@ def _market_dimensions_for_task(task: str, message: str) -> list[str]:
         return ["hot_sectors"]
     if task == "market_review":
         return list(DEFAULT_MARKET_DIMENSIONS)
+    if "资金流" in str(message or "") and any(term in str(message or "") for term in ("大盘", "市场", "指数", "A股", "a股")):
+        return ["fund_flow"]
     return []
 
 

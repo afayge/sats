@@ -459,7 +459,7 @@ def _style_guide(style: str) -> dict[str, Any]:
     common = {
         "format": "中文 Markdown；用表格呈现指标和证据；少用长段落；不要输出工具日志。",
         "required_footer": "必须以“以上仅供研究，不构成投资建议。”或同义风险提示收尾。",
-        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；只有 requested_dimensions/missing_fields、真实空 payload 或工具错误表明缺失时，才写数据缺失或未命中；optional_fields_not_requested 或 optional_minute_* 只表示本次未请求，不得写成数据缺失/未命中；明确请求股票未出现在摘要中只能写摘要未展开/未纳入摘要，不要写成数据缺失；不要把摘要字段名差异当成数据缺失；market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额，只有 turnover_comparison.status=ok 时才能定性放量/缩量/成交萎缩。",
+        "data_policy": "所有价格、成交量、K线、quote、指标、信号和因子证据只能来自 observations/evidence_digest；data.astock_fetch 的 rows/data 是有界样本，row_count > returned_row_count 时只能作为样本展示或接口命中，不能推导全市场涨跌家数、宽度、成交额或分布；只有 requested_dimensions/missing_fields、真实空 payload 或工具错误表明缺失时，才写数据缺失或未命中；optional_fields_not_requested 或 optional_minute_* 只表示本次未请求，不得写成数据缺失/未命中；明确请求股票未出现在摘要中只能写摘要未展开/未纳入摘要，不要写成数据缺失；不要把摘要字段名差异当成数据缺失；market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额，只有 turnover_comparison.status=ok 时才能定性放量/缩量/成交萎缩。",
     }
     if style == "capability_overview":
         return {
@@ -501,8 +501,8 @@ def _style_guide(style: str) -> dict[str, Any]:
         return {
             **common,
             "title": "用 A股大盘或指数主题写 H1 标题。",
-            "sections": ["数据截止与免责声明", "核心结论", "核心指数表", "市场宽度/情绪", "板块轮动", "下周情景", "风险触发位", "一句话总结"],
-            "table_hints": ["核心指数表", "宽度/情绪表", "板块轮动表", "情景推演表"],
+            "sections": ["数据截止与免责声明", "核心结论", "核心指数表", "市场宽度/情绪", "资金流", "板块轮动", "明日情景与操作条件", "风险触发位", "一句话总结"],
+            "table_hints": ["核心指数表", "宽度/情绪表", "资金流表", "板块轮动表", "情景推演表"],
         }
     if style == "discovery":
         return {
@@ -524,7 +524,7 @@ def _style_guide(style: str) -> dict[str, Any]:
             "title": "用板块指数区间表现排行写 H1 标题。",
             "sections": ["数据截止与免责声明", "核心结论", "板块指数涨跌幅排行表", "覆盖率与口径", "风险与限制", "下一步"],
             "table_hints": [
-                "板块排行表必须覆盖 sector_return_ranking.ranking；列出排名、板块代码、板块名称、起止交易日、区间涨跌幅、数据源",
+                "板块排行表必须覆盖 sector_return_ranking.ranking；区间排行列出起止交易日和区间涨跌幅，单日排行列出交易日和当日涨跌幅",
                 "不得引用 theme_stock_returns.candidate_count、个股候选或 web_evidence 解释板块排行结果。",
             ],
         }
@@ -628,6 +628,14 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
             _merge_skill_tool_digest(digest, obs, payload)
         elif tool_name == "web.search":
             digest["web_evidence"].extend(_web_search_digest(payload, source_ids=web_source_ids))
+        elif tool_name == "web.batch_search":
+            batch = payload.get("web_batch_search") if isinstance(payload.get("web_batch_search"), dict) else payload
+            for result in batch.get("results") if isinstance(batch.get("results"), list) else []:
+                if isinstance(result, dict):
+                    digest["web_evidence"].extend(_web_search_digest(result, source_ids=web_source_ids))
+        elif tool_name == "web.get_sub_domains":
+            domains = payload.get("web_sub_domains") if isinstance(payload.get("web_sub_domains"), dict) else payload
+            digest["capabilities"].setdefault("sections", {})["web_sub_domains"] = _trim_payload(domains, max_chars=5000)
         elif tool_name == "web.open":
             digest["web_evidence"].extend(_web_open_digest(payload, source_ids=web_source_ids))
         elif tool_name == "web.social_hot":
@@ -660,11 +668,10 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
             digest["theme_stock_returns"] = _trim_payload(context, max_chars=14000)
         elif tool_name == "research.sector_return_ranking":
             context = payload.get("sector_return_ranking") if isinstance(payload.get("sector_return_ranking"), dict) else payload
-            trimmed = _trim_payload(context, max_chars=14000)
-            if isinstance(trimmed, dict):
-                ranking = context.get("ranking") if isinstance(context, dict) and isinstance(context.get("ranking"), list) else []
-                trimmed["ranking_count"] = len(ranking)
-            digest["sector_return_ranking"] = trimmed
+            sector_digest = _sector_return_ranking_digest(context)
+            current = digest.get("sector_return_ranking") if isinstance(digest.get("sector_return_ranking"), dict) else {}
+            if sector_digest.get("ranking") or not current.get("ranking"):
+                digest["sector_return_ranking"] = sector_digest
         elif tool_name == "research.theme_stock_list":
             context = payload.get("theme_stock_list") if isinstance(payload.get("theme_stock_list"), dict) else payload
             digest["theme_stock_list"] = _trim_payload(context, max_chars=14000)
@@ -684,6 +691,35 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
     digest["provenance"] = _dedupe_dicts(digest["provenance"])[:12]
     digest["web_evidence"] = _dedupe_dicts(digest["web_evidence"])[:24]
     return digest
+
+
+def _sector_return_ranking_digest(context: Any) -> dict[str, Any]:
+    if not isinstance(context, dict):
+        return {}
+    ranking = context.get("ranking") if isinstance(context.get("ranking"), list) else []
+    missing = context.get("missing") if isinstance(context.get("missing"), list) else []
+    return _drop_empty(
+        {
+            "query": context.get("query"),
+            "source": context.get("source"),
+            "sector_type": context.get("sector_type"),
+            "period": context.get("period"),
+            "direction": context.get("direction"),
+            "trade_date": context.get("trade_date"),
+            "requested_trade_date": context.get("requested_trade_date"),
+            "actual_trade_date": context.get("actual_trade_date"),
+            "start_date": context.get("start_date"),
+            "lookup_start_date": context.get("lookup_start_date"),
+            "limit": context.get("limit"),
+            "ranking": [item for item in ranking if isinstance(item, dict)],
+            "ranking_count": len(ranking),
+            "coverage": context.get("coverage"),
+            "warnings": context.get("warnings"),
+            "missing": [item for item in missing[:10] if isinstance(item, dict)],
+            "missing_count": len(missing),
+            "data_sources": context.get("data_sources"),
+        }
+    )
 
 
 def _merge_capability_digest(digest: dict[str, Any], payload: dict[str, Any]) -> None:
@@ -879,8 +915,10 @@ def _compact_market_digest(value: Any, *, compact_mode: str) -> dict[str, Any]:
             "core_indices": _compact_market_index_digest(value.get("core_indices"), compact_mode=compact_mode),
             "market_breadth": _trim_payload(value.get("market_breadth") or {}, max_chars=700 if ultra else 1400),
             "limit_sentiment": _trim_payload(value.get("limit_sentiment") or {}, max_chars=700 if ultra else 1400),
+            "fund_flow": _trim_payload(value.get("fund_flow") or {}, max_chars=900 if ultra else 1800),
             "hot_sector_context": _trim_payload(value.get("hot_sector_context") or {}, max_chars=1000 if ultra else 2200),
             "hot_sectors": _compact_hot_sector_digest(value.get("hot_sectors"), compact_mode=compact_mode),
+            "catalysts": _trim_payload(value.get("catalysts") or {}, max_chars=1000 if ultra else 2400),
             "requested_indices": value.get("requested_indices"),
             "requested_dimensions": value.get("requested_dimensions"),
             "requested_horizons": value.get("requested_horizons"),
@@ -1342,11 +1380,13 @@ def _market_context_digest(payload: dict[str, Any]) -> dict[str, Any]:
             "core_indices": _market_index_rows(context.get("indices") or context.get("core_indices")),
             "market_breadth": _trim_payload(context.get("market_breadth") or {}, max_chars=2500),
             "limit_sentiment": _trim_payload(context.get("limit_sentiment") or {}, max_chars=2500),
+            "fund_flow": _trim_payload(context.get("fund_flow") or {}, max_chars=2500),
             "hot_sector_context": hot_sector_context,
             "hot_sectors": _hot_sector_rows(
                 hot_sector_context,
                 context.get("hot_sectors") or context.get("sector_rotation"),
             ),
+            "catalysts": _trim_payload(context.get("catalysts") or {}, max_chars=3000),
             "requested_indices": context.get("requested_indices"),
             "requested_dimensions": context.get("requested_dimensions"),
             "requested_horizons": context.get("requested_horizons"),
@@ -1631,13 +1671,21 @@ def collect_agent_sources(observations: tuple[AgentObservation, ...]) -> list[di
     by_url: dict[str, int] = {}
     for observation in observations:
         tool_name = str(observation.payload.get("tool_name") or "")
-        if tool_name not in {"web.search", "web.open", "research.theme_stock_returns"}:
+        if tool_name not in {"web.search", "web.batch_search", "web.open", "research.theme_stock_returns"}:
             continue
         payload = _result_payload(observation)
         if tool_name == "research.theme_stock_returns":
             theme_payload = payload.get("theme_stock_returns") if isinstance(payload.get("theme_stock_returns"), dict) else {}
             data = theme_payload if isinstance(theme_payload, dict) else {}
             sources = data.get("sources") if isinstance(data.get("sources"), list) else []
+        elif tool_name == "web.batch_search":
+            batch = payload.get("web_batch_search") if isinstance(payload.get("web_batch_search"), dict) else payload
+            sources = []
+            for result in batch.get("results") if isinstance(batch.get("results"), list) else []:
+                if not isinstance(result, dict):
+                    continue
+                sources.extend(result.get("sources") if isinstance(result.get("sources"), list) else [])
+            data = batch
         elif isinstance(payload.get("web_search"), dict):
             data = payload["web_search"]
             sources = data.get("sources") if isinstance(data.get("sources"), list) else []
@@ -2351,10 +2399,31 @@ def _append_market_fallback(lines: list[str], digest: dict[str, Any]) -> None:
         )
         or ["核心指数数据缺失。"]
     )
-    lines.extend(["", "## 市场宽度/情绪", "", _compact_json_line({"market_breadth": market.get("market_breadth"), "limit_sentiment": market.get("limit_sentiment")}), "", "## 板块轮动", ""])
+    lines.extend(["", "## 市场宽度/情绪", "", _compact_json_line({"market_breadth": market.get("market_breadth"), "limit_sentiment": market.get("limit_sentiment")}), "", "## 资金流", ""])
+    fund_flow = market.get("fund_flow") if isinstance(market.get("fund_flow"), dict) else {}
+    market_flow = fund_flow.get("market") if isinstance(fund_flow.get("market"), dict) else {}
+    sector_top = fund_flow.get("sector_top") if isinstance(fund_flow.get("sector_top"), list) else []
+    sector_bottom = fund_flow.get("sector_bottom") if isinstance(fund_flow.get("sector_bottom"), list) else []
+    lines.extend(
+        [
+            _compact_json_line(
+                {
+                    "market": market_flow,
+                    "sector_top": sector_top[:5],
+                    "sector_bottom": sector_bottom[:5],
+                    "missing_fields": fund_flow.get("missing_fields"),
+                }
+            )
+            if fund_flow
+            else "资金流数据缺失。",
+            "",
+            "## 板块轮动",
+            "",
+        ]
+    )
     sector_rows = market.get("hot_sectors") if isinstance(market.get("hot_sectors"), list) else []
     lines.extend(_markdown_table(sector_rows, ("name", "sector", "pct_chg", "score", "reason")) or ["板块轮动数据缺失。"])
-    lines.extend(["", "## 下周情景", "", "| 情景 | 触发条件 | 风险触发位 |", "|---|---|---|", "| 偏强 | 核心指数放量修复且宽度改善 | 以 observation 中真实指数位为准 |", "| 震荡 | 宽度和情绪分歧 | 关注成交量和涨跌停情绪 |", "| 转弱 | 指数与情绪同步走弱 | 不补造点位，等待真实数据确认 |", ""])
+    lines.extend(["", "## 明日情景与操作条件", "", "| 情景 | 触发条件 | 失效条件 | 仓位/观察策略 |", "|---|---|---|---|", "| 偏强 | 核心指数放量修复、宽度改善且资金流回暖 | 宽度回落或主线资金转负 | 以真实指数位和主线承接确认后再提高进攻性 |", "| 震荡 | 宽度、情绪和资金流分歧 | 涨跌停情绪继续恶化 | 控制仓位，观察热点轮动持续性 |", "| 转弱 | 指数、宽度、情绪和资金流同步走弱 | 情绪冰点后出现真实修复 | 降低追高，等待真实数据确认 |", ""])
 
 
 def _append_discovery_fallback(lines: list[str], digest: dict[str, Any]) -> None:
@@ -2417,24 +2486,42 @@ def _append_theme_returns_fallback(lines: list[str], digest: dict[str, Any]) -> 
 def _append_sector_returns_fallback(lines: list[str], digest: dict[str, Any]) -> None:
     payload = digest.get("sector_return_ranking") if isinstance(digest.get("sector_return_ranking"), dict) else {}
     ranking = payload.get("ranking") if isinstance(payload.get("ranking"), list) else []
-    rows = [
-        {
-            "排名": item.get("rank"),
-            "板块代码": item.get("sector_code"),
-            "板块名称": item.get("name"),
-            "起始交易日": item.get("start_trade_date"),
-            "结束交易日": item.get("end_trade_date"),
-            "起始收盘": item.get("start_close"),
-            "结束收盘": item.get("end_close"),
-            "区间涨跌幅": item.get("pct_change"),
-            "样本天数": item.get("sample_days"),
-            "数据源": item.get("data_source") or payload.get("source"),
-        }
-        for item in ranking
-        if isinstance(item, dict)
-    ]
-    lines.extend(["## 板块指数涨跌幅排行表", ""])
-    lines.extend(_markdown_table(rows, ("排名", "板块代码", "板块名称", "起始交易日", "结束交易日", "起始收盘", "结束收盘", "区间涨跌幅", "样本天数", "数据源")) or ["板块指数区间涨跌幅排行数据缺失。"])
+    is_single_day = str(payload.get("period") or "").strip().lower() in {"1d", "d", "day", "daily", "today"}
+    if is_single_day:
+        rows = [
+            {
+                "排名": item.get("rank"),
+                "板块代码": item.get("sector_code"),
+                "板块名称": item.get("name"),
+                "交易日": item.get("trade_date") or item.get("end_trade_date"),
+                "收盘": item.get("close") or item.get("end_close"),
+                "当日涨跌幅": item.get("pct_change"),
+                "数据源": item.get("data_source") or payload.get("source"),
+            }
+            for item in ranking
+            if isinstance(item, dict)
+        ]
+        lines.extend(["## 板块当日涨跌幅排行表", ""])
+        lines.extend(_markdown_table(rows, ("排名", "板块代码", "板块名称", "交易日", "收盘", "当日涨跌幅", "数据源")) or ["板块当日涨跌幅排行数据缺失。"])
+    else:
+        rows = [
+            {
+                "排名": item.get("rank"),
+                "板块代码": item.get("sector_code"),
+                "板块名称": item.get("name"),
+                "起始交易日": item.get("start_trade_date"),
+                "结束交易日": item.get("end_trade_date"),
+                "起始收盘": item.get("start_close"),
+                "结束收盘": item.get("end_close"),
+                "区间涨跌幅": item.get("pct_change"),
+                "样本天数": item.get("sample_days"),
+                "数据源": item.get("data_source") or payload.get("source"),
+            }
+            for item in ranking
+            if isinstance(item, dict)
+        ]
+        lines.extend(["## 板块指数涨跌幅排行表", ""])
+        lines.extend(_markdown_table(rows, ("排名", "板块代码", "板块名称", "起始交易日", "结束交易日", "起始收盘", "结束收盘", "区间涨跌幅", "样本天数", "数据源")) or ["板块指数区间涨跌幅排行数据缺失。"])
     missing = payload.get("missing") if isinstance(payload.get("missing"), list) else []
     if not rows and missing:
         missing_rows = [

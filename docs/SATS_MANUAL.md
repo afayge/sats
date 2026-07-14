@@ -115,7 +115,8 @@ sats init --overwrite  # 覆盖已有配置
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | `WEB_SEARCH_BACKEND` | `auto/rag` 使用原生 RAG；`responses` 为显式兼容路径；`ddgs` 为纯摘要模式 | `auto` |
-| `WEB_SEARCH_PROVIDERS` | 原生搜索提供方列表，可选 `ddgs,bing,tavily,bocha,querit` | `ddgs,bing` |
+| `WEB_SEARCH_PROVIDERS` | 原生搜索提供方列表，可选 `anysearch,ddgs,bing,tavily,bocha,querit` | `anysearch,ddgs,bing` |
+| `ANYSEARCH_API_KEY` | AnySearch 可选 API key；为空时匿名访问 | — |
 | `WEB_PAGE_CACHE_TTL_SECONDS` | 网页正文与分块索引有效期 | `86400` |
 | `WEB_EMBEDDING_PROVIDER` | `auto/openai/fastembed/none` | `auto` |
 | `WEB_EMBEDDING_BASE_URL` | OpenAI-compatible embeddings 端点 | — |

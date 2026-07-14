@@ -28,7 +28,8 @@ WEB_SEARCH_CACHE_TTL_SECONDS=43200
 SOCIAL_HOT_CACHE_TTL_SECONDS=300
 WEB_SEARCH_MAX_RESULTS=10
 WEB_SEARCH_BACKEND=auto
-WEB_SEARCH_PROVIDERS=ddgs,bing
+WEB_SEARCH_PROVIDERS=anysearch,ddgs,bing
+ANYSEARCH_API_KEY=
 WEB_PAGE_CACHE_TTL_SECONDS=86400
 WEB_RESPONSES_BASE_URL=
 WEB_RESPONSES_API_KEY=
@@ -80,6 +81,12 @@ SATS_QMT_ACCOUNT_ID=
 SATS_QMT_ACCOUNT_TYPE=STOCK
 SATS_QMT_USERDATA_PATH=
 SATS_QMT_SESSION_ID=
+
+# Controlled self-diagnosis and repair
+SATS_SELF_REPAIR_MODE=propose
+SATS_SELF_REPAIR_MAX_ATTEMPTS=2
+SATS_SELF_REPAIR_TIMEOUT_SECONDS=120
+SATS_SELF_REPAIR_TEST_TIMEOUT_SECONDS=300
 """
 
 
@@ -125,7 +132,8 @@ class Settings:
     web_responses_api_key: str = ""
     web_responses_model: str = ""
     web_search_context_size: str = "auto"
-    web_search_providers: str = "ddgs,bing"
+    web_search_providers: str = "anysearch,ddgs,bing"
+    anysearch_api_key: str = ""
     web_page_cache_ttl_seconds: int = 86400
     web_tavily_api_key: str = ""
     web_bocha_api_key: str = ""
@@ -138,6 +146,10 @@ class Settings:
     iwencai_base_url: str = "https://openapi.iwencai.com"
     iwencai_api_key: str = ""
     iwencai_skillhub_cli: str = "iwencai-skillhub-cli"
+    self_repair_mode: str = "propose"
+    self_repair_max_attempts: int = 2
+    self_repair_timeout_seconds: int = 120
+    self_repair_test_timeout_seconds: int = 300
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -190,7 +202,8 @@ def load_settings(project_root: Path | None = None, env_path: Path | None = None
         social_hot_cache_ttl_seconds=_env_int("SOCIAL_HOT_CACHE_TTL_SECONDS", 300),
         web_search_max_results=_env_int("WEB_SEARCH_MAX_RESULTS", 10),
         web_search_backend=_env_choice("WEB_SEARCH_BACKEND", "auto", {"auto", "rag", "responses", "ddgs"}),
-        web_search_providers=os.getenv("WEB_SEARCH_PROVIDERS", "ddgs,bing").strip(),
+        web_search_providers=os.getenv("WEB_SEARCH_PROVIDERS", "anysearch,ddgs,bing").strip(),
+        anysearch_api_key=os.getenv("ANYSEARCH_API_KEY", "").strip(),
         web_page_cache_ttl_seconds=_env_int("WEB_PAGE_CACHE_TTL_SECONDS", 86400),
         web_responses_base_url=os.getenv("WEB_RESPONSES_BASE_URL", "").strip(),
         web_responses_api_key=os.getenv("WEB_RESPONSES_API_KEY", "").strip(),
@@ -231,6 +244,10 @@ def load_settings(project_root: Path | None = None, env_path: Path | None = None
         qmt_account_type=os.getenv("SATS_QMT_ACCOUNT_TYPE", "STOCK").strip().upper(),
         qmt_userdata_path=os.getenv("SATS_QMT_USERDATA_PATH", "").strip(),
         qmt_session_id=os.getenv("SATS_QMT_SESSION_ID", "").strip(),
+        self_repair_mode=_env_choice("SATS_SELF_REPAIR_MODE", "propose", {"off", "runtime", "propose"}),
+        self_repair_max_attempts=max(0, _env_int("SATS_SELF_REPAIR_MAX_ATTEMPTS", 2)),
+        self_repair_timeout_seconds=max(1, _env_int("SATS_SELF_REPAIR_TIMEOUT_SECONDS", 120)),
+        self_repair_test_timeout_seconds=max(1, _env_int("SATS_SELF_REPAIR_TEST_TIMEOUT_SECONDS", 300)),
     )
 
 

@@ -12,9 +12,10 @@ from typing import Any, Callable
 import numpy as np
 
 from sats.llm import ChatLLM, extract_json_object
-from sats.web.fetch import fetch_page
+import sats.web.anysearch as anysearch
+from sats.web.fetch import fetch_page, validate_public_url
 from sats.web.index import WebIndex, is_expired
-from sats.web.providers import configured_provider_names, search_many
+from sats.web.providers import ProviderResult, configured_provider_names, search_many
 
 
 def search_rag(
@@ -29,6 +30,10 @@ def search_rag(
     providers: list[str] | tuple[str, ...] | None,
     ddgs_searcher: Callable[..., list[dict[str, Any]]],
     initial_warnings: list[str] | None = None,
+    vertical_domain: str = "",
+    sub_domain: str = "",
+    sub_domain_params: dict[str, Any] | None = None,
+    preloaded_results: list[ProviderResult] | None = None,
 ) -> dict[str, Any]:
     warnings = list(initial_warnings or [])
     queries = expand_queries(query, context_size=context_size, settings=settings, warnings=warnings)
@@ -41,7 +46,15 @@ def search_rag(
         freshness=freshness,
         domains=domains,
         ddgs_searcher=ddgs_searcher,
+        vertical_domain=vertical_domain,
+        sub_domain=sub_domain,
+        sub_domain_params=sub_domain_params,
+        preloaded_results=preloaded_results,
     )
+    failed_providers = [item for item in provider_status if item.get("status") in {"error", "empty"}]
+    for item in failed_providers:
+        detail = str(item.get("error") or "no results")
+        warnings.append(f"Search provider {item.get('provider')} {item.get('status')}: {detail}")
     if not search_rows:
         errors = "; ".join(str(item.get("error") or "") for item in provider_status if item.get("error"))
         return _error_payload(
@@ -140,6 +153,9 @@ def search_rag(
         "trusted_domains": list(domains),
         "freshness": freshness,
         "context_size": context_size,
+        "domain": vertical_domain,
+        "sub_domain": sub_domain,
+        "sub_domain_params": dict(sub_domain_params or {}),
         "backend": "rag",
         "model": "",
         "answer": answer,
@@ -186,9 +202,27 @@ def open_page(
     index = WebIndex(settings)
     cached = index.get_document(url) if use_cache else None
     document = cached if cached and not is_expired(cached) else None
+    backend = "rag"
     if document is None:
         try:
-            page = fetch_page(url, settings=settings, trusted_domains=trusted_domains)
+            validate_public_url(url, trusted_domains=trusted_domains)
+            if str(url or "").lower().split("?", 1)[0].endswith(".pdf"):
+                page = fetch_page(url, settings=settings, trusted_domains=trusted_domains)
+            else:
+                try:
+                    extracted = anysearch.extract(url, settings=settings)
+                    page = {
+                        "url": url,
+                        "title": extracted["title"],
+                        "content": extracted["content"],
+                        "content_type": "text/markdown",
+                        "extraction_method": "anysearch_extract",
+                        "published_at": None,
+                    }
+                    backend = "anysearch"
+                except Exception as exc:
+                    warnings.append(f"AnySearch extract failed; used native fetch: {exc}")
+                    page = fetch_page(url, settings=settings, trusted_domains=trusted_domains)
             document = index.put_document(
                 url=page["url"],
                 title=page["title"],
@@ -253,7 +287,7 @@ def open_page(
         "status": "ok",
         "url": source["url"],
         "query": query,
-        "backend": "rag",
+        "backend": backend,
         "title": source["title"],
         "content": "\n\n".join(str(item.get("content") or "") for item in selected),
         "sources": [source],
@@ -498,15 +532,20 @@ def _load_documents(
     for row, stale, page, error in fetched:
         url = str(row.get("url") or "")
         if page:
+            providers = list(row.get("providers") or [])
+            page_content = str(page["content"] or "")
+            provider_snippet = str(row.get("snippet") or "").strip()
+            if "anysearch" in providers and provider_snippet and provider_snippet not in page_content:
+                page_content = f"{provider_snippet}\n\n{page_content}".strip()
             document = index.put_document(
                 url=page["url"],
                 title=page.get("title") or row.get("title") or url,
-                content=page["content"],
+                content=page_content,
                 content_type=page["content_type"],
                 extraction_method=page["extraction_method"],
                 published_at=page.get("published_at"),
                 meta={
-                    "providers": list(row.get("providers") or []),
+                    "providers": providers,
                     "queries": list(row.get("queries") or []),
                     "search_score": row.get("search_score"),
                     "search_snippet": row.get("snippet") or "",

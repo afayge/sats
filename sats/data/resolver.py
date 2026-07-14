@@ -176,7 +176,10 @@ class MarketDataResolver:
         min_count: int = MARKET_BREADTH_MIN_COUNT,
     ) -> tuple[dict[str, Any], str]:
         try:
-            live_payload, live_source = self.provider.load_market_breadth()
+            try:
+                live_payload, live_source = self.provider.load_market_breadth(trade_date=str(as_of_date))
+            except TypeError:
+                live_payload, live_source = self.provider.load_market_breadth()
         except Exception:
             live_payload, live_source = {}, "unavailable"
         if live_payload and int(live_payload.get("total_count") or live_payload.get("total") or 0) > 0:

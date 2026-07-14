@@ -1665,7 +1665,10 @@ def _market_context_digest(context: Any | None) -> dict[str, Any]:
             "indices": _trim_payload(payload.get("indices") or [], max_chars=5000),
             "market_breadth": _trim_payload(payload.get("market_breadth") or {}, max_chars=2500),
             "limit_sentiment": _trim_payload(payload.get("limit_sentiment") or {}, max_chars=2500),
+            "fund_flow": _trim_payload(payload.get("fund_flow") or {}, max_chars=2500),
             "hot_sector_context": _trim_payload(payload.get("hot_sector_context") or {}, max_chars=2500),
+            "hot_sectors": _trim_payload(payload.get("hot_sectors") or [], max_chars=2500),
+            "catalysts": _trim_payload(payload.get("catalysts") or {}, max_chars=3000),
             "missing_fields": payload.get("missing_fields"),
             "system_message": payload.get("system_message"),
         }

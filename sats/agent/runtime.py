@@ -13,6 +13,8 @@ from typing import Any, Callable
 
 from sats.agent.command_runner import AgentCommandRunner
 from sats.agent.models import AgentExecutionPolicy, AgentObservation, AgentResult, AgentStep, TradeIntent
+from sats.agent.recovery import classify_failure, failure_from_message
+from sats.agent.source_repair import propose_source_repair_for_turn
 from sats.agent.planner import build_agent_plan
 from sats.agent.python_runtime import RestrictedPythonRuntime
 from sats.agent.synthesis import collect_agent_sources, save_agent_report, should_write_agent_report, synthesize_agent_result
@@ -107,6 +109,13 @@ def run_agent_once(
             session_id=session_id,
             turn_id=recorder.turn_id,
             message=message,
+            event_callback=lambda event_type, payload: recorder.emit(
+                event_type,
+                item_type="recovery",
+                item_name=str(payload.get("tool") or ""),
+                status="error" if event_type in {"failure_detected", "failure_exhausted", "repair_failed"} else "done",
+                payload=payload,
+            ),
         )
         observations: list[AgentObservation] = []
         steps = list(plan.steps)
@@ -133,6 +142,12 @@ def run_agent_once(
                 trade_context={"source_step_id": step.step_id},
             )
             observation = _with_step_verification(step, observation)
+            observation = _with_structured_failure(
+                observation,
+                settings=settings,
+                recorder=recorder,
+                store=store,
+            )
             if observation.status == "error" and step.kind != "final":
                 observation = _with_replan_decision(
                     observation,
@@ -277,6 +292,45 @@ def run_agent_once(
             duration_seconds=max(0.0, time.monotonic() - synthesis_started),
         )
         artifacts = list(_artifacts(observations))
+        if str(getattr(settings, "self_repair_mode", "propose") or "propose").lower() == "propose":
+            failures = store.list_agent_failures(turn_id=recorder.turn_id, limit=20)
+            if any(
+                item.get("category") == "local_code_defect"
+                and item.get("status") == "exhausted"
+                and item.get("frames")
+                for item in failures
+            ):
+                try:
+                    repair = propose_source_repair_for_turn(
+                        recorder.turn_id,
+                        settings=settings,
+                        store=store,
+                        llm_factory=llm_factory,
+                    )
+                except Exception as exc:
+                    recorder.emit(
+                        "repair_failed",
+                        item_type="source_repair",
+                        item_name=recorder.turn_id,
+                        status="error",
+                        content=str(exc),
+                    )
+                else:
+                    recorder.emit(
+                        "repair_proposed",
+                        item_type="source_repair",
+                        item_name=str(repair.get("repair_id") or ""),
+                        status="done",
+                        payload=repair,
+                    )
+                    artifacts.append(
+                        {
+                            "kind": "source_repair_patch",
+                            "path": str(repair.get("patch_path") or ""),
+                            "repair_id": str(repair.get("repair_id") or ""),
+                            "pending_action_id": str(repair.get("pending_action_id") or ""),
+                        }
+                    )
         if should_write_agent_report(message, plan, tuple(observations)):
             report_started = time.monotonic()
             recorder.emit("context_started", item_type="artifact", item_name="agent_report", status="running")
@@ -723,7 +777,15 @@ def _replan_decision(
     if repeated:
         decision["reason"] = "same error signature already failed; stop to avoid retry loop"
         return decision
-    if category in {"requires_confirmation", "trade_permission", "live_trading_permission", "trade_blocked"}:
+    if category in {
+        "requires_confirmation",
+        "trade_permission",
+        "live_trading_permission",
+        "permission_required",
+        "trade_permission",
+        "trade_blocked",
+        "dependency_error",
+    }:
         decision["reason"] = f"{category} requires user authorization or direct action"
         return decision
     if llm_factory is None:
@@ -751,29 +813,77 @@ def _error_signature(observation: AgentObservation) -> str:
 
 def _error_category(observation: AgentObservation) -> str:
     payload = observation.payload if isinstance(observation.payload, dict) else {}
+    result_payload = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    envelope = result_payload.get("payload") if isinstance(result_payload.get("payload"), dict) else {}
+    failure = envelope.get("failure") if isinstance(envelope.get("failure"), dict) else {}
+    if failure.get("category"):
+        return str(failure["category"])
     content = _error_content(observation)
-    lowered = content.lower()
-    if payload.get("requires_confirmation") or "requires confirmation" in lowered or "approval requires direct human" in lowered:
+    if payload.get("requires_confirmation"):
         return "requires_confirmation"
-    if "requires explicit --auto-trade" in lowered or "auto-trade does not allow" in lowered:
-        return "trade_permission"
-    if "requires --live-trading" in lowered:
-        return "live_trading_permission"
+    classified = classify_failure(
+        content,
+        exception_type="AgentObservationError",
+        stage="runtime",
+        tool=str(payload.get("tool_name") or ""),
+    )
     if observation.kind == "trade" or str(payload.get("tool_name") or "").startswith("trade."):
-        return "trade_blocked"
-    if "unknown agent tool" in lowered:
-        return "unknown_tool"
-    if "missing required argument" in lowered or "schema" in lowered:
-        return "invalid_arguments"
-    if "market data guard" in lowered or "fabricated field" in lowered:
-        return "market_data_guard"
-    if any(token in lowered for token in ("akshare", "dataset", "provider", "catalog", "operation")):
-        return "data_interface"
+        return classified if classified in {"trade_permission", "trade_blocked", "permission_required"} else "trade_blocked"
     if observation.kind == "command":
         return "command_failed"
     if observation.kind == "python":
-        return "python_error"
-    return "runtime_error"
+        return "python_code_error"
+    return classified
+
+
+def _with_structured_failure(
+    observation: AgentObservation,
+    *,
+    settings: Settings,
+    recorder: ChatTurnRecorder,
+    store: ChatMemoryStore,
+) -> AgentObservation:
+    if observation.status != "error":
+        return observation
+    payload = dict(observation.payload or {})
+    result_payload = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    result_envelope = result_payload.get("payload") if isinstance(result_payload.get("payload"), dict) else {}
+    if isinstance(result_envelope.get("failure"), dict) or isinstance(payload.get("failure"), dict):
+        return observation
+    category = _error_category(observation)
+    failure = failure_from_message(
+        _error_content(observation),
+        project_root=getattr(settings, "project_root", "."),
+        stage="runtime",
+        tool=str(payload.get("tool_name") or observation.kind),
+        category=category,
+        exception_type="AgentObservationError",
+    )
+    payload["failure"] = failure.to_dict()
+    try:
+        store.add_agent_failure(
+            failure,
+            turn_id=recorder.turn_id,
+            session_id=recorder.turn.session_id,
+            status="exhausted",
+        )
+    except Exception:
+        pass
+    recorder.emit(
+        "failure_detected",
+        item_type="agent_step",
+        item_name=observation.step_id,
+        status="error",
+        content=failure.message,
+        payload=failure.to_dict(),
+    )
+    return AgentObservation(
+        step_id=observation.step_id,
+        kind=observation.kind,
+        status=observation.status,
+        content=observation.content,
+        payload=payload,
+    )
 
 
 def _error_content(observation: AgentObservation) -> str:
