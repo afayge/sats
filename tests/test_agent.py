@@ -20,7 +20,7 @@ from sats.agent.planner_v2 import _is_sector_return_ranking_text, _sector_rankin
 from sats.agent.runtime import _execute_step
 from sats.agent.python_runtime import RestrictedPythonRuntime
 from sats.agent.recovery import failure_from_message
-from sats.agent.synthesis import collect_agent_sources, save_agent_report, synthesize_agent_result, _evidence_digest
+from sats.agent.synthesis import _compact_evidence_digest, _evidence_digest, collect_agent_sources, save_agent_report, synthesize_agent_result
 from sats.agent.tools import AgentToolContext, AgentToolRegistry, AgentToolResult, AgentToolSpec, build_default_tool_registry
 from sats.agent.tools.command_tools import RECURSIVE_SATS_COMMANDS, SATS_COMMANDS
 from sats.agent.tools.research_tools import _sector_period_from_text
@@ -603,6 +603,42 @@ class AgentTest(unittest.TestCase):
         self.assertIn("observations_summary", context_text)
         self.assertNotIn('"observations":', context_text)
 
+    def test_third_party_openai_synthesis_uses_strict_stream_and_bounded_transport(self) -> None:
+        class StrictStreamLLM:
+            init_kwargs = {}
+            calls = []
+
+            def __init__(self, *args, **kwargs) -> None:
+                StrictStreamLLM.init_kwargs = dict(kwargs)
+
+            def strict_stream_chat(self, messages, timeout=None):
+                StrictStreamLLM.calls.append({"messages": list(messages), "timeout": timeout})
+                return SimpleNamespace(content="流式综合成功")
+
+            def chat(self, messages, timeout=None):
+                raise AssertionError("third-party synthesis must not use non-stream chat")
+
+        StrictStreamLLM.init_kwargs = {}
+        StrictStreamLLM.calls = []
+        settings = _third_party_openai_settings()
+        settings.llm_timeout_seconds = 180
+        result = synthesize_agent_result(
+            message="评价 通富微电 今天走势，预测明天走势",
+            plan=AgentPlan(objective="评价 通富微电 今天走势，预测明天走势"),
+            observations=(_large_market_observation(),),
+            skills=(),
+            settings=settings,
+            llm_factory=StrictStreamLLM,
+        )
+
+        self.assertTrue(result.used_llm)
+        self.assertEqual(result.transport_mode, "strict_stream")
+        self.assertEqual(result.effective_timeout_seconds, 110)
+        self.assertEqual(result.transport_max_retries, 0)
+        self.assertEqual(StrictStreamLLM.init_kwargs["timeout_seconds"], 110)
+        self.assertEqual(StrictStreamLLM.init_kwargs["max_retries"], 0)
+        self.assertEqual([call["timeout"] for call in StrictStreamLLM.calls], [110])
+
     def test_third_party_openai_synthesis_retries_with_ultra_compact_prompt(self) -> None:
         class RetryLLM:
             messages_by_call = []
@@ -911,6 +947,160 @@ class AgentTest(unittest.TestCase):
         self.assertIn("Skills 与 Tools 的区别", context_text)
         self.assertIn("analysis.python_program", context_text)
         self.assertNotIn("今日/近期盘面表", context_text)
+
+    def test_screening_digest_keeps_named_candidates_and_original_order(self) -> None:
+        for candidate_count in (151, 139):
+            with self.subTest(candidate_count=candidate_count):
+                selected_rows = [
+                    {
+                        "ts_code": f"300{i:03d}.SZ",
+                        "name": f"候选{i}",
+                        "score": 101 - i,
+                        "matched_conditions": ["MA5 > MA10 > MA20", "回踩 MA10 后重新站上"],
+                        "failed_conditions": [],
+                        "latest_trade_date": "20260716",
+                        "data_source": "tushare_daily",
+                        "condition_details": [{"large": "不进入 digest" * 100}],
+                    }
+                    for i in range(1, 21)
+                ]
+                observation = AgentObservation(
+                    step_id="screen",
+                    kind="tool",
+                    status="done",
+                    content="matched",
+                    payload={
+                        "tool_name": "workflow.screened_stock_analysis",
+                        "result": {
+                            "status": "done",
+                            "payload": {
+                                "business_status": "matched",
+                                "selection_strategy": "ephemeral_spec",
+                                "rule": "nl_trend_pullback",
+                                "trade_date": "20260716",
+                                "candidate_count": candidate_count,
+                                "candidate_limit": 20,
+                                "selected_rows": selected_rows,
+                                "selected_symbols": [item["ts_code"] for item in selected_rows],
+                                "analysis_output": "格式化分析文本，不是字典",
+                                "semantic_spec": {
+                                    "assumptions": ["MA20 为趋势失效线"],
+                                    "conditions": [{"id": "ma_stack", "label": "MA5 > MA10 > MA20", "required": True}],
+                                },
+                            },
+                        },
+                    },
+                )
+
+                digest = _evidence_digest((observation,))["screened_stock_analysis"]
+
+                self.assertEqual(digest["candidate_count"], candidate_count)
+                self.assertEqual(digest["candidate_limit"], 20)
+                self.assertEqual([item["ts_code"] for item in digest["selected_rows"]], [f"300{i:03d}.SZ" for i in range(1, 21)])
+                self.assertEqual([item["name"] for item in digest["selected_rows"]], [f"候选{i}" for i in range(1, 21)])
+                self.assertEqual(digest["assumptions"], ["MA20 为趋势失效线"])
+                self.assertNotIn("condition_details", json.dumps(digest, ensure_ascii=False))
+                compact = _compact_evidence_digest({"screened_stock_analysis": digest}, compact_mode="compact")
+                ultra = _compact_evidence_digest({"screened_stock_analysis": digest}, compact_mode="ultra_compact")
+                for payload in (compact, ultra):
+                    candidates = payload["screened_stock_analysis"]["selected_rows"]
+                    self.assertEqual(len(candidates), 20)
+                    self.assertEqual([item["ts_code"] for item in candidates], [f"300{i:03d}.SZ" for i in range(1, 21)])
+                    self.assertNotIn("truncated_json", json.dumps(payload, ensure_ascii=False))
+
+    def test_screening_candidates_override_incidental_capability_style(self) -> None:
+        workflow = AgentObservation(
+            step_id="screen",
+            kind="tool",
+            status="done",
+            content="matched",
+            payload={
+                "tool_name": "workflow.screened_stock_analysis",
+                "result": {
+                    "status": "done",
+                    "payload": {
+                        "business_status": "matched",
+                        "rule": "nl_trend_pullback",
+                        "trade_date": "20260716",
+                        "candidate_count": 139,
+                        "candidate_limit": 2,
+                        "selected_rows": [
+                            {"ts_code": "001206.SZ", "name": "依依股份", "score": 100, "matched_conditions": ["均线多头"]},
+                            {"ts_code": "002828.SZ", "name": "贝肯能源", "score": 99, "matched_conditions": ["回踩不破"]},
+                        ],
+                        "analysis_output": "格式化分析文本",
+                    },
+                },
+            },
+        )
+
+        synthesize_agent_result(
+            message="列出今天趋势较强、回踩不破关键均线的个股",
+            plan=AgentPlan(objective="列出今天趋势较强、回踩不破关键均线的个股"),
+            observations=(*_capability_observations(), workflow),
+            skills=(),
+            settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10),
+            llm_factory=FakeSynthesisLLM,
+        )
+        context_text = "\n".join(str(item.get("content") or "") for item in FakeSynthesisLLM.last_messages)
+
+        self.assertIn('"analysis_style": "discovery"', context_text)
+        self.assertIn("候选排序表", context_text)
+        self.assertIn("001206.SZ", context_text)
+        self.assertIn("依依股份", context_text)
+
+    def test_screening_fallback_lists_name_and_code_when_llm_unavailable(self) -> None:
+        workflow = AgentObservation(
+            step_id="screen",
+            kind="tool",
+            status="done",
+            content="matched",
+            payload={
+                "tool_name": "workflow.screened_stock_analysis",
+                "result": {
+                    "status": "done",
+                    "payload": {
+                        "business_status": "matched",
+                        "rule": "nl_trend_pullback",
+                        "trade_date": "20260716",
+                        "candidate_count": 151,
+                        "candidate_limit": 2,
+                        "selected_rows": [
+                            {"ts_code": "000931.SZ", "name": "中关村", "score": 100, "matched_conditions": ["均线多头"]},
+                            {"ts_code": "002415.SZ", "name": "海康威视", "score": 99, "matched_conditions": ["回踩不破"]},
+                        ],
+                        "analysis_output": "格式化分析文本",
+                        "semantic_spec": {"assumptions": ["MA20 为趋势失效线"]},
+                    },
+                },
+            },
+        )
+
+        result = synthesize_agent_result(
+            message="今天趋势较强、回踩不破关键均线的股票",
+            plan=AgentPlan(objective="今天趋势较强、回踩不破关键均线的股票"),
+            observations=(
+                workflow,
+                AgentObservation(
+                    step_id="minute_analysis",
+                    kind="tool",
+                    status="error",
+                    content="缺少真实 15m 分钟K数据",
+                    payload={"tool_name": "research.internal_analysis"},
+                ),
+            ),
+            skills=(),
+            settings=SimpleNamespace(openai_model="m", llm_timeout_seconds=10),
+            llm_factory=None,
+        )
+
+        self.assertIn("候选排序表", result.content)
+        self.assertIn("中关村", result.content)
+        self.assertIn("000931.SZ", result.content)
+        self.assertIn("海康威视", result.content)
+        self.assertIn("002415.SZ", result.content)
+        self.assertIn("缺少真实 15m 分钟K数据", result.content)
+        self.assertNotIn("SATS 支持的 Skills 与 Agent 能力总览", result.content)
 
     def test_capability_fallback_describes_codex_like_boundaries(self) -> None:
         result = synthesize_agent_result(
@@ -2826,6 +3016,16 @@ class AgentTest(unittest.TestCase):
                 "period": "6m",
                 "candidate_count": 5,
                 "stocks": stocks,
+                "ranking": [
+                    {
+                        "ts_code": item["ts_code"],
+                        "name": item["name"],
+                        "rank": index,
+                        "peer_count": 5,
+                        "pct_change": item["period_returns"]["6m"]["pct_change"],
+                    }
+                    for index, item in enumerate(stocks, start=1)
+                ],
                 "coverage": {"requested_count": 5, "returned_count": 5, "missing_symbols": []},
             },
         }
@@ -2844,6 +3044,8 @@ class AgentTest(unittest.TestCase):
         plan = AgentPlan(objective="cvd金刚石散热相关股票，列出这些股票的6个月内涨跌幅情况")
 
         digest = _evidence_digest((observation,))
+        compact = _compact_evidence_digest(digest, compact_mode="gateway_compact")
+        ultra = _compact_evidence_digest(digest, compact_mode="ultra_compact")
         result = synthesize_agent_result(
             message=plan.objective,
             plan=plan,
@@ -2854,9 +3056,15 @@ class AgentTest(unittest.TestCase):
         )
 
         self.assertEqual(len(digest["theme_stock_returns"]["stocks"]), 5)
+        self.assertEqual(len(compact["theme_stock_returns"]["stocks"]), 5)
+        self.assertEqual(len(ultra["theme_stock_returns"]["stocks"]), 5)
+        self.assertEqual([item["rank"] for item in ultra["theme_stock_returns"]["stocks"]], [1, 2, 3, 4, 5])
+        self.assertNotIn("truncated_json", json.dumps(compact["theme_stock_returns"], ensure_ascii=False))
+        self.assertNotIn("truncated_json", json.dumps(ultra["theme_stock_returns"], ensure_ascii=False))
         for item in stocks:
             self.assertIn(item["ts_code"], result.content)
             self.assertIn(item["name"], result.content)
+            self.assertIn(item["ts_code"], json.dumps(ultra["theme_stock_returns"], ensure_ascii=False))
         self.assertIn("20251222", result.content)
         self.assertIn("20260618", result.content)
         self.assertNotIn("主题股票池或区间涨跌幅数据缺失", result.content)

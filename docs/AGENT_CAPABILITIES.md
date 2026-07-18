@@ -11,6 +11,8 @@ sats catalog --section all --json
 
 当前自然语言默认入口是 Codex-style conversation 工具循环：`sats chat ...`、REPL 普通输入、`/chat ...` 和 scheduler `chat` 任务默认进入 conversation 引擎，由模型逐轮输出 `call_tool`、`ask_clarification`、`request_confirmation` 或 `final_answer`，再由 SATS runtime 调用注册工具、记录 observation、执行权限门控和 trace。`/plan ...` 和 `sats chat --plan-only ...` 是非执行 Plan mode，只输出计划，不生成可自动执行的工具步骤。旧聊天路径通过 `sats chat --engine legacy ...` 显式保留。
 
+自然语言选股通过 `workflow.screened_stock_analysis` 执行语义适配：明确或高置信匹配时使用注册规则；否则自动构造受验证的 `semantic_spec` 并用 `AStockDataProvider` 提供的全市场 `ScreeningInput` 在内存中筛选。用户条件是硬条件，Skill 偏好只参与评分；零结果必须返回未放宽条件的近似候选或明确数据诊断。临时 spec 会记录在当前会话中，只有用户要求保存并再次确认后才通过 `research.rule_generation` 生成持久化规则。
+
 注册工具的失败结果统一包含 `failure` 与 `recovery_attempts`。运行时只会自动重试只读瞬态错误；命令、写库、审批和交易工具不会自动重放。本地源码缺陷恢复耗尽后，默认 `propose` 模式可生成隔离验证补丁，但真实源码应用必须通过现有确认动作。诊断入口为 `sats repair list|show|run --turn TURN_ID`，REPL 入口为 `/repairs` 和 `/repair [TURN_ID]`。
 
 ## 推荐发现流程

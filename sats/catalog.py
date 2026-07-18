@@ -330,16 +330,21 @@ def _providers_section(
 
 
 def _screening_rules_section(*, query: str | None, limit: int, offset: int) -> dict[str, Any]:
-    from sats.screening.registry import get_rule, list_rules
+    from sats.screening.registry import get_rule, list_rules, rule_metadata
 
     rows = []
     for name in list_rules():
         rule = get_rule(name)
+        metadata = rule_metadata(name)
         rows.append(
             {
                 "name": name,
                 "class": type(rule).__name__,
                 "required_trade_days": getattr(rule, "required_trade_days", None),
+                "description": metadata.description,
+                "semantic_tags": list(metadata.semantic_tags),
+                "condition_summary": metadata.condition_summary,
+                "data_dependencies": list(metadata.data_dependencies),
             }
         )
     rows = _filter_items(rows, query)

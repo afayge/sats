@@ -676,6 +676,9 @@ sats chat --trace turn_xxxxxxxx
 ```
 
 - 普通 `sats chat`、REPL 普通输入和 `/chat` 默认走 conversation 工具循环：模型每轮只输出一个受控 JSON action，由 SATS 调用注册工具、记录 observation，再决定继续、澄清、确认或最终回答；如果只想要旧聊天路径，使用 `--engine legacy`。
+- 自然语言选股不会在语义不匹配时静默使用默认规则。用户明确规则名或命中高置信规则语义时执行现有规则；否则 SATS 会基于日线、daily_basic、stock_basic 和相关 Skill 生成只在本轮有效的声明式临时规则。临时规则不生成 Python 文件、不写 `screening_results`，但可以复用正常行情缓存。
+- 临时规则把用户明确要求作为硬条件，把 Skill 补充偏好作为软评分项。严格结果为空时不会自动放宽硬条件，而会返回带证券名称的近似候选、失败条件、数据日期和数据覆盖。数据或命令失败会与“市场中没有股票通过”分开报告。
+- 回复“保存这个规则”会把本会话最后一次已执行的临时 spec 转成待确认规则计划；只有继续回复计划中显示的 `确认生成规则 <rule_name>` 后，才会写入 `sats/screening/rules/generated/`。
 - 聊天中可触发研究、报告、规则生成、受限回测等 runtime 动作；待确认动作需用 `--confirm` 或 REPL `/confirm`。
 - `--plan-only` 在 `sats chat` 中进入 Plan mode：只输出目标、判断、建议步骤、测试/验收和假设，不生成可自动执行的工具步骤，也不调用写库、命令、报告或交易工具。
 - `--dry-run` 会跳过高风险副作用；筛选股票分析工作流可用于预览候选、模式和执行计划。
@@ -880,7 +883,7 @@ sats web cache clear --expired-only
 - `WEB_SEARCH_PROVIDERS=anysearch,ddgs,bing`：默认并发搜索并用加权 RRF 融合；AnySearch 权重为其他 provider 的 2 倍，可显式加入 `tavily`、`bocha`、`querit`。
 - `ANYSEARCH_API_KEY`：可选；未配置时使用匿名访问。不要在命令参数或聊天消息中传递密钥。
 - `WEB_TAVILY_API_KEY`、`WEB_BOCHA_API_KEY`、`WEB_QUERIT_API_KEY`：只有提供方被列入 `WEB_SEARCH_PROVIDERS` 时才使用。
-- `WEB_EMBEDDING_PROVIDER=auto`：远程 embedding 配置完整时启用 OpenAI-compatible `/v1/embeddings`；否则明确降级关键词检索。
+- `WEB_EMBEDDING_PROVIDER=auto`：仅当 `WEB_EMBEDDING_MODEL` 是真实 embedding 模型、且配置的端点支持 OpenAI-compatible `/v1/embeddings` 时启用远程向量检索；聊天模型或不支持 embeddings 的网关应设为 `none`，直接使用关键词检索。
 - `WEB_EMBEDDING_PROVIDER=fastembed`：使用可选本地模型，需先执行 `../.venv/bin/pip install -e ".[web-rag]"`。
 - `WEB_RESPONSES_BASE_URL`、`WEB_RESPONSES_API_KEY`、`WEB_RESPONSES_MODEL`：由用户配置已经运行的 Responses 兼容服务；SATS 不负责安装或启动该服务。
 - `WEB_SEARCH_CONTEXT_SIZE=auto`：普通问题使用 `medium`；明确要求深入、全面、对比或报告时使用 `high`。

@@ -154,6 +154,24 @@ def _python_program(context: AgentToolContext, arguments: dict[str, Any]) -> Age
                 code = revised_code
                 break
     payload = _normalize_program_payload(result.result, row_limit=row_limit)
+    output_error = ""
+    if result.status == "done":
+        output_error = _python_program_output_error(
+            payload,
+            task=str(arguments.get("task") or context.message or ""),
+            expected_schema=arguments.get("expected_schema"),
+            observations=observation_rows,
+            observation_refs=[str(item) for item in (arguments.get("observation_refs") or [])],
+        )
+    if output_error:
+        failure = failure_from_message(
+            output_error,
+            project_root=getattr(context.settings, "project_root", "."),
+            stage="python_output_validation",
+            tool="analysis.python_program",
+            category="invalid_output",
+        )
+        result = PythonRunResult(status="error", result=result.result, error=failure.message, failure=failure.to_dict())
     payload["status"] = result.status
     payload["task"] = str(arguments.get("task") or context.message or "")
     payload["allowed_resolver_methods"] = sorted(allowed_methods)
@@ -296,3 +314,76 @@ def _positive_int(value: Any, *, default: int, maximum: int) -> int:
     if parsed <= 0:
         parsed = default
     return min(parsed, maximum)
+
+
+def _python_program_output_error(
+    payload: dict[str, Any],
+    *,
+    task: str,
+    expected_schema: Any,
+    observations: list[dict[str, Any]],
+    observation_refs: list[str],
+) -> str:
+    if isinstance(expected_schema, dict) and expected_schema:
+        issue = _schema_issue(payload, expected_schema, path="result")
+        if issue:
+            return f"analysis.python_program output does not match expected_schema: {issue}"
+    text = str(task or "")
+    candidate_task = any(term in text for term in ("选股", "筛选", "候选", "股票池", "排名"))
+    if not candidate_task:
+        return ""
+    if not observations and not observation_refs:
+        return "candidate analysis.python_program requires a bounded universe from prior registered-tool observations"
+    rows = payload.get("rows")
+    if rows is None:
+        rows = payload.get("data")
+    if not isinstance(rows, list):
+        return "candidate analysis.python_program must return rows or data as an array"
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            return f"candidate row {index} must be an object"
+        if not str(row.get("ts_code") or "").strip():
+            return f"candidate row {index} missing ts_code"
+        if not str(row.get("name") or "").strip():
+            return f"candidate row {index} missing security name"
+        if row.get("score") is None and not str(row.get("reason") or "").strip():
+            return f"candidate row {index} requires score or reason"
+    provenance = payload.get("provenance")
+    missing_fields = payload.get("missing_fields")
+    if rows and not provenance:
+        return "candidate analysis.python_program requires non-empty provenance"
+    if not rows and not provenance and not missing_fields:
+        return "empty candidate result must explain missing_fields or provenance"
+    return ""
+
+
+def _schema_issue(value: Any, schema: dict[str, Any], *, path: str) -> str:
+    expected_type = str(schema.get("type") or "")
+    if expected_type == "object" and not isinstance(value, dict):
+        return f"{path} must be object"
+    if expected_type == "array" and not isinstance(value, list):
+        return f"{path} must be array"
+    if expected_type == "string" and not isinstance(value, str):
+        return f"{path} must be string"
+    if expected_type == "integer" and (not isinstance(value, int) or isinstance(value, bool)):
+        return f"{path} must be integer"
+    if expected_type == "number" and (not isinstance(value, (int, float)) or isinstance(value, bool)):
+        return f"{path} must be number"
+    if expected_type == "boolean" and not isinstance(value, bool):
+        return f"{path} must be boolean"
+    if isinstance(value, dict):
+        for key in schema.get("required") or ():
+            if key not in value:
+                return f"{path}.{key} is required"
+        properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
+        for key, child_schema in properties.items():
+            if key in value and isinstance(child_schema, dict):
+                issue = _schema_issue(value[key], child_schema, path=f"{path}.{key}")
+                if issue:
+                    return issue
+    if isinstance(value, list) and isinstance(schema.get("items"), dict):
+        for index, item in enumerate(value):
+            issue = _schema_issue(item, schema["items"], path=f"{path}[{index}]")
+            if issue:
+                return issue
+    return ""

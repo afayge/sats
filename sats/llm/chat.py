@@ -38,15 +38,20 @@ class ChatLLM:
         model_name: str | None = None,
         timeout_seconds: int | None = None,
         profile: str = "default",
+        max_retries: int | None = None,
     ) -> None:
         self.model_name = model_name
         self.timeout_seconds = timeout_seconds
         self.profile = profile
-        self._llm = build_llm(
+        self.max_retries = max_retries
+        build_kwargs = dict(
             model_name=model_name,
             timeout_seconds=timeout_seconds,
             profile=profile,
         )
+        if max_retries is not None:
+            build_kwargs["max_retries"] = max_retries
+        self._llm = build_llm(**build_kwargs)
         self._timeout_llms: dict[int | None, Any] = {}
 
     def chat(
@@ -81,31 +86,50 @@ class ChatLLM:
         timeout: int | None = None,
     ) -> LLMResponse:
         try:
-            llm = self._llm_for_timeout(timeout)
-            llm = llm.bind_tools(tools) if tools else llm
-            config = {"timeout": timeout} if timeout else {}
-            accumulated = None
-            for chunk in llm.stream(messages, config=config):
-                content = getattr(chunk, "content", None)
-                if content and on_text_chunk:
-                    on_text_chunk(content if isinstance(content, str) else str(content))
-                accumulated = chunk if accumulated is None else accumulated + chunk
-            if accumulated is None:
-                return LLMResponse(content="", finish_reason="stop")
-            return self._parse_response(accumulated)
+            return self.strict_stream_chat(
+                messages,
+                tools=tools,
+                on_text_chunk=on_text_chunk,
+                timeout=timeout,
+            )
         except Exception:
             return self.chat(messages, tools=tools, timeout=timeout)
+
+    def strict_stream_chat(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+        on_text_chunk: Any | None = None,
+        timeout: int | None = None,
+    ) -> LLMResponse:
+        """Stream once and propagate transport failures without a hidden chat retry."""
+
+        llm = self._llm_for_timeout(timeout)
+        llm = llm.bind_tools(tools) if tools else llm
+        config = {"timeout": timeout} if timeout else {}
+        accumulated = None
+        for chunk in llm.stream(messages, config=config):
+            content = getattr(chunk, "content", None)
+            if content and on_text_chunk:
+                on_text_chunk(content if isinstance(content, str) else str(content))
+            accumulated = chunk if accumulated is None else accumulated + chunk
+        if accumulated is None:
+            return LLMResponse(content="", finish_reason="stop")
+        return self._parse_response(accumulated)
 
     def _llm_for_timeout(self, timeout: int | None) -> Any:
         if timeout is None or timeout == self.timeout_seconds:
             return self._llm
         cached = self._timeout_llms.get(timeout)
         if cached is None:
-            cached = build_llm(
+            build_kwargs = dict(
                 model_name=self.model_name,
                 timeout_seconds=timeout,
                 profile=self.profile,
             )
+            if self.max_retries is not None:
+                build_kwargs["max_retries"] = self.max_retries
+            cached = build_llm(**build_kwargs)
             self._timeout_llms[timeout] = cached
         return cached
 
@@ -232,12 +256,14 @@ def build_standard_llm(
     *,
     model_name: str,
     timeout_seconds: int | None = None,
+    max_retries: int | None = None,
 ) -> Any:
     return _create_llm_client(
         factory,
         model_name,
         profile="default",
         timeout_seconds=timeout_seconds,
+        max_retries=max_retries,
     )
 
 
@@ -247,14 +273,27 @@ def _create_llm_client(
     *,
     profile: str,
     timeout_seconds: int | None = None,
+    max_retries: int | None = None,
 ) -> Any:
+    kwargs = {
+        "model_name": model_name,
+        "profile": profile,
+        "timeout_seconds": timeout_seconds,
+    }
+    if max_retries is not None:
+        kwargs["max_retries"] = max_retries
     try:
-        return factory(
-            model_name=model_name,
-            profile=profile,
-            timeout_seconds=timeout_seconds,
-        )
+        return factory(**kwargs)
     except TypeError:
+        if max_retries is not None:
+            try:
+                return factory(
+                    model_name=model_name,
+                    profile=profile,
+                    timeout_seconds=timeout_seconds,
+                )
+            except TypeError:
+                pass
         try:
             return factory(model_name=model_name, timeout_seconds=timeout_seconds)
         except TypeError:

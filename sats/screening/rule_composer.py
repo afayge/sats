@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib
 import importlib.util
 import re
@@ -120,6 +121,44 @@ def compose_rule_generation_plan(
         questions=tuple(questions),
         unsupported_requirements=unsupported,
         source_text=text,
+    )
+
+
+def compose_rule_generation_plan_from_spec(
+    spec: dict[str, Any],
+    *,
+    existing_rule_names: Iterable[str] = (),
+) -> RuleGenerationPlan:
+    payload = dict(spec or {})
+    conditions = tuple(dict(item) for item in payload.get("conditions") or () if isinstance(item, dict))
+    if not conditions:
+        raise ValueError("semantic screening spec has no conditions")
+    rule_name = _normalize_rule_name(str(payload.get("rule_name") or ""))
+    if not rule_name:
+        digest = hashlib.sha256(
+            repr(sorted((str(item.get("id") or ""), str(item.get("kind") or "")) for item in conditions)).encode("utf-8")
+        ).hexdigest()[:6]
+        tags = [str(item) for item in payload.get("semantic_tags") or () if str(item).strip()]
+        slug = "_".join(tags[:3]) or "dynamic"
+        rule_name = f"nl_{slug}_{digest}"
+    questions: list[str] = []
+    if not _RULE_NAME_RE.match(rule_name):
+        questions.append("规则名只能包含英文字母、数字和下划线，并且必须以字母开头。")
+    if rule_name in {_normalize_rule_name(name) for name in existing_rule_names}:
+        questions.append(f"规则名 {rule_name} 已存在，请提供一个新的 rule_name。")
+    return RuleGenerationPlan(
+        decision_name=str(payload.get("decision_name") or "自然语义筛选"),
+        rule_name=rule_name,
+        goal=str(payload.get("goal") or "保存已验证的自然语义临时筛选规则"),
+        data_dependencies=tuple(str(item) for item in payload.get("data_dependencies") or ("日线 OHLCV", "stock_basic")),
+        conditions=conditions,
+        pass_condition=str(payload.get("pass_condition") or "全部 required=true 的硬条件满足时通过；软条件只参与评分。"),
+        risk_notes=tuple(str(item) for item in payload.get("risk_notes") or (
+            "生成规则只用于研究筛选，不构成投资建议，也不会自动交易。",
+            "缺少必需字段时对应条件会失败，不会编造数据。",
+        )),
+        questions=tuple(questions),
+        source_text=str(payload.get("source_text") or ""),
     )
 
 

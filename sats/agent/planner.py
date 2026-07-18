@@ -355,7 +355,7 @@ def _fallback_plan(
                 "筛选股票集合分析工作流",
                 {
                     "message": text,
-                    "rule": infer_screening_rule(text),
+                    "rule": infer_screening_rule(text).rule_name,
                     "trade_date": extract_natural_trade_date(text) or "",
                     "candidate_limit": extract_candidate_limit(text, default=0),
                     "analysis_mode": requested_screened_analysis_mode(text).value,
@@ -691,7 +691,7 @@ def _augment_plan(
                     "筛选股票集合分析工作流",
                     {
                         "message": text,
-                        "rule": infer_screening_rule(text),
+                        "rule": infer_screening_rule(text).rule_name,
                         "trade_date": extract_natural_trade_date(text) or "",
                         "candidate_limit": extract_candidate_limit(text, default=0),
                         "analysis_mode": requested_screened_analysis_mode(text).value,

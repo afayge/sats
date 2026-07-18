@@ -16,6 +16,7 @@ from sats.conversation.runtime import (
     _chan_structured_error_fallback,
     _compact_observations,
     _conversation_action_messages,
+    _screening_final_issue,
     confirm_pending_conversation_action,
     continue_conversation_after_clarification,
     format_plan_mode_result,
@@ -24,12 +25,120 @@ from sats.conversation.runtime import (
 )
 from sats.conversation.threads import archive_thread, create_thread, fork_thread, list_threads, pin_thread, rename_thread
 from sats.memory import ChatMemoryStore
+from sats.skills import Skill
 
 
 MARKET_DIMENSIONS = ["core_indices", "market_breadth", "limit_sentiment", "hot_sectors", "fund_flow", "catalysts"]
 
 
 class ConversationRuntimeTest(unittest.TestCase):
+    def test_compact_screening_observation_keeps_bounded_named_candidates(self) -> None:
+        selected_rows = [
+            {
+                "ts_code": f"300{i:03d}.SZ",
+                "name": f"候选{i}",
+                "score": 100 - i,
+                "matched_conditions": ["MA5 > MA10 > MA20", "回踩 MA10 后重新站上"],
+                "failed_conditions": [],
+                "latest_trade_date": "20260716",
+                "data_source": "tushare_daily",
+                "condition_details": [{"large": "不应进入 compact observation" * 100}],
+            }
+            for i in range(1, 6)
+        ]
+        observation = AgentObservation(
+            step_id="screen",
+            kind="tool",
+            status="done",
+            content="matched",
+            payload={
+                "tool_name": "workflow.screened_stock_analysis",
+                "result": {
+                    "status": "done",
+                    "payload": {
+                        "business_status": "matched",
+                        "candidate_count": 151,
+                        "candidate_limit": 3,
+                        "selected_rows": selected_rows,
+                        "selected_symbols": [item["ts_code"] for item in selected_rows],
+                        "analysis_output": "格式化分析文本",
+                        "semantic_spec": {"assumptions": ["MA20 为趋势失效线"]},
+                    },
+                },
+            },
+        )
+
+        compact = _compact_observations((observation,))[0]["screening_workflow"]
+
+        self.assertEqual(compact["candidate_count"], 151)
+        self.assertEqual(compact["candidate_limit"], 3)
+        self.assertEqual([item["ts_code"] for item in compact["selected_rows"]], ["300001.SZ", "300002.SZ", "300003.SZ"])
+        self.assertEqual([item["name"] for item in compact["selected_rows"]], ["候选1", "候选2", "候选3"])
+        self.assertEqual(compact["analysis_output_type"], "formatted_text")
+        self.assertEqual(compact["assumptions"], ["MA20 为趋势失效线"])
+        self.assertNotIn("condition_details", json.dumps(compact, ensure_ascii=False))
+
+    def test_conversation_action_prompt_injects_matching_pullback_skill(self) -> None:
+        skill = Skill(
+            id="shrink-pullback",
+            name="shrink-pullback",
+            description="缩量回踩策略",
+            triggers=("回踩",),
+            content="回踩 MA5/MA10，MA20 作为失效线。",
+            path=Path("skills/shrink-pullback/SKILL.md"),
+            category="strategy",
+            applies_to=("opportunity_discovery",),
+            auto_load="full",
+            priority=74,
+        )
+
+        messages = _conversation_action_messages(
+            message="选出趋势较强、回踩不破关键均线的个股",
+            plan=AgentPlan(objective="选股"),
+            registry=_FakeRegistry(),
+            policy=AgentExecutionPolicy(),
+            observations=(),
+            reference_context=None,
+            skills=(skill,),
+        )
+
+        self.assertIn("matched_skill_context", messages[1]["content"])
+        self.assertIn("shrink-pullback", messages[1]["content"])
+        self.assertIn("MA20 作为失效线", messages[1]["content"])
+        self.assertIn("不要填写 rule", messages[0]["content"])
+
+    def test_zero_result_requires_near_misses_or_data_diagnosis_before_final(self) -> None:
+        def observation(near_misses):
+            return AgentObservation(
+                step_id="screen",
+                kind="tool",
+                status="done",
+                content="0 candidates",
+                payload={
+                    "tool_name": "workflow.screened_stock_analysis",
+                    "result": {
+                        "status": "done",
+                        "payload": {
+                            "business_status": "zero_results",
+                            "near_misses": near_misses,
+                            "data_coverage": {"evaluated_count": 100, "data_issue_count": 0},
+                        },
+                    },
+                },
+            )
+
+        blocked = _screening_final_issue(message="筛选几只股票", observations=(observation([]),))
+        allowed = _screening_final_issue(
+            message="筛选几只股票",
+            observations=(observation([{"ts_code": "000001.SZ", "name": "平安银行"}]),),
+        )
+        compact = _compact_observations((observation([{"ts_code": "000001.SZ", "name": "平安银行"}]),))
+
+        self.assertIn("near_misses", blocked)
+        self.assertEqual(allowed, "")
+        self.assertEqual(compact[0]["screening_workflow"]["business_status"], "zero_results")
+        self.assertEqual(compact[0]["screening_workflow"]["near_miss_count"], 1)
+
     def test_conversation_action_prompt_documents_python_program_observation_access(self) -> None:
         observation = AgentObservation(
             step_id="loop_1_research_market_context",
@@ -593,7 +702,15 @@ class ConversationRuntimeTest(unittest.TestCase):
                     return SimpleNamespace(content='{"action":"final_answer","content":"本地前置结论"}')
                 raise RuntimeError("status_code=500, upstream error: do request failed")
 
+            def strict_stream_chat(self, messages, timeout=None):
+                if self.instance == 1:
+                    return self.chat(messages, timeout=timeout)
+                raise RuntimeError("status_code=524, origin_response_timeout")
+
         settings = _settings(self)
+        settings.llm_provider = "openai"
+        settings.openai_base_url = "https://api.9527code.com/v1"
+        settings.llm_timeout_seconds = 180
         registry = _FakeRegistry()
         events = []
 
@@ -619,12 +736,15 @@ class ConversationRuntimeTest(unittest.TestCase):
         self.assertTrue(any(event.event_type == "turn_completed" for event in events))
         self.assertEqual(len(error_events), 1)
         self.assertEqual(error_events[0].status, "error")
-        self.assertIn("do request failed", error_events[0].content)
+        self.assertIn("origin_response_timeout", error_events[0].content)
         self.assertEqual(error_events[0].payload["error_type"], "RuntimeError")
         self.assertGreater(error_events[0].payload["prompt_chars"], 0)
         self.assertEqual(error_events[0].payload["compact_mode"], "ultra_compact")
         self.assertEqual(error_events[0].payload["retry_count"], 1)
         self.assertEqual(len(error_events[0].payload["attempt_errors"]), 2)
+        self.assertEqual(error_events[0].payload["transport_mode"], "strict_stream")
+        self.assertEqual(error_events[0].payload["effective_timeout_seconds"], 110)
+        self.assertEqual(error_events[0].payload["transport_max_retries"], 0)
         self.assertEqual(error_events[0].payload["fallback"], "local_summary")
 
     def test_conversation_injects_market_relative_time_arguments(self) -> None:
@@ -1012,6 +1132,134 @@ class ConversationRuntimeTest(unittest.TestCase):
         self.assertIn("受限 Python 分析程序执行失败", result.content)
         self.assertNotIn("internal wrapped JSON", result.content)
         self.assertEqual([event for event in events if event.event_type == "turn_completed"][-1].status, "error")
+
+    def test_screening_result_can_finish_without_python_extraction(self) -> None:
+        class LoopLLM:
+            calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                LoopLLM.calls += 1
+                if LoopLLM.calls == 1:
+                    return SimpleNamespace(
+                        content=json.dumps(
+                            {
+                                "action": "call_tool",
+                                "tool_name": "workflow.screened_stock_analysis",
+                                "arguments": {"message": "筛选趋势回踩个股", "trade_date": "20260716"},
+                            },
+                            ensure_ascii=False,
+                        )
+                    )
+                return SimpleNamespace(content='{"action":"final_answer","content":"请综合候选"}')
+
+        class Registry(_FakeRegistry):
+            def execute(self, name: str, arguments, context):
+                self.executed.append((name, dict(arguments or {})))
+                return AgentToolResult(
+                    status="done",
+                    content="matched",
+                    payload={
+                        "business_status": "matched",
+                        "candidate_count": 139,
+                        "candidate_limit": 20,
+                        "selected_symbols": ["001206.SZ", "002828.SZ"],
+                        "selected_rows": [
+                            {"ts_code": "001206.SZ", "name": "依依股份", "score": 100},
+                            {"ts_code": "002828.SZ", "name": "贝肯能源", "score": 99},
+                        ],
+                        "analysis_output": "格式化分析文本",
+                    },
+                    data_names=("自然语义临时筛选",),
+                )
+
+        settings = _settings(self)
+        registry = Registry()
+        synthesis = SimpleNamespace(content="依依股份（001206.SZ）、贝肯能源（002828.SZ）", skill_names=(), model_policy="none", model_profile="", model_name="")
+        with (
+            patch("sats.conversation.runtime.build_default_tool_registry", return_value=registry),
+            patch("sats.conversation.runtime.synthesize_agent_result", return_value=synthesis),
+        ):
+            LoopLLM.calls = 0
+            result = run_conversation_once("列出今天趋势较强、回踩不破关键均线的个股", settings=settings, llm_factory=LoopLLM)
+
+        self.assertEqual([name for name, _args in registry.executed], ["workflow.screened_stock_analysis"])
+        self.assertIn("001206.SZ", result.content)
+        self.assertIn("依依股份", result.content)
+
+    def test_python_failure_after_successful_screening_uses_partial_candidate_answer(self) -> None:
+        class LoopLLM:
+            calls = 0
+
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
+            def chat(self, messages, timeout=None):
+                LoopLLM.calls += 1
+                if LoopLLM.calls == 1:
+                    return SimpleNamespace(
+                        content='{"action":"call_tool","tool_name":"workflow.screened_stock_analysis","arguments":{"message":"筛选趋势回踩个股","trade_date":"20260716"}}'
+                    )
+                return SimpleNamespace(
+                    content=json.dumps(
+                        {
+                            "action": "call_tool",
+                            "tool_name": "analysis.python_program",
+                            "arguments": {"task": "重复提取候选", "code": "def run(context):\n    return missing_name"},
+                        }
+                    )
+                )
+
+        failure = {
+            "category": "python_code_error",
+            "message": "AttributeError: 'str' object has no attribute 'get'",
+            "fingerprint": "screening-analysis-output-str",
+        }
+
+        class Registry(_FakeRegistry):
+            def execute(self, name: str, arguments, context):
+                self.executed.append((name, dict(arguments or {})))
+                if name == "analysis.python_program":
+                    return AgentToolResult(
+                        status="error",
+                        content="python failed",
+                        payload={"failure": failure, "python_program": {"failure": failure}},
+                        data_names=("python_program",),
+                    )
+                return AgentToolResult(
+                    status="done",
+                    content="matched",
+                    payload={
+                        "business_status": "matched",
+                        "candidate_count": 151,
+                        "candidate_limit": 20,
+                        "selected_symbols": ["000931.SZ", "002415.SZ"],
+                        "selected_rows": [
+                            {"ts_code": "000931.SZ", "name": "中关村", "score": 100},
+                            {"ts_code": "002415.SZ", "name": "海康威视", "score": 99},
+                        ],
+                        "analysis_output": "格式化分析文本",
+                    },
+                    data_names=("自然语义临时筛选",),
+                )
+
+        settings = _settings(self)
+        registry = Registry()
+        synthesis = SimpleNamespace(content="中关村（000931.SZ）、海康威视（002415.SZ）", skill_names=(), model_policy="none", model_profile="", model_name="")
+        with (
+            patch("sats.conversation.runtime.build_default_tool_registry", return_value=registry),
+            patch("sats.conversation.runtime.synthesize_agent_result", return_value=synthesis),
+        ):
+            LoopLLM.calls = 0
+            result = run_conversation_once("今天趋势较强、回踩不破关键均线的股票", settings=settings, llm_factory=LoopLLM)
+
+        self.assertEqual(result.status, "done")
+        self.assertTrue(result.partial)
+        self.assertIn("000931.SZ", result.content)
+        self.assertNotIn("AttributeError", result.content)
+        self.assertEqual([name for name, _args in registry.executed], ["workflow.screened_stock_analysis", "analysis.python_program"])
 
     def test_conversation_invalid_date_normalization_requests_clarification(self) -> None:
         class LoopLLM:

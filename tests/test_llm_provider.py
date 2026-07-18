@@ -133,6 +133,7 @@ class LLMFactoryTest(unittest.TestCase):
         *,
         timeout_seconds: int | None = None,
         profile: str = "default",
+        max_retries: int | None = None,
     ) -> dict:
         captured: dict = {}
 
@@ -142,7 +143,7 @@ class LLMFactoryTest(unittest.TestCase):
 
         with patch.dict(os.environ, env, clear=True):
             with patch.object(provider_mod, "ChatOpenAIWithReasoning", FakeChatOpenAI):
-                build_llm(timeout_seconds=timeout_seconds, profile=profile)
+                build_llm(timeout_seconds=timeout_seconds, profile=profile, max_retries=max_retries)
         return captured
 
     def test_build_llm_forwards_model_generation_settings(self) -> None:
@@ -164,6 +165,20 @@ class LLMFactoryTest(unittest.TestCase):
         self.assertEqual(captured["timeout"], 45)
         self.assertEqual(captured["max_retries"], 3)
         self.assertEqual(captured["extra_body"], {"reasoning": {"effort": "high"}})
+
+    def test_build_llm_accepts_stage_retry_override(self) -> None:
+        captured = self._capture_build(
+            {
+                "OPENAI_PROVIDER": "openai",
+                "OPENAI_API_KEY": "sk-test",
+                "OPENAI_MODEL": "gpt-4o-mini",
+                "DEFAULT_MODEL": "OPENAI",
+                "LLM_MAX_RETRIES": "3",
+            },
+            max_retries=0,
+        )
+
+        self.assertEqual(captured["max_retries"], 0)
 
     def test_build_llm_rejects_legacy_only_configuration(self) -> None:
         with self.assertRaisesRegex(ValueError, "旧 LLM 配置已移除"):
@@ -248,6 +263,25 @@ class LLMFactoryTest(unittest.TestCase):
         self.assertEqual(calls, [20, 5])
         self.assertEqual(response.content, "timeout=5")
 
+    def test_strict_stream_chat_propagates_without_hidden_chat_retry(self) -> None:
+        calls = {"stream": 0, "invoke": 0}
+
+        class FakeLLM:
+            def stream(self, messages, config=None):
+                calls["stream"] += 1
+                raise TimeoutError("stream timeout")
+
+            def invoke(self, messages, config=None):
+                calls["invoke"] += 1
+                return SimpleNamespace(content="non-stream fallback", response_metadata={})
+
+        with patch("sats.llm.chat.build_llm", return_value=FakeLLM()):
+            llm = ChatLLM(timeout_seconds=20, max_retries=0)
+            with self.assertRaisesRegex(TimeoutError, "stream timeout"):
+                llm.strict_stream_chat([{"role": "user", "content": "hi"}], timeout=5)
+
+        self.assertEqual(calls, {"stream": 1, "invoke": 0})
+
     def test_light_fallback_llm_uses_default_after_light_error(self) -> None:
         factory_calls = []
         chat_calls = []
@@ -308,6 +342,27 @@ class LLMFactoryTest(unittest.TestCase):
         build_standard_llm(FakeLLM, model_name="main-model", timeout_seconds=9)
 
         self.assertEqual(factory_calls, [{"model_name": "main-model", "profile": "default", "timeout_seconds": 9}])
+
+    def test_build_standard_llm_forwards_stage_retry_override(self) -> None:
+        factory_calls = []
+
+        class FakeLLM:
+            def __init__(self, *, model_name=None, profile="default", timeout_seconds=None, max_retries=None) -> None:
+                factory_calls.append(
+                    {
+                        "model_name": model_name,
+                        "profile": profile,
+                        "timeout_seconds": timeout_seconds,
+                        "max_retries": max_retries,
+                    }
+                )
+
+        build_standard_llm(FakeLLM, model_name="main-model", timeout_seconds=110, max_retries=0)
+
+        self.assertEqual(
+            factory_calls,
+            [{"model_name": "main-model", "profile": "default", "timeout_seconds": 110, "max_retries": 0}],
+        )
 
     def test_light_fallback_llm_reraises_default_error(self) -> None:
         class FakeLLM:

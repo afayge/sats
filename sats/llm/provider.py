@@ -117,6 +117,7 @@ def build_llm(
     callbacks: Any = None,
     timeout_seconds: int | None = None,
     profile: str = "default",
+    max_retries: int | None = None,
 ) -> Any:
     provider = _sync_provider_env(profile=profile)
     if ChatOpenAIWithReasoning is None:
@@ -132,7 +133,7 @@ def build_llm(
         model=model,
         temperature=temperature,
         timeout=timeout_seconds if timeout_seconds is not None else _int_env("LLM_TIMEOUT_SECONDS", 120),
-        max_retries=_int_env("LLM_MAX_RETRIES", 2),
+        max_retries=max_retries if max_retries is not None else _int_env("LLM_MAX_RETRIES", 2),
         callbacks=callbacks,
         extra_body={"reasoning": {"effort": effort}} if effort else None,
     )

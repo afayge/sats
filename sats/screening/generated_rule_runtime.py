@@ -22,6 +22,7 @@ def evaluate_generated_rule(data: ScreeningInput, *, rule_name: str, spec: dict[
     details: list[dict[str, Any]] = []
     score_numerator = 0.0
     score_denominator = 0.0
+    required_failed: list[str] = []
 
     for condition in spec.get("conditions", []):
         if not isinstance(condition, dict):
@@ -29,6 +30,7 @@ def evaluate_generated_rule(data: ScreeningInput, *, rule_name: str, spec: dict[
         condition_id = str(condition.get("id") or condition.get("kind") or "condition")
         label = str(condition.get("label") or condition_id)
         weight = float(condition.get("weight") or 1.0)
+        required = bool(condition.get("required", True))
         passed, value, reason = _evaluate_condition(condition, data, daily, daily_basic)
         score_denominator += weight
         if passed:
@@ -36,6 +38,8 @@ def evaluate_generated_rule(data: ScreeningInput, *, rule_name: str, spec: dict[
             score_numerator += weight
         else:
             failed.append(condition_id)
+            if required:
+                required_failed.append(condition_id)
         details.append(
             {
                 "id": condition_id,
@@ -44,17 +48,23 @@ def evaluate_generated_rule(data: ScreeningInput, *, rule_name: str, spec: dict[
                 "value": value,
                 "reason": reason,
                 "weight": weight,
+                "required": required,
+                "source": str(condition.get("source") or "user"),
             }
         )
 
     score = round(score_numerator / score_denominator * 100.0, 2) if score_denominator > 0 else 0.0
     metrics["condition_details"] = details
     metrics["pass_condition"] = spec.get("pass_condition", "全部条件满足")
+    metrics["required_failed_conditions"] = required_failed
+    metrics["soft_failed_conditions"] = [
+        str(row.get("id") or "") for row in details if not bool(row.get("required", True)) and not bool(row.get("passed"))
+    ]
     return ScreeningResult(
         trade_date=data.trade_date,
         ts_code=data.ts_code,
         rule_name=rule_name,
-        passed=bool(details) and not failed,
+        passed=bool(details) and not required_failed,
         score=score,
         matched_conditions=matched,
         failed_conditions=failed,
@@ -114,6 +124,58 @@ def _evaluate_condition(
         values = [mas[f"ma{window}"] for window in windows]
         passed = all(value > 0 for value in values) and all(values[index] > values[index + 1] for index in range(len(values) - 1))
         return passed, {key: round(value, 4) for key, value in mas.items()}, "均线需多头排列"
+    if kind == "ma_slope_gte":
+        window = int(condition.get("window") or 20)
+        lookback = max(1, int(condition.get("lookback") or 5))
+        minimum = float(condition.get("min") or 0.0)
+        current = _ma(daily, window)
+        previous = _ma(daily.iloc[:-lookback], window) if len(daily) > lookback else 0.0
+        value = (current / previous - 1.0) * 100.0 if previous > 0 else 0.0
+        return current > 0 and previous > 0 and value >= minimum, round(value, 4), f"MA{window} {lookback} 日斜率需大于等于 {minimum}%"
+    if kind == "recent_close_not_below_ma":
+        window = int(condition.get("window") or 20)
+        lookback = max(1, int(condition.get("lookback") or 5))
+        tolerance = max(0.0, float(condition.get("tolerance") or 0.0))
+        prepared = _with_ma_columns(daily, [window])
+        recent = prepared.tail(lookback)
+        ma_column = f"ma{window}"
+        valid = recent[ma_column].notna() & (recent[ma_column] > 0)
+        passed = len(recent) == lookback and bool(valid.all()) and bool((recent["close"] >= recent[ma_column] * (1.0 - tolerance)).all())
+        minimum_bias = None
+        if bool(valid.any()):
+            minimum_bias = float(((recent.loc[valid, "close"] / recent.loc[valid, ma_column]) - 1.0).min())
+        return passed, {"minimum_close_bias": minimum_bias, "tolerance": tolerance}, f"最近 {lookback} 日收盘不得有效跌破 MA{window}"
+    if kind == "recent_low_near_any_ma":
+        windows = [int(item) for item in condition.get("windows", [5, 10])]
+        lookback = max(1, int(condition.get("lookback") or 5))
+        touch_tolerance = max(0.0, float(condition.get("touch_tolerance") or 0.02))
+        break_tolerance = max(0.0, float(condition.get("break_tolerance") or 0.01))
+        require_reclaim = bool(condition.get("require_reclaim", True))
+        prepared = _with_ma_columns(daily, windows)
+        recent = prepared.tail(lookback)
+        latest_row = prepared.iloc[-1]
+        candidates: list[dict[str, Any]] = []
+        for window in windows:
+            column = f"ma{window}"
+            valid = recent[column].notna() & (recent[column] > 0)
+            if len(recent) != lookback or not bool(valid.all()):
+                continue
+            distance = ((recent["low"] - recent[column]).abs() / recent[column]).min()
+            held = bool((recent["close"] >= recent[column] * (1.0 - break_tolerance)).all())
+            latest_ma = _num(latest_row.get(column))
+            reclaimed = _num(latest_row.get("close")) >= latest_ma if require_reclaim else True
+            candidates.append(
+                {
+                    "window": window,
+                    "minimum_low_distance": round(float(distance), 6),
+                    "held": held,
+                    "reclaimed": reclaimed,
+                    "passed": float(distance) <= touch_tolerance and held and reclaimed,
+                }
+            )
+        passed = any(bool(item.get("passed")) for item in candidates)
+        selected = next((item for item in candidates if item.get("passed")), candidates[0] if candidates else {})
+        return passed, {"selected_support": selected, "candidates": candidates}, f"最近 {lookback} 日需回踩指定均线附近且未有效跌破"
     if kind == "range_position_lte":
         window = int(condition.get("window") or 60)
         maximum = float(condition.get("max") or 0.35)
@@ -151,6 +213,11 @@ def _evaluate_condition(
         minimum = float(condition.get("min") or 0.0)
         value = _relative_strength(data, daily, window=window)
         return value >= minimum, round(value, 4), f"{window} 日相对强度需大于等于 {minimum}%"
+    if kind == "window_return_gte":
+        window = int(condition.get("window") or 20)
+        minimum = float(condition.get("min") or 0.0)
+        value = _window_return(daily, window=window) if len(daily) > window else 0.0
+        return len(daily) > window and value >= minimum, round(value, 4), f"{window} 日收益率需大于等于 {minimum}%"
     return False, None, f"不支持的生成规则条件: {kind}"
 
 
@@ -222,6 +289,14 @@ def _ma(data: pd.DataFrame, window: int) -> float:
     if len(data) < window:
         return 0.0
     return _num(pd.to_numeric(data["close"], errors="coerce").rolling(window=window, min_periods=window).mean().iloc[-1])
+
+
+def _with_ma_columns(data: pd.DataFrame, windows: list[int]) -> pd.DataFrame:
+    result = data.copy()
+    close = pd.to_numeric(result["close"], errors="coerce")
+    for window in windows:
+        result[f"ma{window}"] = close.rolling(window=window, min_periods=window).mean()
+    return result
 
 
 def _range_position(data: pd.DataFrame, *, window: int) -> float:

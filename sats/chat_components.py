@@ -35,6 +35,7 @@ from sats.screening.rule_composer import (
     GeneratedRuleResult,
     RuleGenerationPlan,
     compose_rule_generation_plan,
+    compose_rule_generation_plan_from_spec,
     format_generated_rule_result,
     format_rule_generation_plan,
     generate_rule_code,
@@ -986,6 +987,7 @@ def run_rule_generation_component(
     session_id: str,
     action: str = "auto",
     rule_name: str = "",
+    semantic_spec: dict[str, Any] | None = None,
 ) -> RuleGenerationOutcome:
     resolved_action = str(action or "auto").strip() or "auto"
     confirmed_rule = parse_rule_generation_confirmation(message)
@@ -995,12 +997,18 @@ def run_rule_generation_component(
             rule_name = confirmed_rule
         elif is_rule_generation_request(message):
             resolved_action = "plan"
+        elif _is_save_latest_semantic_rule_request(message):
+            resolved_action = "plan"
         elif _looks_like_rule_plan_revision(message):
             resolved_action = "revise"
         else:
             raise ValueError("not a rule generation request")
     if resolved_action == "plan":
-        plan = compose_rule_generation_plan(message, existing_rule_names=list_rules())
+        selected_spec = dict(semantic_spec or {}) or _latest_semantic_screen_spec(store, session_id=session_id)
+        if selected_spec:
+            plan = compose_rule_generation_plan_from_spec(selected_spec, existing_rule_names=list_rules())
+        else:
+            plan = compose_rule_generation_plan(message, existing_rule_names=list_rules())
         action_id = _persist_rule_plan(store, session_id=session_id, plan=plan, title=plan.decision_name)
         content = format_rule_generation_plan(plan)
         return RuleGenerationOutcome(
@@ -1999,6 +2007,20 @@ def _replace_rule_plan(store: ChatMemoryStore, *, action_id: str, plan: RuleGene
 def _find_latest_pending_rule_plan(store: ChatMemoryStore, *, session_id: str) -> dict[str, Any] | None:
     rows = store.list_pending_actions(session_id=session_id, action_type=RULE_GENERATION_ACTION_TYPE, status="pending", limit=1)
     return rows[0] if rows else None
+
+
+def _latest_semantic_screen_spec(store: ChatMemoryStore, *, session_id: str) -> dict[str, Any]:
+    rows = store.list_pending_actions(session_id=session_id, action_type="semantic_screen_spec", status="pending", limit=1)
+    if not rows:
+        return {}
+    payload = rows[0].get("payload") if isinstance(rows[0].get("payload"), dict) else {}
+    spec = payload.get("semantic_spec") if isinstance(payload.get("semantic_spec"), dict) else {}
+    return dict(spec)
+
+
+def _is_save_latest_semantic_rule_request(message: str) -> bool:
+    text = str(message or "")
+    return any(term in text for term in ("保存这个规则", "保存该规则", "保存刚才的规则", "把这个规则保存", "持久化这个规则"))
 
 
 def _find_pending_rule_plan(store: ChatMemoryStore, *, session_id: str, rule_name: str) -> dict[str, Any] | None:

@@ -269,6 +269,7 @@ def research_tool_specs() -> list[AgentToolSpec]:
                     "message": {"type": "string"},
                     "action": {"type": "string", "enum": ["auto", "plan", "revise", "confirm"]},
                     "rule_name": {"type": "string"},
+                    "semantic_spec": {"type": "object"},
                 }
             ),
             executor=_rule_generation,
@@ -1020,6 +1021,7 @@ def _rule_generation(context: AgentToolContext, arguments: dict[str, Any]) -> Ag
         session_id=context.session_id or "agent",
         action=str(arguments.get("action") or "auto"),
         rule_name=str(arguments.get("rule_name") or ""),
+        semantic_spec=dict(arguments.get("semantic_spec") or {}) if isinstance(arguments.get("semantic_spec"), dict) else None,
     )
     payload = {
         "status": "ok",

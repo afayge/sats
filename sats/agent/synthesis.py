@@ -20,6 +20,8 @@ FULL_SKILL_CHAR_LIMIT = 2400
 MAX_FULL_SKILLS = 4
 THIRD_PARTY_OPENAI_SYNTHESIS_BUDGET_CHARS = 28_000
 THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS = 12_000
+THIRD_PARTY_OPENAI_SYNTHESIS_TIMEOUT_SECONDS = 110
+THIRD_PARTY_OPENAI_SYNTHESIS_MAX_RETRIES = 0
 OFFICIAL_OPENAI_BASE_URLS = {"https://api.openai.com/v1", "https://api.openai.com"}
 
 SYNTHESIS_SYSTEM_PROMPT = (
@@ -31,6 +33,8 @@ SYNTHESIS_SYSTEM_PROMPT = (
     "凡是使用 web_evidence 中的网络事实，必须在对应句子后标注其 source_id，例如 [S1]；不能引用不存在的来源编号。"
     "如果明确请求的股票未出现在摘要中，只能说明摘要未展开/未纳入摘要；只有 missing_fields、空指标 payload 或工具错误才可写成数据缺失/未命中。"
     "对于 discovery 候选，candidate_summary.omitted_count=0 时不得声称排名靠后的原始发现结果或技术数据被截断。"
+    "如果 screened_stock_analysis.selected_rows 存在，必须按原始顺序输出候选，每个证券代码必须同时显示证券名称；"
+    "analysis_output 只是格式化文本，结构化候选以 selected_rows 为准，附加分析失败不得覆盖已成功的筛选结果。"
     "如果 stock_context 或 indicators 中有 period_returns，应直接使用其中的交易日起止和 pct_change 回答模糊时间段涨跌幅，不要因为自然日端点不是交易日而说缺失。"
     "market_breadth.total_amount 若 amount_basis=intraday_cumulative，只能表述为截至当前累计成交额；"
     "只有 turnover_comparison.status=ok 时，才能写放量、缩量、成交萎缩或成交放大，且不得把盘中累计成交额直接与前一交易日全天成交额比较。"
@@ -68,6 +72,9 @@ class AgentSynthesisResult:
     compact_mode: str = "full"
     retry_count: int = 0
     base_url_class: str = ""
+    transport_mode: str = "non_stream"
+    effective_timeout_seconds: int = 0
+    transport_max_retries: int | None = None
     attempt_errors: tuple[dict[str, str], ...] = ()
 
 
@@ -105,6 +112,9 @@ def synthesize_agent_result(
         )
     compact_mode = _initial_synthesis_compact_mode(settings)
     prompt_budget = _synthesis_prompt_budget(settings, compact_mode=compact_mode)
+    transport_mode = _synthesis_transport_mode(settings)
+    effective_timeout = _synthesis_timeout_seconds(settings)
+    transport_max_retries = _synthesis_transport_max_retries(settings)
     messages = _synthesis_messages(
         message=message,
         plan=plan,
@@ -124,6 +134,9 @@ def synthesize_agent_result(
             prompt_budget_chars=prompt_budget or 0,
             compact_mode=compact_mode,
             base_url_class=_synthesis_base_url_class(settings),
+            transport_mode=transport_mode,
+            effective_timeout_seconds=effective_timeout or 0,
+            transport_max_retries=transport_max_retries,
         )
     model_meta = _synthesis_model_meta(settings)
     error_type = ""
@@ -196,6 +209,9 @@ def synthesize_agent_result(
             compact_mode=compact_mode,
             retry_count=retry_count,
             base_url_class=_synthesis_base_url_class(settings),
+            transport_mode=transport_mode,
+            effective_timeout_seconds=effective_timeout or 0,
+            transport_max_retries=transport_max_retries,
             attempt_errors=tuple(attempt_errors),
             **model_meta,
         )
@@ -209,6 +225,9 @@ def synthesize_agent_result(
         compact_mode=compact_mode,
         retry_count=retry_count,
         base_url_class=_synthesis_base_url_class(settings),
+        transport_mode=transport_mode,
+        effective_timeout_seconds=effective_timeout or 0,
+        transport_max_retries=transport_max_retries,
         attempt_errors=tuple(attempt_errors),
         **model_meta,
     )
@@ -329,8 +348,13 @@ def _synthesis_user_content(message: str, *, analysis_style: str = "") -> str:
 
 
 def _call_synthesis_llm(llm: Any, messages: list[dict[str, Any]], *, settings: Any) -> Any:
+    timeout = _synthesis_timeout_seconds(settings)
+    if _is_third_party_openai_compatible(settings):
+        strict_stream = getattr(llm, "strict_stream_chat", None)
+        if callable(strict_stream):
+            return strict_stream(messages, timeout=timeout)
     try:
-        return llm.chat(messages, timeout=getattr(settings, "llm_timeout_seconds", None))
+        return llm.chat(messages, timeout=timeout)
     except TypeError:
         return llm.chat(messages)
 
@@ -348,6 +372,27 @@ def _synthesis_prompt_budget(settings: Any, *, compact_mode: str) -> int | None:
         return THIRD_PARTY_OPENAI_RETRY_BUDGET_CHARS
     if _is_third_party_openai_compatible(settings):
         return THIRD_PARTY_OPENAI_SYNTHESIS_BUDGET_CHARS
+    return None
+
+
+def _synthesis_transport_mode(settings: Any) -> str:
+    return "strict_stream" if _is_third_party_openai_compatible(settings) else "non_stream"
+
+
+def _synthesis_timeout_seconds(settings: Any) -> int | None:
+    value = getattr(settings, "llm_timeout_seconds", None)
+    try:
+        timeout = int(value) if value is not None else None
+    except (TypeError, ValueError):
+        timeout = None
+    if _is_third_party_openai_compatible(settings):
+        return min(timeout, THIRD_PARTY_OPENAI_SYNTHESIS_TIMEOUT_SECONDS) if timeout and timeout > 0 else THIRD_PARTY_OPENAI_SYNTHESIS_TIMEOUT_SECONDS
+    return timeout if timeout and timeout > 0 else None
+
+
+def _synthesis_transport_max_retries(settings: Any) -> int | None:
+    if _is_third_party_openai_compatible(settings):
+        return THIRD_PARTY_OPENAI_SYNTHESIS_MAX_RETRIES
     return None
 
 
@@ -402,7 +447,9 @@ def _synthesis_error_payload(exc: Exception) -> dict[str, str]:
 def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) -> str:
     tools = {str(item.payload.get("tool_name") or "") for item in observations}
     text = str(message or "")
-    if _has_capability_observation(observations):
+    if _has_screening_candidate_observation(observations):
+        return "discovery"
+    if _has_capability_observation(observations) and _is_capability_inventory_request(text):
         return "capability_overview"
     if "research.sector_return_ranking" in tools:
         return "sector_returns"
@@ -429,6 +476,39 @@ def _analysis_style(message: str, observations: tuple[AgentObservation, ...]) ->
     if "research.stock_context" in tools or any(term in text for term in ("个股", "股票", "走势", "技术面")):
         return "stock_analysis"
     return "general_research"
+
+
+def _has_screening_candidate_observation(observations: tuple[AgentObservation, ...]) -> bool:
+    for item in observations:
+        if item.kind != "tool" or item.status != "done":
+            continue
+        if str(item.payload.get("tool_name") or "") != "workflow.screened_stock_analysis":
+            continue
+        payload = _result_payload(item)
+        if isinstance(payload.get("screened_stock_analysis"), dict):
+            payload = payload["screened_stock_analysis"]
+        if str(payload.get("business_status") or "") == "matched" and bool(payload.get("selected_rows")):
+            return True
+    return False
+
+
+def _is_capability_inventory_request(message: str) -> bool:
+    text = str(message or "").lower()
+    return any(
+        term in text
+        for term in (
+            "支持哪些",
+            "支持的 skill",
+            "支持的 tool",
+            "skills",
+            "skill 列表",
+            "tools",
+            "工具列表",
+            "能力目录",
+            "有哪些能力",
+            "可做什么",
+        )
+    )
 
 
 def _has_capability_observation(observations: tuple[AgentObservation, ...]) -> bool:
@@ -580,6 +660,7 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         "sector_return_ranking": {},
         "python_program": {},
         "discovery": {},
+        "screened_stock_analysis": {},
         "chan_context": {},
         "knowledge_context": {},
         "capabilities": {"counts": {}, "summary": {}, "sections": {}, "warnings": []},
@@ -678,6 +759,9 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
         elif tool_name == "analysis.python_program":
             context = payload.get("python_program") if isinstance(payload.get("python_program"), dict) else payload
             digest["python_program"] = _trim_payload(context, max_chars=10000)
+        elif tool_name == "workflow.screened_stock_analysis":
+            context = payload.get("screened_stock_analysis") if isinstance(payload.get("screened_stock_analysis"), dict) else payload
+            digest["screened_stock_analysis"] = _screened_stock_analysis_digest(context)
         elif tool_name == "research.discover_opportunities":
             digest["discovery"] = _discovery_digest(payload)
         elif tool_name == "research.backtest":
@@ -691,6 +775,65 @@ def _evidence_digest(observations: tuple[AgentObservation, ...]) -> dict[str, An
     digest["provenance"] = _dedupe_dicts(digest["provenance"])[:12]
     digest["web_evidence"] = _dedupe_dicts(digest["web_evidence"])[:24]
     return digest
+
+
+def _screened_stock_analysis_digest(context: Any) -> dict[str, Any]:
+    if not isinstance(context, dict):
+        return {}
+    raw_rows = context.get("selected_rows") if isinstance(context.get("selected_rows"), list) else []
+    try:
+        limit = max(0, int(context.get("candidate_limit") or len(raw_rows)))
+    except (TypeError, ValueError):
+        limit = len(raw_rows)
+    selected_rows = [_screened_stock_row_digest(item) for item in raw_rows[:limit] if isinstance(item, dict)]
+    selected_rows = [item for item in selected_rows if item]
+    near_misses = context.get("near_misses") if isinstance(context.get("near_misses"), list) else []
+    semantic_spec = context.get("semantic_spec") if isinstance(context.get("semantic_spec"), dict) else {}
+    conditions = semantic_spec.get("conditions") if isinstance(semantic_spec.get("conditions"), list) else []
+    return _drop_empty(
+        {
+            "business_status": context.get("business_status"),
+            "selection_strategy": context.get("selection_strategy"),
+            "rule": context.get("rule"),
+            "trade_date": context.get("trade_date"),
+            "candidate_count": context.get("candidate_count"),
+            "candidate_limit": context.get("candidate_limit"),
+            "analysis_mode": context.get("analysis_mode"),
+            "analysis_mode_reason": context.get("analysis_mode_reason"),
+            "selected_symbols": [str(item.get("ts_code") or "") for item in selected_rows if item.get("ts_code")],
+            "selected_rows": selected_rows,
+            "assumptions": list(semantic_spec.get("assumptions") or []),
+            "conditions": [
+                _drop_empty({"id": item.get("id"), "label": item.get("label"), "required": item.get("required")})
+                for item in conditions
+                if isinstance(item, dict)
+            ],
+            "data_coverage": context.get("data_coverage") if isinstance(context.get("data_coverage"), dict) else {},
+            "near_miss_count": context.get("near_miss_count", len(near_misses)),
+            "near_misses": [_screened_stock_row_digest(item) for item in near_misses[:10] if isinstance(item, dict)],
+            "analysis_output": _truncate(str(context.get("analysis_output") or ""), 3200),
+            "verification": context.get("verification") if isinstance(context.get("verification"), list) else [],
+        }
+    )
+
+
+def _screened_stock_row_digest(row: dict[str, Any]) -> dict[str, Any]:
+    return _drop_empty(
+        {
+            "ts_code": row.get("ts_code"),
+            "name": row.get("name"),
+            "score": row.get("score"),
+            "passed": row.get("passed"),
+            "required_matched_count": row.get("required_matched_count"),
+            "required_failed_count": row.get("required_failed_count"),
+            "matched_conditions": list(row.get("matched_conditions") or []),
+            "failed_conditions": list(row.get("failed_conditions") or []),
+            "soft_failed_conditions": list(row.get("soft_failed_conditions") or []),
+            "latest_trade_date": row.get("latest_trade_date"),
+            "data_source": row.get("data_source"),
+            "data_issue": row.get("data_issue"),
+        }
+    )
 
 
 def _sector_return_ranking_digest(context: Any) -> dict[str, Any]:
@@ -887,10 +1030,13 @@ def _compact_evidence_digest(digest: dict[str, Any], *, compact_mode: str) -> di
             "factor_summary": _trim_payload(digest.get("factor_summary") or {}, max_chars=1200 if ultra else 2500),
             "company_fundamentals": _trim_payload(digest.get("company_fundamentals") or {}, max_chars=1600 if ultra else 3200),
             "theme_stock_list": _trim_payload(digest.get("theme_stock_list") or {}, max_chars=1600 if ultra else 3200),
-            "theme_stock_returns": _trim_payload(digest.get("theme_stock_returns") or {}, max_chars=1600 if ultra else 3200),
+            "theme_stock_returns": _compact_theme_stock_returns_digest(digest.get("theme_stock_returns") or {}, ultra=ultra),
             "sector_return_ranking": _trim_payload(digest.get("sector_return_ranking") or {}, max_chars=2200 if ultra else 4500),
             "python_program": _trim_payload(digest.get("python_program") or {}, max_chars=1600 if ultra else 3200),
             "discovery": _trim_payload(digest.get("discovery") or {}, max_chars=2200 if ultra else 4500),
+            "screened_stock_analysis": _compact_screened_stock_analysis_digest(
+                digest.get("screened_stock_analysis") or {}, ultra=ultra
+            ),
             "chan_context": _trim_payload(digest.get("chan_context") or {}, max_chars=1600 if ultra else 3200),
             "knowledge_context": _trim_payload(digest.get("knowledge_context") or {}, max_chars=1200 if ultra else 2400),
             "capabilities": _trim_payload(digest.get("capabilities") or {}, max_chars=2200 if ultra else 5000),
@@ -899,6 +1045,106 @@ def _compact_evidence_digest(digest: dict[str, Any], *, compact_mode: str) -> di
             "rule_generation": _trim_payload(digest.get("rule_generation") or {}, max_chars=1200 if ultra else 2400),
             "backtest": _trim_payload(digest.get("backtest") or {}, max_chars=1600 if ultra else 3200),
             "errors": _list_items(digest.get("errors"))[:6],
+        }
+    )
+
+
+def _compact_theme_stock_returns_digest(value: Any, *, ultra: bool) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    period = str(value.get("period") or "")
+    ranking = value.get("ranking") if isinstance(value.get("ranking"), list) else []
+    ranking_by_symbol = {
+        str(item.get("ts_code") or ""): item
+        for item in ranking
+        if isinstance(item, dict) and str(item.get("ts_code") or "")
+    }
+    stocks = []
+    for item in value.get("stocks") if isinstance(value.get("stocks"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        symbol = str(item.get("ts_code") or "")
+        period_returns = item.get("period_returns") if isinstance(item.get("period_returns"), dict) else {}
+        selected = period_returns.get(period) if isinstance(period_returns.get(period), dict) else {}
+        if not selected and period_returns:
+            selected = next((row for row in period_returns.values() if isinstance(row, dict)), {})
+        rank = ranking_by_symbol.get(symbol, {})
+        stocks.append(
+            _drop_empty(
+                {
+                    "ts_code": symbol,
+                    "name": item.get("name"),
+                    "trade_date": item.get("trade_date"),
+                    "period_returns": _pick_fields(
+                        selected,
+                        ("label", "start_trade_date", "end_trade_date", "trading_days", "start_close", "end_close", "pct_change"),
+                    ),
+                    "rank": rank.get("rank"),
+                    "peer_count": rank.get("peer_count"),
+                    "is_bottom": rank.get("is_bottom"),
+                    "missing_fields": item.get("missing_fields"),
+                    "candidate_sources": None if ultra else item.get("candidate_sources"),
+                    "source_ids": None if ultra else item.get("source_ids"),
+                }
+            )
+        )
+    web_search = value.get("web_search") if isinstance(value.get("web_search"), dict) else {}
+    return _drop_empty(
+        {
+            "query": value.get("query"),
+            "theme": value.get("theme"),
+            "period": period,
+            "trade_date": value.get("trade_date"),
+            "candidate_count": value.get("candidate_count"),
+            "stocks": stocks,
+            "coverage": value.get("coverage") if isinstance(value.get("coverage"), dict) else {},
+            "web_search": _pick_fields(web_search, ("query", "backend", "status", "warnings")),
+            "warnings": value.get("warnings"),
+        }
+    )
+
+
+def _compact_screened_stock_analysis_digest(value: Any, *, ultra: bool) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    reason_limit = 1 if ultra else 4
+    rows = value.get("selected_rows") if isinstance(value.get("selected_rows"), list) else []
+    compact_rows = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        compact_rows.append(
+            _drop_empty(
+                {
+                    "ts_code": row.get("ts_code"),
+                    "name": row.get("name"),
+                    "score": row.get("score"),
+                    "matched_conditions": list(row.get("matched_conditions") or [])[:reason_limit],
+                    "failed_conditions": list(row.get("failed_conditions") or [])[:reason_limit],
+                    "latest_trade_date": row.get("latest_trade_date"),
+                    "data_source": row.get("data_source"),
+                }
+            )
+        )
+    near_misses = value.get("near_misses") if isinstance(value.get("near_misses"), list) else []
+    return _drop_empty(
+        {
+            "business_status": value.get("business_status"),
+            "selection_strategy": value.get("selection_strategy"),
+            "rule": value.get("rule"),
+            "trade_date": value.get("trade_date"),
+            "candidate_count": value.get("candidate_count"),
+            "candidate_limit": value.get("candidate_limit"),
+            "analysis_mode": value.get("analysis_mode"),
+            "selected_symbols": [str(row.get("ts_code") or "") for row in compact_rows if row.get("ts_code")],
+            "selected_rows": compact_rows,
+            "assumptions": list(value.get("assumptions") or [])[:2 if ultra else 6],
+            "conditions": [] if ultra else list(value.get("conditions") or [])[:10],
+            "data_coverage": value.get("data_coverage") if isinstance(value.get("data_coverage"), dict) else {},
+            "near_miss_count": value.get("near_miss_count"),
+            "near_misses": [
+                _screened_stock_row_digest(item) for item in near_misses[:2 if ultra else 5] if isinstance(item, dict)
+            ],
         }
     )
 
@@ -2427,6 +2673,51 @@ def _append_market_fallback(lines: list[str], digest: dict[str, Any]) -> None:
 
 
 def _append_discovery_fallback(lines: list[str], digest: dict[str, Any]) -> None:
+    screening = digest.get("screened_stock_analysis") if isinstance(digest.get("screened_stock_analysis"), dict) else {}
+    selected = screening.get("selected_rows") if isinstance(screening.get("selected_rows"), list) else []
+    if selected:
+        rows = []
+        for index, item in enumerate(selected, start=1):
+            if not isinstance(item, dict):
+                continue
+            reasons = item.get("matched_conditions") if isinstance(item.get("matched_conditions"), list) else []
+            rows.append(
+                {
+                    "排名": index,
+                    "名称": item.get("name"),
+                    "代码": item.get("ts_code"),
+                    "评分": item.get("score"),
+                    "数据日期": item.get("latest_trade_date") or screening.get("trade_date"),
+                    "入选依据": "；".join(str(reason) for reason in reasons[:4]),
+                }
+            )
+        lines.extend(
+            [
+                "## 候选排序表",
+                "",
+                f"筛选日期：{screening.get('trade_date') or '-'}；规则：{screening.get('rule') or '-'}；"
+                f"严格候选 {screening.get('candidate_count', len(selected))} 只，展示 {len(rows)} 只。",
+                "",
+            ]
+        )
+        lines.extend(_markdown_table(rows, ("排名", "名称", "代码", "评分", "数据日期", "入选依据")))
+        assumptions = screening.get("assumptions") if isinstance(screening.get("assumptions"), list) else []
+        lines.extend(["", "## 筛选口径", ""])
+        lines.extend([f"- {item}" for item in assumptions] or ["- 以筛选工作流返回的结构化条件为准。"])
+        lines.extend(
+            [
+                "",
+                "## 触发条件与失效条件",
+                "",
+                "| 项目 | 说明 |",
+                "|---|---|",
+                "| 触发条件 | 以候选股已匹配的趋势、回踩和均线条件为准 |",
+                "| 失效条件 | 后续有效跌破筛选规则定义的关键均线或数据日期失效 |",
+                "| 风险过滤 | 筛选结果仅作为观察名单，不保证后续上涨 |",
+                "",
+            ]
+        )
+        return
     discovery = digest.get("discovery") if isinstance(digest.get("discovery"), dict) else {}
     lines.extend(["## 候选排序表", "", _compact_json_line(discovery) if discovery else "候选排序数据缺失。", "", "## 触发条件与失效条件", "", "| 项目 | 说明 |", "|---|---|", "| 触发条件 | 以候选股返回的 Analyze 信号、趋势评分和真实成交数据为准 |", "| 失效条件 | 信号未延续、关键支撑失守或市场情绪恶化 |", "| 风险过滤 | 不保证上涨；仅作为观察名单 |", ""])
 
@@ -2714,7 +3005,8 @@ def _make_llm(llm_factory: Callable[..., Any], settings: Any) -> Any:
     return build_standard_llm(
         llm_factory,
         model_name=_main_model_name(settings),
-        timeout_seconds=getattr(settings, "llm_timeout_seconds", None),
+        timeout_seconds=_synthesis_timeout_seconds(settings),
+        max_retries=_synthesis_transport_max_retries(settings),
     )
 
 
@@ -2740,7 +3032,7 @@ def _exception_message(exc: Exception, *, limit: int = 500) -> str:
 def _needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:
     for obs in observations:
         tool = str(obs.payload.get("tool_name") or "")
-        if tool.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.")) or obs.kind in {"python", "trade"}:
+        if tool.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.", "workflow.")) or obs.kind in {"python", "trade"}:
             return True
         if tool in {"chat.list_skills", "chat.load_skill"}:
             return True

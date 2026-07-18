@@ -21,6 +21,7 @@ from sats.config import Settings, load_settings
 from sats.data.resolver import MarketDataResolver
 from sats.llm import ChatLLM, build_standard_llm, extract_json_object
 from sats.memory import ChatMemoryStore
+from sats.skill_routing import SkillRouteContext, select_skills
 from sats.skills import default_skills_dir, load_skills
 from sats.storage.duckdb import DuckDBStorage
 from sats.stock_basic_lookup import load_stock_basic_frame, resolve_stock_mentions
@@ -372,6 +373,9 @@ def run_conversation_once(
                     "compact_mode": str(getattr(synthesis, "compact_mode", "") or ""),
                     "retry_count": int(getattr(synthesis, "retry_count", 0) or 0),
                     "base_url_class": str(getattr(synthesis, "base_url_class", "") or ""),
+                    "transport_mode": str(getattr(synthesis, "transport_mode", "") or ""),
+                    "effective_timeout_seconds": int(getattr(synthesis, "effective_timeout_seconds", 0) or 0),
+                    "transport_max_retries": getattr(synthesis, "transport_max_retries", None),
                 },
                 duration_seconds=max(0.0, time.monotonic() - synthesis_started),
             )
@@ -511,6 +515,9 @@ def _emit_synthesis_error(recorder: ChatTurnRecorder, synthesis: Any) -> None:
             "compact_mode": str(getattr(synthesis, "compact_mode", "") or ""),
             "retry_count": int(getattr(synthesis, "retry_count", 0) or 0),
             "base_url_class": str(getattr(synthesis, "base_url_class", "") or ""),
+            "transport_mode": str(getattr(synthesis, "transport_mode", "") or ""),
+            "effective_timeout_seconds": int(getattr(synthesis, "effective_timeout_seconds", 0) or 0),
+            "transport_max_retries": getattr(synthesis, "transport_max_retries", None),
             "attempt_errors": [dict(item) for item in attempt_errors if isinstance(item, dict)],
             "fallback": "local_summary",
         },
@@ -858,6 +865,7 @@ def _run_conversation_loop(
                     observations=tuple(observations),
                     reference_context=reference_context,
                     resolved_stock_mentions=resolved_stock_mentions,
+                    skills=tuple(context.skills),
                 ),
                 timeout=getattr(settings, "llm_timeout_seconds", None),
             )
@@ -1228,6 +1236,7 @@ def _conversation_action_messages(
     observations: tuple[AgentObservation, ...],
     reference_context: Any | None,
     resolved_stock_mentions: tuple[dict[str, str], ...] = (),
+    skills: tuple[Any, ...] = (),
 ) -> list[dict[str, Any]]:
     today = agent_today()
     yesterday = normalize_agent_date("yesterday", today=today)
@@ -1243,6 +1252,11 @@ def _conversation_action_messages(
                 "data.astock_fetch 的 rows/data 是有界样本；row_count > returned_row_count 时只能作为样本展示或接口命中，不能推导全市场涨跌家数、成交额或宽度。"
                 "不要编造股票代码、价格、成交量、K线、财务字段或第三方 provider 方法名。"
                 "普通研究工具只返回数据和证据，不直接写 reports；只有用户明确要求保存/导出时才调用 research.write_report。"
+                "自然语言选股必须先比较现有规则语义；用户未明确规则名且没有高置信现有规则时，"
+                "调用 workflow.screened_stock_analysis 时不要填写 rule，让工作流生成受验证的临时 semantic_spec；"
+                "禁止把模糊的趋势、回踩、关键均线需求静默映射到默认规则。"
+                "筛选零结果时不得自行放宽硬条件；必须使用工具返回的 near_misses、失败条件和数据覆盖说明结果。"
+                "用户要求保存刚才的临时规则时，调用 research.rule_generation action=plan；该工具会复用会话中已验证的 semantic_spec，并要求用户确认后才写文件。"
                 "非交易工具（readonly、write_artifact、write_db、long_running、command）可以直接 call_tool；"
                 "只有 live_trade 或 requires_trade_permission 的实盘交易工具必须 request_confirmation。"
                 "如果缺少必要股票、日期、搜索词或 operation，输出 ask_clarification。"
@@ -1260,6 +1274,10 @@ def _conversation_action_messages(
                 "在 run(context) 内优先使用 resolver、context 和安全 builtins。"
                 "读取前序工具结果时，优先使用 context['observations_by_step'][step_id]['payload']['result']['payload']，"
                 "不要为了读取前序结果而解析 observation content 字符串；例如从 market_context observation 的结构化 payload 读取 hot_sectors。"
+                "workflow.screened_stock_analysis 的 analysis_output 是格式化文本，不是结构化字典；"
+                "结构化候选只能读取 selected_rows 和 selected_symbols。"
+                "当筛选结果 business_status=matched 且 screening_workflow.selected_rows 已提供候选时，"
+                "若用户没有要求额外计算，应直接 final_answer 并逐项输出股票名称和代码，不要再调用 analysis.python_program 提取候选。"
                 "如果 resolved_stock_mentions 提供股票名称到 ts_code 的映射，调用需要 symbols 的工具时必须直接使用这些 ts_code；"
                 "不要为同一股票名称重复调用 data.stock_basic。"
                 "data.stock_basic 只用于名称未解析、需要消歧或专门查询股票基础信息；"
@@ -1281,6 +1299,7 @@ def _conversation_action_messages(
                 f"policy={json.dumps(policy.to_dict(), ensure_ascii=False, default=str)}\n"
                 f"reference_context={json.dumps(_reference_context_payload(reference_context), ensure_ascii=False, default=str)}\n"
                 f"resolved_stock_mentions={json.dumps(list(resolved_stock_mentions), ensure_ascii=False, default=str)}\n"
+                f"matched_skill_context={_conversation_skill_context(message, skills)}\n"
                 f"可用工具={_registry_context(registry)}\n"
                 "注意：data.stock_daily observation 的 payload['rows'] 是行数整数，不是日线明细列表；"
                 "若要在 analysis.python_program 中读取完整日线，必须调用 resolver.load_stock_daily(...)，"
@@ -1737,7 +1756,7 @@ def _conversation_step_requires_confirmation(
 def _loop_final_needs_synthesis(observations: tuple[AgentObservation, ...]) -> bool:
     for item in observations:
         tool_name = str(item.payload.get("tool_name") or "")
-        if tool_name.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.")):
+        if tool_name.startswith(("research.", "data.", "factor.", "trade.", "web.", "catalog.", "workflow.")):
             return True
         if tool_name in {"chat.list_skills", "chat.load_skill"}:
             return True
@@ -1761,12 +1780,34 @@ def _final_answer_blocking_issue(
             return "final_answer blocked: 下周/未来一周预测必须先调用 research.market_context 且 requested_horizons 包含 next_week。"
     if _requires_python_program_before_final(plan) and _successful_python_program_observation(observations) is None:
         return "final_answer blocked: 当前计划需要先调用 analysis.python_program 完成有界只读计算。"
+    screening_issue = _screening_final_issue(message=message, observations=observations)
+    if screening_issue:
+        return screening_issue
     chan_issue = _chan_structured_final_issue(message=message, observations=observations)
     if chan_issue:
         return chan_issue
     fabricated_issue = _fabricated_market_data_issue(message=message, content=content, observations=observations)
     if fabricated_issue:
         return fabricated_issue
+    return ""
+
+
+def _screening_final_issue(*, message: str, observations: tuple[AgentObservation, ...]) -> str:
+    if not any(term in str(message or "") for term in ("选股", "筛选", "筛出", "候选", "个股")):
+        return ""
+    for item in reversed(observations):
+        workflow = _screening_workflow_payload(item)
+        if not workflow:
+            continue
+        if str(workflow.get("business_status") or "") != "zero_results":
+            return ""
+        if workflow.get("near_misses"):
+            return ""
+        coverage = workflow.get("data_coverage") if isinstance(workflow.get("data_coverage"), dict) else {}
+        evaluated = int(coverage.get("input_count", coverage.get("evaluated_count", 0)) or 0)
+        if int(coverage.get("data_issue_count") or 0) > 0 or evaluated == 0:
+            return ""
+        return "final_answer blocked: 选股为零结果但尚未提供保持硬条件不变的 near_misses 或明确数据不可用诊断。"
     return ""
 
 
@@ -1865,6 +1906,20 @@ def _has_successful_data_observation(observations: tuple[AgentObservation, ...])
         tool_name = str(item.payload.get("tool_name") or "")
         if tool_name.startswith(("research.", "data.", "factor.", "web.")):
             return True
+        if tool_name == "workflow.screened_stock_analysis" and _screening_workflow_has_evidence(item):
+            return True
+    return False
+
+
+def _screening_workflow_has_evidence(observation: AgentObservation) -> bool:
+    workflow = _screening_workflow_payload(observation)
+    status = str(workflow.get("business_status") or "")
+    if status == "matched":
+        return bool(workflow.get("selected_rows") or workflow.get("selected_symbols") or int(workflow.get("candidate_count") or 0) > 0)
+    if status == "zero_results":
+        coverage = workflow.get("data_coverage") if isinstance(workflow.get("data_coverage"), dict) else {}
+        evaluated = int(coverage.get("evaluated_count", coverage.get("input_count", 0)) or 0)
+        return bool(workflow.get("near_misses") or evaluated > 0)
     return False
 
 
@@ -2157,6 +2212,25 @@ def _registry_context(registry: Any) -> str:
     return "[]"
 
 
+def _conversation_skill_context(message: str, skills: tuple[Any, ...]) -> str:
+    if not skills:
+        return "无匹配 skill。"
+    text = str(message or "")
+    intent = "opportunity_discovery" if any(term in text for term in ("选股", "筛选", "筛出", "候选", "回踩")) else ""
+    route = select_skills(SkillRouteContext(message=text, intent=intent), skills, limit=4)
+    if not route.selections:
+        return "无匹配 skill。"
+    blocks = ["以下 skill 仅提供方法论；行情和筛选数据仍必须来自 SATS 工具："]
+    full_count = 0
+    for selection in route.selections:
+        skill = selection.skill
+        blocks.append(f"- {skill.name}: {skill.description}; reason={selection.reason}")
+        if selection.load_mode == "full" and full_count < 2:
+            blocks.append(str(skill.content or "")[:1800])
+            full_count += 1
+    return "\n".join(blocks)
+
+
 def _compact_observations(observations: tuple[AgentObservation, ...]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for item in observations[-8:]:
@@ -2176,7 +2250,72 @@ def _compact_observations(observations: tuple[AgentObservation, ...]) -> list[di
         stock_matches = _stock_basic_matches_from_result(payload)
         if stock_matches:
             row["stock_matches"] = stock_matches
+        workflow = _screening_workflow_payload(item)
+        if workflow:
+            selected_rows = _compact_screening_rows(workflow)
+            semantic_spec = workflow.get("semantic_spec") if isinstance(workflow.get("semantic_spec"), dict) else {}
+            selected_symbols = [str(item.get("ts_code") or "") for item in selected_rows if item.get("ts_code")]
+            if not selected_symbols and isinstance(workflow.get("selected_symbols"), list):
+                try:
+                    symbol_limit = max(0, int(workflow.get("candidate_limit") or len(workflow["selected_symbols"])))
+                except (TypeError, ValueError):
+                    symbol_limit = len(workflow["selected_symbols"])
+                selected_symbols = [str(item or "") for item in workflow["selected_symbols"][:symbol_limit] if str(item or "")]
+            row["screening_workflow"] = {
+                "business_status": workflow.get("business_status"),
+                "selection_strategy": workflow.get("selection_strategy"),
+                "rule": workflow.get("rule"),
+                "trade_date": workflow.get("trade_date"),
+                "candidate_count": workflow.get("candidate_count", 0),
+                "candidate_limit": workflow.get("candidate_limit"),
+                "selected_symbols": selected_symbols,
+                "selected_rows": selected_rows,
+                "near_miss_count": workflow.get("near_miss_count", len(workflow.get("near_misses") or [])),
+                "data_coverage": workflow.get("data_coverage") or {},
+                "spec_hash": workflow.get("spec_hash") or semantic_spec.get("spec_hash"),
+                "assumptions": list(semantic_spec.get("assumptions") or []),
+                "analysis_output_type": "formatted_text" if isinstance(workflow.get("analysis_output"), str) else type(workflow.get("analysis_output")).__name__,
+            }
         rows.append(row)
+    return rows
+
+
+def _screening_workflow_payload(observation: AgentObservation) -> dict[str, Any]:
+    payload = observation.payload if isinstance(observation.payload, dict) else {}
+    if str(payload.get("tool_name") or "") != "workflow.screened_stock_analysis":
+        return {}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else {}
+    result_payload = result.get("payload") if isinstance(result.get("payload"), dict) else {}
+    if isinstance(result_payload.get("screened_stock_analysis"), dict):
+        return dict(result_payload["screened_stock_analysis"])
+    return dict(result_payload)
+
+
+def _compact_screening_rows(workflow: dict[str, Any]) -> list[dict[str, Any]]:
+    raw_rows = workflow.get("selected_rows") if isinstance(workflow.get("selected_rows"), list) else []
+    try:
+        limit = max(0, int(workflow.get("candidate_limit") or len(raw_rows)))
+    except (TypeError, ValueError):
+        limit = len(raw_rows)
+    fields = (
+        "ts_code",
+        "name",
+        "score",
+        "passed",
+        "required_matched_count",
+        "required_failed_count",
+        "matched_conditions",
+        "failed_conditions",
+        "soft_failed_conditions",
+        "latest_trade_date",
+        "data_source",
+        "data_issue",
+    )
+    rows: list[dict[str, Any]] = []
+    for raw in raw_rows[:limit]:
+        if not isinstance(raw, dict):
+            continue
+        rows.append({key: raw.get(key) for key in fields if raw.get(key) not in (None, "", [], {})})
     return rows
 
 
